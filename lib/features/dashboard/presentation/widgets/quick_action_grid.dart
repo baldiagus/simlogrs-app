@@ -4,20 +4,23 @@ import '../../../../core/theme/app_colors.dart';
 
 class QuickActionGrid extends StatelessWidget {
   final int pendingCount;
+  final bool isGudangUser;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
   final VoidCallback onLaporRusakTap;
+  final VoidCallback? onInboundTap;
 
   const QuickActionGrid({
     super.key,
     required this.pendingCount,
+    this.isGudangUser = false,
     required this.onApprovalTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
     required this.onLaporRusakTap,
+    this.onInboundTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -61,14 +64,23 @@ class QuickActionGrid extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _buildActionCard(
-                title: 'Sirkulasi Aset',
-                subtitle: 'Serah Terima & Cek',
-                icon: LucideIcons.qrCode,
-                bgColor: AppColors.tintOrangeBg,
-                iconColor: AppColors.tintOrange,
-                onTap: onAsetTap,
-              ),
+              child: isGudangUser
+                  ? _buildActionCard(
+                      title: 'Penerimaan PO',
+                      subtitle: 'Inbound Vendor',
+                      icon: LucideIcons.truck,
+                      bgColor: AppColors.tintBlueBg,
+                      iconColor: AppColors.tintBlue,
+                      onTap: onInboundTap ?? onAsetTap,
+                    )
+                  : _buildActionCard(
+                      title: 'Sirkulasi Aset',
+                      subtitle: 'Peminjaman & Cek',
+                      icon: LucideIcons.armchair,
+                      bgColor: AppColors.tintOrangeBg,
+                      iconColor: AppColors.tintOrange,
+                      onTap: onAsetTap,
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(

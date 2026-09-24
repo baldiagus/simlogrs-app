@@ -1,3 +1,6 @@
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
@@ -147,25 +150,41 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 // 3. Quick Action Grid 2x2
-                QuickActionGrid(
-                  pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
-                  onApprovalTap: () {
-                    onNavigateTab?.call(1); // Approval Tab
-                  },
-                  onRakGudangTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
-                    );
-                  },
-                  onAsetTap: () {
-                    onScanPressed?.call(); // Scan QR Aset
-                  },
-                  onLaporRusakTap: () {
-                    onNavigateTab?.call(2); // IPSRS Tab
-                  },
-                ),
-                const SizedBox(height: 24),
+                () {
+                  final user = ref.watch(authStateProvider).user;
+                  final isGudangUser = (user?.gudang != null) ||
+                      (user?.hasRole('petugas_gudang') ?? false) ||
+                      (user?.hasRole('kepala_gudang') ?? false);
+
+                  return QuickActionGrid(
+                    pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
+                    isGudangUser: isGudangUser,
+                    onApprovalTap: () {
+                      onNavigateTab?.call(1); // Approval Tab
+                    },
+                    onRakGudangTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
+                      );
+                    },
+                    onAsetTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
+                      );
+                    },
+                    onInboundTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
+                      );
+                    },
+                    onLaporRusakTap: () {
+                      onNavigateTab?.call(2); // IPSRS Tab
+                    },
+                  );
+                }(),
 
                 // 4. Live Activity Feed
                 LiveActivityFeed(
