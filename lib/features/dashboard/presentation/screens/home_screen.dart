@@ -1,0 +1,184 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../providers/dashboard_provider.dart';
+import '../widgets/hero_status_card.dart';
+import '../widgets/live_activity_feed.dart';
+import '../widgets/quick_action_grid.dart';
+import '../widgets/user_top_bar.dart';
+
+class HomeScreen extends ConsumerWidget {
+  final ValueChanged<int>? onNavigateTab;
+  final VoidCallback? onScanPressed;
+
+  const HomeScreen({
+    super.key,
+    this.onNavigateTab,
+    this.onScanPressed,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(dashboardSummaryProvider);
+
+    return Scaffold(
+      backgroundColor: AppColors.canvas,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppColors.primaryPurple,
+          onRefresh: () async {
+            ref.invalidate(dashboardSummaryProvider);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. User Header Top Bar
+                const UserTopBar(),
+                const SizedBox(height: 20),
+
+                // 2. Hero Status Card (Live Pending Approvals)
+                summaryAsync.when(
+                  data: (summary) => HeroStatusCard(
+                    summary: summary,
+                    onInspectPressed: () {
+                      onNavigateTab?.call(1); // Navigasi ke Tab Approval
+                    },
+                  ),
+                  loading: () => Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceSecondary,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.primaryPurple,
+                        ),
+                      ),
+                    ),
+                  ),
+                  error: (_, __) => Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: const Column(
+                      children: [
+                        Text(
+                          'Gagal Memuat Ringkasan',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Tarik ke bawah untuk memuat ulang data.',
+                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Banner Pengadaan Ruangan (Petugas & Karu)
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RiwayatPrScreen()),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.tintVioletBg,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(LucideIcons.fileSpreadsheet, size: 20, color: AppColors.primaryPurple),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pengadaan Barang Unit (PR)',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Ajukan permohonan PR & pantau status tindak lanjut',
+                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // 3. Quick Action Grid 2x2
+                QuickActionGrid(
+                  pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
+                  onApprovalTap: () {
+                    onNavigateTab?.call(1); // Approval Tab
+                  },
+                  onRakGudangTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
+                    );
+                  },
+                  onAsetTap: () {
+                    onScanPressed?.call(); // Scan QR Aset
+                  },
+                  onLaporRusakTap: () {
+                    onNavigateTab?.call(2); // IPSRS Tab
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // 4. Live Activity Feed
+                LiveActivityFeed(
+                  activities: summaryAsync.valueOrNull?.recentActivities ?? [],
+                ),
+
+                // Spacing to prevent floating bottom nav bar overlap
+                const SizedBox(height: 90),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

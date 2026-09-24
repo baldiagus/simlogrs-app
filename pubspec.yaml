@@ -1,0 +1,48 @@
+name: simlog_mobile
+description: "Sistem Informasi Manajemen Logistik Rumah Sakit v2 - Mobile Client"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Core State Management & Reactive UI
+  flutter_riverpod: ^2.5.1
+
+  # Networking & HTTP Client
+  dio: ^5.4.3+1
+
+  # Secure Storage & Persistence
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.2.3
+
+  # Barcode & QR Code Camera Scanner
+  mobile_scanner: ^5.1.1
+
+  # Camera & Image Picker
+  camera: ^0.10.6
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0
+
+  # Typography & Design System Icons
+  google_fonts: ^6.2.1
+  lucide_icons_flutter: ^3.1.20
+
+  # Utilities
+  intl: ^0.19.0
+  flutter_dotenv: ^5.1.0
+  cached_network_image: ^3.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env

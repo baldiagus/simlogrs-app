@@ -1,0 +1,84 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../storage/secure_storage_service.dart';
+import 'api_response.dart';
+
+class DioClient {
+  final Dio dio;
+  final SecureStorageService storageService;
+  void Function()? onUnauthorized;
+
+  DioClient({
+    required this.storageService,
+    this.onUnauthorized,
+    Dio? customDio,
+  }) : dio = customDio ?? Dio() {
+    final baseUrl = (dotenv.isInitialized ? dotenv.maybeGet('API_BASE_URL') : null) ??
+        const String.fromEnvironment(
+          'API_BASE_URL',
+          defaultValue: 'http://127.0.0.1:8000/api/v1',
+        );
+    final connectTimeout = int.tryParse(
+          (dotenv.isInitialized ? dotenv.maybeGet('CONNECT_TIMEOUT') : null) ?? '15000',
+        ) ??
+        15000;
+    final receiveTimeout = int.tryParse(
+          (dotenv.isInitialized ? dotenv.maybeGet('RECEIVE_TIMEOUT') : null) ?? '15000',
+        ) ??
+        15000;
+
+    dio.options = BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: Duration(milliseconds: connectTimeout),
+      receiveTimeout: Duration(milliseconds: receiveTimeout),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await storageService.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await storageService.deleteToken();
+            onUnauthorized?.call();
+          }
+
+          final responseData = error.response?.data;
+          String errorMessage = 'Terjadi kesalahan pada jaringan';
+          Map<String, dynamic>? errors;
+
+          if (responseData is Map<String, dynamic>) {
+            errorMessage = responseData['pesan']?.toString() ??
+                responseData['message']?.toString() ??
+                errorMessage;
+            if (responseData['errors'] is Map<String, dynamic>) {
+              errors = responseData['errors'] as Map<String, dynamic>;
+            }
+          }
+
+          return handler.reject(
+            DioException(
+              requestOptions: error.requestOptions,
+              response: error.response,
+              type: error.type,
+              error: ApiException(
+                message: errorMessage,
+                statusCode: error.response?.statusCode,
+                errors: errors,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
