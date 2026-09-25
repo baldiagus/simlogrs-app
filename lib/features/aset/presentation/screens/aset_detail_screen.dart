@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../data/models/aset_detail_model.dart';
+import '../../data/models/aset_tersedia_model.dart';
 import '../providers/aset_provider.dart';
+import 'form_peminjaman_aset_screen.dart';
 
 class AsetDetailScreen extends ConsumerStatefulWidget {
   final AsetDetailModel? initialAset;
@@ -58,6 +63,111 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
         });
       }
     }
+  }
+
+  void _showQrStickerModal(AsetDetailModel aset) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Stiker QR Code Inventaris',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Gunakan QR ini untuk pemindaian fisik dan verifikasi di lapangan.',
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            // Physical Sticker Box
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border, width: 2),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  QrImageView(
+                    data: aset.kodeAset,
+                    version: QrVersions.auto,
+                    size: 180,
+                    backgroundColor: Colors.white,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    aset.kodeAset,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0F172A),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    aset.namaKomoditas,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (aset.nomorSeri != '-') ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'SN: ${aset.nomorSeri}',
+                      style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFF64748B)),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  const Divider(color: Color(0xFFE2E8F0), height: 1),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'SIMLOG RS • REGISTER INVENTARIS',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF64748B),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            CustomButton(
+              text: 'Tutup Stiker',
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showPengembalianModal() {
@@ -183,7 +293,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     peminjamanId: peminjamanId,
                     inspeksi: [
                       {
-                        'permintaan_peminjaman_detail_id': peminjamanId, // backend map
+                        'permintaan_peminjaman_detail_id': peminjamanId,
                         'aset_id': currentAset.id,
                         'kondisi_saat_kembali': kondisiKembali,
                         'catatan': catatanController.text.trim(),
@@ -201,11 +311,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                         backgroundColor: AppColors.success,
                       ),
                     );
-                    if (state.aset != null) {
-                      setState(() {
-                        _aset = state.aset!;
-                      });
-                    }
+                    _fetchAset();
                   } else {
                     messenger.showSnackBar(
                       SnackBar(
@@ -304,12 +410,18 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
 
     final currentAset = _aset!;
     final actionState = ref.watch(asetActionProvider);
+    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: const Text('Profil Aset Fisik'),
         actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.qrCode, size: 20),
+            tooltip: 'Stiker QR Code',
+            onPressed: () => _showQrStickerModal(currentAset),
+          ),
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             onPressed: () async {
@@ -329,7 +441,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Hero Asset Card
+              // 1. Hero Asset Card
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -354,6 +466,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                               color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
+                              fontFamily: 'monospace',
                             ),
                           ),
                         ),
@@ -375,12 +488,36 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                       '${currentAset.kategori} • Nomor Seri: ${currentAset.nomorSeri}',
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
+                    const SizedBox(height: 14),
+                    // Quick Action: Lihat Stiker QR Button
+                    InkWell(
+                      onTap: () => _showQrStickerModal(currentAset),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(LucideIcons.qrCode, color: Colors.white, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              'Lihat Stiker QR Inventaris',
+                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Overdue Alert Banner if active
+              // 2. Overdue Alert Banner if active
               if (currentAset.peminjamanAktif != null && currentAset.peminjamanAktif!.isOverdue) ...[
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -408,6 +545,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                             const SizedBox(height: 2),
                             Text(
                               'Rencana kembali: ${currentAset.peminjamanAktif!.tanggalKembaliRencana ?? '-'}. Mohon segera lakukan pengembalian fisik.',
+                              style: const TextStyle(fontSize: 11, color: AppColors.danger),
                             ),
                           ],
                         ),
@@ -418,7 +556,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 const SizedBox(height: 16),
               ],
 
-              // Asset Location & Condition Card
+              // 3. Asset Location & Condition Card
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -451,7 +589,152 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Active Loan Details if DIPINJAM
+              // 4. Spesifikasi & Informasi Finansial Pengadaan
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(LucideIcons.fileSpreadsheet, size: 16, color: AppColors.primaryPurple),
+                        SizedBox(width: 8),
+                        Text(
+                          'Spesifikasi & Nilai Perolehan',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoRow(
+                      icon: LucideIcons.tag,
+                      label: 'Merek Pabrikan',
+                      value: currentAset.merek,
+                    ),
+                    const Divider(color: AppColors.border, height: 16),
+                    _buildInfoRow(
+                      icon: LucideIcons.banknote,
+                      label: 'Nilai Perolehan Awal',
+                      value: currentAset.nilaiPerolehan > 0 ? rupiah.format(currentAset.nilaiPerolehan) : '-',
+                    ),
+                    const Divider(color: AppColors.border, height: 16),
+                    _buildInfoRow(
+                      icon: LucideIcons.calendarCheck2,
+                      label: 'Tanggal Perolehan RS',
+                      value: currentAset.tanggalPerolehan,
+                    ),
+                    if (currentAset.spesifikasi != '-') ...[
+                      const Divider(color: AppColors.border, height: 16),
+                      _buildInfoRow(
+                        icon: LucideIcons.cpu,
+                        label: 'Spesifikasi / Kapasitas',
+                        value: currentAset.spesifikasi,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 5. Rekam Jejak Pemeliharaan (IPSRS Track Record)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
+                            SizedBox(width: 8),
+                            Text(
+                              'Histori Pemeliharaan (IPSRS)',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrangeBg : AppColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${currentAset.totalRiwayatServis}x Servis',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrange : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (currentAset.servisTerakhir != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.canvas,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  currentAset.servisTerakhir!.kode,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'monospace',
+                                    color: AppColors.primaryPurple,
+                                  ),
+                                ),
+                                StatusBadge(status: currentAset.servisTerakhir!.status),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              currentAset.servisTerakhir!.deskripsi,
+                              style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Tanggal Lapor: ${currentAset.servisTerakhir!.tanggalPengajuan}',
+                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else
+                      const Text(
+                        'Belum ada riwayat kerusakan atau tiket servis yang tercatat pada unit aset ini.',
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 6. Active Loan Details if DIPINJAM
               if (currentAset.peminjamanAktif != null) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -497,7 +780,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 const SizedBox(height: 24),
               ],
 
-              // Action Buttons
+              // 7. Contextual Action Buttons
               if (currentAset.isDipinjam && currentAset.peminjamanAktif != null) ...[
                 CustomButton(
                   text: 'Kembalikan & Cek Fisik',
@@ -505,27 +788,60 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                   isLoading: actionState.isLoading,
                   onPressed: _showPengembalianModal,
                 ),
-              ] else if (currentAset.isTersedia) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.tintVioletBg,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(LucideIcons.checkCircle2, size: 20, color: AppColors.primaryPurple),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Aset ini siap digunakan atau dipinjamkan sesuai SOP sarana rumah sakit.',
-                          style: TextStyle(fontSize: 12, color: AppColors.primaryPurple, fontWeight: FontWeight.w500),
-                        ),
+                const SizedBox(height: 10),
+              ] else if (currentAset.isTersedia && !currentAset.isRusak) ...[
+                CustomButton(
+                  text: 'Ajukan Peminjaman Aset',
+                  icon: const Icon(LucideIcons.repeat, size: 18, color: Colors.white),
+                  onPressed: () {
+                    // Buat AsetTersediaModel dari currentAset untuk prefill form peminjaman
+                    final asetTersedia = AsetTersediaModel(
+                      id: currentAset.id,
+                      kodeAset: currentAset.kodeAset,
+                      nomorSeri: currentAset.nomorSeri,
+                      namaKomoditas: currentAset.namaKomoditas,
+                      spesifikasi: currentAset.spesifikasi,
+                      kategori: currentAset.kategori,
+                      satuan: 'Unit',
+                      merek: currentAset.merek,
+                      kondisi: currentAset.kondisi,
+                      tipePenyedia: currentAset.lokasiTercatat.contains('Rak:') ? 'GUDANG' : 'RUANGAN',
+                      namaPenyedia: currentAset.penanggungJawab,
+                      lokasiLengkap: currentAset.lokasiTercatat,
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FormPeminjamanAsetScreen(preselectedAset: asetTersedia),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
+                const SizedBox(height: 10),
               ],
+
+              // Tombol Selalu Ada: Lapor Kerusakan ke IPSRS
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LaporCepatScreen(initialKodeAset: currentAset.kodeAset),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: AppColors.danger),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                icon: const Icon(LucideIcons.wrench, size: 18, color: AppColors.danger),
+                label: const Text(
+                  'Lapor Kerusakan Alat (IPSRS)',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.danger),
+                ),
+              ),
+
               const SizedBox(height: 30),
             ],
           ),
@@ -542,7 +858,15 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryPurple),
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.canvas,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: AppColors.primaryPurple),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
