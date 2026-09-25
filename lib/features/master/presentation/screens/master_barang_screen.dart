@@ -140,7 +140,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                       Color tipeBg = AppColors.tintBlueBg;
                       if (item.tipe == 'ASET') {
                         tipeColor = AppColors.primaryPurple;
-                        tipeBg = AppColors.primaryLight;
+                        tipeBg = AppColors.tintVioletBg;
                       } else if (item.tipe == 'SPAREPART') {
                         tipeColor = AppColors.tintTeal;
                         tipeBg = AppColors.tintTealBg;
