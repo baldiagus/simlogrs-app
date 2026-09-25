@@ -54,7 +54,10 @@ class UserModel {
   final int id;
   final String name;
   final String email;
+  final String? nip;
+  final String? username;
   final String? noTelepon;
+  final String? status;
   final UnitModel? unit;
   final GudangModel? gudang;
   final List<String> roles;
@@ -64,13 +67,15 @@ class UserModel {
     required this.id,
     required this.name,
     required this.email,
+    this.nip,
+    this.username,
     this.noTelepon,
+    this.status,
     this.unit,
     this.gudang,
     required this.roles,
     required this.permissions,
   });
-
   /// Pengecekan wewenang dinamis Spatie Capability-Based RBAC
   bool can(String permission) => permissions.contains(permission);
 
@@ -82,7 +87,10 @@ class UserModel {
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
       name: json['name']?.toString() ?? json['nama']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
+      nip: json['nip']?.toString(),
+      username: json['username']?.toString(),
       noTelepon: json['no_telepon']?.toString() ?? json['phone']?.toString(),
+      status: json['status']?.toString() ?? 'AKTIF',
       unit: json['unit'] is Map<String, dynamic>
           ? UnitModel.fromJson(json['unit'] as Map<String, dynamic>)
           : null,
@@ -104,7 +112,10 @@ class UserModel {
         'id': id,
         'name': name,
         'email': email,
+        if (nip != null) 'nip': nip,
+        if (username != null) 'username': username,
         if (noTelepon != null) 'no_telepon': noTelepon,
+        if (status != null) 'status': status,
         if (unit != null) 'unit': unit!.toJson(),
         if (gudang != null) 'gudang': gudang!.toJson(),
         'roles': roles,

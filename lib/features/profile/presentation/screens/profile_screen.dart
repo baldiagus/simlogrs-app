@@ -2,21 +2,99 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _showAllPermissions = false;
+
+  String _formatRoleName(String raw) {
+    switch (raw.toLowerCase()) {
+      case 'super_admin':
+        return 'Super Administrator';
+      case 'admin_logistik':
+        return 'Admin Logistik';
+      case 'kepala_unit':
+        return 'Kepala Ruangan / Unit';
+      case 'petugas_unit':
+        return 'Petugas Ruangan';
+      case 'kepala_gudang':
+        return 'Kepala Gudang';
+      case 'petugas_gudang':
+        return 'Petugas Gudang';
+      case 'teknisi':
+        return 'Teknisi IPSRS';
+      case 'pengadaan':
+        return 'Bagian Pengadaan';
+      case 'manajemen':
+        return 'Manajemen Direksi';
+      case 'auditor':
+        return 'Auditor Internal';
+      case 'staf_gudang':
+        return 'Staf Gudang';
+      case 'panel_user':
+        return 'Pengguna Portal';
+      default:
+        return raw.replaceAll('_', ' ').toUpperCase();
+    }
+  }
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(LucideIcons.logOut, color: AppColors.danger, size: 20),
+            SizedBox(width: 10),
+            Text('Konfirmasi Keluar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin mengakhiri sesi dan keluar dari aplikasi SIMLOG RS?',
+          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(authStateProvider.notifier).logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ya, Keluar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
     if (user == null) {
       return const Scaffold(
         body: Center(child: Text('Pengguna tidak ditemukan')),
       );
     }
+
+    final initial = user.name.isNotEmpty ? user.name.substring(0, 1).toUpperCase() : 'U';
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -26,9 +104,7 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(LucideIcons.logOut, size: 20, color: AppColors.danger),
             tooltip: 'Keluar',
-            onPressed: () {
-              ref.read(authStateProvider.notifier).logout();
-            },
+            onPressed: () => _showLogoutConfirmation(context),
           ),
         ],
       ),
@@ -38,83 +114,128 @@ class ProfileScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // User Card
+              // 1. User Identity Hero Card
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: AppColors.border),
+                  boxShadow: AppShadows.softCard,
                 ),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundColor: AppColors.primaryLight,
-                      child: Text(
-                        user.name.isNotEmpty
-                            ? user.name.substring(0, 1).toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                    // Avatar Emblem
+                    Container(
+                      width: 76,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryHeroGradient,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color.fromRGBO(91, 80, 230, 0.25),
+                            blurRadius: 16,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 14),
+
+                    // Name
                     Text(
                       user.name,
                       style: const TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
+                        letterSpacing: -0.3,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      user.email,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
+
+                    // Email
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(LucideIcons.mail, size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 5),
+                        Text(
+                          user.email,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
+
+                    if (user.nip != null && user.nip!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(LucideIcons.badgeCheck, size: 13, color: AppColors.primaryPurple),
+                          const SizedBox(width: 5),
+                          Text(
+                            'NIP: ${user.nip}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.primaryPurple,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 14),
+
+                    // Status & Role Badges
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       alignment: WrapAlignment.center,
-                      children: user.roles
-                          .map(
-                            (r) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.tintVioletBg,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                r,
-                                style: const TextStyle(
-                                  color: AppColors.primaryPurple,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                      children: [
+                        StatusBadge(status: user.status ?? 'AKTIF'),
+                        ...user.roles.map(
+                          (r) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.tintVioletBg,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _formatRoleName(r),
+                              style: const TextStyle(
+                                color: AppColors.primaryPurple,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                          )
-                          .toList(),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Unit & Gudang Info
+              // 2. Unit & Facility Info Card
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -126,21 +247,29 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     _buildInfoRow(
                       icon: LucideIcons.building,
-                      label: 'Unit Kerja',
+                      label: 'Unit Pelayanan Ruangan',
                       value: user.unit?.nama ?? 'Tidak terikat unit',
+                      isHighlight: user.unit != null,
                     ),
-                    const Divider(color: AppColors.border, height: 20),
+                    const Divider(color: AppColors.border, height: 18),
                     _buildInfoRow(
                       icon: LucideIcons.archive,
-                      label: 'Gudang Terkait',
+                      label: 'Fasilitas Gudang Sentral',
                       value: user.gudang?.nama ?? 'Tidak terikat gudang',
+                      isHighlight: user.gudang != null,
+                    ),
+                    const Divider(color: AppColors.border, height: 18),
+                    _buildInfoRow(
+                      icon: LucideIcons.phone,
+                      label: 'Kontak Dinas / No. Telepon',
+                      value: user.noTelepon ?? 'Belum dicantumkan',
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Spatie Permissions
+              // 3. Spatie Permissions (Capability-Based RBAC)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -154,29 +283,31 @@ class ProfileScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Wewenang Sistem (Spatie RBAC)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                        const Expanded(
+                          child: Text(
+                            'Wewenang Sistem (Spatie RBAC)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        StatusBadge(status: '${user.permissions.length} Hak Akses'),
+                        const SizedBox(width: 8),
+                        StatusBadge(status: '${user.permissions.length} Akses'),
                       ],
                     ),
                     const SizedBox(height: 12),
+
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
-                      children: user.permissions
-                          .take(12)
+                      children: (_showAllPermissions ? user.permissions : user.permissions.take(8))
                           .map(
                             (p) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceSecondary,
                                 borderRadius: BorderRadius.circular(8),
@@ -193,31 +324,80 @@ class ProfileScreen extends ConsumerWidget {
                           )
                           .toList(),
                     ),
-                    if (user.permissions.length > 12) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        '+ ${user.permissions.length - 12} wewenang lainnya...',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textMuted,
-                          fontStyle: FontStyle.italic,
+
+                    if (user.permissions.length > 8) ...[
+                      const SizedBox(height: 10),
+                      InkWell(
+                        onTap: () => setState(() => _showAllPermissions = !_showAllPermissions),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _showAllPermissions
+                                  ? 'Sembunyikan Wewenang'
+                                  : 'Lihat Semua (+${user.permissions.length - 8} wewenang)',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryPurple,
+                              ),
+                            ),
+                            Icon(
+                              _showAllPermissions ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                              size: 14,
+                              color: AppColors.primaryPurple,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // 4. App Info & Architecture Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(LucideIcons.shieldCheck, size: 16, color: AppColors.success),
+                        SizedBox(width: 8),
+                        Text(
+                          'SIMLOG RS Non-Medis v2',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Sistem Informasi Manajemen Logistik Rumah Sakit • Zero-Hardcode & Capability-Based RBAC Architecture.',
+                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 24),
 
-              // Logout Button
+              // 5. Logout Button
               CustomButton(
                 text: 'Keluar dari Akun',
                 backgroundColor: const Color(0xFFFEF2F2),
                 textColor: AppColors.danger,
                 icon: const Icon(LucideIcons.logOut, size: 18, color: AppColors.danger),
-                onPressed: () {
-                  ref.read(authStateProvider.notifier).logout();
-                },
+                onPressed: () => _showLogoutConfirmation(context),
               ),
               const SizedBox(height: 100),
             ],
@@ -231,10 +411,12 @@ class ProfileScreen extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
+    bool isHighlight = false,
   }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryPurple),
+        Icon(icon, size: 18, color: isHighlight ? AppColors.primaryPurple : AppColors.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -242,18 +424,15 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
+                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: isHighlight ? AppColors.primaryPurple : AppColors.textPrimary,
                 ),
               ),
             ],
