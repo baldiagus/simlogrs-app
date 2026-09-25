@@ -7,12 +7,23 @@ class DashboardRepository {
   DashboardRepository(this._client);
 
   Future<DashboardSummaryModel> getSummary({bool canViewSpk = false}) async {
+    // 1. Coba ambil dari endpoint terpadu berbasis peran
+    try {
+      final response = await _client.dio.get('/dashboard/summary');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return DashboardSummaryModel.fromJson(data['data'] as Map<String, dynamic>);
+      }
+    } catch (_) {
+      // Fallback ke approval pending jika server belum siap
+    }
+
     int prCount = 0;
     int amprahCount = 0;
     int activeSpkCount = 0;
     final List<ActivityItemModel> activities = [];
 
-    // 1. Fetch Pending Approvals
+    // Fallback: Fetch Pending Approvals
     try {
       final response = await _client.dio.get('/approval/pending');
       final data = response.data;
@@ -39,11 +50,8 @@ class DashboardRepository {
           }
         }
       }
-    } catch (_) {
-      // Abaikan jika user tidak memiliki permission melihat approval
-    }
+    } catch (_) {}
 
-    // 2. Fetch Active SPK (Hanya jika user memiliki wewenang teknisi/admin)
     if (canViewSpk) {
       try {
         final spkResponse = await _client.dio.get('/maintenance/spk');
@@ -58,19 +66,17 @@ class DashboardRepository {
             return false;
           }).length;
         }
-      } catch (_) {
-        // Abaikan jika error jaringan
-      }
+      } catch (_) {}
     }
 
-    // Sort activities by timestamp descending if available
     activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     return DashboardSummaryModel(
-      prCount: prCount,
-      amprahCount: amprahCount,
-      totalPendingApproval: prCount + amprahCount,
-      activeSpkCount: activeSpkCount,
+      hero: HeroMetricModel.fallback(
+        prCount: prCount,
+        amprahCount: amprahCount,
+        spkCount: activeSpkCount,
+      ),
       recentActivities: activities,
     );
   }

@@ -15,6 +15,8 @@ class HeroStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hero = summary.hero;
+
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: const BoxDecoration(
@@ -29,10 +31,10 @@ class HeroStatusCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Total Antrean Approval',
-                  style: TextStyle(
+                  hero.judul,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -53,19 +55,19 @@ class HeroStatusCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: const Color(0x22FFFFFF)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Periksa',
-                        style: TextStyle(
+                        hero.labelTombol,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                     ],
                   ),
                 ),
@@ -76,7 +78,7 @@ class HeroStatusCard extends StatelessWidget {
 
           // Total Number
           Text(
-            '${summary.totalPendingApproval} Dokumen',
+            '${hero.total} ${hero.satuan}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 28,
@@ -87,22 +89,28 @@ class HeroStatusCard extends StatelessWidget {
           const SizedBox(height: 18),
 
           // Sub Info breakdown
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0x1A000000),
-              borderRadius: BorderRadius.circular(14),
+          if (hero.subMetrik.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0x1A000000),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  for (int i = 0; i < hero.subMetrik.length; i++) ...[
+                    if (i > 0)
+                      Container(width: 1, height: 20, color: const Color(0x33FFFFFF)),
+                    Expanded(
+                      child: _buildSubItem(
+                        hero.subMetrik[i].label,
+                        hero.subMetrik[i].nilai,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            child: Row(
-              children: [
-                Expanded(child: _buildSubItem('PR Menunggu', '${summary.prCount}')),
-                Container(width: 1, height: 20, color: const Color(0x33FFFFFF)),
-                Expanded(child: _buildSubItem('Amprah Menunggu', '${summary.amprahCount}')),
-                Container(width: 1, height: 20, color: const Color(0x33FFFFFF)),
-                Expanded(child: _buildSubItem('SPK Aktif', '${summary.activeSpkCount}')),
-              ],
-            ),
-          ),
         ],
       ),
     );

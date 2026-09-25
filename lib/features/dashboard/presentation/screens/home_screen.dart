@@ -54,7 +54,27 @@ class HomeScreen extends ConsumerWidget {
                   data: (summary) => HeroStatusCard(
                     summary: summary,
                     onInspectPressed: () {
-                      onNavigateTab?.call(1); // Navigasi ke Tab Approval
+                      final target = summary.hero.targetAksi;
+                      if (target == 'spk_list') {
+                        onNavigateTab?.call(2); // Navigasi ke Tab IPSRS
+                      } else if (target == 'amprah_hub') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+                        );
+                      } else if (target == 'picking') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const PickingDistribusiScreen()),
+                        );
+                      } else if (target == 'inbound') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
+                        );
+                      } else {
+                        onNavigateTab?.call(1); // Navigasi ke Tab Approval
+                      }
                     },
                   ),
                   loading: () => Container(
