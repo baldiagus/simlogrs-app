@@ -124,8 +124,42 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Pindai QR Aset Fisik'),
+        elevation: 0,
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+          child: Material(
+            color: Colors.white.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => Navigator.of(context).maybePop(),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    width: 1.2,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  LucideIcons.arrowLeft,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ),
+          ),
+        ),
+        title: const Text(
+          'Pindai QR Aset Fisik',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.zap),
@@ -137,6 +171,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
             tooltip: 'Ganti Kamera',
             onPressed: () => _controller.switchCamera(),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Stack(
