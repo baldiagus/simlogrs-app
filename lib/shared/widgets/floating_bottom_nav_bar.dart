@@ -81,27 +81,29 @@ class FloatingBottomNavBar extends StatelessWidget {
   }) {
     final isSelected = currentIndex == index;
 
-    return GestureDetector(
-      onTap: () => onTap(index),
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 60,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 22,
+              size: 20,
               color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
               ),
+              textAlign: TextAlign.center,
             ),
             if (isSelected) ...[
               const SizedBox(height: 2),

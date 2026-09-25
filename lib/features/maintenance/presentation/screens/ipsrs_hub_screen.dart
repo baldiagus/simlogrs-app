@@ -80,9 +80,15 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(LucideIcons.clipboardList, size: 16),
-                        SizedBox(width: 6),
-                        Text('Tiket Kerusakan Unit'),
+                        Icon(LucideIcons.clipboardList, size: 15),
+                        SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            'Tiket Unit',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -90,9 +96,15 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(LucideIcons.wrench, size: 16),
-                        SizedBox(width: 6),
-                        Text('Tugas SPK Teknisi'),
+                        Icon(LucideIcons.wrench, size: 15),
+                        SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            'SPK Teknisi',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),

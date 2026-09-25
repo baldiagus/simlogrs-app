@@ -334,13 +334,25 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           tabs: [
-            const Tab(text: 'Peminjaman Saya'),
+            const Tab(
+              child: Text(
+                'Pinjaman Saya',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (_canApprove)
               Tab(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Otorisasi Masuk'),
+                    const Flexible(
+                      child: Text(
+                        'Otorisasi',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     _buildBadge(approvalPeminjamanAsync.valueOrNull?.length ?? 0),
                   ],
@@ -350,7 +362,13 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Siap Kembali'),
+                  const Flexible(
+                    child: Text(
+                      'Siap Kembali',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   const SizedBox(width: 4),
                   _buildBadge(peminjamanAktifAsync.valueOrNull?.length ?? 0),
                 ],

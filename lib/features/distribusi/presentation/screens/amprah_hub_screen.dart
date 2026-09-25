@@ -69,8 +69,14 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(LucideIcons.fileSpreadsheet, size: 15),
-                  SizedBox(width: 6),
-                  Text('Permintaan Amprah'),
+                  SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      'Permintaan Amprah',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -79,8 +85,14 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(LucideIcons.truck, size: 15),
-                  const SizedBox(width: 6),
-                  const Text('Barang Masuk (SPPB)'),
+                  const SizedBox(width: 5),
+                  const Flexible(
+                    child: Text(
+                      'Barang Masuk (SPPB)',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   const SizedBox(width: 4),
                   _buildBadge(sppbListAsync.valueOrNull?.length ?? 0),
                 ],
