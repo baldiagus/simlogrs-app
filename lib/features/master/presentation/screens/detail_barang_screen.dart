@@ -244,10 +244,10 @@ class DetailBarangScreen extends ConsumerWidget {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryPurple.withValues(alpha: 0.1),
+                                      color: AppColors.tintVioletBg,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(LucideIcons.qrCode, color: AppColors.primaryPurple, size: 22),
+                                    child: const Icon(LucideIcons.qrCode, color: AppColors.tintViolet, size: 22),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(

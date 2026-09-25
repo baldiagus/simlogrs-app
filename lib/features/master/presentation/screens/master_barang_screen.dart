@@ -139,7 +139,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                       Color tipeColor = AppColors.tintBlue;
                       Color tipeBg = AppColors.tintBlueBg;
                       if (item.tipe == 'ASET') {
-                        tipeColor = AppColors.primaryPurple;
+                        tipeColor = AppColors.tintViolet;
                         tipeBg = AppColors.tintVioletBg;
                       } else if (item.tipe == 'SPAREPART') {
                         tipeColor = AppColors.tintTeal;
@@ -266,7 +266,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                           fontWeight: FontWeight.w800,
                                           color: item.isHabis
                                               ? AppColors.danger
-                                              : (item.isPerluPesan ? AppColors.warning : AppColors.primaryPurple),
+                                              : (item.isPerluPesan ? AppColors.warning : AppColors.success),
                                         ),
                                       ),
                                       const SizedBox(width: 4),

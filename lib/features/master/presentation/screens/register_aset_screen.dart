@@ -232,12 +232,12 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryPurple.withValues(alpha: 0.1),
+                                      color: AppColors.tintVioletBg,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: const Icon(
                                       LucideIcons.qrCode,
-                                      color: AppColors.primaryPurple,
+                                      color: AppColors.tintViolet,
                                       size: 22,
                                     ),
                                   ),
