@@ -1,0 +1,327 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/distribusi_provider.dart';
+import '../widgets/amprah_card_item.dart';
+import '../widgets/sppb_card_item.dart';
+import 'form_pengajuan_amprah_screen.dart';
+
+class AmprahHubScreen extends ConsumerStatefulWidget {
+  const AmprahHubScreen({super.key});
+
+  @override
+  ConsumerState<AmprahHubScreen> createState() => _AmprahHubScreenState();
+}
+
+class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  String _statusFilter = 'SEMUA';
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final isUnitUser = user?.unit != null;
+
+    final filterParams = AmprahFilterParams(status: _statusFilter);
+    final amprahListAsync = ref.watch(daftarAmprahProvider(filterParams));
+    final sppbListAsync = ref.watch(sppbInboundProvider);
+
+    return Scaffold(
+      backgroundColor: AppColors.canvas,
+      appBar: AppBar(
+        title: const Text('Amprah & Distribusi'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Segarkan Data',
+            onPressed: () {
+              ref.invalidate(daftarAmprahProvider);
+              ref.invalidate(sppbInboundProvider);
+            },
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.primaryPurple,
+          indicatorWeight: 3,
+          labelColor: AppColors.primaryPurple,
+          unselectedLabelColor: AppColors.textSecondary,
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          tabs: [
+            const Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(LucideIcons.fileSpreadsheet, size: 15),
+                  SizedBox(width: 6),
+                  Text('Permintaan Amprah'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(LucideIcons.truck, size: 15),
+                  const SizedBox(width: 6),
+                  const Text('Barang Masuk (SPPB)'),
+                  const SizedBox(width: 4),
+                  _buildBadge(sppbListAsync.valueOrNull?.length ?? 0),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: isUnitUser
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FormPengajuanAmprahScreen()),
+                );
+              },
+              backgroundColor: AppColors.primaryPurple,
+              foregroundColor: Colors.white,
+              icon: const Icon(LucideIcons.plus, size: 18),
+              label: const Text('Ajukan Amprah', style: TextStyle(fontWeight: FontWeight.w700)),
+            )
+          : null,
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 1: Permintaan Amprah Ruangan
+          Column(
+            children: [
+              // Horizontal status filter pills
+              Container(
+                color: AppColors.surface,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildPill('SEMUA', 'Semua'),
+                      const SizedBox(width: 6),
+                      _buildPill('DIAJUKAN', 'Diajukan'),
+                      const SizedBox(width: 6),
+                      _buildPill('DISETUJUI_KARU', 'Acc Karu'),
+                      const SizedBox(width: 6),
+                      _buildPill('DISETUJUI_GUDANG', 'Acc Gudang'),
+                      const SizedBox(width: 6),
+                      _buildPill('SELESAI', 'Selesai'),
+                      const SizedBox(width: 6),
+                      _buildPill('DITOLAK', 'Ditolak'),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+
+              Expanded(
+                child: RefreshIndicator(
+                  color: AppColors.primaryPurple,
+                  onRefresh: () async => ref.invalidate(daftarAmprahProvider),
+                  child: amprahListAsync.when(
+                    data: (list) {
+                      if (list.isEmpty) {
+                        return SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: EmptyStateView(
+                              icon: LucideIcons.fileSpreadsheet,
+                              title: 'Belum Ada Permintaan Amprah',
+                              message: 'Unit ruangan Anda belum pernah mengajukan amprah logistik ke gudang.',
+                              action: isUnitUser
+                                  ? ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (_) => const FormPengajuanAmprahScreen()),
+                                        );
+                                      },
+                                      icon: const Icon(LucideIcons.plus, size: 16),
+                                      label: const Text('Ajukan Amprah Sekarang'),
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          final item = list[index];
+                          return AmprahCardItem(
+                            item: item,
+                            onCancelTap: () async {
+                              final notifier = ref.read(amprahActionProvider.notifier);
+                              final ok = await notifier.batalkanAmprah(item.id);
+                              if (!context.mounted) return;
+                              final s = ref.read(amprahActionProvider);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok ? (s.successMessage ?? 'Dibatalkan') : (s.errorMessage ?? 'Gagal')),
+                                  backgroundColor: ok ? AppColors.success : AppColors.danger,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
+                    error: (err, _) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
+                            const SizedBox(height: 12),
+                            Text(err.toString().replaceAll('ApiException: ', ''), textAlign: TextAlign.center),
+                            const SizedBox(height: 14),
+                            ElevatedButton(
+                              onPressed: () => ref.invalidate(daftarAmprahProvider),
+                              child: const Text('Coba Lagi'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Tab 2: Barang Masuk (SPPB yang sedang dikirim ke unit)
+          RefreshIndicator(
+            color: AppColors.primaryPurple,
+            onRefresh: () async => ref.invalidate(sppbInboundProvider),
+            child: sppbListAsync.when(
+              data: (list) {
+                if (list.isEmpty) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.65,
+                      child: const EmptyStateView(
+                        icon: LucideIcons.truck,
+                        title: 'Tidak Ada Kiriman Menuju Ruangan',
+                        message: 'Saat ini belum ada pengiriman barang dari gudang sentral yang sedang dalam perjalanan.',
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final sppb = list[index];
+                    return SppbCardItem(
+                      item: sppb,
+                      onTerimaTap: () async {
+                        final notifier = ref.read(amprahActionProvider.notifier);
+                        final ok = await notifier.konfirmasiTerimaSppb(sppb.id);
+                        if (!context.mounted) return;
+                        final s = ref.read(amprahActionProvider);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok ? (s.successMessage ?? 'Diterima') : (s.errorMessage ?? 'Gagal')),
+                            backgroundColor: ok ? AppColors.success : AppColors.danger,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
+              error: (err, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
+                      const SizedBox(height: 12),
+                      Text(err.toString().replaceAll('ApiException: ', ''), textAlign: TextAlign.center),
+                      const SizedBox(height: 14),
+                      ElevatedButton(
+                        onPressed: () => ref.invalidate(sppbInboundProvider),
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPill(String value, String label) {
+    final isSelected = _statusFilter == value;
+
+    return InkWell(
+      onTap: () => setState(() => _statusFilter = value),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.tintVioletBg : AppColors.canvas,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryPurple : AppColors.border,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(int count) {
+    if (count == 0) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.tintBlueBg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.tintBlue),
+      ),
+    );
+  }
+}

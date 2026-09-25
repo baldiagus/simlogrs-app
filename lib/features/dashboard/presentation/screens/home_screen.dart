@@ -1,3 +1,5 @@
+import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
+import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
@@ -178,6 +180,18 @@ class HomeScreen extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
+                      );
+                    },
+                    onAmprahTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+                      );
+                    },
+                    onPickingTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PickingDistribusiScreen()),
                       );
                     },
                     onLaporRusakTap: () {

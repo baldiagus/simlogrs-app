@@ -10,6 +10,8 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback onAsetTap;
   final VoidCallback onLaporRusakTap;
   final VoidCallback? onInboundTap;
+  final VoidCallback? onAmprahTap;
+  final VoidCallback? onPickingTap;
 
   const QuickActionGrid({
     super.key,
@@ -20,6 +22,8 @@ class QuickActionGrid extends StatelessWidget {
     required this.onAsetTap,
     required this.onLaporRusakTap,
     this.onInboundTap,
+    this.onAmprahTap,
+    this.onPickingTap,
   });
   @override
   Widget build(BuildContext context) {
@@ -49,14 +53,23 @@ class QuickActionGrid extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildActionCard(
-                title: 'Daftar Rak Gudang',
-                subtitle: 'Stok & Aset per Rak',
-                icon: LucideIcons.archive,
-                bgColor: AppColors.tintBlueBg,
-                iconColor: AppColors.tintBlue,
-                onTap: onRakGudangTap,
-              ),
+              child: isGudangUser
+                  ? _buildActionCard(
+                      title: 'Daftar Rak Gudang',
+                      subtitle: 'Stok & Aset per Rak',
+                      icon: LucideIcons.archive,
+                      bgColor: AppColors.tintBlueBg,
+                      iconColor: AppColors.tintBlue,
+                      onTap: onRakGudangTap,
+                    )
+                  : _buildActionCard(
+                      title: 'Amprah Ruangan',
+                      subtitle: 'Distribusi & SPPB',
+                      icon: LucideIcons.boxes,
+                      bgColor: AppColors.tintBlueBg,
+                      iconColor: AppColors.tintBlue,
+                      onTap: onAmprahTap ?? onRakGudangTap,
+                    ),
             ),
           ],
         ),
@@ -84,14 +97,23 @@ class QuickActionGrid extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildActionCard(
-                title: 'Lapor Rusak',
-                subtitle: 'IPSRS Fieldwork',
-                icon: LucideIcons.wrench,
-                bgColor: AppColors.tintTealBg,
-                iconColor: AppColors.tintTeal,
-                onTap: onLaporRusakTap,
-              ),
+              child: isGudangUser
+                  ? _buildActionCard(
+                      title: 'Picking FEFO',
+                      subtitle: 'Alokasi Kirim SPPB',
+                      icon: LucideIcons.arrowRightCircle,
+                      bgColor: AppColors.tintVioletBg,
+                      iconColor: AppColors.primaryPurple,
+                      onTap: onPickingTap ?? onLaporRusakTap,
+                    )
+                  : _buildActionCard(
+                      title: 'Lapor Rusak',
+                      subtitle: 'IPSRS Fieldwork',
+                      icon: LucideIcons.wrench,
+                      bgColor: AppColors.tintTealBg,
+                      iconColor: AppColors.tintTeal,
+                      onTap: onLaporRusakTap,
+                    ),
             ),
           ],
         ),
