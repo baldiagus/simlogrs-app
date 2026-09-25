@@ -10,17 +10,34 @@ import '../providers/distribusi_provider.dart';
 import '../widgets/barang_amprah_picker_sheet.dart';
 
 class FormPengajuanAmprahScreen extends ConsumerStatefulWidget {
-  const FormPengajuanAmprahScreen({super.key});
+  final BarangAmprahKatalogModel? initialBarang;
+
+  const FormPengajuanAmprahScreen({
+    super.key,
+    this.initialBarang,
+  });
 
   @override
   ConsumerState<FormPengajuanAmprahScreen> createState() => _FormPengajuanAmprahScreenState();
 }
-
 class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahScreen> {
   final _formKey = GlobalKey<FormState>();
   String _urgensi = 'REGULER';
   final List<AmprahCartDraftItem> _cartItems = [];
   final _catatanController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialBarang != null) {
+      _cartItems.add(
+        AmprahCartDraftItem(
+          barang: widget.initialBarang!,
+          jumlah: 1,
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {

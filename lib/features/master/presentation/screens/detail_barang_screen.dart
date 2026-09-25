@@ -6,8 +6,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../aset/presentation/screens/aset_detail_screen.dart';
+import '../../../distribusi/data/models/amprah_model.dart';
+import '../../../distribusi/presentation/screens/form_pengajuan_amprah_screen.dart';
+import '../../../pengadaan/data/models/master_barang_model.dart';
+import '../../../pengadaan/presentation/screens/form_pengajuan_pr_screen.dart';
 import '../providers/master_barang_provider.dart';
-
 class DetailBarangScreen extends ConsumerWidget {
   final int barangId;
   final String? initialNama;
@@ -182,8 +185,125 @@ class DetailBarangScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
+                  // Tombol Aksi Tambah Permintaan PR & Permintaan Distribusi (Amprah)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            final prBarang = MasterBarangModel(
+                              id: b.id,
+                              kode: b.kode,
+                              nama: b.nama,
+                              spesifikasi: b.spesifikasi,
+                              tipe: b.tipe,
+                              tipeLabel: b.tipeLabel,
+                              kategori: b.kategori,
+                              satuan: b.satuan,
+                              merek: b.merek,
+                              hargaEstimasi: b.hargaEstimasi,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FormPengajuanPrScreen(initialBarang: prBarang),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryPurple,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(91, 80, 230, 0.25),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(LucideIcons.shoppingCart, size: 16, color: Colors.white),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Tambah PR',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            final amprahBarang = BarangAmprahKatalogModel(
+                              id: b.id,
+                              kode: b.kode,
+                              nama: b.nama,
+                              spesifikasi: b.spesifikasi,
+                              tipe: b.tipe,
+                              tipeLabel: b.tipeLabel,
+                              kategori: b.kategori,
+                              satuan: b.satuan,
+                              merek: b.merek,
+                              stokTersedia: b.stokGudang,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FormPengajuanAmprahScreen(initialBarang: amprahBarang),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.tintBlue, width: 1.5),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(LucideIcons.truck, size: 16, color: AppColors.tintBlue),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Minta Amprah',
+                                    style: TextStyle(
+                                      color: AppColors.tintBlue,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   // SEKSI FISIK KOMODITAS: JIKA ASET -> DAFTAR UNIT REGISTER FISIK
                   if (isAset) ...[
                     Row(

@@ -324,6 +324,8 @@ class HomeScreen extends ConsumerWidget {
                   );
                 }(),
 
+                const SizedBox(height: 24),
+
                 // 4. Live Activity Feed
                 LiveActivityFeed(
                   activities: summaryAsync.valueOrNull?.recentActivities ?? [],

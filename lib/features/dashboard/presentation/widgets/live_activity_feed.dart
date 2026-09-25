@@ -8,6 +8,7 @@ import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
+import '../screens/all_activities_screen.dart';
 
 class LiveActivityFeed extends StatelessWidget {
   final List<ActivityItemModel> activities;
@@ -19,18 +20,62 @@ class LiveActivityFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasMore = activities.length > 5;
+    final displayItems = hasMore ? activities.take(5).toList() : activities;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Aktivitas Sistem Terkini',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
+        // Header Baris: Judul & Tombol "Lihat Semua" (jika > 5 data)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Aktivitas Sistem Terkini',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            if (hasMore)
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AllActivitiesScreen(activities: activities),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Lihat Semua (${activities.length})',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryPurple,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(
+                        LucideIcons.chevronRight,
+                        size: 14,
+                        color: AppColors.primaryPurple,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
+
         if (activities.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
@@ -40,7 +85,7 @@ class LiveActivityFeed extends StatelessWidget {
               icon: LucideIcons.checkCheck,
             ),
           )
-        else
+        else ...[
           Container(
             decoration: BoxDecoration(
               color: AppColors.surface,
@@ -51,7 +96,7 @@ class LiveActivityFeed extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 6),
-              itemCount: activities.length,
+              itemCount: displayItems.length,
               separatorBuilder: (_, __) => const Divider(
                 color: AppColors.border,
                 height: 1,
@@ -59,7 +104,7 @@ class LiveActivityFeed extends StatelessWidget {
                 endIndent: 16,
               ),
               itemBuilder: (context, index) {
-                final item = activities[index];
+                final item = displayItems[index];
                 final (iconData, iconColor, iconBg) = _resolveTypeStyle(item.type);
 
                 final subtitleText = item.waktuLalu.isNotEmpty
@@ -128,6 +173,47 @@ class LiveActivityFeed extends StatelessWidget {
               },
             ),
           ),
+
+          // Tombol Bawah jika ada lebih dari 5 data
+          if (hasMore) ...[
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AllActivitiesScreen(activities: activities),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Lihat Semua ${activities.length} Riwayat Aktivitas',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryPurple,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(LucideIcons.arrowRight, size: 14, color: AppColors.primaryPurple),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
       ],
     );
   }

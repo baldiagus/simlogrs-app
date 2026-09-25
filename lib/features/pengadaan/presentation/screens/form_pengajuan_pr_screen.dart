@@ -12,16 +12,28 @@ import '../widgets/pr_cart_item_tile.dart';
 import '../widgets/urgensi_selector_widget.dart';
 
 class FormPengajuanPrScreen extends ConsumerStatefulWidget {
-  const FormPengajuanPrScreen({super.key});
+  final MasterBarangModel? initialBarang;
+
+  const FormPengajuanPrScreen({
+    super.key,
+    this.initialBarang,
+  });
 
   @override
   ConsumerState<FormPengajuanPrScreen> createState() => _FormPengajuanPrScreenState();
 }
-
 class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
   String _urgensi = 'REGULER';
   final List<PrCartItemModel> _cartItems = [];
   final _catatanController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialBarang != null) {
+      _cartItems.add(PrCartItemModel(barang: widget.initialBarang!, jumlah: 1));
+    }
+  }
 
   @override
   void dispose() {
