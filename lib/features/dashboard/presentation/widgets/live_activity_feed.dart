@@ -4,8 +4,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
+import '../../../distribusi/presentation/screens/detail_amprah_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../maintenance/presentation/screens/spk_detail_screen.dart';
+import '../../../maintenance/presentation/screens/detail_tiket_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../screens/all_activities_screen.dart';
@@ -239,16 +242,59 @@ class LiveActivityFeed extends StatelessWidget {
 
   void _handleItemTap(BuildContext context, ActivityItemModel item) {
     final type = item.type.toLowerCase();
-    if (type == 'spk' || type == 'tiket') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SpkListScreen()),
-      );
+    final itemId = int.tryParse(item.id);
+
+    if (type == 'spk') {
+      if (itemId != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SpkDetailScreen(
+              spkId: itemId,
+              kodeSpk: item.kode ?? item.title,
+            ),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SpkListScreen()),
+        );
+      }
+    } else if (type == 'tiket') {
+      if (itemId != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailTiketScreen(
+              tiketId: itemId,
+              kodeTiket: item.kode ?? item.title,
+            ),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SpkListScreen()),
+        );
+      }
     } else if (type == 'amprah') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
-      );
+      if (itemId != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailAmprahScreen(
+              amprahId: itemId,
+              kodeAmprah: item.kode ?? item.title,
+            ),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+        );
+      }
     } else if (type == 'po' || type == 'inbound') {
       Navigator.push(
         context,
