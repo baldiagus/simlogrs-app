@@ -15,6 +15,12 @@ import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 
+class _ActivityFilterOption {
+  final String label;
+  final String? value; // null = Semua
+  const _ActivityFilterOption(this.label, this.value);
+}
+
 class AllActivitiesScreen extends ConsumerStatefulWidget {
   final List<ActivityItemModel> activities;
 
@@ -37,33 +43,66 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     super.dispose();
   }
 
-  bool _isFilterAvailableForRole(String? type, UserModel? user) {
-    if (type == null) return true; // 'Semua' selalu aktif
-    if (user == null) return true;
+  List<_ActivityFilterOption> _getRoleFilterOptions(UserModel? user) {
+    if (user == null) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+      ];
+    }
 
     final isAdmin = user.hasRole('super_admin') || user.hasRole('admin_logistik');
-    if (isAdmin) return true;
-
-    final isTeknisi = user.isTeknisi;
-    final isGudang = user.isGudangUser;
-    final isPengadaan = user.hasRole('pengadaan') || user.hasRole('manajemen');
-    final isUnitUser = user.unit != null || user.hasRole('petugas_unit') || user.hasRole('kepala_unit');
-
-    switch (type.toLowerCase()) {
-      case 'spk':
-        return isTeknisi;
-      case 'tiket':
-        return isTeknisi || isUnitUser;
-      case 'pr':
-        return (isUnitUser && !isTeknisi) || isPengadaan;
-      case 'amprah':
-        return (isUnitUser && !isTeknisi) || isGudang;
-      case 'po':
-      case 'inbound':
-        return isGudang || isPengadaan;
-      default:
-        return true;
+    if (isAdmin) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+        _ActivityFilterOption('Pengadaan PR', 'pr'),
+        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+        _ActivityFilterOption('SPK Teknisi', 'spk'),
+        _ActivityFilterOption('Tiket Servis', 'tiket'),
+        _ActivityFilterOption('PO Inbound', 'po'),
+      ];
     }
+
+    // Role Teknisi IPSRS: hanya SPK dan Tiket Servis
+    if (user.isTeknisi) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+        _ActivityFilterOption('SPK Teknisi', 'spk'),
+        _ActivityFilterOption('Tiket Servis', 'tiket'),
+      ];
+    }
+
+    // Role Gudang (Kepala & Petugas): hanya Amprah dan PO Inbound
+    if (user.isGudangUser) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+        _ActivityFilterOption('PO Inbound', 'po'),
+      ];
+    }
+
+    // Role Unit Pelayanan (Karu & Petugas Unit): Amprah, PR, dan Tiket Servis
+    if (user.isKaru || user.hasRole('petugas_unit') || user.unit != null) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+        _ActivityFilterOption('Pengadaan PR', 'pr'),
+        _ActivityFilterOption('Tiket Servis', 'tiket'),
+      ];
+    }
+
+    // Role Pengadaan & Manajemen: PR, PO Inbound, dan Amprah
+    if (user.hasRole('pengadaan') || user.hasRole('manajemen')) {
+      return const [
+        _ActivityFilterOption('Semua', null),
+        _ActivityFilterOption('Pengadaan PR', 'pr'),
+        _ActivityFilterOption('PO Inbound', 'po'),
+        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+      ];
+    }
+
+    return const [
+      _ActivityFilterOption('Semua', null),
+    ];
   }
 
   @override
@@ -71,8 +110,12 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     final user = ref.watch(authStateProvider).user;
     final query = _searchController.text.trim().toLowerCase();
 
+    final filterOptions = _getRoleFilterOptions(user);
+    final isSelectedValid = filterOptions.any((opt) => opt.value == _selectedType);
+    final activeSelectedType = isSelectedValid ? _selectedType : null;
+
     final filtered = widget.activities.where((item) {
-      if (_selectedType != null && item.type.toLowerCase() != _selectedType) {
+      if (activeSelectedType != null && item.type.toLowerCase() != activeSelectedType) {
         return false;
       }
       if (query.isNotEmpty) {
@@ -120,18 +163,13 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Filter Chips dengan status ketersediaan berbasis role
+                  // Filter Chips eksklusif hanya untuk fitur yang tersedia pada role
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: [
-                        _buildFilterChip('Semua', null, true),
-                        _buildFilterChip('Pengadaan PR', 'pr', _isFilterAvailableForRole('pr', user)),
-                        _buildFilterChip('Amprah Ruangan', 'amprah', _isFilterAvailableForRole('amprah', user)),
-                        _buildFilterChip('SPK Teknisi', 'spk', _isFilterAvailableForRole('spk', user)),
-                        _buildFilterChip('Tiket Servis', 'tiket', _isFilterAvailableForRole('tiket', user)),
-                        _buildFilterChip('PO Inbound', 'po', _isFilterAvailableForRole('po', user)),
-                      ],
+                      children: filterOptions.map((opt) {
+                        return _buildFilterChip(opt.label, opt.value, activeSelectedType);
+                      }).toList(),
                     ),
                   ),
                 ],
@@ -232,48 +270,8 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, String? value, bool isEnabled) {
-    final isSelected = _selectedType == value;
-
-    if (!isEnabled) {
-      return InkWell(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Filter $label tidak tersedia untuk wewenang role Anda.'),
-              duration: const Duration(seconds: 1),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          margin: const EdgeInsets.only(right: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceSecondary.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.border.withValues(alpha: 0.5),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(LucideIcons.lock, size: 11, color: AppColors.textMuted),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+  Widget _buildFilterChip(String label, String? value, String? currentSelected) {
+    final isSelected = currentSelected == value;
 
     return InkWell(
       onTap: () => setState(() => _selectedType = value),
