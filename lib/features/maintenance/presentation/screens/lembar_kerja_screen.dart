@@ -1,8 +1,5 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -32,9 +29,6 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   final _catatanController = TextEditingController();
 
   String _hasil = 'BERHASIL';
-  XFile? _fotoHasil;
-  final ImagePicker _picker = ImagePicker();
-
   final List<Map<String, dynamic>> _spareparts = [];
 
   @override
@@ -47,19 +41,6 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final photo = await _picker.pickImage(
-        source: source,
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 85,
-      );
-      if (photo != null) {
-        setState(() => _fotoHasil = photo);
-      }
-    } catch (_) {}
-  }
 
   void _openSparepartPicker() {
     showModalBottomSheet(
@@ -102,7 +83,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
       jamMulai: _jamMulaiController.text.trim(),
       jamSelesai: _jamSelesaiController.text.trim(),
       catatan: _catatanController.text.trim(),
-      foto: _fotoHasil,
+      foto: null,
       spareparts: _spareparts.isEmpty ? null : _spareparts,
     );
 
@@ -347,42 +328,6 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                         }),
                       const SizedBox(height: 20),
 
-                      // Foto Hasil Pengerjaan
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Foto Hasil Perbaikan (Opsional)',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                          ),
-                          if (_fotoHasil != null)
-                            TextButton(
-                              onPressed: () => setState(() => _fotoHasil = null),
-                              child: const Text('Hapus', style: TextStyle(color: AppColors.danger, fontSize: 11)),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      if (_fotoHasil == null)
-                        OutlinedButton.icon(
-                          onPressed: () => _pickImage(ImageSource.camera),
-                          icon: const Icon(LucideIcons.camera, size: 16),
-                          label: const Text('Ambil Foto Hasil Pengerjaan'),
-                        )
-                      else
-                        Container(
-                          height: 180,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: kIsWeb
-                              ? Image.network(_fotoHasil!.path, fit: BoxFit.cover, width: double.infinity)
-                              : Image.file(File(_fotoHasil!.path), fit: BoxFit.cover, width: double.infinity),
-                        ),
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
