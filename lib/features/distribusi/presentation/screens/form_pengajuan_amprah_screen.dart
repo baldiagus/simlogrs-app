@@ -35,10 +35,29 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       backgroundColor: Colors.transparent,
       builder: (ctx) => BarangAmprahPickerSheet(
         onBarangSelected: (barang) {
+          if (barang.stokTersedia <= 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.'),
+                backgroundColor: AppColors.danger,
+              ),
+            );
+            return;
+          }
+
           setState(() {
             final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
             if (idx >= 0) {
-              _cartItems[idx].jumlah += 1;
+              if (_cartItems[idx].jumlah < barang.stokTersedia) {
+                _cartItems[idx].jumlah += 1;
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Kuantitas "${barang.nama}" telah mencapai batas maksimal stok tersedia (${barang.stokTersedia} ${barang.satuan}).'),
+                    backgroundColor: AppColors.warning,
+                  ),
+                );
+              }
             } else {
               _cartItems.add(AmprahCartDraftItem(barang: barang));
             }
@@ -59,6 +78,26 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       return;
     }
 
+    for (final item in _cartItems) {
+      if (item.barang.stokTersedia <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        return;
+      }
+      if (item.jumlah > item.barang.stokTersedia) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang (${item.barang.stokTersedia} ${item.barang.satuan}).'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        return;
+      }
+    }
     final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(amprahActionProvider.notifier);
 
@@ -286,9 +325,26 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Satuan: ${cartItem.barang.satuan}',
-                                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Satuan: ${cartItem.barang.satuan}',
+                                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                                        ),
+                                        Text(
+                                          'Maksimal: ${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: cartItem.jumlah >= cartItem.barang.stokTersedia
+                                                ? AppColors.warning
+                                                : AppColors.textMuted,
+                                            fontWeight: cartItem.jumlah >= cartItem.barang.stokTersedia
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     Row(
                                       children: [
@@ -314,13 +370,33 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         ),
                                         InkWell(
                                           onTap: () {
-                                            setState(() => cartItem.jumlah++);
+                                            if (cartItem.jumlah < cartItem.barang.stokTersedia) {
+                                              setState(() => cartItem.jumlah++);
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).'),
+                                                  backgroundColor: AppColors.warning,
+                                                ),
+                                              );
+                                            }
                                           },
                                           borderRadius: BorderRadius.circular(8),
                                           child: Container(
                                             padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(color: AppColors.surfaceSecondary, borderRadius: BorderRadius.circular(8)),
-                                            child: const Icon(Icons.add, size: 16),
+                                            decoration: BoxDecoration(
+                                              color: cartItem.jumlah >= cartItem.barang.stokTersedia
+                                                  ? AppColors.surfaceSecondary.withValues(alpha: 0.5)
+                                                  : AppColors.surfaceSecondary,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              Icons.add,
+                                              size: 16,
+                                              color: cartItem.jumlah >= cartItem.barang.stokTersedia
+                                                  ? AppColors.textMuted
+                                                  : AppColors.textPrimary,
+                                            ),
                                           ),
                                         ),
                                       ],

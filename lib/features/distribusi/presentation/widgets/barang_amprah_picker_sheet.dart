@@ -119,89 +119,120 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                     final b = list[index];
                     final hasStok = b.stokTersedia > 0;
 
-                    return InkWell(
-                      onTap: () {
-                        widget.onBarangSelected(b);
-                        Navigator.pop(context);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: hasStok ? AppColors.tintBlueBg : AppColors.surfaceSecondary,
-                                borderRadius: BorderRadius.circular(12),
+                    return Opacity(
+                      opacity: hasStok ? 1.0 : 0.55,
+                      child: InkWell(
+                        onTap: hasStok
+                            ? () {
+                                widget.onBarangSelected(b);
+                                Navigator.pop(context);
+                              }
+                            : () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.'),
+                                    backgroundColor: AppColors.danger,
+                                  ),
+                                );
+                              },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: hasStok ? AppColors.tintBlueBg : AppColors.surfaceSecondary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  LucideIcons.package,
+                                  size: 18,
+                                  color: hasStok ? AppColors.tintBlue : AppColors.textMuted,
+                                ),
                               ),
-                              child: Icon(
-                                LucideIcons.package,
-                                size: 18,
-                                color: hasStok ? AppColors.tintBlue : AppColors.textMuted,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          b.nama,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.surfaceSecondary,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          b.tipeLabel,
-                                          style: const TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textSecondary,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            b.nama,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.surfaceSecondary,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            b.tipeLabel,
+                                            style: const TextStyle(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${b.kode} • ${b.kategori} (${b.satuan})',
+                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      hasStok
+                                          ? 'Stok Tersedia: ${b.stokTersedia} ${b.satuan}'
+                                          : 'Stok Kosong (0 ${b.satuan})',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: hasStok ? AppColors.success : AppColors.danger,
                                       ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              if (hasStok)
+                                const Icon(
+                                  LucideIcons.plusCircle,
+                                  size: 20,
+                                  color: AppColors.primaryPurple,
+                                )
+                              else
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF2F2),
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${b.kode} • ${b.kategori} (${b.satuan})',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Stok Gudang: ${b.stokTersedia} ${b.satuan}',
+                                  child: const Text(
+                                    'Habis',
                                     style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: hasStok ? AppColors.success : AppColors.danger,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.danger,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              LucideIcons.plusCircle,
-                              size: 20,
-                              color: AppColors.primaryPurple,
-                            ),
-                          ],
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     );

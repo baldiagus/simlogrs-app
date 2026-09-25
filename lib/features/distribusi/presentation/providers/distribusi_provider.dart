@@ -95,6 +95,21 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       return false;
     }
 
+    for (final item in items) {
+      if (item.barang.stokTersedia <= 0) {
+        state = AmprahActionState(
+          errorMessage: 'Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.',
+        );
+        return false;
+      }
+      if (item.jumlah > item.barang.stokTersedia) {
+        state = AmprahActionState(
+          errorMessage: 'Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang yang tersedia (${item.barang.stokTersedia} ${item.barang.satuan}).',
+        );
+        return false;
+      }
+    }
+
     state = const AmprahActionState(isLoading: true);
     try {
       final payload = items.map((e) => e.toSubmissionJson()).toList();
