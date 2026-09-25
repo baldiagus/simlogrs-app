@@ -67,6 +67,9 @@ class PoInboundHeaderModel {
     required this.items,
   });
 
+  bool get canReceive => status == 'DIKIRIM_VENDOR' || status == 'DITERIMA_SEBAGIAN';
+  bool get isDiterbitkan => status == 'DITERBITKAN';
+
   factory PoInboundHeaderModel.fromJson(Map<String, dynamic> json) {
     return PoInboundHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

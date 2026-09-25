@@ -244,9 +244,13 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                         '${po.totalItem} Item Komoditas Barang',
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
-                      const Text(
-                        'Siap Inbound',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.tintBlue),
+                      Text(
+                        po.isDiterbitkan ? 'Menunggu Pengiriman Vendor' : 'Siap Inbound',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: po.isDiterbitkan ? AppColors.warning : AppColors.tintBlue,
+                        ),
                       ),
                     ],
                   ),
@@ -254,22 +258,49 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: CustomButton(
-              text: 'Proses Penerimaan Fisik',
-              height: 42,
-              backgroundColor: AppColors.primaryPurple,
-              icon: const Icon(LucideIcons.packageCheck, size: 16, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => FormPenerimaanPoScreen(po: po)),
-                );
-              },
+          if (po.canReceive) ...[
+            const Divider(height: 1, color: AppColors.border),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: CustomButton(
+                text: 'Proses Penerimaan Fisik',
+                height: 42,
+                backgroundColor: AppColors.primaryPurple,
+                icon: const Icon(LucideIcons.packageCheck, size: 16, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => FormPenerimaanPoScreen(po: po)),
+                  );
+                },
+              ),
             ),
-          ),
+          ] else if (po.isDiterbitkan) ...[
+            const Divider(height: 1, color: AppColors.border),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(LucideIcons.clock, size: 16, color: AppColors.warning),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'PO baru diterbitkan ke vendor. Penerimaan fisik dapat diproses setelah vendor mengirim barang (DIKIRIM VENDOR).',
+                        style: TextStyle(fontSize: 11, color: Color(0xFFB45309), fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

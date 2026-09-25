@@ -67,10 +67,19 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
   }
 
   Future<void> _submit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    if (!widget.po.canReceive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PO belum dikirim oleh vendor, penerimaan fisik belum dapat diproses.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
       return;
     }
 
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
     final notifier = ref.read(inboundActionProvider.notifier);
     final ok = await notifier.submitPenerimaan(
       poId: widget.po.id,
