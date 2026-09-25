@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 class QuickActionGrid extends StatelessWidget {
   final int pendingCount;
   final bool isGudangUser;
+  final bool isTeknisi;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
@@ -12,11 +13,16 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onInboundTap;
   final VoidCallback? onAmprahTap;
   final VoidCallback? onPickingTap;
+  final VoidCallback? onSpkTap;
+  final VoidCallback? onLembarKerjaTap;
+  final VoidCallback? onRekamMedisTap;
+  final VoidCallback? onPreventifTap;
 
   const QuickActionGrid({
     super.key,
     required this.pendingCount,
     this.isGudangUser = false,
+    this.isTeknisi = false,
     required this.onApprovalTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
@@ -24,9 +30,82 @@ class QuickActionGrid extends StatelessWidget {
     this.onInboundTap,
     this.onAmprahTap,
     this.onPickingTap,
+    this.onSpkTap,
+    this.onLembarKerjaTap,
+    this.onRekamMedisTap,
+    this.onPreventifTap,
   });
+
   @override
   Widget build(BuildContext context) {
+    if (isTeknisi) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Aksi Cepat Teknisi IPSRS',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Perintah Kerja',
+                  subtitle: 'SPK Tugas Servis',
+                  icon: LucideIcons.clipboardCheck,
+                  bgColor: AppColors.tintVioletBg,
+                  iconColor: AppColors.primaryPurple,
+                  onTap: onSpkTap ?? onApprovalTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Lembar Kerja',
+                  subtitle: 'Log Pengerjaan Fisik',
+                  icon: LucideIcons.wrench,
+                  bgColor: AppColors.tintOrangeBg,
+                  iconColor: AppColors.tintOrange,
+                  onTap: onLembarKerjaTap ?? onLaporRusakTap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Rekam Medis Aset',
+                  subtitle: 'Histori & Kesehatan',
+                  icon: LucideIcons.stethoscope,
+                  bgColor: AppColors.tintBlueBg,
+                  iconColor: AppColors.tintBlue,
+                  onTap: onRekamMedisTap ?? onAsetTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Jadwal Preventif',
+                  subtitle: 'Kalender Servis Rutin',
+                  icon: LucideIcons.calendarClock,
+                  bgColor: AppColors.tintTealBg,
+                  iconColor: AppColors.tintTeal,
+                  onTap: onPreventifTap ?? onRakGudangTap,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

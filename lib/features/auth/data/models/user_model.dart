@@ -82,6 +82,9 @@ class UserModel {
   /// Pengecekan apakah user memiliki role tertentu
   bool hasRole(String role) => roles.contains(role);
 
+  bool get isTeknisi => hasRole('teknisi') || can('page_TeknisiDashboard');
+  bool get isGudangUser => hasRole('petugas_gudang') || hasRole('kepala_gudang') || hasRole('admin_logistik') || gudang != null;
+  bool get isKaru => hasRole('kepala_unit') || can('page_KepalaUnitDashboard');
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

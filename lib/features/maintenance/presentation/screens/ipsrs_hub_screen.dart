@@ -53,10 +53,13 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final isTeknisi = user?.isTeknisi ?? false;
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Lapor Kerusakan & IPSRS'),
+        title: Text(isTeknisi ? 'Pekerjaan Teknisi IPSRS' : 'Lapor Kerusakan & IPSRS'),
         actions: [
           if (_canViewSpk)
             IconButton(
@@ -85,79 +88,102 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                 labelColor: AppColors.primaryPurple,
                 unselectedLabelColor: AppColors.textSecondary,
                 labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                tabs: const [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(LucideIcons.clipboardList, size: 15),
-                        SizedBox(width: 5),
-                        Flexible(
-                          child: Text(
-                            'Tiket Unit',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                tabs: isTeknisi
+                    ? const [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.wrench, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Tugas SPK', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.calendarClock, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.clipboardList, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                      ]
+                    : const [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.clipboardList, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Tiket Unit', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.wrench, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('SPK Teknisi', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.calendarClock, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(LucideIcons.wrench, size: 15),
-                        SizedBox(width: 5),
-                        Flexible(
-                          child: Text(
-                            'SPK Teknisi',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(LucideIcons.calendarClock, size: 15),
-                        SizedBox(width: 5),
-                        Flexible(
-                          child: Text(
-                            'Preventif',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               )
             : null,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
-          );
-        },
-        backgroundColor: AppColors.primaryPurple,
-        foregroundColor: Colors.white,
-        icon: const Icon(LucideIcons.plus, size: 18),
-        label: const Text('Lapor Kerusakan', style: TextStyle(fontWeight: FontWeight.w700)),
-      ),
+      floatingActionButton: isTeknisi
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+                );
+              },
+              backgroundColor: AppColors.primaryPurple,
+              foregroundColor: Colors.white,
+              icon: const Icon(LucideIcons.plus, size: 18),
+              label: const Text('Lapor Kerusakan', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
       body: _canViewSpk
           ? TabBarView(
               controller: _tabController,
-              children: [
-                _buildTiketUnitView(),
-                const SpkListScreen(isEmbedded: true),
-                const JadwalPreventifScreen(isEmbedded: true),
-              ],
+              children: isTeknisi
+                  ? [
+                      const SpkListScreen(isEmbedded: true),
+                      const JadwalPreventifScreen(isEmbedded: true),
+                      _buildTiketUnitView(),
+                    ]
+                  : [
+                      _buildTiketUnitView(),
+                      const SpkListScreen(isEmbedded: true),
+                      const JadwalPreventifScreen(isEmbedded: true),
+                    ],
             )
           : _buildTiketUnitView(),
     );

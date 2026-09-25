@@ -8,6 +8,9 @@ import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../../master/presentation/screens/master_barang_screen.dart';
 import '../../../master/presentation/screens/register_aset_screen.dart';
 import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
+import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
+import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
 import '../../../gudang/presentation/screens/fefo_monitoring_screen.dart';
 import '../../../gudang/presentation/screens/buku_mutasi_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
@@ -123,59 +126,61 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Banner Pengadaan Ruangan (Petugas & Karu)
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const RiwayatPrScreen()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(18),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.tintVioletBg,
-                            borderRadius: BorderRadius.circular(12),
+                // Banner Pengadaan Ruangan (Hanya untuk unit pemohon, bukan teknisi)
+                if (ref.watch(authStateProvider).user?.isTeknisi != true) ...[
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RiwayatPrScreen()),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.tintVioletBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(LucideIcons.fileSpreadsheet, size: 20, color: AppColors.primaryPurple),
                           ),
-                          child: const Icon(LucideIcons.fileSpreadsheet, size: 20, color: AppColors.primaryPurple),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pengadaan Barang Unit (PR)',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Pengadaan Barang Unit (PR)',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Ajukan permohonan PR & pantau status tindak lanjut',
-                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                              ),
-                            ],
+                                SizedBox(height: 2),
+                                Text(
+                                  'Ajukan permohonan PR & pantau status tindak lanjut',
+                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
-                      ],
+                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
 
                 // Master Katalog & Register Aset (Semua Role)
                 Row(
@@ -282,13 +287,15 @@ class HomeScreen extends ConsumerWidget {
                 // 3. Quick Action Grid 2x2
                 () {
                   final user = ref.watch(authStateProvider).user;
-                  final isGudangUser = (user?.gudang != null) ||
+                  final isTeknisi = user?.isTeknisi ?? false;
+                  final isGudangUser = (!isTeknisi) && ((user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
-                      (user?.hasRole('kepala_gudang') ?? false);
+                      (user?.hasRole('kepala_gudang') ?? false));
 
                   return QuickActionGrid(
                     pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
                     isGudangUser: isGudangUser,
+                    isTeknisi: isTeknisi,
                     onApprovalTap: () {
                       onNavigateTab?.call(1); // Approval Tab
                     },
@@ -325,12 +332,37 @@ class HomeScreen extends ConsumerWidget {
                     onLaporRusakTap: () {
                       onNavigateTab?.call(2); // IPSRS Tab
                     },
+                    onSpkTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SpkListScreen()),
+                      );
+                    },
+                    onLembarKerjaTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SpkListScreen()),
+                      );
+                    },
+                    onRekamMedisTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RekamMedisKatalogScreen()),
+                      );
+                    },
+                    onPreventifTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const JadwalPreventifScreen()),
+                      );
+                    },
                   );
                 }(),
 
-                // Modul Persediaan & Opname Gudang (Kepala Gudang & Petugas Gudang)
+                // Modul Persediaan & Opname Gudang (Hanya Kepala Gudang & Petugas Gudang, bukan teknisi)
                 () {
                   final user = ref.watch(authStateProvider).user;
+                  if (user?.isTeknisi == true) return const SizedBox.shrink();
                   final isGudangUser = (user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false) ||

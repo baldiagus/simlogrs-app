@@ -1,20 +1,23 @@
-import '../../../maintenance/presentation/screens/ipsrs_hub_screen.dart';
-import '../../../aset/presentation/screens/qr_scanner_screen.dart';
-import '../../../approval/presentation/screens/approval_center_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/floating_bottom_nav_bar.dart';
+import '../../../approval/presentation/screens/approval_center_screen.dart';
+import '../../../aset/presentation/screens/qr_scanner_screen.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/screens/home_screen.dart';
+import '../../../maintenance/presentation/screens/ipsrs_hub_screen.dart';
+import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 
-class MainShellScreen extends StatefulWidget {
+class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key});
 
   @override
-  State<MainShellScreen> createState() => _MainShellScreenState();
+  ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
 }
 
-class _MainShellScreenState extends State<MainShellScreen> {
+class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   int _currentIndex = 0;
 
   void _onScanPressed() {
@@ -26,6 +29,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final isTeknisi = user?.isTeknisi ?? false;
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: IndexedStack(
@@ -39,8 +45,10 @@ class _MainShellScreenState extends State<MainShellScreen> {
             onScanPressed: _onScanPressed,
           ),
 
-          // 1: Approval Center
-          const ApprovalCenterScreen(),
+          // 1: Approval Center untuk umum / Tugas SPK untuk Teknisi
+          isTeknisi
+              ? const SpkListScreen(isEmbedded: true)
+              : const ApprovalCenterScreen(),
 
           // 2: IPSRS Fieldwork
           const IpsrsHubScreen(),
@@ -51,6 +59,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       ),
       bottomNavigationBar: FloatingBottomNavBar(
         currentIndex: _currentIndex,
+        isTeknisi: isTeknisi,
         onTap: (index) {
           setState(() => _currentIndex = index);
         },
