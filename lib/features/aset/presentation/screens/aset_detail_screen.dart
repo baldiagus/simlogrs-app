@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../maintenance/presentation/screens/rekam_medis_detail_screen.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../providers/aset_provider.dart';
@@ -642,94 +643,144 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               const SizedBox(height: 16),
 
               // 5. Rekam Jejak Pemeliharaan (IPSRS Track Record)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
-                            SizedBox(width: 8),
-                            Text(
-                              'Histori Pemeliharaan (IPSRS)',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrangeBg : AppColors.surfaceSecondary,
-                            borderRadius: BorderRadius.circular(8),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RekamMedisDetailScreen(
+                        asetId: currentAset.id,
+                        initialNama: currentAset.namaKomoditas,
+                      ),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
+                              SizedBox(width: 8),
+                              Text(
+                                'Histori Pemeliharaan (IPSRS)',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            '${currentAset.totalRiwayatServis}x Servis',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrange : AppColors.textSecondary,
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrangeBg : AppColors.surfaceSecondary,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${currentAset.totalRiwayatServis}x Servis',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrange : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.primaryPurple),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (currentAset.servisTerakhir != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.canvas,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    currentAset.servisTerakhir!.kode,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      fontFamily: 'monospace',
+                                      color: AppColors.primaryPurple,
+                                    ),
+                                  ),
+                                  StatusBadge(status: currentAset.servisTerakhir!.status),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                currentAset.servisTerakhir!.deskripsi,
+                                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Tgl: ${currentAset.servisTerakhir!.tanggalPengajuan}',
+                                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                  ),
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        'Buka Rekam Medis & Preventif',
+                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                      ),
+                                      SizedBox(width: 2),
+                                      Icon(LucideIcons.arrowRight, size: 12, color: AppColors.primaryPurple),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.canvas,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Belum ada tiket servis. Buka rekam medis & preventif.',
+                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              ),
+                              Icon(LucideIcons.arrowRight, size: 14, color: AppColors.primaryPurple),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (currentAset.servisTerakhir != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.canvas,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  currentAset.servisTerakhir!.kode,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    fontFamily: 'monospace',
-                                    color: AppColors.primaryPurple,
-                                  ),
-                                ),
-                                StatusBadge(status: currentAset.servisTerakhir!.status),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              currentAset.servisTerakhir!.deskripsi,
-                              style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Tanggal Lapor: ${currentAset.servisTerakhir!.tanggalPengajuan}',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ] else
-                      const Text(
-                        'Belum ada riwayat kerusakan atau tiket servis yang tercatat pada unit aset ini.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
