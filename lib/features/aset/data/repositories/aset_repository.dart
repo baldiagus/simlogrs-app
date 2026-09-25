@@ -32,6 +32,22 @@ class AsetRepository {
     }
   }
 
+  Future<AsetDetailModel> getDetailAset(int id) async {
+    try {
+      final response = await _client.dio.get('/aset/detail/$id');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return AsetDetailModel.fromJson(data['data'] as Map<String, dynamic>);
+      }
+      throw ApiException(message: 'Format data aset tidak valid');
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Aset tidak ditemukan');
+    }
+  }
+
   Future<List<AsetTersediaModel>> getKatalogTersedia({String? cari, String? penyediaTipe}) async {
     try {
       final response = await _client.dio.get(

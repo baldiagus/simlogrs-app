@@ -8,27 +8,61 @@ import '../../data/models/aset_detail_model.dart';
 import '../providers/aset_provider.dart';
 
 class AsetDetailScreen extends ConsumerStatefulWidget {
-  final AsetDetailModel initialAset;
+  final AsetDetailModel? initialAset;
+  final int? asetId;
 
   const AsetDetailScreen({
     super.key,
-    required this.initialAset,
-  });
+    this.initialAset,
+    this.asetId,
+  }) : assert(initialAset != null || asetId != null, 'Either initialAset or asetId must be provided');
 
   @override
   ConsumerState<AsetDetailScreen> createState() => _AsetDetailScreenState();
 }
 
 class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
-  late AsetDetailModel _aset;
+  AsetDetailModel? _aset;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _aset = widget.initialAset;
+    if (widget.initialAset != null) {
+      _aset = widget.initialAset;
+    } else {
+      _fetchAset();
+    }
+  }
+
+  Future<void> _fetchAset() async {
+    if (widget.asetId == null) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final data = await ref.read(asetRepositoryProvider).getDetailAset(widget.asetId!);
+      if (mounted) {
+        setState(() {
+          _aset = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _showPengembalianModal() {
+    if (_aset == null) return;
+    final currentAset = _aset!;
     String kondisiKembali = 'BAIK';
     final catatanController = TextEditingController();
 
@@ -87,7 +121,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                           ),
                         ),
                         Text(
-                          '${_aset.kodeAset} • ${_aset.namaKomoditas}',
+                          '${currentAset.kodeAset} • ${currentAset.namaKomoditas}',
                           style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                         ),
                       ],
@@ -141,7 +175,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(ctx);
-                  final peminjamanId = _aset.peminjamanAktif?.peminjamanId;
+                  final peminjamanId = currentAset.peminjamanAktif?.peminjamanId;
                   if (peminjamanId == null) return;
 
                   final notifier = ref.read(asetActionProvider.notifier);
@@ -150,7 +184,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     inspeksi: [
                       {
                         'permintaan_peminjaman_detail_id': peminjamanId, // backend map
-                        'aset_id': _aset.id,
+                        'aset_id': currentAset.id,
                         'kondisi_saat_kembali': kondisiKembali,
                         'catatan': catatanController.text.trim(),
                       }
@@ -230,6 +264,45 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.canvas,
+        appBar: AppBar(title: const Text('Profil Aset Fisik')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null || _aset == null) {
+      return Scaffold(
+        backgroundColor: AppColors.canvas,
+        appBar: AppBar(title: const Text('Profil Aset Fisik')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
+                const SizedBox(height: 12),
+                Text(
+                  _errorMessage ?? 'Data aset tidak ditemukan',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _fetchAset,
+                  icon: const Icon(LucideIcons.refreshCw, size: 16),
+                  label: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final currentAset = _aset!;
     final actionState = ref.watch(asetActionProvider);
 
     return Scaffold(
@@ -240,9 +313,11 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             onPressed: () async {
-              final updated = await ref.read(asetActionProvider.notifier).scanAset(_aset.kodeAset);
+              final updated = await ref.read(asetActionProvider.notifier).scanAset(currentAset.kodeAset);
               if (updated != null && mounted) {
-                setState(() => _aset = updated);
+                setState(() {
+                  _aset = updated;
+                });
               }
             },
           ),
@@ -274,7 +349,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            _aset.kodeAset,
+                            currentAset.kodeAset,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -282,12 +357,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                             ),
                           ),
                         ),
-                        StatusBadge(status: _aset.status),
+                        StatusBadge(status: currentAset.status),
                       ],
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      _aset.namaKomoditas,
+                      currentAset.namaKomoditas,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
@@ -297,7 +372,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${_aset.kategori} • Nomor Seri: ${_aset.nomorSeri}',
+                      '${currentAset.kategori} • Nomor Seri: ${currentAset.nomorSeri}',
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -306,7 +381,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               const SizedBox(height: 16),
 
               // Overdue Alert Banner if active
-              if (_aset.peminjamanAktif != null && _aset.peminjamanAktif!.isOverdue) ...[
+              if (currentAset.peminjamanAktif != null && currentAset.peminjamanAktif!.isOverdue) ...[
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -332,8 +407,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Rencana kembali: ${_aset.peminjamanAktif!.tanggalKembaliRencana ?? '-'}. Mohon segera lakukan pengembalian fisik.',
-                              style: const TextStyle(fontSize: 11, color: AppColors.danger),
+                              'Rencana kembali: ${currentAset.peminjamanAktif!.tanggalKembaliRencana ?? '-'}. Mohon segera lakukan pengembalian fisik.',
                             ),
                           ],
                         ),
@@ -357,20 +431,20 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     _buildInfoRow(
                       icon: LucideIcons.mapPin,
                       label: 'Lokasi Tercatat Saat Ini',
-                      value: _aset.lokasiTercatat,
+                      value: currentAset.lokasiTercatat,
                     ),
                     const Divider(color: AppColors.border, height: 20),
                     _buildInfoRow(
                       icon: LucideIcons.userCheck,
                       label: 'Penanggung Jawab / Peminjam',
-                      value: _aset.penanggungJawab,
+                      value: currentAset.penanggungJawab,
                     ),
                     const Divider(color: AppColors.border, height: 20),
                     _buildInfoRow(
                       icon: LucideIcons.activity,
                       label: 'Kondisi Fisik',
-                      value: _aset.kondisi.replaceAll('_', ' '),
-                      badge: StatusBadge(status: _aset.kondisi),
+                      value: currentAset.kondisi.replaceAll('_', ' '),
+                      badge: StatusBadge(status: currentAset.kondisi),
                     ),
                   ],
                 ),
@@ -378,7 +452,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               const SizedBox(height: 16),
 
               // Active Loan Details if DIPINJAM
-              if (_aset.peminjamanAktif != null) ...[
+              if (currentAset.peminjamanAktif != null) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -403,19 +477,19 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                       _buildInfoRow(
                         icon: LucideIcons.fileText,
                         label: 'Kode Peminjaman',
-                        value: _aset.peminjamanAktif!.kodePinjam,
+                        value: currentAset.peminjamanAktif!.kodePinjam,
                       ),
                       const Divider(color: AppColors.border, height: 16),
                       _buildInfoRow(
                         icon: LucideIcons.building,
                         label: 'Unit Peminjam',
-                        value: _aset.peminjamanAktif!.unitPeminjam,
+                        value: currentAset.peminjamanAktif!.unitPeminjam,
                       ),
                       const Divider(color: AppColors.border, height: 16),
                       _buildInfoRow(
                         icon: LucideIcons.calendar,
                         label: 'Batas Rencana Kembali',
-                        value: _aset.peminjamanAktif!.tanggalKembaliRencana ?? '-',
+                        value: currentAset.peminjamanAktif!.tanggalKembaliRencana ?? '-',
                       ),
                     ],
                   ),
@@ -424,14 +498,14 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               ],
 
               // Action Buttons
-              if (_aset.isDipinjam && _aset.peminjamanAktif != null) ...[
+              if (currentAset.isDipinjam && currentAset.peminjamanAktif != null) ...[
                 CustomButton(
                   text: 'Kembalikan & Cek Fisik',
                   icon: const Icon(LucideIcons.packageCheck, size: 18, color: Colors.white),
                   isLoading: actionState.isLoading,
                   onPressed: _showPengembalianModal,
                 ),
-              ] else if (_aset.isTersedia) ...[
+              ] else if (currentAset.isTersedia) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
