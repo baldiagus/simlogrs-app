@@ -8,7 +8,8 @@ import '../providers/tiket_maintenance_provider.dart';
 import '../widgets/tiket_card_item.dart';
 import 'lapor_cepat_screen.dart';
 import 'spk_list_screen.dart';
-
+import 'jadwal_preventif_screen.dart';
+import 'rekam_medis_katalog_screen.dart';
 class IpsrsHubScreen extends ConsumerStatefulWidget {
   const IpsrsHubScreen({super.key});
 
@@ -35,10 +36,8 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
         (user?.hasRole('teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
-
-    _tabController = TabController(length: _canViewSpk ? 2 : 1, vsync: this);
+    _tabController = TabController(length: _canViewSpk ? 3 : 1, vsync: this);
   }
-
   @override
   void dispose() {
     _tabController.dispose();
@@ -59,6 +58,17 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
       appBar: AppBar(
         title: const Text('Lapor Kerusakan & IPSRS'),
         actions: [
+          if (_canViewSpk)
+            IconButton(
+              icon: const Icon(LucideIcons.stethoscope, size: 20),
+              tooltip: 'Rekam Medis Aset',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RekamMedisKatalogScreen()),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             tooltip: 'Segarkan',
@@ -108,6 +118,22 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                       ],
                     ),
                   ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LucideIcons.calendarClock, size: 15),
+                        SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            'Preventif',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               )
             : null,
@@ -129,7 +155,8 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               controller: _tabController,
               children: [
                 _buildTiketUnitView(),
-                const SpkListScreen(),
+                const SpkListScreen(isEmbedded: true),
+                const JadwalPreventifScreen(isEmbedded: true),
               ],
             )
           : _buildTiketUnitView(),

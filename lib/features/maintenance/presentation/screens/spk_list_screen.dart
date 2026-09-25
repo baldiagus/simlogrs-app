@@ -9,12 +9,16 @@ import '../providers/maintenance_provider.dart';
 import 'spk_detail_screen.dart';
 
 class SpkListScreen extends ConsumerStatefulWidget {
-  const SpkListScreen({super.key});
+  final bool isEmbedded;
+
+  const SpkListScreen({
+    super.key,
+    this.isEmbedded = false,
+  });
 
   @override
   ConsumerState<SpkListScreen> createState() => _SpkListScreenState();
 }
-
 class _SpkListScreenState extends ConsumerState<SpkListScreen> {
   String _selectedStatus = 'SEMUA';
 
@@ -23,17 +27,18 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
     final spkListAsync = ref.watch(spkListProvider(_selectedStatus));
 
     return Scaffold(
-      backgroundColor: AppColors.canvas,
-      appBar: AppBar(
-        title: const Text('Surat Perintah Kerja (SPK)'),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.refreshCw, size: 18),
-            tooltip: 'Segarkan',
-            onPressed: () => ref.invalidate(spkListProvider(_selectedStatus)),
-          ),
-        ],
-      ),
+      appBar: widget.isEmbedded
+          ? null
+          : AppBar(
+              title: const Text('Surat Perintah Kerja (SPK)'),
+              actions: [
+                IconButton(
+                  icon: const Icon(LucideIcons.refreshCw, size: 18),
+                  tooltip: 'Segarkan',
+                  onPressed: () => ref.invalidate(spkListProvider(_selectedStatus)),
+                ),
+              ],
+            ),
       body: SafeArea(
         child: Column(
           children: [
