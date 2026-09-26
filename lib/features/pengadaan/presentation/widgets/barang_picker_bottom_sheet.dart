@@ -8,12 +8,13 @@ import '../providers/pengadaan_provider.dart';
 
 class BarangPickerBottomSheet extends ConsumerStatefulWidget {
   final ValueChanged<MasterBarangModel> onBarangSelected;
+  final String? filterTipe;
 
   const BarangPickerBottomSheet({
     super.key,
     required this.onBarangSelected,
+    this.filterTipe,
   });
-
   @override
   ConsumerState<BarangPickerBottomSheet> createState() => _BarangPickerBottomSheetState();
 }
@@ -30,8 +31,9 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
 
   @override
   Widget build(BuildContext context) {
-    final katalogAsync = ref.watch(katalogBarangProvider(_query));
-
+    final katalogAsync = ref.watch(
+      katalogBarangProvider(KatalogBarangParams(query: _query, tipe: widget.filterTipe)),
+    );
     return Container(
       height: MediaQuery.of(context).size.height * 0.82,
       decoration: const BoxDecoration(
@@ -58,9 +60,11 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Katalog Master Barang',
-                  style: TextStyle(
+                Text(
+                  widget.filterTipe == 'SPAREPART'
+                      ? 'Katalog Suku Cadang'
+                      : 'Katalog Master Barang',
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -108,24 +112,32 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
           Expanded(
             child: katalogAsync.when(
               data: (list) {
-                if (list.isEmpty) {
-                  return const EmptyStateView(
+                final effectiveList = widget.filterTipe != null
+                    ? list.where((b) => b.tipe.toUpperCase() == widget.filterTipe!.toUpperCase()).toList()
+                    : list;
+
+                if (effectiveList.isEmpty) {
+                  return EmptyStateView(
                     icon: LucideIcons.packageSearch,
-                    title: 'Barang Tidak Ditemukan',
-                    message: 'Coba kata kunci lain atau periksa ejaan nama barang.',
+                    title: widget.filterTipe == 'SPAREPART'
+                        ? 'Suku Cadang Tidak Ditemukan'
+                        : 'Barang Tidak Ditemukan',
+                    message: widget.filterTipe == 'SPAREPART'
+                        ? 'Tidak ada komoditas suku cadang (sparepart) yang cocok dengan pencarian.'
+                        : 'Coba kata kunci lain atau periksa ejaan nama barang.',
                   );
                 }
 
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  itemCount: list.length,
+                  itemCount: effectiveList.length,
                   separatorBuilder: (_, __) => const Divider(
                     height: 1,
                     color: AppColors.border,
                     indent: 48,
                   ),
                   itemBuilder: (context, index) {
-                    final b = list[index];
+                    final b = effectiveList[index];
                     return InkWell(
                       onTap: () {
                         widget.onBarangSelected(b);

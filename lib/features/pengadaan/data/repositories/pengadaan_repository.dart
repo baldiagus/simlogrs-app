@@ -9,12 +9,13 @@ class PengadaanRepository {
 
   PengadaanRepository(this._client);
 
-  Future<List<MasterBarangModel>> getKatalogBarang({String? cari}) async {
+  Future<List<MasterBarangModel>> getKatalogBarang({String? cari, String? tipe}) async {
     try {
       final response = await _client.dio.get(
         '/master/barang',
         queryParameters: {
           if (cari != null && cari.isNotEmpty) 'cari': cari,
+          if (tipe != null && tipe.isNotEmpty) 'tipe': tipe,
         },
       );
 

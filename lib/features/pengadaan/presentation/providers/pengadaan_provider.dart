@@ -10,10 +10,28 @@ final pengadaanRepositoryProvider = Provider<PengadaanRepository>((ref) {
   return PengadaanRepository(client);
 });
 
+class KatalogBarangParams {
+  final String query;
+  final String? tipe;
+
+  const KatalogBarangParams({this.query = '', this.tipe});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is KatalogBarangParams &&
+          runtimeType == other.runtimeType &&
+          query == other.query &&
+          tipe == other.tipe;
+
+  @override
+  int get hashCode => Object.hash(query, tipe);
+}
+
 final katalogBarangProvider =
-    FutureProvider.autoDispose.family<List<MasterBarangModel>, String>((ref, query) async {
+    FutureProvider.autoDispose.family<List<MasterBarangModel>, KatalogBarangParams>((ref, params) async {
   final repository = ref.watch(pengadaanRepositoryProvider);
-  return await repository.getKatalogBarang(cari: query);
+  return await repository.getKatalogBarang(cari: params.query, tipe: params.tipe);
 });
 
 final daftarPrProvider = FutureProvider.autoDispose<List<PrHeaderModel>>((ref) async {

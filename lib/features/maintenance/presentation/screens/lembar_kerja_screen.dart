@@ -48,7 +48,17 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => BarangPickerBottomSheet(
+        filterTipe: 'SPAREPART',
         onBarangSelected: (MasterBarangModel barang) {
+          if (barang.tipe.toUpperCase() != 'SPAREPART') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Hanya barang dengan tipe SPAREPART yang dapat digunakan.'),
+                backgroundColor: AppColors.danger,
+              ),
+            );
+            return;
+          }
           setState(() {
             final idx = _spareparts.indexWhere((e) => e['barang_id'] == barang.id);
             if (idx >= 0) {
@@ -118,17 +128,13 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
         title: Text('Lembar Kerja: ${widget.spk.kodeSpk}'),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Header Card
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -326,33 +332,23 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                             ),
                           );
                         }),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
+                      // Submit Button langsung di dalam canvas form tanpa background putih
+                      CustomButton(
+                        text: 'Simpan Lembar Kerja',
+                        isLoading: actionState.isLoading,
+                        icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                        onPressed: _submit,
+                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // Submit Button
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                border: Border(top: BorderSide(color: AppColors.border)),
-              ),
-              child: CustomButton(
-                text: 'Simpan Lembar Kerja',
-                isLoading: actionState.isLoading,
-                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                onPressed: _submit,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+          );
+        }
 
   Widget _buildHasilChip(String val, String label, Color color, Color bg) {
     final isSelected = _hasil == val;
