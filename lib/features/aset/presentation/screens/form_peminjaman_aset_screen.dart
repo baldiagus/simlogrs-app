@@ -199,10 +199,14 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Aset yang Dipinjam',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          const Expanded(
+                            child: Text(
+                              'Aset yang Dipinjam',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: _openAsetPicker,
                             icon: const Icon(LucideIcons.search, size: 15),

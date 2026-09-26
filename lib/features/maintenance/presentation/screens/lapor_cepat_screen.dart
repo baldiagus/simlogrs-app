@@ -159,10 +159,14 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Identitas Sarana / Kode Aset *',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    const Expanded(
+                      child: Text(
+                        'Identitas Sarana / Kode Aset *',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     TextButton.icon(
                       onPressed: () {
                         showModalBottomSheet(
@@ -181,6 +185,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primaryPurple,
                         visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                       ),
                     ),
                   ],
@@ -256,9 +261,12 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Foto Bukti Fisik Kerusakan',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    const Expanded(
+                      child: Text(
+                        'Foto Bukti Fisik Kerusakan',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     if (_pickedImage != null)
                       TextButton(

@@ -295,10 +295,14 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Pemakaian Suku Cadang',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          const Expanded(
+                            child: Text(
+                              'Pemakaian Suku Cadang',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: _openSparepartPicker,
                             icon: const Icon(LucideIcons.plus, size: 15),
