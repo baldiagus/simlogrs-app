@@ -1,3 +1,5 @@
+import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
+import '../../../../core/theme/app_shadows.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -62,7 +64,12 @@ class HomeScreen extends ConsumerWidget {
                     summary: summary,
                     onInspectPressed: () {
                       final target = summary.hero.targetAksi;
-                      if (target == 'spk_list') {
+                      if (target == 'audit_spi') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
+                        );
+                      } else if (target == 'spk_list') {
                         onNavigateTab?.call(2); // Navigasi ke Tab IPSRS
                       } else if (target == 'amprah_hub') {
                         Navigator.push(
@@ -289,6 +296,8 @@ class HomeScreen extends ConsumerWidget {
                   final user = ref.watch(authStateProvider).user;
                   final isTeknisi = user?.isTeknisi ?? false;
                   final isAdminLogistik = user?.isAdminLogistik ?? false;
+                  final isAuditor = user?.isAuditor ?? false;
+                  final isManajemen = user?.isManajemen ?? false;
                   final isGudangUser = (!isTeknisi) && ((user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false));
@@ -298,6 +307,14 @@ class HomeScreen extends ConsumerWidget {
                     isGudangUser: isGudangUser,
                     isTeknisi: isTeknisi,
                     isAdminLogistik: isAdminLogistik,
+                    isAuditor: isAuditor,
+                    isManajemen: isManajemen,
+                    onAuditSpiTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
+                      );
+                    },
                     onApprovalTap: () {
                       onNavigateTab?.call(1); // Approval Tab
                     },
@@ -366,6 +383,62 @@ class HomeScreen extends ConsumerWidget {
                   );
                 }(),
 
+                // Banner Pusat Audit SPI & CAPA (Khusus Auditor & Manajemen)
+                if (ref.watch(authStateProvider).user?.hasAuditAccess == true) ...[
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.primaryPurple.withValues(alpha: 0.3)),
+                        boxShadow: AppShadows.softCard,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.tintVioletBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(LucideIcons.shieldAlert, size: 22, color: AppColors.primaryPurple),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Pusat Audit Internal SPI & CAPA',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Audit trail, kepatuhan PO, selisih opname, register temuan',
+                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 // Modul Persediaan & Opname Gudang (Hanya Kepala Gudang & Petugas Gudang, bukan teknisi)
                 () {
                   final user = ref.watch(authStateProvider).user;
@@ -374,8 +447,8 @@ class HomeScreen extends ConsumerWidget {
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false) ||
                       (user?.hasRole('admin_logistik') ?? false) ||
-                      (user?.hasRole('super_admin') ?? false);
-
+                      (user?.hasRole('super_admin') ?? false) ||
+                      (user?.hasPersediaanAccess ?? false);
                   if (!isGudangUser) return const SizedBox.shrink();
 
                   return Column(

@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/spk_model.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/maintenance_provider.dart';
 import 'lembar_kerja_screen.dart';
 
@@ -21,7 +22,10 @@ class SpkDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(spkDetailProvider(spkId));
-
+    final user = ref.watch(authStateProvider).user;
+    final isTeknisi = user?.isTeknisi ?? false;
+    final isAuditor = user?.isAuditor ?? false;
+    final isManajemen = user?.isManajemen ?? false;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -224,7 +228,7 @@ class SpkDetailScreen extends ConsumerWidget {
               ),
 
               // Bottom Button if not Selesai
-              if (!isSelesai)
+              if (!isSelesai && isTeknisi)
                 Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -245,6 +249,41 @@ class SpkDetailScreen extends ConsumerWidget {
                             MaterialPageRoute(builder: (_) => LembarKerjaScreen(spk: spk)),
                           );
                         },
+                      ),
+                    ),
+                  ),
+                )
+              else if (isAuditor || isManajemen)
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.canvas,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(LucideIcons.eye, size: 16, color: AppColors.textSecondary),
+                            const SizedBox(width: 8),
+                            Text(
+                              isAuditor
+                                  ? 'Mode Audit SPI (Hanya Lihat - Read-Only)'
+                                  : 'Mode Pengawasan Eksekutif (Hanya Lihat - Read-Only)',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

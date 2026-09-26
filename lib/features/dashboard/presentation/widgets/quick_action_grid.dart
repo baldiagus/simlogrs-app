@@ -7,6 +7,8 @@ class QuickActionGrid extends StatelessWidget {
   final bool isGudangUser;
   final bool isTeknisi;
   final bool isAdminLogistik;
+  final bool isAuditor;
+  final bool isManajemen;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
@@ -18,6 +20,7 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onLembarKerjaTap;
   final VoidCallback? onRekamMedisTap;
   final VoidCallback? onPreventifTap;
+  final VoidCallback? onAuditSpiTap;
 
   const QuickActionGrid({
     super.key,
@@ -25,6 +28,9 @@ class QuickActionGrid extends StatelessWidget {
     this.isGudangUser = false,
     this.isTeknisi = false,
     this.isAdminLogistik = false,
+    this.isAuditor = false,
+    this.isManajemen = false,
+    this.onAuditSpiTap,
     required this.onApprovalTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
@@ -100,6 +106,73 @@ class QuickActionGrid extends StatelessWidget {
                   bgColor: AppColors.tintTealBg,
                   iconColor: AppColors.tintTeal,
                   onTap: onPreventifTap ?? onRakGudangTap,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    if (isAuditor || isManajemen) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isAuditor ? 'Aksi Pengawasan SPI' : 'Aksi Eksekutif Direksi',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Audit SPI Hub',
+                  subtitle: 'Forensik & CAPA',
+                  icon: LucideIcons.shieldAlert,
+                  bgColor: AppColors.tintVioletBg,
+                  iconColor: AppColors.primaryPurple,
+                  onTap: onAuditSpiTap ?? onApprovalTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Sirkulasi Aset',
+                  subtitle: 'Peminjaman & Cek',
+                  icon: LucideIcons.armchair,
+                  bgColor: AppColors.tintOrangeBg,
+                  iconColor: AppColors.tintOrange,
+                  onTap: onAsetTap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Amprah Ruangan',
+                  subtitle: 'Distribusi & SPPB',
+                  icon: LucideIcons.boxes,
+                  bgColor: AppColors.tintBlueBg,
+                  iconColor: AppColors.tintBlue,
+                  onTap: onAmprahTap ?? onRakGudangTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Pantau SPK',
+                  subtitle: 'Semua SPK RS (Lihat)',
+                  icon: LucideIcons.clipboardCheck,
+                  bgColor: AppColors.tintTealBg,
+                  iconColor: AppColors.tintTeal,
+                  onTap: onSpkTap ?? onLaporRusakTap,
                 ),
               ),
             ],

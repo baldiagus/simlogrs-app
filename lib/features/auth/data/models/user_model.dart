@@ -86,6 +86,10 @@ class UserModel {
   bool get isGudangUser => hasRole('petugas_gudang') || hasRole('kepala_gudang') || hasRole('admin_logistik') || gudang != null;
   bool get isKaru => hasRole('kepala_unit') || can('page_KepalaUnitDashboard');
   bool get isAdminLogistik => hasRole('admin_logistik') || can('page_AdminLogistikDashboard');
+  bool get isAuditor => hasRole('auditor') || can('page_AuditorDashboard') || permissions.any((p) => p.contains('audit_manajemen'));
+  bool get isManajemen => hasRole('manajemen') || can('page_ManajemenDashboard');
+  bool get hasAuditAccess => isAuditor || isManajemen || can('view_any_audit_manajemen::audit::trail');
+  bool get hasPersediaanAccess => isGudangUser || isAuditor || isManajemen || can('view_any_gudang_stok::monitoring::fefo');
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
