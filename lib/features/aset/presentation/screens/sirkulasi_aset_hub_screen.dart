@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -298,6 +300,156 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     );
   }
 
+  void _showPerpanjangModal(BuildContext context, PeminjamanAsetModel item) {
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    final displayFormat = DateFormat('dd/MM/yyyy');
+
+    DateTime currentRencana;
+    try {
+      currentRencana = DateTime.parse(item.tanggalKembaliRencana);
+    } catch (_) {
+      currentRencana = DateTime.now();
+    }
+
+    DateTime selectedDate = currentRencana.add(const Duration(days: 7));
+    if (selectedDate.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+      selectedDate = DateTime.now().add(const Duration(days: 7));
+    }
+
+    final tglController = TextEditingController(text: dateFormat.format(selectedDate));
+    final alasanController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+              ),
+              const SizedBox(height: 16),
+              const Row(
+                children: [
+                  Icon(LucideIcons.calendarPlus, size: 20, color: AppColors.primaryPurple),
+                  SizedBox(width: 8),
+                  Text(
+                    'Perpanjang Masa Pinjam',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Dokumen: ${item.kode} • Batas Saat Ini: ${item.tanggalKembaliRencana}',
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+
+              const Text('Tanggal Rencana Kembali Baru:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: ctx,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now().add(const Duration(days: 1)),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setModalState(() {
+                      selectedDate = picked;
+                      tglController.text = dateFormat.format(picked);
+                    });
+                  }
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.canvas,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        displayFormat.format(selectedDate),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      ),
+                      const Icon(LucideIcons.calendar, size: 18, color: AppColors.primaryPurple),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              const Text('Alasan Perpanjangan (Wajib):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: alasanController,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  hintText: 'Misal: Perpanjangan durasi tindakan, pemeriksaan lanjutan...',
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              CustomButton(
+                text: 'Konfirmasi Perpanjang Peminjaman',
+                isLoading: isSubmitting,
+                icon: const Icon(LucideIcons.check, size: 18, color: Colors.white),
+                onPressed: () async {
+                  final alasan = alasanController.text.trim();
+                  if (alasan.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Alasan perpanjangan wajib dicantumkan.'),
+                        backgroundColor: AppColors.danger,
+                      ),
+                    );
+                    return;
+                  }
+
+                  setModalState(() => isSubmitting = true);
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.pop(ctx);
+
+                  final notifier = ref.read(peminjamanActionProvider.notifier);
+                  final ok = await notifier.perpanjangPeminjaman(
+                    id: item.id,
+                    tanggalKembaliBaru: tglController.text.trim(),
+                    alasan: alasan,
+                  );
+
+                  if (!mounted) return;
+                  final state = ref.read(peminjamanActionProvider);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(ok ? (state.successMessage ?? 'Masa pinjam berhasil diperpanjang.') : (state.errorMessage ?? 'Gagal memperpanjang.')),
+                      backgroundColor: ok ? AppColors.success : AppColors.danger,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final peminjamanSayaAsync = ref.watch(daftarPeminjamanSayaProvider);
@@ -429,6 +581,8 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                     final item = list[index];
                     return PeminjamanCardItem(
                       item: item,
+                      onExtendTap: item.isDipinjam ? () => _showPerpanjangModal(context, item) : null,
+                      onReturnTap: item.isDipinjam ? () => _showReturnModal(context, item) : null,
                       onCancelTap: item.isDiajukan
                           ? () async {
                               final notifier = ref.read(peminjamanActionProvider.notifier);
@@ -587,6 +741,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                     final item = list[index];
                     return PeminjamanCardItem(
                       item: item,
+                      onExtendTap: () => _showPerpanjangModal(context, item),
                       onReturnTap: () => _showReturnModal(context, item),
                     );
                   },

@@ -113,6 +113,33 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     }
   }
 
+  Future<bool> perpanjangPeminjaman({
+    required int id,
+    required String tanggalKembaliBaru,
+    required String alasan,
+  }) async {
+    state = const PeminjamanActionState(isLoading: true);
+    try {
+      await _repository.perpanjangPeminjaman(
+        id: id,
+        tanggalKembaliBaru: tanggalKembaliBaru,
+        alasan: alasan,
+      );
+      state = const PeminjamanActionState(
+        isLoading: false,
+        successMessage: 'Masa peminjaman berhasil diperpanjang.',
+      );
+      _ref.invalidate(daftarPeminjamanSayaProvider);
+      return true;
+    } catch (e) {
+      state = PeminjamanActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
   Future<bool> otorisasi({
     required int id,
     required String aksi, // 'setujui', 'tolak', 'serah_terima'

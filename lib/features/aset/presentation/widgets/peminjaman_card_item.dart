@@ -9,6 +9,7 @@ class PeminjamanCardItem extends StatelessWidget {
   final PeminjamanAsetModel item;
   final VoidCallback? onCancelTap;
   final VoidCallback? onReturnTap;
+  final VoidCallback? onExtendTap;
   final VoidCallback? onDetailTap;
 
   const PeminjamanCardItem({
@@ -16,6 +17,7 @@ class PeminjamanCardItem extends StatelessWidget {
     required this.item,
     this.onCancelTap,
     this.onReturnTap,
+    this.onExtendTap,
     this.onDetailTap,
   });
 
@@ -169,16 +171,39 @@ class PeminjamanCardItem extends StatelessWidget {
                 ],
               ),
             ),
-          ] else if (item.isDipinjam && onReturnTap != null) ...[
+          ] else if (item.isDipinjam) ...[
             const Divider(height: 1, color: AppColors.border),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: CustomButton(
-                text: 'Kembalikan & Inspeksi Fisik',
-                height: 40,
-                backgroundColor: AppColors.primaryPurple,
-                icon: const Icon(LucideIcons.packageCheck, size: 16, color: Colors.white),
-                onPressed: onReturnTap,
+              child: Row(
+                children: [
+                  if (onExtendTap != null)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onExtendTap,
+                        icon: const Icon(LucideIcons.calendarPlus, size: 15, color: AppColors.primaryPurple),
+                        label: const Text('Perpanjang', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12, fontWeight: FontWeight.w700)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.primaryPurple),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                    ),
+                  if (onExtendTap != null && onReturnTap != null)
+                    const SizedBox(width: 10),
+                  if (onReturnTap != null)
+                    Expanded(
+                      child: CustomButton(
+                        text: 'Kembalikan Fisik',
+                        height: 38,
+                        backgroundColor: AppColors.primaryPurple,
+                        icon: const Icon(LucideIcons.packageCheck, size: 15, color: Colors.white),
+                        onPressed: onReturnTap,
+                      ),
+                    ),
+                ],
               ),
             ),
           ],

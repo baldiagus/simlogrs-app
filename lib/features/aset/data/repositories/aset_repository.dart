@@ -145,6 +145,31 @@ class AsetRepository {
     }
   }
 
+  Future<void> perpanjangPeminjaman({
+    required int id,
+    required String tanggalKembaliBaru,
+    required String alasan,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/aset/peminjaman/$id/perpanjang',
+        data: {
+          'tanggal_kembali_baru': tanggalKembaliBaru,
+          'alasan': alasan,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['sukses'] == false) {
+        throw ApiException(message: data['pesan']?.toString() ?? 'Gagal memperpanjang peminjaman');
+      }
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Gagal memperpanjang peminjaman aset');
+    }
+  }
+
   Future<List<ApprovalPeminjamanModel>> getDaftarApprovalPeminjaman() async {
     try {
       final response = await _client.dio.get('/aset/approval-peminjaman');
