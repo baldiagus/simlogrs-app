@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../models/buku_mutasi_model.dart';
 import '../models/fefo_monitoring_model.dart';
 import '../models/penyesuaian_stok_model.dart';
@@ -190,6 +191,23 @@ class PersediaanRepository {
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal menolak penyesuaian');
+    }
+  }
+
+  /// 9. Daftar Master Fasilitas Gudang Aktif
+  Future<List<GudangModel>> getMasterGudangList() async {
+    try {
+      final response = await _client.dio.get('/master/gudang');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is List) {
+        return (data['data'] as List)
+            .map((e) => GudangModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal memuat master gudang');
     }
   }
 }

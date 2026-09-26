@@ -67,41 +67,114 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                 // Pilih Gudang
                 const Text('Fasilitas Gudang:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.canvas,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedGudangId ?? 1,
-                      items: const [
-                        DropdownMenuItem(value: 1, child: Text('Gudang Sentral Farmasi & Medis')),
-                        DropdownMenuItem(value: 2, child: Text('Gudang Logistik Non-Medis')),
-                      ],
-                      onChanged: (val) {
-                        setModalState(() => selectedGudangId = val);
+                ref.watch(masterGudangListProvider).when(
+                      data: (gudangs) {
+                        final availableIds = gudangs.map((g) => g.id).toList();
+                        if (selectedGudangId == null || !availableIds.contains(selectedGudangId)) {
+                          selectedGudangId = gudangs.isNotEmpty ? gudangs.first.id : 1;
+                        }
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.canvas,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              isExpanded: true,
+                              value: selectedGudangId,
+                              items: gudangs.map((g) {
+                                return DropdownMenuItem<int>(
+                                  value: g.id,
+                                  child: Text(
+                                    g.nama,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                setModalState(() => selectedGudangId = val);
+                              },
+                            ),
+                          ),
+                        );
                       },
+                      loading: () => Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.canvas,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryPurple),
+                          ),
+                        ),
+                      ),
+                      error: (_, __) => Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                        ),
+                        child: const Text(
+                          'Gagal memuat fasilitas gudang aktif.',
+                          style: TextStyle(fontSize: 12, color: AppColors.danger),
+                        ),
+                      ),
+                    ),
+                const SizedBox(height: 12),
+
+                // Tanggal Opname Interaktif
+                const Text('Tanggal Opname:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                InkWell(
+                  onTap: () async {
+                    DateTime currentSelected;
+                    try {
+                      currentSelected = DateTime.parse(tanggalController.text);
+                    } catch (_) {
+                      currentSelected = DateTime.now();
+                    }
+                    final picked = await showDatePicker(
+                      context: ctx,
+                      initialDate: currentSelected,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    );
+                    if (picked != null) {
+                      setModalState(() {
+                        tanggalController.text = DateFormat('yyyy-MM-dd').format(picked);
+                      });
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.canvas,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          tanggalController.text,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        ),
+                        const Icon(LucideIcons.calendar, size: 18, color: AppColors.primaryPurple),
+                      ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Tanggal Opname
-                const Text('Tanggal Opname:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: tanggalController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(LucideIcons.calendar, size: 18),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
                 // Catatan
                 const Text('Catatan Sesi (Opsional):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),

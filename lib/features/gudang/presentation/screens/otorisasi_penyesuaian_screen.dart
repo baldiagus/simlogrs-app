@@ -6,10 +6,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
-
 class OtorisasiPenyesuaianScreen extends ConsumerStatefulWidget {
   const OtorisasiPenyesuaianScreen({super.key});
 
@@ -58,9 +58,8 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
     );
   }
 
-  void _showDetailModal(PenyesuaianStokHeaderModel adj) {
+  void _showDetailModal(PenyesuaianStokHeaderModel adj, bool canAuthorize) {
     final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -186,14 +185,36 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
             ),
             if (adj.isMenunggu) ...[
               const SizedBox(height: 16),
-              CustomButton(
-                text: 'Sahkan Penyesuaian Saldo',
-                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _confirmApprove(adj);
-                },
-              ),
+              if (canAuthorize)
+                CustomButton(
+                  text: 'Sahkan Penyesuaian Saldo',
+                  icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _confirmApprove(adj);
+                  },
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(LucideIcons.info, size: 16, color: AppColors.warning),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Menunggu peninjauan dan pengesahan resmi oleh Kepala Gudang.',
+                          style: TextStyle(fontSize: 11, color: Color(0xFFB45309), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ],
         ),
@@ -205,6 +226,11 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
   Widget build(BuildContext context) {
     final penyesuaianAsync = ref.watch(otorisasiPenyesuaianListProvider);
     final selectedStatus = ref.watch(penyesuaianStatusFilterProvider);
+    final user = ref.watch(authStateProvider).user;
+    final canAuthorize = (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('super_admin') ?? false) ||
+        (user?.can('update_gudang_stok::otorisasi::penyesuaian') ?? false);
     final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
@@ -281,7 +307,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                       final adj = items[index];
 
                       return InkWell(
-                        onTap: () => _showDetailModal(adj),
+                        onTap: () => _showDetailModal(adj, canAuthorize),
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -338,7 +364,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                                   ),
                                 ],
                               ),
-                              if (adj.isMenunggu) ...[
+                              if (adj.isMenunggu && canAuthorize) ...[
                                 const SizedBox(height: 12),
                                 CustomButton(
                                   text: 'Sahkan Penyesuaian Saldo',

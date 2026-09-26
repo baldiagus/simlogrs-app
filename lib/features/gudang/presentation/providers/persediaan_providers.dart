@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../../data/models/buku_mutasi_model.dart';
 import '../../data/models/fefo_monitoring_model.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
@@ -47,4 +48,10 @@ final otorisasiPenyesuaianListProvider = FutureProvider.autoDispose<List<Penyesu
   final status = ref.watch(penyesuaianStatusFilterProvider);
 
   return repo.getDaftarPenyesuaian(status: status);
+});
+
+// Master Gudang Provider
+final masterGudangListProvider = FutureProvider.autoDispose<List<GudangModel>>((ref) async {
+  final repo = ref.watch(persediaanRepositoryProvider);
+  return repo.getMasterGudangList();
 });
