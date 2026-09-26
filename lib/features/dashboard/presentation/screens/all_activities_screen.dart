@@ -6,6 +6,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/detail_amprah_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
@@ -56,6 +57,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
         _ActivityFilterOption('Semua', null),
         _ActivityFilterOption('Pengadaan PR', 'pr'),
         _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+        _ActivityFilterOption('Pinjam Aset', 'pinjam'),
         _ActivityFilterOption('SPK Teknisi', 'spk'),
         _ActivityFilterOption('Tiket Servis', 'tiket'),
         _ActivityFilterOption('PO Inbound', 'po'),
@@ -77,6 +79,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
         _ActivityFilterOption('Semua', null),
         _ActivityFilterOption('Amprah Ruangan', 'amprah'),
         _ActivityFilterOption('PO Inbound', 'po'),
+        _ActivityFilterOption('Pinjam Gudang', 'pinjam'),
       ];
     }
 
@@ -86,7 +89,8 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
         _ActivityFilterOption('Semua', null),
         _ActivityFilterOption('Amprah Ruangan', 'amprah'),
         _ActivityFilterOption('Pengadaan PR', 'pr'),
-        _ActivityFilterOption('Tiket Servis', 'tiket'),
+        _ActivityFilterOption('Pinjam Aset', 'pinjam'),
+        _ActivityFilterOption('Lapor Rusak', 'tiket'),
       ];
     }
 
@@ -376,6 +380,11 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
+      );
+    } else if (type == 'pinjam') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
       );
     } else if (type == 'pr') {
       Navigator.push(

@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/detail_amprah_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
@@ -299,6 +300,11 @@ class LiveActivityFeed extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
+      );
+    } else if (type == 'pinjam') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
       );
     } else if (type == 'pr') {
       Navigator.push(
