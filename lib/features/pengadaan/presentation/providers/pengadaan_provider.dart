@@ -3,6 +3,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/master_barang_model.dart';
 import '../../data/models/pr_model.dart';
+import '../../data/models/po_model.dart';
 import '../../data/repositories/pengadaan_repository.dart';
 
 final pengadaanRepositoryProvider = Provider<PengadaanRepository>((ref) {
@@ -103,4 +104,108 @@ final prSubmissionProvider =
     StateNotifierProvider<PrSubmissionNotifier, PrSubmissionState>((ref) {
   final repository = ref.watch(pengadaanRepositoryProvider);
   return PrSubmissionNotifier(repository, ref);
+});
+
+final pemasokListProvider = FutureProvider.autoDispose<List<PemasokOptionModel>>((ref) async {
+  final repository = ref.watch(pengadaanRepositoryProvider);
+  return repository.getDaftarPemasok();
+});
+
+final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA');
+final poSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+
+final poListProvider = FutureProvider.autoDispose<List<PesananPembelianModel>>((ref) async {
+  final repository = ref.watch(pengadaanRepositoryProvider);
+  final status = ref.watch(poStatusFilterProvider);
+  final search = ref.watch(poSearchQueryProvider);
+
+  return repository.getDaftarPo(
+    status: status == 'SEMUA' ? null : status,
+    search: search.isEmpty ? null : search,
+  );
+});
+
+class PoActionState {
+  final bool isLoading;
+  final String? errorMessage;
+  final String? successMessage;
+
+  const PoActionState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.successMessage,
+  });
+}
+
+class PoActionNotifier extends StateNotifier<PoActionState> {
+  final PengadaanRepository _repository;
+  final Ref _ref;
+
+  PoActionNotifier(this._repository, this._ref) : super(const PoActionState());
+
+  Future<bool> terbitkanPo({
+    required int prId,
+    required int pemasokId,
+    String? estimasiTanggalKirim,
+    String syaratPembayaran = 'TEMPO_30_HARI',
+    String? catatan,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    state = const PoActionState(isLoading: true);
+    try {
+      final res = await _repository.terbitkanPo(
+        prId: prId,
+        pemasokId: pemasokId,
+        estimasiTanggalKirim: estimasiTanggalKirim,
+        syaratPembayaran: syaratPembayaran,
+        catatan: catatan,
+        items: items,
+      );
+      final kode = res['kode']?.toString() ?? 'PO';
+      state = PoActionState(
+        isLoading: false,
+        successMessage: 'Pesanan Pembelian $kode berhasil diterbitkan.',
+      );
+      _ref.invalidate(poListProvider);
+      _ref.invalidate(daftarPrProvider);
+      _ref.invalidate(dashboardSummaryProvider);
+      return true;
+    } catch (e) {
+      state = PoActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateStatusKirim(int id, {String? estimasiTanggalKirim}) async {
+    state = const PoActionState(isLoading: true);
+    try {
+      final res = await _repository.updateStatusKirim(
+        id,
+        estimasiTanggalKirim: estimasiTanggalKirim,
+      );
+      final kode = res['kode']?.toString() ?? 'PO';
+      state = PoActionState(
+        isLoading: false,
+        successMessage: 'Status PO $kode berhasil diubah menjadi DIKIRIM_VENDOR.',
+      );
+      _ref.invalidate(poListProvider);
+      _ref.invalidate(dashboardSummaryProvider);
+      return true;
+    } catch (e) {
+      state = PoActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+}
+
+final poActionProvider =
+    StateNotifierProvider<PoActionNotifier, PoActionState>((ref) {
+  final repository = ref.watch(pengadaanRepositoryProvider);
+  return PoActionNotifier(repository, ref);
 });

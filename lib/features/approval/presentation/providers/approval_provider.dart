@@ -34,6 +34,19 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
   ApprovalActionNotifier(this._repository, this._ref)
       : super(const ApprovalActionState());
 
+    Future<bool> eksekusi({
+    required int id,
+    required String tipe,
+    required String aksi,
+    String? catatan,
+  }) async {
+    if (tipe == 'PR') {
+      return approvePr(id: id, aksi: aksi, catatan: catatan);
+    } else {
+      return approveAmprah(id: id, isSetujui: aksi == 'setujui', catatan: catatan);
+    }
+  }
+
   Future<bool> approvePr({
     required int id,
     required String aksi,

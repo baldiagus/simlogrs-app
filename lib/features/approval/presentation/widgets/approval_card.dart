@@ -11,6 +11,7 @@ class ApprovalCard extends StatefulWidget {
   final VoidCallback onApproveTap;
   final VoidCallback onRejectTap;
   final VoidCallback? onSerahkanTap;
+  final VoidCallback? onTerbitkanPoTap;
   const ApprovalCard({
     super.key,
     required this.item,
@@ -18,6 +19,7 @@ class ApprovalCard extends StatefulWidget {
     required this.onApproveTap,
     required this.onRejectTap,
     this.onSerahkanTap,
+    this.onTerbitkanPoTap,
   });
 
   @override
@@ -266,59 +268,49 @@ class _ApprovalCardState extends State<ApprovalCard> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: widget.canApprove
-                ? (isPr && item.status == 'DISETUJUI'
-                    ? CustomButton(
-                        text: 'Serahkan ke Bagian Pengadaan',
-                        height: 42,
-                        backgroundColor: AppColors.primaryPurple,
-                        textColor: Colors.white,
-                        icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
-                        onPressed: widget.onSerahkanTap ?? widget.onApproveTap,
-                      )
-                    : (isPr && item.status == 'DITERUSKAN_KE_PENGADAAN'
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(LucideIcons.checkCheck, size: 15, color: AppColors.success),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Telah diserahkan ke Meja Pengadaan',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.success,
-                                  ),
-                                ),
-                              ],
-                            ),
+                ? (isPr && (item.status == 'DISETUJUI' || item.status == 'DITERUSKAN_KE_PENGADAAN')
+                    ? (widget.onTerbitkanPoTap != null
+                        ? CustomButton(
+                            text: 'Terbitkan PO (Pesanan Pembelian)',
+                            height: 42,
+                            backgroundColor: AppColors.primaryPurple,
+                            textColor: Colors.white,
+                            icon: const Icon(LucideIcons.filePlus, size: 16, color: Colors.white),
+                            onPressed: widget.onTerbitkanPoTap,
                           )
-                        : Row(
-                            children: [
-                              Expanded(
-                                child: CustomButton(
-                                  text: 'Tolak',
-                                  height: 42,
-                                  backgroundColor: const Color(0xFFFEF2F2),
-                                  textColor: AppColors.danger,
-                                  icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
-                                  onPressed: widget.onRejectTap,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: CustomButton(
-                                  text: 'Setujui',
-                                  height: 42,
-                                  backgroundColor: AppColors.success,
-                                  textColor: Colors.white,
-                                  icon: const Icon(LucideIcons.check, size: 16, color: Colors.white),
-                                  onPressed: widget.onApproveTap,
-                                ),
-                              ),
-                            ],
-                          )))
+                        : CustomButton(
+                            text: 'Serahkan ke Bagian Pengadaan',
+                            height: 42,
+                            backgroundColor: AppColors.primaryPurple,
+                            textColor: Colors.white,
+                            icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
+                            onPressed: widget.onSerahkanTap ?? widget.onApproveTap,
+                          ))
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Tolak',
+                              height: 42,
+                              backgroundColor: const Color(0xFFFEF2F2),
+                              textColor: AppColors.danger,
+                              icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
+                              onPressed: widget.onRejectTap,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Setujui',
+                              height: 42,
+                              backgroundColor: AppColors.success,
+                              textColor: Colors.white,
+                              icon: const Icon(LucideIcons.check, size: 16, color: Colors.white),
+                              onPressed: widget.onApproveTap,
+                            ),
+                          ),
+                        ],
+                      ))
                 : const Padding(
                     padding: EdgeInsets.symmetric(vertical: 4),
                     child: Text(
