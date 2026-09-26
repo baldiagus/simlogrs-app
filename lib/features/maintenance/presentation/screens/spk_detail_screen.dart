@@ -38,6 +38,7 @@ class SpkDetailScreen extends ConsumerWidget {
           final isSelesai = spk.status.toUpperCase() == 'SELESAI';
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: SingleChildScrollView(
@@ -225,20 +226,27 @@ class SpkDetailScreen extends ConsumerWidget {
               // Bottom Button if not Selesai
               if (!isSelesai)
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  width: double.infinity,
                   decoration: const BoxDecoration(
                     color: AppColors.surface,
-                    border: Border(top: BorderSide(color: AppColors.border)),
+                    border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
                   ),
-                  child: CustomButton(
-                    text: 'Catat Lembar Kerja / Suku Cadang',
-                    icon: const Icon(LucideIcons.penTool, size: 18, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => LembarKerjaScreen(spk: spk)),
-                      );
-                    },
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      child: CustomButton(
+                        width: double.infinity,
+                        text: 'Catat Lembar Kerja / Suku Cadang',
+                        icon: const Icon(LucideIcons.penTool, size: 18, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => LembarKerjaScreen(spk: spk)),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
             ],

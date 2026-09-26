@@ -341,7 +341,12 @@ class HomeScreen extends ConsumerWidget {
                     onLembarKerjaTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const SpkListScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const SpkListScreen(
+                            initialStatus: 'DITUGASKAN',
+                            customTitle: 'Lembar Kerja (SPK Aktif)',
+                          ),
+                        ),
                       );
                     },
                     onRekamMedisTap: () {

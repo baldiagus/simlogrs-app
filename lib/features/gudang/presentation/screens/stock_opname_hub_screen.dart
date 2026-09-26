@@ -407,6 +407,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -501,30 +502,40 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                 },
               ),
             ),
+            // Bottom Sticky Bar - Full Width White Background
             Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.surface,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isSaving ? null : () => _submitCount(false),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isSaving ? null : () => _submitCount(false),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Simpan Draf'),
+                        ),
                       ),
-                      child: const Text('Simpan Draf'),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Finalisasi Sesi',
+                          isLoading: _isSaving,
+                          onPressed: () => _submitCount(true),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Finalisasi Sesi',
-                      isLoading: _isSaving,
-                      onPressed: () => _submitCount(true),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

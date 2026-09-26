@@ -158,6 +158,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: SingleChildScrollView(
@@ -446,33 +447,39 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
               ),
             ),
 
-            // Bottom Sticky Submit Bar
+            // Bottom Sticky Submit Bar - Full Width White Background
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+              width: double.infinity,
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                border: Border(top: BorderSide(color: AppColors.border)),
+                border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
               ),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+                  child: Row(
                     children: [
-                      const Text('Total Kebutuhan:', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                      Text('$totalQty Unit', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Total Kebutuhan:', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          Text('$totalQty Unit', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                        ],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Kirim Pengajuan Amprah',
+                          isLoading: actionState.isLoading,
+                          icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
+                          onPressed: _cartItems.isEmpty ? null : _submit,
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Kirim Pengajuan Amprah',
-                      isLoading: actionState.isLoading,
-                      icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
-                      onPressed: _cartItems.isEmpty ? null : _submit,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

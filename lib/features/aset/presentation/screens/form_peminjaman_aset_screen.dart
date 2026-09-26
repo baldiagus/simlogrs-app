@@ -142,6 +142,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: SingleChildScrollView(
@@ -410,18 +411,25 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
               ),
             ),
 
-            // Bottom Sticky Bar
+            // Bottom Sticky Bar - Full Width White Background
             Container(
-              padding: const EdgeInsets.all(20),
+              width: double.infinity,
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                border: Border(top: BorderSide(color: AppColors.border)),
+                border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
               ),
-              child: CustomButton(
-                text: 'Kirim Permohonan Pinjam',
-                isLoading: actionState.isLoading,
-                icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
-                onPressed: _submit,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  child: CustomButton(
+                    width: double.infinity,
+                    text: 'Kirim Permohonan Pinjam',
+                    isLoading: actionState.isLoading,
+                    icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
+                    onPressed: _submit,
+                  ),
+                ),
               ),
             ),
           ],

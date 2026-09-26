@@ -122,6 +122,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: SingleChildScrollView(
@@ -432,43 +433,49 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
               ),
             ),
 
-            // Bottom Sticky Submit Bar
+            // Bottom Sticky Submit Bar - Full Width White Background
             Container(
-              padding: const EdgeInsets.all(20),
+              width: double.infinity,
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                border: Border(top: BorderSide(color: AppColors.border)),
+                border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
               ),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+                  child: Row(
                     children: [
-                      const Text(
-                        'Total Diterima:',
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Total Diterima:',
+                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          ),
+                          Text(
+                            '$totalDiterima Item',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '$totalDiterima Item',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Simpan ke Stok Gudang',
+                          isLoading: actionState.isLoading,
+                          icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                          onPressed: _submit,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Simpan ke Stok Gudang',
-                      isLoading: actionState.isLoading,
-                      icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                      onPressed: _submit,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

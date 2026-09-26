@@ -128,13 +128,17 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
         title: Text('Lembar Kerja: ${widget.spk.kodeSpk}'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -332,23 +336,39 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                             ),
                           );
                         }),
-                      const SizedBox(height: 24),
-
-                      // Submit Button langsung di dalam canvas form tanpa background putih
-                      CustomButton(
-                        text: 'Simpan Lembar Kerja',
-                        isLoading: actionState.isLoading,
-                        icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                        onPressed: _submit,
-                      ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
             ),
-          );
-        }
+
+            // Bottom Sticky Submit Bar - Full Width White Background
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border, width: 1.0)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  child: CustomButton(
+                    width: double.infinity,
+                    text: 'Simpan Lembar Kerja',
+                    isLoading: actionState.isLoading,
+                    icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                    onPressed: _submit,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildHasilChip(String val, String label, Color color, Color bg) {
     final isSelected = _hasil == val;

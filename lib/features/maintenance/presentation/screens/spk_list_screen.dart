@@ -10,18 +10,27 @@ import 'spk_detail_screen.dart';
 
 class SpkListScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
+  final String initialStatus;
+  final String? customTitle;
 
   const SpkListScreen({
     super.key,
     this.isEmbedded = false,
+    this.initialStatus = 'SEMUA',
+    this.customTitle,
   });
 
   @override
   ConsumerState<SpkListScreen> createState() => _SpkListScreenState();
 }
 class _SpkListScreenState extends ConsumerState<SpkListScreen> {
-  String _selectedStatus = 'SEMUA';
+  late String _selectedStatus;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedStatus = widget.initialStatus;
+  }
   @override
   Widget build(BuildContext context) {
     final spkListAsync = ref.watch(spkListProvider(_selectedStatus));
@@ -30,7 +39,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
       appBar: widget.isEmbedded
           ? null
           : AppBar(
-              title: const Text('Surat Perintah Kerja (SPK)'),
+              title: Text(widget.customTitle ?? 'Surat Perintah Kerja (SPK)'),
               actions: [
                 IconButton(
                   icon: const Icon(LucideIcons.refreshCw, size: 18),
@@ -283,13 +292,13 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
                         ),
                       ],
                     ),
-                    const Row(
+                    Row(
                       children: [
                         Text(
-                          'Buka SPK',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                          spk.status.toUpperCase() == 'SELESAI' ? 'Buka SPK' : 'Catat Lembar Kerja',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
                         ),
-                        Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),
+                        const Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),
                       ],
                     ),
                   ],
