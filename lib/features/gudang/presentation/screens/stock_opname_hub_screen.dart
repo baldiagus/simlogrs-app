@@ -189,12 +189,21 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                   isLoading: isSubmitting,
                   icon: const Icon(LucideIcons.playCircle, size: 18, color: Colors.white),
                   onPressed: () async {
+                    if (selectedGudangId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Fasilitas gudang wajib dipilih terlebih dahulu.'),
+                          backgroundColor: AppColors.danger,
+                        ),
+                      );
+                      return;
+                    }
                     setModalState(() => isSubmitting = true);
                     final messenger = ScaffoldMessenger.of(context);
                     final navigator = Navigator.of(ctx);
                     try {
                       await ref.read(persediaanRepositoryProvider).inisiasiOpname(
-                            gudangId: selectedGudangId ?? 1,
+                            gudangId: selectedGudangId!,
                             tanggalOpname: tanggalController.text.trim(),
                             catatan: catatanController.text.trim(),
                           );

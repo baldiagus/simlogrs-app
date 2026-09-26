@@ -24,12 +24,41 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _diagnosaController = TextEditingController();
   final _tindakanController = TextEditingController();
-  final _jamMulaiController = TextEditingController(text: '08:30');
-  final _jamSelesaiController = TextEditingController(text: '10:00');
+  late final TextEditingController _jamMulaiController;
+  late final TextEditingController _jamSelesaiController;
   final _catatanController = TextEditingController();
 
   String _hasil = 'BERHASIL';
   final List<Map<String, dynamic>> _spareparts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final now = TimeOfDay.now();
+    final oneHourAgo = TimeOfDay(hour: (now.hour - 1 + 24) % 24, minute: now.minute);
+    String formatTime(TimeOfDay t) =>
+        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+    _jamMulaiController = TextEditingController(text: formatTime(oneHourAgo));
+    _jamSelesaiController = TextEditingController(text: formatTime(now));
+  }
+
+  Future<void> _pickTime(TextEditingController controller) async {
+    final parts = controller.text.split(':');
+    final initial = parts.length == 2
+        ? TimeOfDay(hour: int.tryParse(parts[0]) ?? 8, minute: int.tryParse(parts[1]) ?? 0)
+        : TimeOfDay.now();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+    );
+    if (picked != null) {
+      final formatted =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      setState(() {
+        controller.text = formatted;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -174,8 +203,10 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                                 const SizedBox(height: 4),
                                 TextFormField(
                                   controller: _jamMulaiController,
+                                  readOnly: true,
+                                  onTap: () => _pickTime(_jamMulaiController),
                                   decoration: const InputDecoration(
-                                    hintText: '08:00',
+                                    suffixIcon: Icon(LucideIcons.clock, size: 16),
                                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   ),
                                 ),
@@ -191,8 +222,10 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                                 const SizedBox(height: 4),
                                 TextFormField(
                                   controller: _jamSelesaiController,
+                                  readOnly: true,
+                                  onTap: () => _pickTime(_jamSelesaiController),
                                   decoration: const InputDecoration(
-                                    hintText: '10:00',
+                                    suffixIcon: Icon(LucideIcons.clock, size: 16),
                                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   ),
                                 ),

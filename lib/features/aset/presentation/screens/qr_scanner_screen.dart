@@ -89,7 +89,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
   }
 
   void _showManualInputDialog() {
-    final inputController = TextEditingController(text: 'AST-2026-001');
+    final inputController = TextEditingController();
 
     showDialog(
       context: context,

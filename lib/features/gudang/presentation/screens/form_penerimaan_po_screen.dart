@@ -31,13 +31,12 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
   @override
   void initState() {
     super.initState();
-    final today = DateFormat('yyyyMMdd').format(DateTime.now());
     _itemDrafts = widget.po.items.map((item) {
       return InboundItemDraft(
         poItem: item,
         jumlahDiterima: item.sisaKebutuhan,
         jumlahRusak: 0,
-        nomorBatch: 'B-$today-${item.barangId}',
+        nomorBatch: '',
         tanggalKedaluwarsa: null,
         lokasiGudangId: null,
       );
@@ -76,10 +75,33 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       );
       return;
     }
-
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
+
+    for (final draft in _itemDrafts) {
+      if (draft.jumlahDiterima > 0) {
+        if (draft.nomorBatch.trim().isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Nomor batch fisik wajib diisi untuk komoditas ${draft.poItem.namaBarang}.'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+          return;
+        }
+        if (draft.lokasiGudangId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Rak simpan gudang wajib dipilih untuk komoditas ${draft.poItem.namaBarang}.'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+          return;
+        }
+      }
+    }
+
     final notifier = ref.read(inboundActionProvider.notifier);
     final ok = await notifier.submitPenerimaan(
       poId: widget.po.id,
