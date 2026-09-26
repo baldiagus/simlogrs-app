@@ -6,6 +6,7 @@ class QuickActionGrid extends StatelessWidget {
   final int pendingCount;
   final bool isGudangUser;
   final bool isTeknisi;
+  final bool isAdminLogistik;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
@@ -23,6 +24,7 @@ class QuickActionGrid extends StatelessWidget {
     required this.pendingCount,
     this.isGudangUser = false,
     this.isTeknisi = false,
+    this.isAdminLogistik = false,
     required this.onApprovalTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
@@ -132,23 +134,32 @@ class QuickActionGrid extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: isGudangUser
+              child: isAdminLogistik
                   ? _buildActionCard(
-                      title: 'Daftar Rak Gudang',
-                      subtitle: 'Stok & Aset per Rak',
-                      icon: LucideIcons.archive,
-                      bgColor: AppColors.tintBlueBg,
-                      iconColor: AppColors.tintBlue,
-                      onTap: onRakGudangTap,
+                      title: 'Sirkulasi Aset',
+                      subtitle: 'Peminjaman & Cek',
+                      icon: LucideIcons.armchair,
+                      bgColor: AppColors.tintOrangeBg,
+                      iconColor: AppColors.tintOrange,
+                      onTap: onAsetTap,
                     )
-                  : _buildActionCard(
-                      title: 'Amprah Ruangan',
-                      subtitle: 'Distribusi & SPPB',
-                      icon: LucideIcons.boxes,
-                      bgColor: AppColors.tintBlueBg,
-                      iconColor: AppColors.tintBlue,
-                      onTap: onAmprahTap ?? onRakGudangTap,
-                    ),
+                  : isGudangUser
+                      ? _buildActionCard(
+                          title: 'Daftar Rak Gudang',
+                          subtitle: 'Stok & Aset per Rak',
+                          icon: LucideIcons.archive,
+                          bgColor: AppColors.tintBlueBg,
+                          iconColor: AppColors.tintBlue,
+                          onTap: onRakGudangTap,
+                        )
+                      : _buildActionCard(
+                          title: 'Amprah Ruangan',
+                          subtitle: 'Distribusi & SPPB',
+                          icon: LucideIcons.boxes,
+                          bgColor: AppColors.tintBlueBg,
+                          iconColor: AppColors.tintBlue,
+                          onTap: onAmprahTap ?? onRakGudangTap,
+                        ),
             ),
           ],
         ),

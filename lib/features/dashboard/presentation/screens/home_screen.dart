@@ -288,6 +288,7 @@ class HomeScreen extends ConsumerWidget {
                 () {
                   final user = ref.watch(authStateProvider).user;
                   final isTeknisi = user?.isTeknisi ?? false;
+                  final isAdminLogistik = user?.isAdminLogistik ?? false;
                   final isGudangUser = (!isTeknisi) && ((user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false));
@@ -296,6 +297,7 @@ class HomeScreen extends ConsumerWidget {
                     pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
                     isGudangUser: isGudangUser,
                     isTeknisi: isTeknisi,
+                    isAdminLogistik: isAdminLogistik,
                     onApprovalTap: () {
                       onNavigateTab?.call(1); // Approval Tab
                     },
