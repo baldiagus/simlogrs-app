@@ -9,6 +9,7 @@ class QuickActionGrid extends StatelessWidget {
   final bool isAdminLogistik;
   final bool isAuditor;
   final bool isManajemen;
+  final bool isPengadaan;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
@@ -30,6 +31,7 @@ class QuickActionGrid extends StatelessWidget {
     this.isAdminLogistik = false,
     this.isAuditor = false,
     this.isManajemen = false,
+    this.isPengadaan = false,
     this.onAuditSpiTap,
     required this.onApprovalTap,
     required this.onRakGudangTap,
@@ -173,6 +175,73 @@ class QuickActionGrid extends StatelessWidget {
                   bgColor: AppColors.tintTealBg,
                   iconColor: AppColors.tintTeal,
                   onTap: onSpkTap ?? onLaporRusakTap,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    if (isPengadaan) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Aksi Cepat Pengadaan & Belanja',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Verifikasi PR',
+                  subtitle: '$pendingCount menunggu verifikasi',
+                  icon: LucideIcons.checkSquare,
+                  bgColor: AppColors.tintVioletBg,
+                  iconColor: AppColors.tintViolet,
+                  onTap: onApprovalTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Sirkulasi Aset',
+                  subtitle: 'Peminjaman & Cek',
+                  icon: LucideIcons.armchair,
+                  bgColor: AppColors.tintOrangeBg,
+                  iconColor: AppColors.tintOrange,
+                  onTap: onAsetTap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Amprah Ruangan',
+                  subtitle: 'Distribusi & SPPB',
+                  icon: LucideIcons.boxes,
+                  bgColor: AppColors.tintBlueBg,
+                  iconColor: AppColors.tintBlue,
+                  onTap: onAmprahTap ?? onRakGudangTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Inbound PO',
+                  subtitle: 'Status Vendor',
+                  icon: LucideIcons.truck,
+                  bgColor: AppColors.tintBlueBg,
+                  iconColor: AppColors.tintBlue,
+                  onTap: onInboundTap ?? onAsetTap,
                 ),
               ),
             ],

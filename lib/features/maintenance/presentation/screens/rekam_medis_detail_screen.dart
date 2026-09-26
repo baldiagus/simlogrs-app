@@ -8,6 +8,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/rekam_medis_aset_model.dart';
 import '../../data/repositories/ipsrs_repository.dart';
 import '../providers/ipsrs_providers.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class RekamMedisDetailScreen extends ConsumerStatefulWidget {
   final int asetId;
@@ -73,7 +74,10 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(rekamMedisDetailProvider(widget.asetId));
-
+    final user = ref.watch(authStateProvider).user;
+    final canTerbitkanSpk = (user?.isTeknisi == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.hasRole('super_admin') == true);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -276,7 +280,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                   if (_selectedTab == 0)
                     _buildRiwayatServisView(riwayat)
                   else
-                    _buildJadwalPreventifView(jadwal),
+                    _buildJadwalPreventifView(jadwal, canTerbitkanSpk),
 
                   const SizedBox(height: 30),
                 ],
@@ -408,7 +412,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
     );
   }
 
-  Widget _buildJadwalPreventifView(List<Map<String, dynamic>> jadwalList) {
+  Widget _buildJadwalPreventifView(List<Map<String, dynamic>> jadwalList, bool canTerbitkanSpk) {
     if (jadwalList.isEmpty) {
       return const EmptyStateView(
         icon: LucideIcons.calendarCheck,
@@ -492,14 +496,16 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              CustomButton(
-                text: 'Terbitkan SPK Servis Rutin',
-                height: 38,
-                backgroundColor: AppColors.primaryPurple,
-                icon: const Icon(LucideIcons.playCircle, size: 16, color: Colors.white),
-                onPressed: () => _confirmEksekusiJadwal(j),
-              ),
+              if (canTerbitkanSpk) ...[
+                const SizedBox(height: 12),
+                CustomButton(
+                  text: 'Terbitkan SPK Servis Rutin',
+                  height: 38,
+                  backgroundColor: AppColors.primaryPurple,
+                  icon: const Icon(LucideIcons.playCircle, size: 16, color: Colors.white),
+                  onPressed: () => _confirmEksekusiJadwal(j),
+                ),
+              ],
             ],
           ),
         );

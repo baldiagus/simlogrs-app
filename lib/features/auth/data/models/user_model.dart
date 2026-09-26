@@ -88,6 +88,7 @@ class UserModel {
   bool get isAdminLogistik => hasRole('admin_logistik') || can('page_AdminLogistikDashboard');
   bool get isAuditor => hasRole('auditor') || can('page_AuditorDashboard') || permissions.any((p) => p.contains('audit_manajemen'));
   bool get isManajemen => hasRole('manajemen') || can('page_ManajemenDashboard');
+  bool get isPengadaan => hasRole('pengadaan') || can('page_PengadaanDashboard');
   bool get hasAuditAccess => isAuditor || isManajemen || can('view_any_audit_manajemen::audit::trail');
   bool get hasPersediaanAccess => isGudangUser || isAuditor || isManajemen || can('view_any_gudang_stok::monitoring::fefo');
   factory UserModel.fromJson(Map<String, dynamic> json) {

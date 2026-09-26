@@ -7,6 +7,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../data/models/jadwal_preventif_model.dart';
 import '../../data/repositories/ipsrs_repository.dart';
 import '../providers/ipsrs_providers.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 class JadwalPreventifScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
 
@@ -71,7 +72,10 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
   Widget build(BuildContext context) {
     final jadwalAsync = ref.watch(jadwalPreventifListProvider);
     final selectedFilter = ref.watch(preventifStatusFilterProvider);
-
+    final user = ref.watch(authStateProvider).user;
+    final canTerbitkanSpk = (user?.isTeknisi == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.hasRole('super_admin') == true);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: widget.isEmbedded
@@ -277,14 +281,16 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            CustomButton(
-                              text: 'Terbitkan SPK Servis',
-                              height: 38,
-                              backgroundColor: AppColors.primaryPurple,
-                              icon: const Icon(LucideIcons.playCircle, size: 16, color: Colors.white),
-                              onPressed: () => _confirmEksekusi(j),
-                            ),
+                            if (canTerbitkanSpk) ...[
+                              const SizedBox(height: 12),
+                              CustomButton(
+                                text: 'Terbitkan SPK Servis',
+                                height: 38,
+                                backgroundColor: AppColors.primaryPurple,
+                                icon: const Icon(LucideIcons.playCircle, size: 16, color: Colors.white),
+                                onPressed: () => _confirmEksekusi(j),
+                              ),
+                            ],
                           ],
                         ),
                       );

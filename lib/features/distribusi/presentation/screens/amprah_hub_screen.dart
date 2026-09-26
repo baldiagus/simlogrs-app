@@ -36,8 +36,11 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final isUnitUser = user?.unit != null;
-
+    final canAjukanAmprah = (user?.unit != null) ||
+        (user?.isPengadaan == true) ||
+        (user?.isAuditor == true) ||
+        (user?.isManajemen == true) ||
+        (user?.hasRole('super_admin') == true);
     final filterParams = AmprahFilterParams(status: _statusFilter);
     final amprahListAsync = ref.watch(daftarAmprahProvider(filterParams));
     final sppbListAsync = ref.watch(sppbInboundProvider);
@@ -101,7 +104,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
           ],
         ),
       ),
-      floatingActionButton: isUnitUser
+      floatingActionButton: canAjukanAmprah
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
@@ -161,7 +164,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                               icon: LucideIcons.fileSpreadsheet,
                               title: 'Belum Ada Permintaan Amprah',
                               message: 'Unit ruangan Anda belum pernah mengajukan amprah logistik ke gudang.',
-                              action: isUnitUser
+                              action: canAjukanAmprah
                                   ? ElevatedButton.icon(
                                       onPressed: () {
                                         Navigator.push(

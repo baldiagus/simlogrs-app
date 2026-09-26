@@ -189,124 +189,135 @@ class DetailBarangScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   // Tombol Aksi Tambah Permintaan PR & Permintaan Distribusi (Hanya untuk Pemohon / Non-Teknisi)
-                  if (ref.watch(authStateProvider).user?.isTeknisi != true) ...[
-                    Row(
+                  () {
+                    final user = ref.watch(authStateProvider).user;
+                    if (user?.isTeknisi == true) return const SizedBox.shrink();
+                    final isPengadaan = user?.isPengadaan ?? false;
+
+                    final amprahWidget = InkWell(
+                      onTap: () {
+                        final amprahBarang = BarangAmprahKatalogModel(
+                          id: b.id,
+                          kode: b.kode,
+                          nama: b.nama,
+                          spesifikasi: b.spesifikasi,
+                          tipe: b.tipe,
+                          tipeLabel: b.tipeLabel,
+                          kategori: b.kategori,
+                          satuan: b.satuan,
+                          merek: b.merek,
+                          stokTersedia: b.stokGudang,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FormPengajuanAmprahScreen(initialBarang: amprahBarang),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: isPengadaan ? AppColors.tintBlueBg : AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.tintBlue, width: 1.5),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(LucideIcons.truck, size: 16, color: AppColors.tintBlue),
+                            SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Minta Amprah',
+                                style: TextStyle(
+                                  color: AppColors.tintBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+
+                    final prWidget = InkWell(
+                      onTap: () {
+                        final prBarang = MasterBarangModel(
+                          id: b.id,
+                          kode: b.kode,
+                          nama: b.nama,
+                          spesifikasi: b.spesifikasi,
+                          tipe: b.tipe,
+                          tipeLabel: b.tipeLabel,
+                          kategori: b.kategori,
+                          satuan: b.satuan,
+                          merek: b.merek,
+                          hargaEstimasi: b.hargaEstimasi,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FormPengajuanPrScreen(initialBarang: prBarang),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryPurple,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color.fromRGBO(91, 80, 230, 0.25),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(LucideIcons.shoppingCart, size: 16, color: Colors.white),
+                            SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Tambah PR',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+
+                    return Column(
                       children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            final prBarang = MasterBarangModel(
-                              id: b.id,
-                              kode: b.kode,
-                              nama: b.nama,
-                              spesifikasi: b.spesifikasi,
-                              tipe: b.tipe,
-                              tipeLabel: b.tipeLabel,
-                              kategori: b.kategori,
-                              satuan: b.satuan,
-                              merek: b.merek,
-                              hargaEstimasi: b.hargaEstimasi,
-                            );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FormPengajuanPrScreen(initialBarang: prBarang),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryPurple,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color.fromRGBO(91, 80, 230, 0.25),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(LucideIcons.shoppingCart, size: 16, color: Colors.white),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    'Tambah PR',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        if (isPengadaan)
+                          SizedBox(width: double.infinity, child: amprahWidget)
+                        else
+                          Row(
+                            children: [
+                              Expanded(child: prWidget),
+                              const SizedBox(width: 12),
+                              Expanded(child: amprahWidget),
+                            ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            final amprahBarang = BarangAmprahKatalogModel(
-                              id: b.id,
-                              kode: b.kode,
-                              nama: b.nama,
-                              spesifikasi: b.spesifikasi,
-                              tipe: b.tipe,
-                              tipeLabel: b.tipeLabel,
-                              kategori: b.kategori,
-                              satuan: b.satuan,
-                              merek: b.merek,
-                              stokTersedia: b.stokGudang,
-                            );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FormPengajuanAmprahScreen(initialBarang: amprahBarang),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.tintBlue, width: 1.5),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(LucideIcons.truck, size: 16, color: AppColors.tintBlue),
-                                SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    'Minta Amprah',
-                                    style: TextStyle(
-                                      color: AppColors.tintBlue,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  }(),
                   if (isAset) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -161,22 +161,26 @@ class HomeScreen extends ConsumerWidget {
                             child: const Icon(LucideIcons.fileSpreadsheet, size: 20, color: AppColors.primaryPurple),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Pengadaan Barang Unit (PR)',
-                                  style: TextStyle(
+                                  ref.watch(authStateProvider).user?.isPengadaan == true
+                                      ? 'Monitoring & Verifikasi PR'
+                                      : 'Pengadaan Barang Unit (PR)',
+                                  style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
-                                  'Ajukan permohonan PR & pantau status tindak lanjut',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  ref.watch(authStateProvider).user?.isPengadaan == true
+                                      ? 'Daftar pengajuan PR dari seluruh unit rumah sakit'
+                                      : 'Ajukan permohonan PR & pantau status tindak lanjut',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                                 ),
                               ],
                             ),
@@ -298,6 +302,7 @@ class HomeScreen extends ConsumerWidget {
                   final isAdminLogistik = user?.isAdminLogistik ?? false;
                   final isAuditor = user?.isAuditor ?? false;
                   final isManajemen = user?.isManajemen ?? false;
+                  final isPengadaan = user?.isPengadaan ?? false;
                   final isGudangUser = (!isTeknisi) && ((user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false));
@@ -309,6 +314,7 @@ class HomeScreen extends ConsumerWidget {
                     isAdminLogistik: isAdminLogistik,
                     isAuditor: isAuditor,
                     isManajemen: isManajemen,
+                    isPengadaan: isPengadaan,
                     onAuditSpiTap: () {
                       Navigator.push(
                         context,

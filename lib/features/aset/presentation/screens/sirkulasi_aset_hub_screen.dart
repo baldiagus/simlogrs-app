@@ -529,7 +529,10 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           ],
         ),
       ),
-      floatingActionButton: (ref.watch(authStateProvider).user?.unit != null)
+      floatingActionButton: ((ref.watch(authStateProvider).user?.unit != null) ||
+              (ref.watch(authStateProvider).user?.isPengadaan == true) ||
+              (ref.watch(authStateProvider).user?.isAuditor == true) ||
+              (ref.watch(authStateProvider).user?.isManajemen == true))
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()));
@@ -557,7 +560,10 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                         icon: LucideIcons.armchair,
                         title: 'Belum Ada Peminjaman',
                         message: 'Unit Anda belum pernah meminjam sarana dari ruangan lain atau gudang.',
-                        action: (ref.watch(authStateProvider).user?.unit != null)
+                        action: ((ref.watch(authStateProvider).user?.unit != null) ||
+                                (ref.watch(authStateProvider).user?.isPengadaan == true) ||
+                                (ref.watch(authStateProvider).user?.isAuditor == true) ||
+                                (ref.watch(authStateProvider).user?.isManajemen == true))
                             ? ElevatedButton.icon(
                                 onPressed: () {
                                   Navigator.push(context, MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()));
