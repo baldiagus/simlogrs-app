@@ -10,9 +10,9 @@ import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_detail_screen.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../../data/models/aset_tersedia_model.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
 import 'form_peminjaman_aset_screen.dart';
-
 class AsetDetailScreen extends ConsumerStatefulWidget {
   final AsetDetailModel? initialAset;
   final int? asetId;
@@ -411,6 +411,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
 
     final currentAset = _aset!;
     final actionState = ref.watch(asetActionProvider);
+    final user = ref.watch(authStateProvider).user;
+    final isTeknisi = user?.isTeknisi ?? false;
     final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
@@ -840,7 +842,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                   onPressed: _showPengembalianModal,
                 ),
                 const SizedBox(height: 10),
-              ] else if (currentAset.isTersedia && !currentAset.isRusak) ...[
+              ] else if (!isTeknisi && currentAset.isTersedia && !currentAset.isRusak) ...[
                 CustomButton(
                   text: 'Ajukan Peminjaman Aset',
                   icon: const Icon(LucideIcons.repeat, size: 18, color: Colors.white),
@@ -871,29 +873,31 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 const SizedBox(height: 10),
               ],
 
-              // Tombol Selalu Ada: Lapor Kerusakan ke IPSRS
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => LaporCepatScreen(initialKodeAset: currentAset.kodeAset),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: AppColors.danger),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
+              if (!isTeknisi) ...[
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LaporCepatScreen(initialKodeAset: currentAset.kodeAset),
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: AppColors.danger),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(LucideIcons.wrench, size: 18, color: AppColors.danger),
+                  label: const Text(
+                    'Lapor Kerusakan Alat (IPSRS)',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.danger),
+                  ),
                 ),
-                icon: const Icon(LucideIcons.wrench, size: 18, color: AppColors.danger),
-                label: const Text(
-                  'Lapor Kerusakan Alat (IPSRS)',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.danger),
-                ),
-              ),
-
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
+              ] else
+                const SizedBox(height: 20),
             ],
           ),
         ),

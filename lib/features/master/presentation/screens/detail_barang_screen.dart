@@ -10,7 +10,9 @@ import '../../../distribusi/data/models/amprah_model.dart';
 import '../../../distribusi/presentation/screens/form_pengajuan_amprah_screen.dart';
 import '../../../pengadaan/data/models/master_barang_model.dart';
 import '../../../pengadaan/presentation/screens/form_pengajuan_pr_screen.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/master_barang_provider.dart';
+
 class DetailBarangScreen extends ConsumerWidget {
   final int barangId;
   final String? initialNama;
@@ -186,10 +188,10 @@ class DetailBarangScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Tombol Aksi Tambah Permintaan PR & Permintaan Distribusi (Amprah)
-                  Row(
-                    children: [
+                  // Tombol Aksi Tambah Permintaan PR & Permintaan Distribusi (Hanya untuk Pemohon / Non-Teknisi)
+                  if (ref.watch(authStateProvider).user?.isTeknisi != true) ...[
+                    Row(
+                      children: [
                       Expanded(
                         child: InkWell(
                           onTap: () {
@@ -304,7 +306,7 @@ class DetailBarangScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // SEKSI FISIK KOMODITAS: JIKA ASET -> DAFTAR UNIT REGISTER FISIK
+                ],
                   if (isAset) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
