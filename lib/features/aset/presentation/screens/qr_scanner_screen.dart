@@ -15,18 +15,39 @@ class QrScannerScreen extends ConsumerStatefulWidget {
   ConsumerState<QrScannerScreen> createState() => _QrScannerScreenState();
 }
 
-class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
-  final MobileScannerController _controller = MobileScannerController(
-    detectionSpeed: DetectionSpeed.noDuplicates,
-    facing: CameraFacing.back,
-    torchEnabled: false,
-  );
+class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
+    with WidgetsBindingObserver {
+  late final MobileScannerController _controller;
 
   bool _isProcessing = false;
   DateTime? _lastScannedTime;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _controller = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      facing: CameraFacing.back,
+      torchEnabled: false,
+      autoStart: true,
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!mounted || kIsWeb) return;
+    if (state == AppLifecycleState.resumed) {
+      _controller.start();
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      _controller.stop();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
   }
@@ -178,17 +199,78 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
         children: [
           // Camera scanner preview
           if (!kIsWeb)
-            MobileScanner(
-              controller: _controller,
-              onDetect: (capture) {
-                final List<Barcode> barcodes = capture.barcodes;
-                for (final barcode in barcodes) {
-                  if (barcode.rawValue != null) {
-                    _handleBarcodeDetected(barcode.rawValue!);
-                    break;
+            Positioned.fill(
+              child: MobileScanner(
+                controller: _controller,
+                fit: BoxFit.cover,
+                placeholderBuilder: (context, child) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white),
+                        SizedBox(height: 16),
+                        Text(
+                          'Menyiapkan sensor kamera...',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, child) {
+                  final isPermission = error.errorCode == MobileScannerErrorCode.permissionDenied;
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isPermission ? LucideIcons.shieldAlert : LucideIcons.cameraOff,
+                            color: AppColors.danger,
+                            size: 48,
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            isPermission ? 'Izin Kamera Diperlukan' : 'Sensor Kamera Tidak Siap',
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            isPermission
+                                ? 'Aplikasi memerlukan izin akses kamera untuk memindai QR Code aset fisik.'
+                                : (error.errorDetails?.message ?? error.errorCode.name),
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 18),
+                          ElevatedButton.icon(
+                            onPressed: () => _controller.start(),
+                            icon: const Icon(LucideIcons.refreshCw, size: 16),
+                            label: const Text('Aktifkan Sensor Kamera'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryPurple,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                onDetect: (capture) {
+                  final List<Barcode> barcodes = capture.barcodes;
+                  for (final barcode in barcodes) {
+                    if (barcode.rawValue != null) {
+                      _handleBarcodeDetected(barcode.rawValue!);
+                      break;
+                    }
                   }
-                }
-              },
+                },
+              ),
             )
           else
             // Web fallback placeholder when desktop web does not attach mobile camera directly
