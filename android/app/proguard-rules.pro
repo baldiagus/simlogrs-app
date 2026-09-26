@@ -19,3 +19,8 @@
 # Mobile Scanner Plugin
 -keep class dev.steenbakker.mobile_scanner.** { *; }
 -dontwarn dev.steenbakker.mobile_scanner.**
+
+# Play Core Split Install (Flutter deferred components)
+-dontwarn com.google.android.play.core.splitcompat.**
+-dontwarn com.google.android.play.core.splitinstall.**
+-dontwarn com.google.android.play.core.tasks.**
