@@ -219,9 +219,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 children: [
                   Icon(LucideIcons.calendarPlus, size: 20, color: AppColors.primaryPurple),
                   SizedBox(width: 8),
-                  Text(
-                    'Perpanjang Masa Pinjam',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  Expanded(
+                    child: Text(
+                      'Perpanjang Masa Pinjam',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -393,6 +396,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                         Text(
                           '${currentAset.kodeAset} • ${currentAset.namaKomoditas}',
                           style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -670,9 +675,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                           children: [
                             Icon(LucideIcons.qrCode, color: Colors.white, size: 16),
                             SizedBox(width: 8),
-                            Text(
-                              'Lihat Stiker QR Inventaris',
-                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                            Flexible(
+                              child: Text(
+                                'Lihat Stiker QR Inventaris',
+                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
@@ -770,9 +778,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                       children: [
                         Icon(LucideIcons.fileSpreadsheet, size: 16, color: AppColors.primaryPurple),
                         SizedBox(width: 8),
-                        Text(
-                          'Spesifikasi & Nilai Perolehan',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        Expanded(
+                          child: Text(
+                            'Spesifikasi & Nilai Perolehan',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -834,17 +845,24 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
-                            children: [
-                              Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
-                              SizedBox(width: 8),
-                              Text(
-                                'Histori Pemeliharaan (IPSRS)',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                              ),
-                            ],
+                          const Expanded(
+                            child: Row(
+                              children: [
+                                Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Histori Pemeliharaan (IPSRS)',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -882,15 +900,19 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    currentAset.servisTerakhir!.kode,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                      fontFamily: 'monospace',
-                                      color: AppColors.primaryPurple,
+                                  Expanded(
+                                    child: Text(
+                                      currentAset.servisTerakhir!.kode,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        fontFamily: 'monospace',
+                                        color: AppColors.primaryPurple,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   StatusBadge(status: currentAset.servisTerakhir!.status),
                                 ],
                               ),
@@ -976,9 +998,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                         children: [
                           Icon(LucideIcons.repeat, size: 16, color: AppColors.primaryPurple),
                           SizedBox(width: 8),
-                          Text(
-                            'Transaksi Peminjaman Aktif',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          Expanded(
+                            child: Text(
+                              'Transaksi Peminjaman Aktif',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -1011,12 +1036,14 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: OutlinedButton.icon(
                         onPressed: () => _showPerpanjangModal(currentAset),
                         icon: const Icon(LucideIcons.calendarPlus, size: 16, color: AppColors.primaryPurple),
                         label: const Text(
                           'Perpanjang',
                           style: TextStyle(color: AppColors.primaryPurple, fontSize: 13, fontWeight: FontWeight.w700),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.primaryPurple, width: 1.5),
@@ -1027,7 +1054,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: CustomButton(
                         text: 'Kembalikan Fisik',
                         icon: const Icon(LucideIcons.packageCheck, size: 18, color: Colors.white),

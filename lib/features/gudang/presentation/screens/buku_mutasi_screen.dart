@@ -211,17 +211,23 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Saldo: ${m.saldoSebelum} -> ${m.saldoSesudah} ${m.satuan}',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                Flexible(
+                                  child: Text(
+                                    'Saldo: ${m.saldoSebelum} -> ${m.saldoSesudah} ${m.satuan}',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(LucideIcons.user, size: 12, color: AppColors.textSecondary),
                                     const SizedBox(width: 4),
                                     Text(
                                       m.petugas,
                                       style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),

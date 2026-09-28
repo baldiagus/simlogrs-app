@@ -208,21 +208,27 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    const Icon(LucideIcons.barcode, size: 16, color: AppColors.tintBlue),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Batch: ${b.nomorBatch}',
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                        fontFamily: 'monospace',
-                                        color: AppColors.textPrimary,
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      const Icon(LucideIcons.barcode, size: 16, color: AppColors.tintBlue),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          'Batch: ${b.nomorBatch}',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
+                                            fontFamily: 'monospace',
+                                            color: AppColors.textPrimary,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(
@@ -254,16 +260,22 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      b.tanggalKedaluwarsa != null ? 'Exp: ${b.tanggalKedaluwarsa}' : 'Tanpa Expired Date',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          b.tanggalKedaluwarsa != null ? 'Exp: ${b.tanggalKedaluwarsa}' : 'Tanpa Expired Date',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
                                 Text(
                                   '${b.jumlah} ${b.satuan} (${rupiah.format(b.nilaiTotal)})',
                                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
