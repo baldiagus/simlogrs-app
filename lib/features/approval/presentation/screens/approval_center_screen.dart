@@ -793,13 +793,26 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Terbitkan Pesanan Pembelian (PO)', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                  Text('Dasar PR: ${widget.prItem.kode} • ${widget.prItem.unit}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Terbitkan Pesanan Pembelian (PO)',
+                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Dasar PR: ${widget.prItem.kode} • ${widget.prItem.unit}',
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
             ],
           ),
@@ -924,7 +937,12 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(it.namaBarang, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                Text(
+                                  it.namaBarang,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                                 Text('Qty: ${it.jumlah} ${it.satuan ?? 'Pcs'}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                               ],
                             ),
@@ -957,9 +975,14 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Total Biaya PO:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              Text(
-                currency.format(_calculateTotal()),
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  currency.format(_calculateTotal()),
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
