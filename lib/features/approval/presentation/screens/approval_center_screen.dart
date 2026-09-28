@@ -195,18 +195,17 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   Widget build(BuildContext context) {
     final pendingAsync = ref.watch(approvalPendingProvider);
     final user = ref.watch(authStateProvider).user;
-    final poListAsync = ref.watch(poListProvider);
-
     final isPengadaanFlow = (user?.isPengadaan == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.isManajemen == true) ||
-        (user?.isAuditor == true);
+        (user?.isAuditor == true) ||
+        (user?.hasRole('super_admin') == true);
+    final poListAsync = isPengadaanFlow ? ref.watch(poListProvider) : null;
 
     final canManagePo = (user?.isPengadaan == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true);
     final isReadOnly = (user?.isManajemen == true) || (user?.isAuditor == true);
-
     final canApprovePr = user?.can('update_pengadaan::permintaan::pengadaan') ?? false;
     final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
         (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
@@ -242,7 +241,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   const SizedBox(width: 6),
                   _buildCountBadge(
                     isPengadaanFlow
-                        ? (poListAsync.valueOrNull?.length ?? 0)
+                        ? (poListAsync?.valueOrNull?.length ?? 0)
                         : (pendingAsync.valueOrNull?.totalAmprah ?? 0),
                   ),
                 ],

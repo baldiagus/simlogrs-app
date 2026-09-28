@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/master_barang_model.dart';
@@ -135,6 +136,10 @@ final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA
 final poSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
 final poListProvider = FutureProvider.autoDispose<List<PesananPembelianModel>>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  if (!authState.isAuthenticated || authState.user == null) {
+    return const [];
+  }
   final repository = ref.watch(pengadaanRepositoryProvider);
   final status = ref.watch(poStatusFilterProvider);
   final search = ref.watch(poSearchQueryProvider);

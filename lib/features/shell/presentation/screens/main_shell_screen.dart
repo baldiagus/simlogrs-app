@@ -68,7 +68,14 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
         break;
       case 1:
         ref.invalidate(approvalPendingProvider);
-        ref.invalidate(poListProvider);
+        final user = authState.user;
+        if (user?.isPengadaan == true ||
+            user?.isAdminLogistik == true ||
+            user?.isManajemen == true ||
+            user?.isAuditor == true ||
+            user?.hasRole('super_admin') == true) {
+          ref.invalidate(poListProvider);
+        }
         break;
       case 2:
         ref.invalidate(jadwalPreventifListProvider);
