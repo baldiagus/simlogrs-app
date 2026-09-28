@@ -1011,7 +1011,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
                 ),
                 const Spacer(),
                 Text(
-                  'Unit: ${temuan.unit}',
+                  temuan.unit != '-' ? 'Unit: ${temuan.unit}' : (temuan.gudang != null && temuan.gudang != '-' ? 'Gudang: ${temuan.gudang}' : 'Sentral'),
                   style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),
               ],
@@ -1789,7 +1789,10 @@ class _DetailTemuanSheetState extends ConsumerState<_DetailTemuanSheet> {
             const SizedBox(height: 6),
             Text(t.objekAudit, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
             const SizedBox(height: 2),
-            Text('Unit: ${t.unit} • Auditor: ${t.auditor}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text(
+              '${t.unit != '-' ? 'Unit: ${t.unit}' : ''}${t.unit != '-' && t.gudang != null && t.gudang != '-' ? ' • ' : ''}${t.gudang != null && t.gudang != '-' ? 'Gudang: ${t.gudang}' : ''}${t.unit == '-' && (t.gudang == null || t.gudang == '-') ? 'Lokasi: Sentral' : ''} • Auditor: ${t.auditor}',
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),

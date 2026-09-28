@@ -375,6 +375,7 @@ class TemuanCapaModel {
   final String auditor;
   final String evaluator;
   final String unit;
+  final String? gudang;
   final String? analisisPenyebab;
   final String? tindakanPerbaikan;
   final String? catatanEvaluasi;
@@ -393,6 +394,7 @@ class TemuanCapaModel {
     required this.auditor,
     required this.evaluator,
     required this.unit,
+    this.gudang,
     this.analisisPenyebab,
     this.tindakanPerbaikan,
     this.catatanEvaluasi,
@@ -413,6 +415,7 @@ class TemuanCapaModel {
       auditor: json['auditor']?.toString() ?? 'Auditor SPI',
       evaluator: json['evaluator']?.toString() ?? '-',
       unit: json['unit']?.toString() ?? 'Sentral',
+      gudang: json['gudang']?.toString(),
       analisisPenyebab: json['analisis_penyebab']?.toString(),
       tindakanPerbaikan: json['tindakan_perbaikan']?.toString(),
       catatanEvaluasi: json['catatan_evaluasi']?.toString(),
