@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/auth_provider.dart';
+import '../../../../core/security/security_device_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -39,8 +40,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
+    final isRootedAsync = ref.watch(isDeviceRootedProvider);
     final isLoading = authState.status == AuthStatus.loading;
-
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: SafeArea(
@@ -53,6 +54,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Banner Peringatan Keamanan Perangkat Root (Non-blocking)
+                  if (isRootedAsync.value == true) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(LucideIcons.shieldAlert, size: 20, color: AppColors.danger),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Peringatan Integritas Perangkat',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.danger,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Perangkat terdeteksi dalam status root atau memakai OS developer test-keys. Hindari menyimpan data kredensial sensitif di perangkat ini.',
+                                  style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   // App Icon / Branding
                   Center(
                     child: Container(
