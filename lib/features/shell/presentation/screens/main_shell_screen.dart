@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -19,6 +20,29 @@ class MainShellScreen extends ConsumerStatefulWidget {
 
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   int _currentIndex = 0;
+  Timer? _inactivityTimer;
+  static const Duration _idleTimeout = Duration(minutes: 30);
+
+  @override
+  void initState() {
+    super.initState();
+    _resetInactivityTimer();
+  }
+
+  void _resetInactivityTimer() {
+    _inactivityTimer?.cancel();
+    _inactivityTimer = Timer(_idleTimeout, () {
+      if (mounted) {
+        ref.read(authStateProvider.notifier).handleSessionTimeout();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _inactivityTimer?.cancel();
+    super.dispose();
+  }
 
   void _onScanPressed() {
     Navigator.push(
@@ -32,8 +56,12 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
 
-    return Scaffold(
-      backgroundColor: AppColors.canvas,
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => _resetInactivityTimer(),
+      onPointerMove: (_) => _resetInactivityTimer(),
+      child: Scaffold(
+        backgroundColor: AppColors.canvas,
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -65,6 +93,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         },
         onScanPressed: _onScanPressed,
       ),
-    );
-  }
+    ),
+  );
+}
 }

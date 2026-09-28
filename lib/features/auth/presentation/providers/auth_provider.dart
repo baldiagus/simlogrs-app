@@ -98,6 +98,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState.unauthenticated('Sesi Anda telah berakhir. Silakan login kembali.');
   }
 
+  Future<void> handleSessionTimeout() async {
+    await _repository.logout();
+    _clearUserCaches();
+    state = AuthState.unauthenticated('Sesi berakhir otomatis demi keamanan gawai bersama (inaktivitas 30 menit).');
+  }
+
   void _clearUserCaches() {
     try {
       _ref.invalidate(dashboardSummaryProvider);
