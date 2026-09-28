@@ -616,22 +616,26 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            currentAset.kodeAset,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              fontFamily: 'monospace',
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              currentAset.kodeAset,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'monospace',
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         StatusBadge(status: currentAset.status),
                       ],
                     ),
@@ -905,15 +909,22 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                                     'Tgl: ${currentAset.servisTerakhir!.tanggalPengajuan}',
                                     style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                                   ),
-                                  const Row(
-                                    children: [
-                                      Text(
-                                        'Buka Rekam Medis & Preventif',
-                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
-                                      ),
-                                      SizedBox(width: 2),
-                                      Icon(LucideIcons.arrowRight, size: 12, color: AppColors.primaryPurple),
-                                    ],
+                                  const SizedBox(width: 8),
+                                  const Flexible(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            'Buka Rekam Medis & Preventif',
+                                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        SizedBox(width: 2),
+                                        Icon(LucideIcons.arrowRight, size: 12, color: AppColors.primaryPurple),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -931,10 +942,13 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Belum ada tiket servis. Buka rekam medis & preventif.',
-                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              Expanded(
+                                child: Text(
+                                  'Belum ada tiket servis. Buka rekam medis & preventif.',
+                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
                               ),
+                              SizedBox(width: 8),
                               Icon(LucideIcons.arrowRight, size: 14, color: AppColors.primaryPurple),
                             ],
                           ),
