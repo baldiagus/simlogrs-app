@@ -1,8 +1,11 @@
+import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../storage/secure_storage_service.dart';
 import 'api_response.dart';
-
 class DioClient {
   final Dio dio;
   final SecureStorageService storageService;
@@ -13,11 +16,17 @@ class DioClient {
     this.onUnauthorized,
     Dio? customDio,
   }) : dio = customDio ?? Dio() {
-    final baseUrl = (dotenv.isInitialized ? dotenv.maybeGet('API_BASE_URL') : null) ??
-        const String.fromEnvironment(
-          'API_BASE_URL',
-          defaultValue: 'http://127.0.0.1:8000/api/v1',
-        );
+    final defaultLoopback = kIsWeb
+        ? 'http://127.0.0.1:8000/api/v1'
+        : (defaultTargetPlatform == TargetPlatform.android
+            ? 'http://10.0.2.2:8000/api/v1'
+            : 'http://127.0.0.1:8000/api/v1');
+
+    const envUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+    final dotenvUrl = dotenv.isInitialized ? dotenv.maybeGet('API_BASE_URL') : null;
+    final baseUrl = envUrl.isNotEmpty
+        ? envUrl
+        : (dotenvUrl != null && dotenvUrl.isNotEmpty ? dotenvUrl : defaultLoopback);
     final connectTimeout = int.tryParse(
           (dotenv.isInitialized ? dotenv.maybeGet('CONNECT_TIMEOUT') : null) ?? '15000',
         ) ??
@@ -36,6 +45,22 @@ class DioClient {
         'Content-Type': 'application/json',
       },
     );
+
+    // SSL Certificate Pinning opsional untuk lingkungan produksi via --dart-define=SSL_FINGERPRINT=...
+    const sslFingerprint = String.fromEnvironment('SSL_FINGERPRINT', defaultValue: '');
+    if (!kIsWeb && sslFingerprint.isNotEmpty) {
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+            final digest = sha256.convert(cert.der).toString().toUpperCase();
+            final expected = sslFingerprint.toUpperCase().replaceAll(':', '').replaceAll(' ', '');
+            return digest == expected;
+          };
+          return client;
+        },
+      );
+    }
 
     dio.interceptors.add(
       InterceptorsWrapper(
