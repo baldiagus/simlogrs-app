@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/approval_item_model.dart';
@@ -11,6 +12,10 @@ final approvalRepositoryProvider = Provider<ApprovalRepository>((ref) {
 
 final approvalPendingProvider =
     FutureProvider.autoDispose<ApprovalPendingResponse>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  if (!authState.isAuthenticated || authState.user == null) {
+    throw Exception('Pengguna belum terotentikasi');
+  }
   final repository = ref.watch(approvalRepositoryProvider);
   return await repository.getPending();
 });

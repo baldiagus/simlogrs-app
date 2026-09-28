@@ -11,8 +11,12 @@ final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
 
 final dashboardSummaryProvider =
     FutureProvider.autoDispose<DashboardSummaryModel>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  if (!authState.isAuthenticated || authState.user == null) {
+    throw Exception('Pengguna belum terotentikasi');
+  }
   final repository = ref.watch(dashboardRepositoryProvider);
-  final user = ref.watch(authStateProvider).user;
+  final user = authState.user;
   final canViewSpk = (user?.can('page_AdminLogistikDashboard') ?? false) ||
       (user?.can('view_any_pemeliharaan::spk::perbaikan') ?? false) ||
       (user?.hasRole('teknisi') ?? false) ||

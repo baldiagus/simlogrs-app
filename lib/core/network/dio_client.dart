@@ -65,14 +65,20 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await storageService.getToken();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final isLoginPath = options.path.contains('/auth/login');
+          if (!isLoginPath) {
+            final token = await storageService.getToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
           return handler.next(options);
         },
         onError: (DioException error, handler) async {
-          if (error.response?.statusCode == 401) {
+          final path = error.requestOptions.path;
+          final isAuthPath = path.contains('/auth/login') || path.contains('/auth/logout');
+
+          if (error.response?.statusCode == 401 && !isAuthPath) {
             await storageService.deleteToken();
             onUnauthorized?.call();
           }
