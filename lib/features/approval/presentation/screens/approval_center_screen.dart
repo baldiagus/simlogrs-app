@@ -13,7 +13,7 @@ import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../data/models/approval_item_model.dart';
 import '../providers/approval_provider.dart';
 import '../widgets/approval_card.dart';
-
+import '../../../pengadaan/presentation/widgets/terbitkan_po_sheet.dart';
 class ApprovalCenterScreen extends ConsumerStatefulWidget {
   const ApprovalCenterScreen({super.key});
 
@@ -183,12 +183,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   // MODAL TERBITKAN PO DARI PR DISETUJUI
   // -------------------------------------------------------------
   void _showTerbitkanPoModal(BuildContext context, ApprovalItemModel item) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _TerbitkanPoSheet(prItem: item),
-    );
+    TerbitkanPoSheet.show(context, item);
   }
 
   @override
@@ -202,14 +197,23 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
         (user?.hasRole('super_admin') == true);
     final poListAsync = isPengadaanFlow ? ref.watch(poListProvider) : null;
 
+    final isPengadaanUser = (user?.isPengadaan == true) &&
+        !(user?.hasRole('super_admin') == true) &&
+        !(user?.isAdminLogistik == true);
     final canManagePo = (user?.isPengadaan == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true);
     final isReadOnly = (user?.isManajemen == true) || (user?.isAuditor == true);
-    final canApprovePr = user?.can('update_pengadaan::permintaan::pengadaan') ?? false;
+    final canApprovePr = isPengadaanUser
+        ? false
+        : (user?.can('update_pengadaan::permintaan::pengadaan') ?? false);
     final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
         (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false);
+
+    final totalPrBadge = isPengadaanUser
+        ? (pendingAsync.valueOrNull?.prList.where((pr) => pr.status == 'DISETUJUI' || pr.status == 'DITERUSKAN_KE_PENGADAAN').length ?? 0)
+        : (pendingAsync.valueOrNull?.totalPr ?? 0);
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -229,7 +233,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                 children: [
                   const Text('Pengadaan (PR)'),
                   const SizedBox(width: 6),
-                  _buildCountBadge(pendingAsync.valueOrNull?.totalPr ?? 0),
+                  _buildCountBadge(totalPrBadge),
                 ],
               ),
             ),
@@ -257,10 +261,14 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
             children: [
               // Tab 1: PR List
               _buildList(
-                items: pending.prList,
+                items: isPengadaanUser
+                    ? pending.prList.where((pr) => pr.status == 'DISETUJUI' || pr.status == 'DITERUSKAN_KE_PENGADAAN').toList()
+                    : pending.prList,
                 emptyTitle: 'Tidak Ada Antrean PR',
-                emptyMessage: 'Semua dokumen Permintaan Pengadaan telah disetujui atau belum ada pengajuan baru.',
-                canApprove: isReadOnly ? false : (canApprovePr || canManagePo),
+                emptyMessage: isPengadaanUser
+                    ? 'Belum ada dokumen Permintaan Pengadaan yang disetujui untuk diterbitkan PO.'
+                    : 'Semua dokumen Permintaan Pengadaan telah disetujui atau belum ada pengajuan baru.',
+                canApprove: isReadOnly ? false : canApprovePr,
                 onTerbitkanPoTap: canManagePo ? (item) => _showTerbitkanPoModal(context, item) : null,
               ),
 
@@ -641,368 +649,3 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   }
 }
 
-// -------------------------------------------------------------
-// BOTTOM SHEET MODAL: TERBITKAN PO BARU DARI PR
-// -------------------------------------------------------------
-class _TerbitkanPoSheet extends ConsumerStatefulWidget {
-  final ApprovalItemModel prItem;
-
-  const _TerbitkanPoSheet({required this.prItem});
-
-  @override
-  ConsumerState<_TerbitkanPoSheet> createState() => _TerbitkanPoSheetState();
-}
-
-class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
-  int? _selectedPemasokId;
-  DateTime _estimasiKirim = DateTime.now().add(const Duration(days: 7));
-  String _syaratBayar = 'TEMPO_30_HARI';
-  final TextEditingController _catatanCtrl = TextEditingController();
-  final Map<int, TextEditingController> _priceControllers = {};
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    for (int i = 0; i < widget.prItem.items.length; i++) {
-      _priceControllers[i] = TextEditingController(text: '100000');
-    }
-  }
-
-  @override
-  void dispose() {
-    _catatanCtrl.dispose();
-    for (final ctrl in _priceControllers.values) {
-      ctrl.dispose();
-    }
-    super.dispose();
-  }
-
-  double _calculateTotal() {
-    double total = 0;
-    for (int i = 0; i < widget.prItem.items.length; i++) {
-      final it = widget.prItem.items[i];
-      final price = double.tryParse(_priceControllers[i]?.text.replaceAll('.', '') ?? '0') ?? 0;
-      total += it.jumlah * price;
-    }
-    return total;
-  }
-
-  Future<void> _submitPo() async {
-    if (_selectedPemasokId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih rekanan / vendor pemasok terlebih dahulu.'), backgroundColor: AppColors.danger),
-      );
-      return;
-    }
-
-    // Validasi setiap item memiliki ID barang valid
-    for (final it in widget.prItem.items) {
-      if (it.barangId == null || it.barangId! <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Item "${it.namaBarang}" tidak memiliki ID barang yang valid.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-        return;
-      }
-    }
-
-    final itemsPayload = <Map<String, dynamic>>[];
-    for (int i = 0; i < widget.prItem.items.length; i++) {
-      final it = widget.prItem.items[i];
-      final price = double.tryParse(_priceControllers[i]?.text.replaceAll('.', '') ?? '0') ?? 0;
-      if (price <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Harga satuan untuk "${it.namaBarang}" wajib lebih dari 0.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-        return;
-      }
-      itemsPayload.add({
-        'barang_id': it.barangId!,
-        'jumlah': it.jumlah,
-        'harga_satuan': price,
-      });
-    }
-
-    setState(() => _isLoading = true);
-    try {
-
-      final notifier = ref.read(poActionProvider.notifier);
-      final ok = await notifier.terbitkanPo(
-        prId: widget.prItem.id,
-        pemasokId: _selectedPemasokId!,
-        estimasiTanggalKirim: _estimasiKirim.toIso8601String().substring(0, 10),
-        syaratPembayaran: _syaratBayar,
-        catatan: _catatanCtrl.text.trim(),
-        items: itemsPayload,
-      );
-
-      if (mounted) {
-        final state = ref.read(poActionProvider);
-        if (ok) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.successMessage ?? 'PO Berhasil Diterbitkan!'), backgroundColor: AppColors.success),
-          );
-          ref.invalidate(approvalPendingProvider);
-          ref.invalidate(poListProvider);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Gagal menerbitkan PO'), backgroundColor: AppColors.danger),
-          );
-        }
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final pemasokAsync = ref.watch(pemasokListProvider);
-    final currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.88,
-      padding: EdgeInsets.only(
-        top: 16,
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Terbitkan Pesanan Pembelian (PO)',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      'Dasar PR: ${widget.prItem.kode} • ${widget.prItem.unit}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
-            ],
-          ),
-          const Divider(height: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. Pilih Rekanan
-                  const Text('Rekanan / Vendor Pemasok *', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                  const SizedBox(height: 6),
-                  pemasokAsync.when(
-                    data: (vendors) {
-                      return DropdownButtonFormField<int>(
-                        initialValue: _selectedPemasokId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Pilih vendor rekanan...'),
-                        items: vendors.map((v) {
-                          return DropdownMenuItem(
-                            value: v.id,
-                            child: Text('${v.nama} (${v.kode})', style: const TextStyle(fontSize: 13)),
-                          );
-                        }).toList(),
-                        onChanged: (val) => setState(() => _selectedPemasokId = val),
-                      );
-                    },
-                    loading: () => const LinearProgressIndicator(),
-                    error: (err, _) => Text('Gagal memuat vendor: $err', style: const TextStyle(color: AppColors.danger)),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // 2. Estimasi Kirim & Syarat Bayar
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Estimasi Kirim', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                            const SizedBox(height: 6),
-                            InkWell(
-                              onTap: () async {
-                                final d = await showDatePicker(
-                                  context: context,
-                                  initialDate: _estimasiKirim,
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(const Duration(days: 180)),
-                                );
-                                if (d != null) setState(() => _estimasiKirim = d);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                                decoration: BoxDecoration(border: Border.all(color: AppColors.border), borderRadius: BorderRadius.circular(10)),
-                                child: Row(
-                                  children: [
-                                    const Icon(LucideIcons.calendar, size: 16, color: AppColors.textSecondary),
-                                    const SizedBox(width: 8),
-                                    Text(DateFormat('dd/MM/yyyy').format(_estimasiKirim), style: const TextStyle(fontSize: 13)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Syarat Bayar', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                            const SizedBox(height: 6),
-                            DropdownButtonFormField<String>(
-                              initialValue: _syaratBayar,
-                              decoration: const InputDecoration(border: OutlineInputBorder()),
-                              items: const [
-                                DropdownMenuItem(value: 'TEMPO_30_HARI', child: Text('Tempo 30 Hari', style: TextStyle(fontSize: 12))),
-                                DropdownMenuItem(value: 'TEMPO_60_HARI', child: Text('Tempo 60 Hari', style: TextStyle(fontSize: 12))),
-                                DropdownMenuItem(value: 'TUNAI', child: Text('Tunai / COD', style: TextStyle(fontSize: 12))),
-                              ],
-                              onChanged: (val) {
-                                if (val != null) setState(() => _syaratBayar = val);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // 3. Catatan PO
-                  const Text('Catatan Pesanan', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _catatanCtrl,
-                    maxLines: 2,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Keterangan tambahan untuk vendor...'),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 4. Item Barang & Harga Negosiasi Satuan
-                  const Text('Rincian Item Komoditas & Harga Satuan:', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-                  const SizedBox(height: 8),
-                  ...widget.prItem.items.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final it = entry.value;
-                    final ctrl = _priceControllers[index]!;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.canvas,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  it.namaBarang,
-                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text('Qty: ${it.jumlah} ${it.satuan ?? 'Pcs'}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 3,
-                            child: TextField(
-                              controller: ctrl,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Harga (Rp)',
-                                isDense: true,
-                                border: OutlineInputBorder(),
-                              ),
-                              onChanged: (_) => setState(() {}),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Total Nilai & Tombol Terbitkan
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Total Biaya PO:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  currency.format(_calculateTotal()),
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
-                  textAlign: TextAlign.end,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _isLoading ? null : _submitPo,
-              icon: const Icon(LucideIcons.filePlus, size: 16, color: Colors.white),
-              label: _isLoading
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Terbitkan PO Sekarang', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryPurple,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

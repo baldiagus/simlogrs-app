@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../providers/auth_provider.dart';
 import '../../../../core/security/security_device_service.dart';
 
@@ -37,6 +38,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             deviceName: 'SIMLOG Mobile Client',
           );
     }
+  }
+
+  void _showServerConfigDialog() {
+    final dio = ref.read(dioClientProvider);
+    final storage = ref.read(storageServiceProvider);
+    final urlController = TextEditingController(text: dio.dio.options.baseUrl);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(LucideIcons.server, size: 20, color: AppColors.primaryPurple),
+            SizedBox(width: 8),
+            Text('Pengaturan Server API', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Masukkan alamat IP dan port server backend:',
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: urlController,
+              decoration: const InputDecoration(
+                hintText: 'http://192.168.1.96:8000/api/v1',
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+              style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Pastikan HP dan komputer berada di jaringan Wi-Fi yang sama.',
+              style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textMuted),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newUrl = urlController.text.trim();
+              if (newUrl.isNotEmpty) {
+                dio.setBaseUrl(newUrl);
+                await storage.saveServerUrl(newUrl);
+                if (mounted) setState(() {});
+              }
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Simpan URL'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -314,6 +377,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ],
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _showServerConfigDialog,
+                      icon: const Icon(LucideIcons.server, size: 14, color: AppColors.textSecondary),
+                      label: Text(
+                        'Server: ${ref.watch(dioClientProvider).dio.options.baseUrl}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ],

@@ -4,7 +4,7 @@ class SecureStorageService {
   final FlutterSecureStorage _storage;
   String? _inMemoryToken;
   String? _inMemoryUser;
-
+  String? _inMemoryServerUrl;
   SecureStorageService([FlutterSecureStorage? storage])
       : _storage = storage ??
             const FlutterSecureStorage(
@@ -13,6 +13,7 @@ class SecureStorageService {
             );
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'cached_user';
+  static const String _serverUrlKey = 'custom_server_url';
 
   Future<void> saveToken(String token) async {
     _inMemoryToken = token;
@@ -45,6 +46,18 @@ class SecureStorageService {
     return _inMemoryUser;
   }
 
+  Future<void> saveServerUrl(String url) async {
+    _inMemoryServerUrl = url;
+    await _storage.write(key: _serverUrlKey, value: url);
+  }
+
+  Future<String?> getServerUrl() async {
+    if (_inMemoryServerUrl != null && _inMemoryServerUrl!.isNotEmpty) {
+      return _inMemoryServerUrl;
+    }
+    _inMemoryServerUrl = await _storage.read(key: _serverUrlKey);
+    return _inMemoryServerUrl;
+  }
   Future<void> clearAll() async {
     _inMemoryToken = null;
     _inMemoryUser = null;

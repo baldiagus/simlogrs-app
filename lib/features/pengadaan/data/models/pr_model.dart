@@ -1,5 +1,5 @@
+import '../../../approval/data/models/approval_item_model.dart';
 import 'master_barang_model.dart';
-
 class PrDetailItemModel {
   final int id;
   final int barangId;
@@ -63,6 +63,13 @@ class PrHeaderModel {
 
   bool get isCito => urgensi.toUpperCase() == 'CITO' || urgensi.toUpperCase() == 'MENDESAK';
 
+  bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+
+  bool get isSiapPo {
+    final s = status.toUpperCase();
+    return s == 'DISETUJUI' || s == 'DITERUSKAN_KE_PENGADAAN';
+  }
+
   bool get isDisetujui {
     final s = status.toUpperCase();
     return s.contains('SETUJU') ||
@@ -71,6 +78,28 @@ class PrHeaderModel {
         s == 'SELESAI';
   }
 
+  ApprovalItemModel toApprovalItem() {
+    return ApprovalItemModel(
+      id: id,
+      tipe: 'PR',
+      kode: kode,
+      unit: unit,
+      pengaju: pengaju,
+      tanggal: tanggalPermintaan,
+      urgensi: urgensi,
+      status: status,
+      jumlahItem: jumlahItem,
+      items: items
+          .map((i) => ApprovalDetailItem(
+                barangId: i.barangId,
+                namaBarang: i.namaBarang,
+                kodeBarang: i.kodeBarang,
+                satuan: i.satuan,
+                jumlah: i.jumlah,
+              ))
+          .toList(),
+    );
+  }
   factory PrHeaderModel.fromJson(Map<String, dynamic> json) {
     return PrHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

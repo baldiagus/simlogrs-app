@@ -267,26 +267,39 @@ class _ApprovalCardState extends State<ApprovalCard> {
           const Divider(height: 1, color: AppColors.border),
           Padding(
             padding: const EdgeInsets.all(12),
-            child: widget.canApprove
-                ? (isPr && (item.status == 'DISETUJUI' || item.status == 'DITERUSKAN_KE_PENGADAAN')
-                    ? (widget.onTerbitkanPoTap != null
+            child: isPr && (item.status == 'DISETUJUI' || item.status == 'DITERUSKAN_KE_PENGADAAN')
+                ? (widget.onTerbitkanPoTap != null
+                    ? CustomButton(
+                        text: 'Terbitkan PO (Pesanan Pembelian)',
+                        height: 42,
+                        backgroundColor: AppColors.primaryPurple,
+                        textColor: Colors.white,
+                        icon: const Icon(LucideIcons.filePlus, size: 16, color: Colors.white),
+                        onPressed: widget.onTerbitkanPoTap,
+                      )
+                    : (widget.onSerahkanTap != null && widget.canApprove
                         ? CustomButton(
-                            text: 'Terbitkan PO (Pesanan Pembelian)',
-                            height: 42,
-                            backgroundColor: AppColors.primaryPurple,
-                            textColor: Colors.white,
-                            icon: const Icon(LucideIcons.filePlus, size: 16, color: Colors.white),
-                            onPressed: widget.onTerbitkanPoTap,
-                          )
-                        : CustomButton(
                             text: 'Serahkan ke Bagian Pengadaan',
                             height: 42,
                             backgroundColor: AppColors.primaryPurple,
                             textColor: Colors.white,
                             icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
-                            onPressed: widget.onSerahkanTap ?? widget.onApproveTap,
-                          ))
-                    : Row(
+                            onPressed: widget.onSerahkanTap,
+                          )
+                        : const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              'Telah disetujui • Menunggu penerbitan PO oleh Bagian Pengadaan',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textMuted,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )))
+                : (widget.canApprove
+                    ? Row(
                         children: [
                           Expanded(
                             child: CustomButton(
@@ -310,19 +323,19 @@ class _ApprovalCardState extends State<ApprovalCard> {
                             ),
                           ),
                         ],
-                      ))
-                : const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child: Text(
-                      'Menunggu otorisasi pejabat yang berwenang',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                      )
+                    : const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          'Menunggu otorisasi pejabat yang berwenang',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMuted,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )),
           ),
         ],
       ),
