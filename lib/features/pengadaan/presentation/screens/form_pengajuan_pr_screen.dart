@@ -77,6 +77,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
 
     final success = await notifier.submitPr(
       unitId: user?.unit?.id,
+      gudangId: user?.gudang?.id,
       urgensi: _urgensi,
       catatan: _catatanController.text.trim(),
       items: _cartItems,

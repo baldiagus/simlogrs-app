@@ -4,6 +4,14 @@ import '../../data/repositories/auth_repository.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../approval/presentation/providers/approval_provider.dart';
+import '../../../audit/presentation/providers/audit_provider.dart';
+import '../../../anggaran/presentation/providers/anggaran_provider.dart';
+import '../../../aset/presentation/providers/peminjaman_provider.dart';
+import '../../../gudang/presentation/providers/gudang_provider.dart';
+import '../../../gudang/presentation/providers/inbound_provider.dart';
+import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated }
 
@@ -30,8 +38,9 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
+  final Ref _ref;
 
-  AuthNotifier(this._repository, DioClient dioClient) : super(AuthState.initial()) {
+  AuthNotifier(this._repository, DioClient dioClient, this._ref) : super(AuthState.initial()) {
     dioClient.onUnauthorized = handleUnauthorized;
     checkAuth();
   }
@@ -80,16 +89,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     state = AuthState.loading();
     await _repository.logout();
+    _clearUserCaches();
     state = AuthState.unauthenticated();
   }
 
   void handleUnauthorized() {
+    _clearUserCaches();
     state = AuthState.unauthenticated('Sesi Anda telah berakhir. Silakan login kembali.');
+  }
+
+  void _clearUserCaches() {
+    try {
+      _ref.invalidate(dashboardSummaryProvider);
+      _ref.invalidate(approvalPendingProvider);
+      _ref.invalidate(poListProvider);
+      _ref.invalidate(registerTemuanProvider);
+      _ref.invalidate(auditSummaryProvider);
+      _ref.invalidate(screeningAnggaranProvider);
+      _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarApprovalPeminjamanProvider);
+      _ref.invalidate(daftarPoInboundProvider);
+      _ref.invalidate(daftarRakProvider);
+    } catch (_) {
+      // Abaikan jika provider belum pernah diinisialisasi
+    }
   }
 }
 
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   final dioClient = ref.watch(dioClientProvider);
-  return AuthNotifier(repository, dioClient);
+  return AuthNotifier(repository, dioClient, ref);
 });

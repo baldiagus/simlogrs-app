@@ -55,6 +55,7 @@ class PengadaanRepository {
 
   Future<Map<String, dynamic>> submitPr({
     int? unitId,
+    int? gudangId,
     required String urgensi,
     String? catatan,
     required List<Map<String, dynamic>> items,
@@ -64,6 +65,7 @@ class PengadaanRepository {
         '/pengadaan/pr',
         data: {
           if (unitId != null) 'unit_id': unitId,
+          if (gudangId != null) 'gudang_id': gudangId,
           'urgensi': urgensi,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
           'items': items,

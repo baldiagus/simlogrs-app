@@ -51,8 +51,11 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
       ];
     }
 
-    final isAdmin = user.hasRole('super_admin') || user.hasRole('admin_logistik');
-    if (isAdmin) {
+    final isHighLevelViewer = user.hasRole('super_admin') ||
+        user.hasRole('admin_logistik') ||
+        user.isAuditor ||
+        user.isManajemen;
+    if (isHighLevelViewer) {
       return const [
         _ActivityFilterOption('Semua', null),
         _ActivityFilterOption('Pengadaan PR', 'pr'),

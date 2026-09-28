@@ -452,6 +452,20 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final canApproveNow = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
+        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
+        (user?.hasRole('kepala_unit') ?? false) ||
+        (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('super_admin') ?? false);
+
+    if (canApproveNow != _canApprove) {
+      _canApprove = canApproveNow;
+      _tabController.dispose();
+      _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
+    }
+
     final peminjamanSayaAsync = ref.watch(daftarPeminjamanSayaProvider);
     final approvalPeminjamanAsync = ref.watch(daftarApprovalPeminjamanProvider);
     final peminjamanAktifAsync = ref.watch(daftarPeminjamanAktifDipinjamProvider);

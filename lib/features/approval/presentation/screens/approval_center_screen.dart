@@ -665,8 +665,8 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
   @override
   void initState() {
     super.initState();
-    for (final it in widget.prItem.items) {
-      _priceControllers[it.barangId ?? 0] = TextEditingController(text: '100000');
+    for (int i = 0; i < widget.prItem.items.length; i++) {
+      _priceControllers[i] = TextEditingController(text: '100000');
     }
   }
 
@@ -681,8 +681,9 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
 
   double _calculateTotal() {
     double total = 0;
-    for (final it in widget.prItem.items) {
-      final price = double.tryParse(_priceControllers[it.barangId ?? 0]?.text.replaceAll('.', '') ?? '0') ?? 0;
+    for (int i = 0; i < widget.prItem.items.length; i++) {
+      final it = widget.prItem.items[i];
+      final price = double.tryParse(_priceControllers[i]?.text.replaceAll('.', '') ?? '0') ?? 0;
       total += it.jumlah * price;
     }
     return total;
@@ -696,16 +697,41 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
       return;
     }
 
+    // Validasi setiap item memiliki ID barang valid
+    for (final it in widget.prItem.items) {
+      if (it.barangId == null || it.barangId! <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Item "${it.namaBarang}" tidak memiliki ID barang yang valid.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        return;
+      }
+    }
+
+    final itemsPayload = <Map<String, dynamic>>[];
+    for (int i = 0; i < widget.prItem.items.length; i++) {
+      final it = widget.prItem.items[i];
+      final price = double.tryParse(_priceControllers[i]?.text.replaceAll('.', '') ?? '0') ?? 0;
+      if (price <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Harga satuan untuk "${it.namaBarang}" wajib lebih dari 0.'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        return;
+      }
+      itemsPayload.add({
+        'barang_id': it.barangId!,
+        'jumlah': it.jumlah,
+        'harga_satuan': price,
+      });
+    }
+
     setState(() => _isLoading = true);
     try {
-      final itemsPayload = widget.prItem.items.map((it) {
-        final price = double.tryParse(_priceControllers[it.barangId ?? 0]?.text.replaceAll('.', '') ?? '0') ?? 0;
-        return {
-          'barang_id': it.barangId ?? 0,
-          'jumlah': it.jumlah,
-          'harga_satuan': price,
-        };
-      }).toList();
 
       final notifier = ref.read(poActionProvider.notifier);
       final ok = await notifier.terbitkanPo(
@@ -879,8 +905,10 @@ class _TerbitkanPoSheetState extends ConsumerState<_TerbitkanPoSheet> {
                   // 4. Item Barang & Harga Negosiasi Satuan
                   const Text('Rincian Item Komoditas & Harga Satuan:', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
                   const SizedBox(height: 8),
-                  ...widget.prItem.items.map((it) {
-                    final ctrl = _priceControllers[it.barangId ?? 0]!;
+                  ...widget.prItem.items.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final it = entry.value;
+                    final ctrl = _priceControllers[index]!;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),

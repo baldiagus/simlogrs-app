@@ -60,6 +60,7 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
 
   Future<bool> submitPr({
     int? unitId,
+    int? gudangId,
     required String urgensi,
     String? catatan,
     required List<PrCartItemModel> items,
@@ -76,11 +77,11 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
       final payloadItems = items.map((e) => e.toSubmissionJson()).toList();
       final res = await _repository.submitPr(
         unitId: unitId,
+        gudangId: gudangId,
         urgensi: urgensi,
         catatan: catatan,
         items: payloadItems,
       );
-
       final kode = res['kode']?.toString() ?? 'PR Baru';
       state = PrSubmissionState(
         isLoading: false,
