@@ -549,10 +549,14 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                po.kode,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
+              Flexible(
+                child: Text(
+                  po.kode,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               if (po.isCompliant)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -560,18 +564,22 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
                   child: const Text('PATUH', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 10)),
                 )
               else
-                Wrap(
-                  spacing: 4,
-                  children: po.anomaliTags.map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(4)),
-                      child: Text(
-                        tag,
-                        style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700, fontSize: 9),
-                      ),
-                    );
-                  }).toList(),
+                Flexible(
+                  child: Wrap(
+                    spacing: 4,
+                    alignment: WrapAlignment.end,
+                    children: po.anomaliTags.map((tag) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(4)),
+                        child: Text(
+                          tag,
+                          style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700, fontSize: 9),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
             ],
           ),
@@ -593,10 +601,14 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Nilai PO: Rp ${po.totalBiaya.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.tintBlue),
+              Flexible(
+                child: Text(
+                  'Nilai PO: Rp ${po.totalBiaya.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.tintBlue),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 'Estimasi: ${po.estimasiTanggalKirim}',
                 style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
@@ -767,7 +779,14 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(p.kode, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+              Flexible(
+                child: Text(
+                  p.kode,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -795,7 +814,14 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${p.totalItem} Komoditas Disesuaikan', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+              Flexible(
+                child: Text(
+                  '${p.totalItem} Komoditas Disesuaikan',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               Text('Penyetuju: ${p.penyetuju}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
             ],
           ),
@@ -975,27 +1001,34 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      temuan.kode,
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppColors.textPrimary),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: riskColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: riskColor.withValues(alpha: 0.3)),
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          temuan.kode,
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppColors.textPrimary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(
-                        temuan.tingkatRisiko,
-                        style: TextStyle(color: riskColor, fontWeight: FontWeight.w700, fontSize: 9),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: riskColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: riskColor.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          temuan.tingkatRisiko,
+                          style: TextStyle(color: riskColor, fontWeight: FontWeight.w700, fontSize: 9),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(6)),
@@ -1024,17 +1057,21 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
                 const Icon(LucideIcons.calendar, size: 12, color: AppColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
-                  'Due Date: ${temuan.dueDateCapa}',
+                  'Due: ${temuan.dueDateCapa}',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: temuan.isOverdue ? FontWeight.w700 : FontWeight.normal,
                     color: temuan.isOverdue ? AppColors.danger : AppColors.textMuted,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  temuan.unit != '-' ? 'Unit: ${temuan.unit}' : (temuan.gudang != null && temuan.gudang != '-' ? 'Gudang: ${temuan.gudang}' : 'Sentral'),
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    temuan.unit != '-' ? 'Unit: ${temuan.unit}' : (temuan.gudang != null && temuan.gudang != '-' ? 'Gudang: ${temuan.gudang}' : 'Sentral'),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -1804,7 +1841,14 @@ class _DetailTemuanSheetState extends ConsumerState<_DetailTemuanSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.kode, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                Expanded(
+                  child: Text(
+                    t.kode,
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
               ],
             ),

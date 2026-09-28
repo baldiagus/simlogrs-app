@@ -248,12 +248,15 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                         children: [
                           const Icon(LucideIcons.boxes, size: 18, color: AppColors.primaryPurple),
                           const SizedBox(width: 8),
-                          Text(
-                            'Pemeriksaan Fisik Barang (${_itemDrafts.length} Item)',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                          Expanded(
+                            child: Text(
+                              'Pemeriksaan Fisik Barang (${_itemDrafts.length} Item)',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

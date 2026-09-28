@@ -183,27 +183,34 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.tintBlueBg,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(LucideIcons.truck, size: 14, color: AppColors.tintBlue),
-                          const SizedBox(width: 4),
-                          Text(
-                            po.kodePo,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.tintBlue,
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.tintBlueBg,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.truck, size: 14, color: AppColors.tintBlue),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                po.kodePo,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.tintBlue,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     StatusBadge(status: po.status),
                   ],
                 ),
@@ -221,17 +228,23 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                   children: [
                     const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
-                    Text(
-                      'Tgl PO: ${po.tanggalPo}',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    Flexible(
+                      child: Text(
+                        'Tgl PO: ${po.tanggalPo}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     if (po.estimasiTanggalKirim != null) ...[
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       const Icon(LucideIcons.clock, size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
-                      Text(
-                        'Estimasi: ${po.estimasiTanggalKirim}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      Flexible(
+                        child: Text(
+                          'Estimasi: ${po.estimasiTanggalKirim}',
+                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ],
@@ -246,12 +259,16 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '${po.totalItem} Item Komoditas Barang',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      Expanded(
+                        child: Text(
+                          '${po.totalItem} Item Komoditas Barang',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
-                        po.isDiterbitkan ? 'Menunggu Pengiriman Vendor' : 'Siap Inbound',
+                        po.isDiterbitkan ? 'Menunggu Pengiriman' : 'Siap Inbound',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -295,9 +312,12 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                   children: [
                     Icon(LucideIcons.lock, size: 14, color: AppColors.textSecondary),
                     SizedBox(width: 8),
-                    Text(
-                      'Penerimaan Fisik Dibatasi untuk Petugas Gudang',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                    Expanded(
+                      child: Text(
+                        'Penerimaan Fisik Dibatasi untuk Petugas Gudang',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
