@@ -1,4 +1,5 @@
 import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
+import '../../../anggaran/presentation/screens/pagu_realisasi_screen.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
@@ -321,6 +322,12 @@ class HomeScreen extends ConsumerWidget {
                         MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
                       );
                     },
+                    onPaguRealisasiTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PaguRealisasiScreen()),
+                      );
+                    },
                     onApprovalTap: () {
                       onNavigateTab?.call(1); // Approval Tab
                     },
@@ -434,6 +441,64 @@ class HomeScreen extends ConsumerWidget {
                                 SizedBox(height: 2),
                                 Text(
                                   'Audit trail, kepatuhan PO, selisih opname, register temuan',
+                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
+                // Banner Pagu & Realisasi Anggaran (Khusus Auditor & Manajemen)
+                if (ref.watch(authStateProvider).user?.isAuditor == true ||
+                    ref.watch(authStateProvider).user?.isManajemen == true) ...[
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PaguRealisasiScreen()),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.tintTeal.withValues(alpha: 0.3)),
+                        boxShadow: AppShadows.softCard,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.tintTealBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(LucideIcons.banknote, size: 22, color: AppColors.tintTeal),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Pagu & Realisasi Anggaran RS',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Screening pengeluaran logistik ruangan & suku cadang IPSRS',
                                   style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                                 ),
                               ],

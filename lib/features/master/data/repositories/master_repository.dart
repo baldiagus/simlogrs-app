@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../models/master_barang_item_model.dart';
 import '../models/register_aset_item_model.dart';
 
@@ -111,6 +112,40 @@ class MasterRepository {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
+      return [];
+    }
+  }
+
+  /// Mengambil daftar unit ruangan aktif
+  Future<List<UnitModel>> getUnitList() async {
+    try {
+      final response = await _client.dio.get('/master/unit');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is List) {
+        return (data['data'] as List)
+            .map((e) => UnitModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      return [];
+    }
+  }
+
+  /// Mengambil daftar fasilitas gudang aktif
+  Future<List<GudangModel>> getGudangList() async {
+    try {
+      final response = await _client.dio.get('/master/gudang');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is List) {
+        return (data['data'] as List)
+            .map((e) => GudangModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
       return [];
     }
   }

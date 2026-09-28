@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../../data/models/master_barang_item_model.dart';
 import '../../data/repositories/master_repository.dart';
 
@@ -27,4 +28,14 @@ final masterKategoriListProvider = FutureProvider.autoDispose<List<Map<String, d
 final detailBarangProvider = FutureProvider.autoDispose.family<DetailBarangModel, int>((ref, id) async {
   final repo = ref.watch(masterRepositoryProvider);
   return repo.getDetailBarang(id);
+});
+
+final masterUnitListProvider = FutureProvider.autoDispose<List<UnitModel>>((ref) async {
+  final repo = ref.watch(masterRepositoryProvider);
+  return repo.getUnitList();
+});
+
+final masterGudangListProvider = FutureProvider.autoDispose<List<GudangModel>>((ref) async {
+  final repo = ref.watch(masterRepositoryProvider);
+  return repo.getGudangList();
 });

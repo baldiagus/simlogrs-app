@@ -22,6 +22,7 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onRekamMedisTap;
   final VoidCallback? onPreventifTap;
   final VoidCallback? onAuditSpiTap;
+  final VoidCallback? onPaguRealisasiTap;
 
   const QuickActionGrid({
     super.key,
@@ -33,6 +34,7 @@ class QuickActionGrid extends StatelessWidget {
     this.isManajemen = false,
     this.isPengadaan = false,
     this.onAuditSpiTap,
+    this.onPaguRealisasiTap,
     required this.onApprovalTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
@@ -143,12 +145,38 @@ class QuickActionGrid extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildActionCard(
+                  title: 'Pagu & Realisasi',
+                  subtitle: 'Logistik & IPSRS',
+                  icon: LucideIcons.banknote,
+                  bgColor: AppColors.tintTealBg,
+                  iconColor: AppColors.tintTeal,
+                  onTap: onPaguRealisasiTap ?? onApprovalTap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
                   title: 'Sirkulasi Aset',
                   subtitle: 'Peminjaman & Cek',
                   icon: LucideIcons.armchair,
                   bgColor: AppColors.tintOrangeBg,
                   iconColor: AppColors.tintOrange,
                   onTap: onAsetTap,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  title: 'Pantau SPK',
+                  subtitle: 'Semua SPK RS (Lihat)',
+                  icon: LucideIcons.clipboardCheck,
+                  bgColor: AppColors.tintTealBg,
+                  iconColor: AppColors.tintTeal,
+                  onTap: onSpkTap ?? onLaporRusakTap,
                 ),
               ),
             ],
@@ -169,12 +197,12 @@ class QuickActionGrid extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildActionCard(
-                  title: 'Pantau SPK',
-                  subtitle: 'Semua SPK RS (Lihat)',
-                  icon: LucideIcons.clipboardCheck,
-                  bgColor: AppColors.tintTealBg,
-                  iconColor: AppColors.tintTeal,
-                  onTap: onSpkTap ?? onLaporRusakTap,
+                  title: 'Inbound PO',
+                  subtitle: 'Status Vendor',
+                  icon: LucideIcons.truck,
+                  bgColor: AppColors.tintBlueBg,
+                  iconColor: AppColors.tintBlue,
+                  onTap: onInboundTap ?? onAsetTap,
                 ),
               ),
             ],
