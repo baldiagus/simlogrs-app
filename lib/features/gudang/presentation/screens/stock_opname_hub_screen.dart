@@ -319,28 +319,35 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryPurple.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryPurple.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(LucideIcons.clipboardCheck, color: AppColors.primaryPurple, size: 18),
                                 ),
-                                child: const Icon(LucideIcons.clipboardCheck, color: AppColors.primaryPurple, size: 18),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                op.kode,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
-                                  color: AppColors.textPrimary,
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: Text(
+                                    op.kode,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      fontFamily: 'monospace',
+                                      color: AppColors.textPrimary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           StatusBadge(status: op.status),
                         ],
                       ),
@@ -365,16 +372,23 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              const Icon(LucideIcons.boxes, size: 13, color: AppColors.textSecondary),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${op.totalItem} Item (${op.totalTerhitung} Terhitung)',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                              ),
-                            ],
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(LucideIcons.boxes, size: 13, color: AppColors.textSecondary),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    '${op.totalItem} Item (${op.totalTerhitung} Terhitung)',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           if (op.totalSelisih > 0)
                             Text(
                               '${op.totalSelisih} Batch Selisih',
@@ -530,18 +544,26 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Batch: ${d.nomorBatch}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                fontFamily: 'monospace',
-                                color: AppColors.primaryPurple,
+                            Flexible(
+                              child: Text(
+                                'Batch: ${d.nomorBatch}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: 'monospace',
+                                  color: AppColors.primaryPurple,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Text(
-                              'Rak: ${d.lokasiRak}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Rak: ${d.lokasiRak}',
+                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                              ),
                             ),
                           ],
                         ),
@@ -549,6 +571,8 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                         Text(
                           d.namaBarang,
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 10),
                         Row(
