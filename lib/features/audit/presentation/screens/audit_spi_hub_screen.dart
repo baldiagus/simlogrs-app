@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/audit_models.dart';
 import '../../data/repositories/audit_repository.dart';
@@ -49,8 +50,29 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
 
   @override
   Widget build(BuildContext context) {
-    final summaryAsync = ref.watch(auditSummaryProvider);
     final user = ref.watch(authStateProvider).user;
+    final hasAccess = user?.hasAuditAccess ?? false;
+
+    if (!hasAccess) {
+      return Scaffold(
+        backgroundColor: AppColors.canvas,
+        appBar: AppBar(title: const Text('Audit Internal (SPI)')),
+        body: Center(
+          child: EmptyStateView(
+            icon: LucideIcons.shieldAlert,
+            title: 'Akses Ditolak (403)',
+            message: 'Anda tidak memiliki wewenang untuk mengakses Pusat Audit SPI & CAPA.',
+            action: ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(LucideIcons.arrowLeft, size: 16),
+              label: const Text('Kembali ke Beranda'),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final summaryAsync = ref.watch(auditSummaryProvider);
     final isAuditor = user?.isAuditor ?? false;
 
     return Scaffold(

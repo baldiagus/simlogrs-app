@@ -453,9 +453,11 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
 
-                // Banner Pagu & Realisasi Anggaran (Khusus Auditor & Manajemen)
+                // Banner Pagu & Realisasi Anggaran (Auditor, Manajemen, Pengadaan, Admin Logistik)
                 if (ref.watch(authStateProvider).user?.isAuditor == true ||
-                    ref.watch(authStateProvider).user?.isManajemen == true) ...[
+                    ref.watch(authStateProvider).user?.isManajemen == true ||
+                    ref.watch(authStateProvider).user?.isPengadaan == true ||
+                    ref.watch(authStateProvider).user?.isAdminLogistik == true) ...[
                   const SizedBox(height: 12),
                   InkWell(
                     onTap: () {

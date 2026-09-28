@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
@@ -152,6 +153,11 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
   }
 
   Widget _buildPoCard(BuildContext context, PoInboundHeaderModel po) {
+    final user = ref.watch(authStateProvider).user;
+    final canProcessInbound = (user?.isGudangUser == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.hasRole('super_admin') == true) ||
+        (user?.can('create_pengadaan::penerimaan::po') ?? false);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
@@ -258,7 +264,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
               ],
             ),
           ),
-          if (po.canReceive) ...[
+          if (po.canReceive && canProcessInbound) ...[
             const Divider(height: 1, color: AppColors.border),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -273,6 +279,28 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                     MaterialPageRoute(builder: (_) => FormPenerimaanPoScreen(po: po)),
                   );
                 },
+              ),
+            ),
+          ] else if (po.canReceive && !canProcessInbound) ...[
+            const Divider(height: 1, color: AppColors.border),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSecondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(LucideIcons.lock, size: 14, color: AppColors.textSecondary),
+                    SizedBox(width: 8),
+                    Text(
+                      'Penerimaan Fisik Dibatasi untuk Petugas Gudang',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
             ),
           ] else if (po.isDiterbitkan) ...[
