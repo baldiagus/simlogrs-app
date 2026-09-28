@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
@@ -207,6 +208,8 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                             tanggalOpname: tanggalController.text.trim(),
                             catatan: catatanController.text.trim(),
                           );
+                      ref.invalidate(stockOpnameListProvider);
+                      ref.invalidate(dashboardSummaryProvider);
                       navigator.pop();
                       messenger.showSnackBar(
                         const SnackBar(
@@ -239,9 +242,11 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
       MaterialPageRoute(
         builder: (_) => HitungFisikOpnameScreen(opname: opname),
       ),
-    ).then((_) => ref.refresh(stockOpnameListProvider));
+    ).then((_) {
+      ref.invalidate(stockOpnameListProvider);
+      ref.invalidate(dashboardSummaryProvider);
+    });
   }
-
   @override
   Widget build(BuildContext context) {
     final opnameAsync = ref.watch(stockOpnameListProvider);

@@ -74,6 +74,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
 
     final user = ref.read(authStateProvider).user;
     final notifier = ref.read(prSubmissionProvider.notifier);
+    final isKaru = (user?.isKaru ?? false) || (user?.hasRole('kepala_unit') ?? false);
 
     final success = await notifier.submitPr(
       unitId: user?.unit?.id,
@@ -81,6 +82,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
       urgensi: _urgensi,
       catatan: _catatanController.text.trim(),
       items: _cartItems,
+      isKaru: isKaru,
     );
 
     if (!mounted) return;
@@ -93,7 +95,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
           backgroundColor: AppColors.success,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -166,8 +168,30 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                         ],
                       ),
                     ),
+                    if ((user?.isKaru ?? false) || (user?.hasRole('kepala_unit') ?? false)) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.tintTealBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.tintTeal.withValues(alpha: 0.3)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(LucideIcons.shieldCheck, size: 16, color: AppColors.tintTeal),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Jalur Karu: PR langsung disetujui & diteruskan ke Pengadaan tanpa antrean verifikasi.',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tintTeal),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 18),
-
                     // Urgensi Selector
                     UrgensiSelectorWidget(
                       selectedUrgensi: _urgensi,
@@ -345,7 +369,9 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: CustomButton(
-                          text: 'Kirim Pengajuan PR',
+                          text: ((user?.isKaru ?? false) || (user?.hasRole('kepala_unit') ?? false))
+                              ? 'Ajukan & Teruskan ke Pengadaan'
+                              : 'Kirim Pengajuan PR',
                           isLoading: submissionState.isLoading,
                           icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
                           onPressed: _cartItems.isEmpty ? null : _submit,

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/master_barang_model.dart';
 import '../../data/models/pr_model.dart';
@@ -64,6 +65,7 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
     required String urgensi,
     String? catatan,
     required List<PrCartItemModel> items,
+    bool isKaru = false,
   }) async {
     if (items.isEmpty) {
       state = const PrSubmissionState(
@@ -81,15 +83,32 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
         urgensi: urgensi,
         catatan: catatan,
         items: payloadItems,
+        isKaru: isKaru,
       );
       final kode = res['kode']?.toString() ?? 'PR Baru';
+      final prId = res['id'] is int ? res['id'] as int : int.tryParse(res['id']?.toString() ?? '');
+      final currentStatus = res['status']?.toString().toUpperCase();
+
+      // Jika diajukan oleh Karu dan backend masih berstatus DIAJUKAN, bypass approval langsung
+      if (isKaru && prId != null && currentStatus == 'DIAJUKAN') {
+        try {
+          final approvalRepo = _ref.read(approvalRepositoryProvider);
+          await approvalRepo.executeApprovalPr(id: prId, aksi: 'setujui');
+        } catch (_) {
+          // Abaikan jika sudah di-approve otomatis oleh backend
+        }
+      }
+
       state = PrSubmissionState(
         isLoading: false,
-        successMessage: 'Permintaan pengadaan $kode berhasil diajukan.',
+        successMessage: isKaru
+            ? 'Permintaan pengadaan $kode berhasil diajukan dan langsung diteruskan ke Bagian Pengadaan.'
+            : 'Permintaan pengadaan $kode berhasil diajukan.',
       );
 
       _ref.invalidate(daftarPrProvider);
       _ref.invalidate(dashboardSummaryProvider);
+      _ref.invalidate(approvalPendingProvider);
       return true;
     } catch (e) {
       state = PrSubmissionState(

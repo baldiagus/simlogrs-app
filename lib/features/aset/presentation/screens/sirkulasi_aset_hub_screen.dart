@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 import '../providers/aset_provider.dart';
 import '../providers/peminjaman_provider.dart';
@@ -548,8 +549,16 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
               (ref.watch(authStateProvider).user?.isAuditor == true) ||
               (ref.watch(authStateProvider).user?.isManajemen == true))
           ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()));
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()),
+                );
+                if (created == true && context.mounted) {
+                  ref.invalidate(daftarPeminjamanSayaProvider);
+                  ref.invalidate(daftarApprovalPeminjamanProvider);
+                  ref.invalidate(dashboardSummaryProvider);
+                }
               },
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
@@ -579,8 +588,16 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                                 (ref.watch(authStateProvider).user?.isAuditor == true) ||
                                 (ref.watch(authStateProvider).user?.isManajemen == true))
                             ? ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()));
+                                onPressed: () async {
+                                  final created = await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const FormPeminjamanAsetScreen()),
+                                  );
+                                  if (created == true && context.mounted) {
+                                    ref.invalidate(daftarPeminjamanSayaProvider);
+                                    ref.invalidate(daftarApprovalPeminjamanProvider);
+                                    ref.invalidate(dashboardSummaryProvider);
+                                  }
                                 },
                                 icon: const Icon(LucideIcons.plus, size: 16),
                                 label: const Text('Ajukan Peminjaman'),

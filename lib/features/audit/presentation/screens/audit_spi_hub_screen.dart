@@ -8,6 +8,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/audit_models.dart';
 import '../../data/repositories/audit_repository.dart';
 import '../../../master/presentation/providers/master_barang_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/audit_provider.dart';
 
 class AuditSpiHubScreen extends ConsumerStatefulWidget {
@@ -1453,6 +1454,7 @@ class _FormTerbitkanTemuanSheetState extends ConsumerState<_FormTerbitkanTemuanS
         );
         ref.invalidate(auditSummaryProvider);
         ref.invalidate(registerTemuanProvider);
+        ref.invalidate(dashboardSummaryProvider);
       }
     } catch (e) {
       if (mounted) {

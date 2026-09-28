@@ -63,6 +63,14 @@ class PrHeaderModel {
 
   bool get isCito => urgensi.toUpperCase() == 'CITO' || urgensi.toUpperCase() == 'MENDESAK';
 
+  bool get isDisetujui {
+    final s = status.toUpperCase();
+    return s.contains('SETUJU') ||
+        s == 'DITERUSKAN_KE_PENGADAAN' ||
+        s.contains('PO') ||
+        s == 'SELESAI';
+  }
+
   factory PrHeaderModel.fromJson(Map<String, dynamic> json) {
     return PrHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

@@ -7,6 +7,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/pr_model.dart';
 import '../providers/pengadaan_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import 'form_pengajuan_pr_screen.dart';
 
 class RiwayatPrScreen extends ConsumerWidget {
@@ -136,11 +137,13 @@ class RiwayatPrScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final prListAsync = ref.watch(daftarPrProvider);
     final user = ref.watch(authStateProvider).user;
+    final isPengadaan = user?.isPengadaan ?? false;
 
-    final canCreate = (user?.can('create_pengadaan::permintaan::pengadaan') ?? false) ||
-        (user?.hasRole('petugas_unit') ?? false) ||
-        (user?.hasRole('kepala_unit') ?? false) ||
-        (user?.hasRole('super_admin') ?? false);
+    final canCreate = !isPengadaan &&
+        ((user?.can('create_pengadaan::permintaan::pengadaan') ?? false) ||
+            (user?.hasRole('petugas_unit') ?? false) ||
+            (user?.hasRole('kepala_unit') ?? false) ||
+            (user?.hasRole('super_admin') ?? false));
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -156,11 +159,15 @@ class RiwayatPrScreen extends ConsumerWidget {
       ),
       floatingActionButton: canCreate
           ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(builder: (_) => const FormPengajuanPrScreen()),
                 );
+                if (created == true && context.mounted) {
+                  ref.invalidate(daftarPrProvider);
+                  ref.invalidate(dashboardSummaryProvider);
+                }
               },
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
@@ -173,7 +180,11 @@ class RiwayatPrScreen extends ConsumerWidget {
           : null,
       body: prListAsync.when(
         data: (list) {
-          if (list.isEmpty) {
+          final displayedList = isPengadaan
+              ? list.where((pr) => pr.isDisetujui).toList()
+              : list;
+
+          if (displayedList.isEmpty) {
             return RefreshIndicator(
               onRefresh: () async => ref.invalidate(daftarPrProvider),
               child: SingleChildScrollView(
@@ -182,15 +193,21 @@ class RiwayatPrScreen extends ConsumerWidget {
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: EmptyStateView(
                     icon: LucideIcons.fileSpreadsheet,
-                    title: 'Belum Ada Permintaan PR',
-                    message: 'Unit Anda belum pernah mengajukan permohonan pengadaan barang ke logistik.',
+                    title: isPengadaan ? 'Belum Ada PR Siap Diproses' : 'Belum Ada Permintaan PR',
+                    message: isPengadaan
+                        ? 'Belum ada permohonan pengadaan barang dari unit yang telah disetujui oleh Kepala Ruangan.'
+                        : 'Unit Anda belum pernah mengajukan permohonan pengadaan barang ke logistik.',
                     action: canCreate
                         ? ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
+                            onPressed: () async {
+                              final created = await Navigator.push<bool>(
                                 context,
                                 MaterialPageRoute(builder: (_) => const FormPengajuanPrScreen()),
                               );
+                              if (created == true && context.mounted) {
+                                ref.invalidate(daftarPrProvider);
+                                ref.invalidate(dashboardSummaryProvider);
+                              }
                             },
                             icon: const Icon(LucideIcons.plus, size: 18),
                             label: const Text('Buat Pengajuan Sekarang'),
@@ -206,9 +223,9 @@ class RiwayatPrScreen extends ConsumerWidget {
             onRefresh: () async => ref.invalidate(daftarPrProvider),
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-              itemCount: list.length,
+              itemCount: displayedList.length,
               itemBuilder: (context, index) {
-                final pr = list[index];
+                final pr = displayedList[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 14),
                   decoration: BoxDecoration(

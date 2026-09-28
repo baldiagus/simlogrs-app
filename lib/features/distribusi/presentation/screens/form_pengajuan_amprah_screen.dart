@@ -134,7 +134,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
           backgroundColor: AppColors.success,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       messenger.showSnackBar(
         SnackBar(

@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
@@ -39,6 +40,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
               try {
                 await ref.read(persediaanRepositoryProvider).approvePenyesuaian(adj.id);
                 ref.invalidate(otorisasiPenyesuaianListProvider);
+                ref.invalidate(dashboardSummaryProvider);
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text('Penyesuaian stok ${adj.kode} berhasil disahkan.'),
@@ -249,16 +251,19 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
           children: [
             // Status Filter Tabs
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: AppColors.surface,
-              child: Row(
-                children: [
-                  _buildTabChip('Menunggu Otorisasi', 'MENUNGGU', selectedStatus),
-                  const SizedBox(width: 8),
-                  _buildTabChip('Disetujui', 'DISETUJUI', selectedStatus),
-                  const SizedBox(width: 8),
-                  _buildTabChip('Semua', 'SEMUA', selectedStatus),
-                ],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    _buildTabChip('Menunggu Otorisasi', 'MENUNGGU', selectedStatus),
+                    const SizedBox(width: 8),
+                    _buildTabChip('Disetujui', 'DISETUJUI', selectedStatus),
+                    const SizedBox(width: 8),
+                    _buildTabChip('Semua', 'SEMUA', selectedStatus),
+                  ],
+                ),
               ),
             ),
             const Divider(color: AppColors.border, height: 1),
@@ -368,7 +373,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                                 const SizedBox(height: 12),
                                 CustomButton(
                                   text: 'Sahkan Penyesuaian Saldo',
-                                  height: 38,
+                                  height: 44,
                                   icon: const Icon(LucideIcons.check, size: 16, color: Colors.white),
                                   onPressed: () => _confirmApprove(adj),
                                 ),

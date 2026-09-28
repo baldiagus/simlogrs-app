@@ -119,7 +119,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
           backgroundColor: AppColors.success,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

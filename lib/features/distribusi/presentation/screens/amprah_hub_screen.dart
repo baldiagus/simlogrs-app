@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/distribusi_provider.dart';
 import '../widgets/amprah_card_item.dart';
 import '../widgets/sppb_card_item.dart';
@@ -106,11 +107,15 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
       ),
       floatingActionButton: canAjukanAmprah
           ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(builder: (_) => const FormPengajuanAmprahScreen()),
                 );
+                if (created == true && context.mounted) {
+                  ref.invalidate(daftarAmprahProvider);
+                  ref.invalidate(dashboardSummaryProvider);
+                }
               },
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
@@ -166,11 +171,15 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                               message: 'Unit ruangan Anda belum pernah mengajukan amprah logistik ke gudang.',
                               action: canAjukanAmprah
                                   ? ElevatedButton.icon(
-                                      onPressed: () {
-                                        Navigator.push(
+                                      onPressed: () async {
+                                        final created = await Navigator.push<bool>(
                                           context,
                                           MaterialPageRoute(builder: (_) => const FormPengajuanAmprahScreen()),
                                         );
+                                        if (created == true && context.mounted) {
+                                          ref.invalidate(daftarAmprahProvider);
+                                          ref.invalidate(dashboardSummaryProvider);
+                                        }
                                       },
                                       icon: const Icon(LucideIcons.plus, size: 16),
                                       label: const Text('Ajukan Amprah Sekarang'),

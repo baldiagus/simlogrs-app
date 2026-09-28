@@ -59,6 +59,7 @@ class PengadaanRepository {
     required String urgensi,
     String? catatan,
     required List<Map<String, dynamic>> items,
+    bool isKaru = false,
   }) async {
     try {
       final response = await _client.dio.post(
@@ -69,9 +70,10 @@ class PengadaanRepository {
           'urgensi': urgensi,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
           'items': items,
+          if (isKaru) 'status': 'DISETUJUI',
+          if (isKaru) 'auto_approve': true,
         },
       );
-
       final data = response.data;
       if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
         return data['data'] as Map<String, dynamic>;
