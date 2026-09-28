@@ -138,22 +138,26 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white24,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                id['kode_aset']?.toString() ?? '-',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  id['kode_aset']?.toString() ?? '-',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'monospace',
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             StatusBadge(status: id['status']?.toString() ?? 'TERSEDIA'),
                           ],
                         ),
@@ -179,8 +183,11 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                             color: Colors.black.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
                             children: [
                               Text(
                                 'Lokasi: ${id['lokasi']}',
@@ -227,12 +234,16 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                                     color: _selectedTab == 0 ? Colors.white : AppColors.textSecondary,
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    'Rekam Servis (${riwayat.length})',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: _selectedTab == 0 ? Colors.white : AppColors.textSecondary,
+                                  Flexible(
+                                    child: Text(
+                                      'Rekam Servis (${riwayat.length})',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: _selectedTab == 0 ? Colors.white : AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -259,12 +270,16 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                                     color: _selectedTab == 1 ? Colors.white : AppColors.textSecondary,
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    'Preventif (${jadwal.length})',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: _selectedTab == 1 ? Colors.white : AppColors.textSecondary,
+                                  Flexible(
+                                    child: Text(
+                                      'Preventif (${jadwal.length})',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: _selectedTab == 1 ? Colors.white : AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -322,26 +337,37 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        item.kodeTiket,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          fontFamily: 'monospace',
-                          color: AppColors.primaryPurple,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            item.kodeTiket,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'monospace',
+                              color: AppColors.primaryPurple,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                      if (item.kodeSpk != '-') ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          '(${item.kodeSpk})',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        ),
+                        if (item.kodeSpk != '-') ...[
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              '(${item.kodeSpk})',
+                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   StatusBadge(status: item.statusTiket),
                 ],
               ),
@@ -442,21 +468,28 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(LucideIcons.calendarClock, size: 16, color: AppColors.primaryPurple),
-                      const SizedBox(width: 6),
-                      Text(
-                        j['kode']?.toString() ?? 'PRV',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          fontFamily: 'monospace',
-                          color: AppColors.textPrimary,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(LucideIcons.calendarClock, size: 16, color: AppColors.primaryPurple),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            j['kode']?.toString() ?? 'PRV',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'monospace',
+                              color: AppColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   StatusBadge(status: j['status']?.toString() ?? 'AKTIF'),
                 ],
               ),
@@ -474,25 +507,39 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(LucideIcons.clock, size: 13, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Jatuh Tempo: ${j['tanggal_berikutnya']}',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(LucideIcons.clock, size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Jatuh Tempo: ${j['tanggal_berikutnya']}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: [
-                      const Icon(LucideIcons.user, size: 13, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        j['teknisi']?.toString() ?? 'Teknisi IPSRS',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(LucideIcons.user, size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            j['teknisi']?.toString() ?? 'Teknisi IPSRS',
+                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

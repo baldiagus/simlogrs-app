@@ -170,15 +170,20 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          a.kodeAset,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w800,
-                                            fontFamily: 'monospace',
-                                            color: AppColors.textPrimary,
+                                        Expanded(
+                                          child: Text(
+                                            a.kodeAset,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w800,
+                                              fontFamily: 'monospace',
+                                              color: AppColors.textPrimary,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
+                                        const SizedBox(width: 8),
                                         StatusBadge(status: a.kondisi),
                                       ],
                                     ),

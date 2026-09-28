@@ -10,6 +10,7 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/detail_amprah_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
+import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
 import '../../../maintenance/presentation/screens/detail_tiket_screen.dart';
 import '../../../maintenance/presentation/screens/spk_detail_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
@@ -318,6 +319,8 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
         return (LucideIcons.boxes, AppColors.tintBlue, AppColors.tintBlueBg);
       case 'pinjam':
         return (LucideIcons.repeat, AppColors.tintViolet, AppColors.tintVioletBg);
+      case 'penyesuaian':
+        return (LucideIcons.slidersHorizontal, AppColors.tintViolet, AppColors.tintVioletBg);
       case 'pr':
       default:
         return (LucideIcons.fileText, AppColors.tintViolet, AppColors.tintVioletBg);
@@ -327,6 +330,14 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
   void _handleItemTap(BuildContext context, ActivityItemModel item) {
     final type = item.type.toLowerCase();
     final itemId = int.tryParse(item.id);
+
+    if (type == 'penyesuaian' || item.kode?.startsWith('ADJ-') == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
+      );
+      return;
+    }
 
     if (type == 'spk') {
       if (itemId != null) {
