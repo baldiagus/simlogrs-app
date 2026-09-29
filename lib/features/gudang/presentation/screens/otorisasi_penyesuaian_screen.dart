@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/app_formatters.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
+import '../widgets/detail_penyesuaian_sheet.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -19,208 +23,41 @@ class OtorisasiPenyesuaianScreen extends ConsumerStatefulWidget {
 }
 
 class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaianScreen> {
-  void _confirmApprove(PenyesuaianStokHeaderModel adj) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Otorisasi Penyesuaian Stok'),
-        content: Text(
+  Future<void> _confirmApprove(PenyesuaianStokHeaderModel adj) async {
+    final confirmed = await AppConfirmDialog.show(
+      context,
+      title: 'Otorisasi Penyesuaian Stok',
+      message:
           'Apakah Anda yakin ingin mengesahkan penyesuaian stok ${adj.kode} untuk fasilitas ${adj.gudangNama} (${adj.totalItem} batch selisih)? Saldo stok fisik akan disesuaikan secara permanen.',
-          style: const TextStyle(fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final messenger = ScaffoldMessenger.of(context);
-              try {
-                await ref.read(persediaanRepositoryProvider).approvePenyesuaian(adj.id);
-                ref.invalidate(otorisasiPenyesuaianListProvider);
-                ref.invalidate(dashboardSummaryProvider);
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text('Penyesuaian stok ${adj.kode} berhasil disahkan.'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              } catch (e) {
-                messenger.showSnackBar(
-                  SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-                );
-              }
-            },
-            child: const Text('Sahkan Penyesuaian'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Sahkan Penyesuaian',
+      icon: LucideIcons.shieldCheck,
     );
+    if (!confirmed || !mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(persediaanRepositoryProvider).approvePenyesuaian(adj.id);
+      ref.invalidate(otorisasiPenyesuaianListProvider);
+      ref.invalidate(dashboardSummaryProvider);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Penyesuaian stok ${adj.kode} berhasil disahkan.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
+      );
+    }
   }
 
   void _showDetailModal(PenyesuaianStokHeaderModel adj, bool canAuthorize) {
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: MediaQuery.of(ctx).size.height * 0.75,
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      adj.kode,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, fontFamily: 'monospace'),
-                    ),
-                    Text(
-                      'Sesi Opname: ${adj.kodeOpname}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-                StatusBadge(status: adj.status),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Alasan: ${adj.alasan}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-            const Divider(color: AppColors.border, height: 20),
-            const Text(
-              'Daftar Batch yang Mengalami Selisih:',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.separated(
-                itemCount: adj.items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (c, i) {
-                  final it = adj.items[i];
-                  final isKurang = it.isKurang;
-
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.canvas,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isKurang ? const Color(0xFFFEF2F2) : const Color(0xFFECFDF5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            isKurang ? LucideIcons.trendingDown : LucideIcons.trendingUp,
-                            size: 16,
-                            color: isKurang ? AppColors.danger : AppColors.success,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                it.namaBarang,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                              ),
-                              Text(
-                                'Batch: ${it.nomorBatch} • Rak: ${it.lokasiRak}',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${isKurang ? '-' : '+'}${it.jumlahPenyesuaian} ${it.satuan}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: isKurang ? AppColors.danger : AppColors.success,
-                              ),
-                            ),
-                            Text(
-                              rupiah.format(it.subtotalNilai),
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (adj.isMenunggu) ...[
-              const SizedBox(height: 16),
-              if (canAuthorize)
-                CustomButton(
-                  text: 'Sahkan Penyesuaian Saldo',
-                  icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _confirmApprove(adj);
-                  },
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBEB),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(LucideIcons.info, size: 16, color: AppColors.warning),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Menunggu peninjauan dan pengesahan resmi oleh Kepala Gudang.',
-                          style: TextStyle(fontSize: 11, color: Color(0xFFB45309), fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ],
-        ),
-      ),
+    DetailPenyesuaianSheet.show(
+      context,
+      adj: adj,
+      canAuthorize: canAuthorize,
+      onAuthorize: () => _confirmApprove(adj),
     );
   }
 
@@ -233,7 +70,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false) ||
         (user?.can('update_gudang_stok::otorisasi::penyesuaian') ?? false);
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -271,29 +108,10 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
             // List Penyesuaian
             Expanded(
               child: penyesuaianAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(otorisasiPenyesuaianListProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(otorisasiPenyesuaianListProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -360,7 +178,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                                   Row(
                                     children: [
                                       Text(
-                                        rupiah.format(adj.totalNilaiSelisih),
+                                        AppFormatters.rupiah(adj.totalNilaiSelisih),
                                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.danger),
                                       ),
                                       const SizedBox(width: 4),

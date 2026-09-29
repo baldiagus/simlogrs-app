@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/distribusi_provider.dart';
@@ -213,24 +215,11 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                         },
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-                    error: (err, _) => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                            const SizedBox(height: 12),
-                            Text(err.toString().replaceAll('ApiException: ', ''), textAlign: TextAlign.center),
-                            const SizedBox(height: 14),
-                            ElevatedButton(
-                              onPressed: () => ref.invalidate(daftarAmprahProvider),
-                              child: const Text('Coba Lagi'),
-                            ),
-                          ],
-                        ),
-                      ),
+                    loading: () => const AppLoadingView(),
+                    error: (err, _) => AppErrorView(
+                      title: 'Gagal Memuat Daftar Amprah',
+                      error: err,
+                      onRetry: () => ref.invalidate(daftarAmprahProvider),
                     ),
                   ),
                 ),
@@ -281,24 +270,11 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-              error: (err, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                      const SizedBox(height: 12),
-                      Text(err.toString().replaceAll('ApiException: ', ''), textAlign: TextAlign.center),
-                      const SizedBox(height: 14),
-                      ElevatedButton(
-                        onPressed: () => ref.invalidate(sppbInboundProvider),
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                ),
+              loading: () => const AppLoadingView(),
+              error: (err, _) => AppErrorView(
+                title: 'Gagal Memuat SPPB Masuk',
+                error: err,
+                onRetry: () => ref.invalidate(sppbInboundProvider),
               ),
             ),
           ),

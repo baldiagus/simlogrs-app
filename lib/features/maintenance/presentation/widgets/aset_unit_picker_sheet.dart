@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/tiket_maintenance_model.dart';
 import '../providers/tiket_maintenance_provider.dart';
 
@@ -19,14 +22,7 @@ class AsetUnitPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
-  final _searchController = TextEditingController();
   String _query = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,22 +74,10 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
           // Search Field
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: _searchController,
+            child: AppSearchBar(
+              hint: 'Cari kode aset, nama sarana, nomor seri...',
               onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
-              decoration: InputDecoration(
-                hintText: 'Cari kode aset, nama sarana, nomor seri...',
-                prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                suffixIcon: _query.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(LucideIcons.xCircle, size: 16),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-              ),
+              onClear: () => setState(() => _query = ''),
             ),
           ),
           const SizedBox(height: 12),
@@ -177,16 +161,11 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-              error: (err, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    err.toString().replaceAll('ApiException: ', ''),
-                    style: const TextStyle(color: AppColors.danger, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              loading: () => const AppLoadingView(),
+              error: (err, _) => AppErrorView(
+                title: 'Gagal Memuat Daftar Aset',
+                error: err,
+                onRetry: () => ref.refresh(asetUnitTersediaProvider),
               ),
             ),
           ),

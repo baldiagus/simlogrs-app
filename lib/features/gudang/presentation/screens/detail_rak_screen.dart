@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 import '../providers/gudang_provider.dart';
 import '../widgets/barang_rak_list_tab.dart';
 import '../widgets/aset_rak_list_tab.dart';
@@ -58,43 +60,11 @@ class DetailRakScreen extends ConsumerWidget {
         ],
       ),
       body: detailAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primaryPurple),
-        ),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(LucideIcons.alertCircle, size: 48, color: AppColors.danger),
-                const SizedBox(height: 12),
-                const Text(
-                  'Gagal Memuat Detail Rak',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  error.toString().replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () => ref.invalidate(detailRakProvider(rakId)),
-                  icon: const Icon(LucideIcons.refreshCw, size: 16),
-                  label: const Text('Coba Lagi'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryPurple,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(),
+        error: (error, _) => AppErrorView(
+          title: 'Gagal Memuat Detail Rak',
+          error: error,
+          onRetry: () => ref.invalidate(detailRakProvider(rakId)),
         ),
         data: (detail) {
           final rak = detail.rak;

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/presentation/widgets/urgensi_selector_widget.dart';
 import '../../data/models/amprah_model.dart';
@@ -364,60 +365,25 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            if (cartItem.jumlah > 1) {
-                                              setState(() => cartItem.jumlah--);
-                                            } else {
-                                              setState(() => _cartItems.remove(cartItem));
-                                            }
-                                          },
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(color: AppColors.surfaceSecondary, borderRadius: BorderRadius.circular(8)),
-                                            child: const Icon(Icons.remove, size: 16),
+                                    AppQuantityStepper(
+                                      value: cartItem.jumlah,
+                                      min: 1,
+                                      max: cartItem.barang.stokTersedia,
+                                      onChanged: (val) {
+                                        if (val < 1) {
+                                          setState(() => _cartItems.remove(cartItem));
+                                        } else {
+                                          setState(() => cartItem.jumlah = val);
+                                        }
+                                      },
+                                      onMaxReached: () {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).'),
+                                            backgroundColor: AppColors.warning,
                                           ),
-                                        ),
-                                        Container(
-                                          constraints: const BoxConstraints(minWidth: 36),
-                                          alignment: Alignment.center,
-                                          child: Text('${cartItem.jumlah}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            if (cartItem.jumlah < cartItem.barang.stokTersedia) {
-                                              setState(() => cartItem.jumlah++);
-                                            } else {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).'),
-                                                  backgroundColor: AppColors.warning,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: cartItem.jumlah >= cartItem.barang.stokTersedia
-                                                  ? AppColors.surfaceSecondary.withValues(alpha: 0.5)
-                                                  : AppColors.surfaceSecondary,
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Icon(
-                                              Icons.add,
-                                              size: 16,
-                                              color: cartItem.jumlah >= cartItem.barang.stokTersedia
-                                                  ? AppColors.textMuted
-                                                  : AppColors.textPrimary,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

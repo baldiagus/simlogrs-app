@@ -28,7 +28,6 @@ class StokOpnameDetailItemModel {
   });
 
   bool get isSudahHitung => jumlahFisik != null;
-  bool get hasSelisih => isSudahHitung && selisih != 0;
 
   factory StokOpnameDetailItemModel.fromJson(Map<String, dynamic> json) {
     return StokOpnameDetailItemModel(
@@ -84,7 +83,6 @@ class StokOpnameSesiModel {
   });
 
   bool get isBerjalan => status == 'BERJALAN' || status == 'PROSES_COUNT';
-  bool get isMenungguApproval => status == 'MENUNGGU_APPROVAL';
   bool get isDisetujui => status == 'DISETUJUI';
 
   factory StokOpnameSesiModel.fromJson(Map<String, dynamic> json) {

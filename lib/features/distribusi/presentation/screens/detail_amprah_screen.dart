@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 import '../providers/distribusi_provider.dart';
 
 class DetailAmprahScreen extends ConsumerWidget {
@@ -252,28 +254,11 @@ class DetailAmprahScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-        error: (err, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                const SizedBox(height: 12),
-                Text(
-                  err.toString().replaceAll('ApiException: ', ''),
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 14),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(detailAmprahProvider(amprahId)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(),
+        error: (err, _) => AppErrorView(
+          title: 'Gagal Memuat Detail Amprah',
+          error: err,
+          onRetry: () => ref.invalidate(detailAmprahProvider(amprahId)),
         ),
       ),
     );

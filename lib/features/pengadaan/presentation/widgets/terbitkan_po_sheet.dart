@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/app_formatters.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -137,7 +137,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
   @override
   Widget build(BuildContext context) {
     final pemasokAsync = ref.watch(pemasokListProvider);
-    final currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.88,
@@ -239,7 +239,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(DateFormat('dd/MM/yyyy').format(_estimasiKirim), style: const TextStyle(fontSize: 12)),
+                                    Text(AppFormatters.tanggal(_estimasiKirim), style: const TextStyle(fontSize: 12)),
                                     const Icon(LucideIcons.calendar, size: 14, color: AppColors.textSecondary),
                                   ],
                                 ),
@@ -335,7 +335,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Estimasi Nilai Total PO:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primaryPurple)),
-                        Text(currency.format(_calculateTotal()), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.primaryPurple)),
+                        Text(AppFormatters.rupiah(_calculateTotal()), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.primaryPurple)),
                       ],
                     ),
                   ),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/app_formatters.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
@@ -15,19 +19,12 @@ class MasterBarangScreen extends ConsumerStatefulWidget {
 }
 
 class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final barangAsync = ref.watch(masterBarangListProvider);
     final selectedTipe = ref.watch(masterBarangFilterTipeProvider);
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -50,42 +47,25 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
               child: Column(
                 children: [
                   // Search Bar
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari nama barang, kode SKU, spesifikasi...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(masterBarangSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari nama barang, kode SKU, spesifikasi...',
                     onChanged: (val) {
                       ref.read(masterBarangSearchQueryProvider.notifier).state = val;
                     },
                   ),
                   const SizedBox(height: 10),
-
-                  // Tipe Filter Chips
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Semua', null, selectedTipe),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Habis Pakai', 'HABIS_PAKAI', selectedTipe),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Aset Inventaris', 'ASET', selectedTipe),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Suku Cadang', 'SPAREPART', selectedTipe),
-                      ],
-                    ),
+                  AppFilterChipBar<String?>(
+                    padding: EdgeInsets.zero,
+                    selected: selectedTipe,
+                    onSelected: (val) {
+                      ref.read(masterBarangFilterTipeProvider.notifier).state = val;
+                    },
+                    options: const [
+                      AppFilterOption(label: 'Semua', value: null),
+                      AppFilterOption(label: 'Habis Pakai', value: 'HABIS_PAKAI'),
+                      AppFilterOption(label: 'Aset Inventaris', value: 'ASET'),
+                      AppFilterOption(label: 'Suku Cadang', value: 'SPAREPART'),
+                    ],
                   ),
                 ],
               ),
@@ -95,29 +75,10 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
             // List Items
             Expanded(
               child: barangAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(masterBarangListProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(masterBarangListProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -248,7 +209,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    rupiah.format(item.hargaEstimasi),
+                                    AppFormatters.rupiah(item.hargaEstimasi),
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
@@ -285,34 +246,6 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String? value, String? currentSelected) {
-    final isSelected = currentSelected == value;
-    return InkWell(
-      onTap: () {
-        ref.read(masterBarangFilterTipeProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
         ),
       ),
     );

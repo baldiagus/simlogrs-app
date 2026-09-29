@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
@@ -18,14 +21,7 @@ class InboundPoListScreen extends ConsumerStatefulWidget {
 }
 
 class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
-  final _searchController = TextEditingController();
   String _query = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,33 +46,11 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: AppColors.surface,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.canvas,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: TextField(
-                  controller: _searchController,
+              child: AppSearchBar(
+                  hint: 'Cari nomor PO atau nama vendor pemasok...',
                   onChanged: (val) => setState(() => _query = val.trim().toLowerCase()),
-                  decoration: InputDecoration(
-                    hintText: 'Cari nomor PO atau nama vendor pemasok...',
-                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                    prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                    suffixIcon: _query.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(LucideIcons.x, size: 16),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _query = '');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
+                  onClear: () => setState(() => _query = ''),
                 ),
-              ),
             ),
             const Divider(height: 1, color: AppColors.border),
 
@@ -116,32 +90,11 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                       },
                     );
                   },
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryPurple),
-                  ),
-                  error: (err, _) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                          const SizedBox(height: 12),
-                          const Text('Gagal Memuat Daftar PO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          const SizedBox(height: 6),
-                          Text(
-                            err.toString().replaceAll('ApiException: ', ''),
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 14),
-                          ElevatedButton(
-                            onPressed: () => ref.invalidate(daftarPoInboundProvider),
-                            child: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
-                    ),
+                  loading: () => const AppLoadingView(),
+                  error: (err, _) => AppErrorView(
+                    title: 'Gagal Memuat Daftar PO',
+                    error: err,
+                    onRetry: () => ref.invalidate(daftarPoInboundProvider),
                   ),
                 ),
               ),

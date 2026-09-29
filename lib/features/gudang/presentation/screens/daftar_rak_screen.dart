@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/gudang_provider.dart';
 import '../widgets/rak_card_item.dart';
@@ -15,13 +18,6 @@ class DaftarRakScreen extends ConsumerStatefulWidget {
 }
 
 class _DaftarRakScreenState extends ConsumerState<DaftarRakScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,35 +58,11 @@ class _DaftarRakScreenState extends ConsumerState<DaftarRakScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: AppColors.surface,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.canvas,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (val) {
-                    ref.read(rakSearchQueryProvider.notifier).state = val.trim();
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Cari kode rak atau nama lokasi...',
-                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                    prefixIcon:
-                        const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(LucideIcons.x, size: 16),
-                            onPressed: () {
-                              _searchController.clear();
-                              ref.read(rakSearchQueryProvider.notifier).state = '';
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
+              child: AppSearchBar(
+                hint: 'Cari kode rak atau nama lokasi...',
+                onChanged: (val) {
+                  ref.read(rakSearchQueryProvider.notifier).state = val.trim();
+                },
               ),
             ),
             const Divider(height: 1, color: AppColors.border),
@@ -103,43 +75,11 @@ class _DaftarRakScreenState extends ConsumerState<DaftarRakScreen> {
                   ref.invalidate(daftarRakProvider);
                 },
                 child: rakListAsync.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryPurple),
-                  ),
-                  error: (error, _) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(LucideIcons.alertCircle, size: 48, color: AppColors.danger),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Gagal Memuat Rak Gudang',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            error.toString().replaceAll('Exception: ', ''),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => ref.invalidate(daftarRakProvider),
-                            icon: const Icon(LucideIcons.refreshCw, size: 16),
-                            label: const Text('Coba Lagi'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryPurple,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  loading: () => const AppLoadingView(),
+                  error: (error, _) => AppErrorView(
+                    title: 'Gagal Memuat Rak Gudang',
+                    error: error,
+                    onRetry: () => ref.invalidate(daftarRakProvider),
                   ),
                   data: (rakList) {
                     if (rakList.isEmpty) {

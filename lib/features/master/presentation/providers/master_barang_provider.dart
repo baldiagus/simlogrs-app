@@ -20,10 +20,6 @@ final masterBarangListProvider = FutureProvider.autoDispose<List<MasterBarangIte
   );
 });
 
-final masterKategoriListProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  final repo = ref.watch(masterRepositoryProvider);
-  return repo.getKategoriList();
-});
 
 final detailBarangProvider = FutureProvider.autoDispose.family<DetailBarangModel, int>((ref, id) async {
   final repo = ref.watch(masterRepositoryProvider);

@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
@@ -17,11 +19,6 @@ import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 
-class _ActivityFilterOption {
-  final String label;
-  final String? value; // null = Semua
-  const _ActivityFilterOption(this.label, this.value);
-}
 
 class AllActivitiesScreen extends ConsumerStatefulWidget {
   final List<ActivityItemModel> activities;
@@ -36,19 +33,14 @@ class AllActivitiesScreen extends ConsumerStatefulWidget {
 }
 
 class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   String? _selectedType; // null = Semua, 'pr', 'amprah', 'spk', 'tiket', 'po'
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
-  List<_ActivityFilterOption> _getRoleFilterOptions(UserModel? user) {
+  List<AppFilterOption<String?>> _getRoleFilterOptions(UserModel? user) {
     if (user == null) {
       return const [
-        _ActivityFilterOption('Semua', null),
+        AppFilterOption(label: 'Semua', value: null),
       ];
     }
 
@@ -58,65 +50,65 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
         user.isManajemen;
     if (isHighLevelViewer) {
       return const [
-        _ActivityFilterOption('Semua', null),
-        _ActivityFilterOption('Pengadaan PR', 'pr'),
-        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
-        _ActivityFilterOption('Pinjam Aset', 'pinjam'),
-        _ActivityFilterOption('SPK Teknisi', 'spk'),
-        _ActivityFilterOption('Tiket Servis', 'tiket'),
-        _ActivityFilterOption('PO Inbound', 'po'),
+        AppFilterOption(label: 'Semua', value: null),
+        AppFilterOption(label: 'Pengadaan PR', value: 'pr'),
+        AppFilterOption(label: 'Amprah Ruangan', value: 'amprah'),
+        AppFilterOption(label: 'Pinjam Aset', value: 'pinjam'),
+        AppFilterOption(label: 'SPK Teknisi', value: 'spk'),
+        AppFilterOption(label: 'Tiket Servis', value: 'tiket'),
+        AppFilterOption(label: 'PO Inbound', value: 'po'),
       ];
     }
 
     // Role Teknisi IPSRS: hanya SPK dan Tiket Servis
     if (user.isTeknisi) {
       return const [
-        _ActivityFilterOption('Semua', null),
-        _ActivityFilterOption('SPK Teknisi', 'spk'),
-        _ActivityFilterOption('Tiket Servis', 'tiket'),
+        AppFilterOption(label: 'Semua', value: null),
+        AppFilterOption(label: 'SPK Teknisi', value: 'spk'),
+        AppFilterOption(label: 'Tiket Servis', value: 'tiket'),
       ];
     }
 
     // Role Gudang (Kepala & Petugas): hanya Amprah dan PO Inbound
     if (user.isGudangUser) {
       return const [
-        _ActivityFilterOption('Semua', null),
-        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
-        _ActivityFilterOption('PO Inbound', 'po'),
-        _ActivityFilterOption('Pinjam Gudang', 'pinjam'),
+        AppFilterOption(label: 'Semua', value: null),
+        AppFilterOption(label: 'Amprah Ruangan', value: 'amprah'),
+        AppFilterOption(label: 'PO Inbound', value: 'po'),
+        AppFilterOption(label: 'Pinjam Gudang', value: 'pinjam'),
       ];
     }
 
     // Role Unit Pelayanan (Karu & Petugas Unit): Amprah, PR, dan Tiket Servis
     if (user.isKaru || user.hasRole('petugas_unit') || user.unit != null) {
       return const [
-        _ActivityFilterOption('Semua', null),
-        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
-        _ActivityFilterOption('Pengadaan PR', 'pr'),
-        _ActivityFilterOption('Pinjam Aset', 'pinjam'),
-        _ActivityFilterOption('Lapor Rusak', 'tiket'),
+        AppFilterOption(label: 'Semua', value: null),
+        AppFilterOption(label: 'Amprah Ruangan', value: 'amprah'),
+        AppFilterOption(label: 'Pengadaan PR', value: 'pr'),
+        AppFilterOption(label: 'Pinjam Aset', value: 'pinjam'),
+        AppFilterOption(label: 'Lapor Rusak', value: 'tiket'),
       ];
     }
 
     // Role Pengadaan & Manajemen: PR, PO Inbound, dan Amprah
     if (user.hasRole('pengadaan') || user.hasRole('manajemen')) {
       return const [
-        _ActivityFilterOption('Semua', null),
-        _ActivityFilterOption('Pengadaan PR', 'pr'),
-        _ActivityFilterOption('PO Inbound', 'po'),
-        _ActivityFilterOption('Amprah Ruangan', 'amprah'),
+        AppFilterOption(label: 'Semua', value: null),
+        AppFilterOption(label: 'Pengadaan PR', value: 'pr'),
+        AppFilterOption(label: 'PO Inbound', value: 'po'),
+        AppFilterOption(label: 'Amprah Ruangan', value: 'amprah'),
       ];
     }
 
     return const [
-      _ActivityFilterOption('Semua', null),
+      AppFilterOption(label: 'Semua', value: null),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final query = _searchController.text.trim().toLowerCase();
+    final query = _searchQuery.trim().toLowerCase();
 
     final filterOptions = _getRoleFilterOptions(user);
     final isSelectedValid = filterOptions.any((opt) => opt.value == _selectedType);
@@ -150,35 +142,17 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
               color: AppColors.surface,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari kode, transaksi, atau unit...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                });
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    onChanged: (_) => setState(() {}),
+                  AppSearchBar(
+                    hint: 'Cari kode, transaksi, atau unit...',
+                    onChanged: (val) => setState(() => _searchQuery = val),
+                    onClear: () => setState(() => _searchQuery = ''),
                   ),
                   const SizedBox(height: 10),
-
-                  // Filter Chips eksklusif hanya untuk fitur yang tersedia pada role
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: filterOptions.map((opt) {
-                        return _buildFilterChip(opt.label, opt.value, activeSelectedType);
-                      }).toList(),
-                    ),
+                  AppFilterChipBar<String?>(
+                    padding: EdgeInsets.zero,
+                    selected: activeSelectedType,
+                    onSelected: (val) => setState(() => _selectedType = val),
+                    options: filterOptions,
                   ),
                 ],
               ),
@@ -278,33 +252,6 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, String? value, String? currentSelected) {
-    final isSelected = currentSelected == value;
-
-    return InkWell(
-      onTap: () => setState(() => _selectedType = value),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
 
   (IconData, Color, Color) _resolveTypeStyle(String type) {
     switch (type.toLowerCase()) {

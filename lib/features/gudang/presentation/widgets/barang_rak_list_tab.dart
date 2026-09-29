@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/barang_rak_model.dart';
 
 class BarangRakListTab extends StatefulWidget {
@@ -18,14 +19,7 @@ class BarangRakListTab extends StatefulWidget {
 }
 
 class _BarangRakListTabState extends State<BarangRakListTab> {
-  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,35 +37,12 @@ class _BarangRakListTabState extends State<BarangRakListTab> {
         // In-Shelf Search Bar
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (val) => setState(() => _searchQuery = val.trim()),
-              decoration: InputDecoration(
-                hintText: 'Cari barang, batch, atau kode...',
-                hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(LucideIcons.x, size: 16),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
+          child: AppSearchBar(
+            hint: 'Cari barang, batch, atau kode...',
+            onChanged: (val) => setState(() => _searchQuery = val.trim()),
+            onClear: () => setState(() => _searchQuery = ''),
           ),
         ),
-
         // List
         Expanded(
           child: filtered.isEmpty

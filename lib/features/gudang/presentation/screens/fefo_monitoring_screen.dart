@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/app_formatters.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
@@ -14,19 +18,13 @@ class FefoMonitoringScreen extends ConsumerStatefulWidget {
 }
 
 class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
-  final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final fefoAsync = ref.watch(fefoMonitoringProvider);
     final selectedFilter = ref.watch(fefoKategoriFilterProvider);
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -88,42 +86,26 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
               color: AppColors.surface,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari nomor batch, barang, atau rak...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(fefoSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari nomor batch, barang, atau rak...',
                     onChanged: (val) {
                       ref.read(fefoSearchQueryProvider.notifier).state = val;
                     },
                   ),
                   const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Semua Batch', 'SEMUA', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Kritis (<= 30 Hari)', 'KRITIS', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Peringatan (31-90 Hari)', 'PERINGATAN', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Sudah Kedaluwarsa', 'KEDALUWARSA', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Bawah ROP', 'ROP', selectedFilter),
-                      ],
-                    ),
+                  AppFilterChipBar<String>(
+                    padding: EdgeInsets.zero,
+                    selected: selectedFilter,
+                    onSelected: (val) {
+                      ref.read(fefoKategoriFilterProvider.notifier).state = val;
+                    },
+                    options: const [
+                      AppFilterOption(label: 'Semua Batch', value: 'SEMUA'),
+                      AppFilterOption(label: 'Kritis (<= 30 Hari)', value: 'KRITIS'),
+                      AppFilterOption(label: 'Peringatan (31-90 Hari)', value: 'PERINGATAN'),
+                      AppFilterOption(label: 'Sudah Kedaluwarsa', value: 'KEDALUWARSA'),
+                      AppFilterOption(label: 'Bawah ROP', value: 'ROP'),
+                    ],
                   ),
                 ],
               ),
@@ -133,29 +115,10 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
             // Batch List
             Expanded(
               child: fefoAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(fefoMonitoringProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(fefoMonitoringProvider),
                 ),
                 data: (data) {
                   if (data.items.isEmpty) {
@@ -277,7 +240,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${b.jumlah} ${b.satuan} (${rupiah.format(b.nilaiTotal)})',
+                                  '${b.jumlah} ${b.satuan} (${AppFormatters.rupiah(b.nilaiTotal)})',
                                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
                                 ),
                               ],
@@ -319,34 +282,6 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
               textAlign: TextAlign.center,
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, String selected) {
-    final isSelected = selected == value;
-    return InkWell(
-      onTap: () {
-        ref.read(fefoKategoriFilterProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
         ),
       ),
     );

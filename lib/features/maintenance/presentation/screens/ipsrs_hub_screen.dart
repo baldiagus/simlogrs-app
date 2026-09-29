@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
@@ -25,7 +29,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
   String _statusFilter = 'SEMUA';
   String _prioritasFilter = 'SEMUA';
   String _searchKeyword = '';
-  final TextEditingController _searchController = TextEditingController();
+
 
   @override
   void initState() {
@@ -41,7 +45,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.dispose();
+
     super.dispose();
   }
 
@@ -202,83 +206,25 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Search input
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.canvas,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (v) => setState(() => _searchKeyword = v.trim()),
-                  decoration: InputDecoration(
-                    hintText: 'Cari kode tiket, nama alat, keluhan...',
-                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                    prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                    suffixIcon: _searchKeyword.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(LucideIcons.x, size: 16),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchKeyword = '');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  ),
-                ),
+              AppSearchBar(
+                hint: 'Cari kode tiket, nama alat, keluhan...',
+                onChanged: (v) => setState(() => _searchKeyword = v.trim()),
+                onClear: () => setState(() => _searchKeyword = ''),
               ),
               const SizedBox(height: 10),
-
-              // Filter Status Horizontal Pills
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildPill(
-                      label: 'Semua Status',
-                      isSelected: _statusFilter == 'SEMUA',
-                      onTap: () => setState(() => _statusFilter = 'SEMUA'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'DILAPORKAN',
-                      isSelected: _statusFilter == 'DILAPORKAN',
-                      onTap: () => setState(() => _statusFilter = 'DILAPORKAN'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'DITUGASKAN',
-                      isSelected: _statusFilter == 'DITUGASKAN',
-                      onTap: () => setState(() => _statusFilter = 'DITUGASKAN'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'SEDANG DIKERJAKAN',
-                      isSelected: _statusFilter == 'SEDANG_DIKERJAKAN',
-                      onTap: () => setState(() => _statusFilter = 'SEDANG_DIKERJAKAN'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'UJI FUNGSI',
-                      isSelected: _statusFilter == 'UJI_FUNGSI',
-                      onTap: () => setState(() => _statusFilter = 'UJI_FUNGSI'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'SELESAI',
-                      isSelected: _statusFilter == 'SELESAI',
-                      onTap: () => setState(() => _statusFilter = 'SELESAI'),
-                    ),
-                    const SizedBox(width: 6),
-                    _buildPill(
-                      label: 'DIBATALKAN',
-                      isSelected: _statusFilter == 'DIBATALKAN',
-                      onTap: () => setState(() => _statusFilter = 'DIBATALKAN'),
-                    ),
-                  ],
-                ),
+              AppFilterChipBar<String>(
+                padding: EdgeInsets.zero,
+                selected: _statusFilter,
+                onSelected: (val) => setState(() => _statusFilter = val),
+                options: const [
+                  AppFilterOption(label: 'Semua Status', value: 'SEMUA'),
+                  AppFilterOption(label: 'DILAPORKAN', value: 'DILAPORKAN'),
+                  AppFilterOption(label: 'DITUGASKAN', value: 'DITUGASKAN'),
+                  AppFilterOption(label: 'SEDANG DIKERJAKAN', value: 'SEDANG_DIKERJAKAN'),
+                  AppFilterOption(label: 'UJI FUNGSI', value: 'UJI_FUNGSI'),
+                  AppFilterOption(label: 'SELESAI', value: 'SELESAI'),
+                  AppFilterOption(label: 'DIBATALKAN', value: 'DIBATALKAN'),
+                ],
               ),
               const SizedBox(height: 6),
 
@@ -359,26 +305,11 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-              error: (err, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                      const SizedBox(height: 12),
-                      const Text('Gagal Memuat Tiket Kerusakan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 6),
-                      Text(err.toString().replaceAll('ApiException: ', ''), textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                      const SizedBox(height: 14),
-                      ElevatedButton(
-                        onPressed: () => ref.invalidate(daftarTiketUnitProvider),
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                ),
+              loading: () => const AppLoadingView(),
+              error: (err, _) => AppErrorView(
+                title: 'Gagal Memuat Tiket Kerusakan',
+                error: err,
+                onRetry: () => ref.invalidate(daftarTiketUnitProvider),
               ),
             ),
           ),
@@ -387,32 +318,6 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     );
   }
 
-  Widget _buildPill({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppColors.primaryPurple : AppColors.border),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildPrioritasPill(String val, String label, {Color? color}) {
     final isSelected = _prioritasFilter == val;

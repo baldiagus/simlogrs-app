@@ -29,7 +29,6 @@ class BarangRakModel {
     required this.kuantitasStok,
   });
   bool get isAset => tipe.toUpperCase() == 'ASET';
-  bool get isHabisPakai => tipe.toUpperCase() == 'HABIS_PAKAI';
   bool get isSparepart => tipe.toUpperCase() == 'SPAREPART';
 
   bool get isKadaluwarsa => statusKedaluwarsa.toUpperCase() == 'KADALUWARSA';

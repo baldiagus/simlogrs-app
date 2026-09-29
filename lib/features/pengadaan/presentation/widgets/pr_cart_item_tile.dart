@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/pr_model.dart';
 
@@ -92,37 +93,16 @@ class PrCartItemTile extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              Row(
-                children: [
-                  _buildStepperButton(
-                    icon: Icons.remove,
-                    onTap: () {
-                      if (item.jumlah > 1) {
-                        onQuantityChanged(item.jumlah - 1);
-                      } else {
-                        onRemove();
-                      }
-                    },
-                  ),
-                  Container(
-                    constraints: const BoxConstraints(minWidth: 36),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${item.jumlah}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  _buildStepperButton(
-                    icon: Icons.add,
-                    onTap: () {
-                      onQuantityChanged(item.jumlah + 1);
-                    },
-                  ),
-                ],
+              AppQuantityStepper(
+                value: item.jumlah,
+                min: 1,
+                onChanged: (val) {
+                  if (val < 1) {
+                    onRemove();
+                  } else {
+                    onQuantityChanged(val);
+                  }
+                },
               ),
             ],
           ),
@@ -131,21 +111,4 @@ class PrCartItemTile extends StatelessWidget {
     );
   }
 
-  Widget _buildStepperButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceSecondary,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, size: 16, color: AppColors.textPrimary),
-      ),
-    );
-  }
 }

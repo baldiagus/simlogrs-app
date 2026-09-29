@@ -4,6 +4,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 import '../../data/models/spk_model.dart';
 import '../providers/maintenance_provider.dart';
 import 'spk_detail_screen.dart';
@@ -53,21 +56,17 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
           children: [
             // Filter Status Horizontal Pills
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               color: AppColors.surface,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('SEMUA', 'Semua SPK'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('DITUGASKAN', 'Ditugaskan'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('DITERIMA', 'Diterima'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('SELESAI', 'Selesai'),
-                  ],
-                ),
+              child: AppFilterChipBar<String>(
+                selected: _selectedStatus,
+                onSelected: (val) => setState(() => _selectedStatus = val),
+                options: const [
+                  AppFilterOption(label: 'Semua SPK', value: 'SEMUA'),
+                  AppFilterOption(label: 'Ditugaskan', value: 'DITUGASKAN'),
+                  AppFilterOption(label: 'Diterima', value: 'DITERIMA'),
+                  AppFilterOption(label: 'Selesai', value: 'SELESAI'),
+                ],
               ),
             ),
             const Divider(height: 1, color: AppColors.border),
@@ -102,32 +101,11 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
                       },
                     );
                   },
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryPurple),
-                  ),
-                  error: (err, _) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                          const SizedBox(height: 12),
-                          const Text('Gagal Memuat SPK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          const SizedBox(height: 6),
-                          Text(
-                            err.toString().replaceAll('ApiException: ', ''),
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 14),
-                          ElevatedButton(
-                            onPressed: () => ref.invalidate(spkListProvider(_selectedStatus)),
-                            child: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
-                    ),
+                  loading: () => const AppLoadingView(),
+                  error: (err, _) => AppErrorView(
+                    title: 'Gagal Memuat Tugas SPK',
+                    error: err,
+                    onRetry: () => ref.invalidate(spkListProvider(_selectedStatus)),
                   ),
                 ),
               ),
@@ -138,33 +116,6 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
     );
   }
 
-  Widget _buildFilterChip(String value, String label) {
-    final isSelected = _selectedStatus == value;
-
-    return InkWell(
-      onTap: () => setState(() => _selectedStatus = value),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.tintVioletBg : AppColors.surfaceSecondary,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildSpkCard(BuildContext context, SpkHeaderModel spk) {
     return Container(

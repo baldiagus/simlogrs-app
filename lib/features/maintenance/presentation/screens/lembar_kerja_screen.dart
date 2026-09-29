@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
-import '../../../pengadaan/data/models/master_barang_model.dart';
-import '../../../pengadaan/presentation/widgets/barang_picker_bottom_sheet.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
+import '../widgets/sparepart_picker_sheet.dart';
 import '../../data/models/spk_model.dart';
 import '../providers/maintenance_provider.dart';
 
@@ -72,37 +72,23 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
 
 
   void _openSparepartPicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => BarangPickerBottomSheet(
-        filterTipe: 'SPAREPART',
-        onBarangSelected: (MasterBarangModel barang) {
-          if (barang.tipe.toUpperCase() != 'SPAREPART') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Hanya barang dengan tipe SPAREPART yang dapat digunakan.'),
-                backgroundColor: AppColors.danger,
-              ),
-            );
-            return;
+    SparepartPickerSheet.show(
+      context,
+      onSelected: (barang) {
+        setState(() {
+          final idx = _spareparts.indexWhere((e) => e['barang_id'] == barang.id);
+          if (idx >= 0) {
+            _spareparts[idx]['jumlah'] = (_spareparts[idx]['jumlah'] as int) + 1;
+          } else {
+            _spareparts.add({
+              'barang_id': barang.id,
+              'nama': barang.nama,
+              'satuan': barang.satuan,
+              'jumlah': 1,
+            });
           }
-          setState(() {
-            final idx = _spareparts.indexWhere((e) => e['barang_id'] == barang.id);
-            if (idx >= 0) {
-              _spareparts[idx]['jumlah'] = (_spareparts[idx]['jumlah'] as int) + 1;
-            } else {
-              _spareparts.add({
-                'barang_id': barang.id,
-                'nama': barang.nama,
-                'satuan': barang.satuan,
-                'jumlah': 1,
-              });
-            }
-          });
-        },
-      ),
+        });
+      },
     );
   }
 
@@ -344,30 +330,16 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.remove, size: 16),
-                                      onPressed: () {
-                                        setState(() {
-                                          if ((p['jumlah'] as int) > 1) {
-                                            p['jumlah'] = (p['jumlah'] as int) - 1;
-                                          } else {
-                                            _spareparts.remove(p);
-                                          }
-                                        });
-                                      },
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                    Text('${p['jumlah']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    IconButton(
-                                      icon: const Icon(Icons.add, size: 16),
-                                      onPressed: () {
-                                        setState(() => p['jumlah'] = (p['jumlah'] as int) + 1);
-                                      },
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                  ],
+                                AppQuantityStepper(
+                                  value: p['jumlah'] as int,
+                                  min: 1,
+                                  onChanged: (val) {
+                                    if (val < 1) {
+                                      setState(() => _spareparts.remove(p));
+                                    } else {
+                                      setState(() => p['jumlah'] = val);
+                                    }
+                                  },
                                 ),
                               ],
                             ),

@@ -102,8 +102,6 @@ class PesananPembelianModel {
   });
 
   bool get isDiterbitkan => status.toUpperCase() == 'DITERBITKAN';
-  bool get isDikirimVendor => status.toUpperCase() == 'DIKIRIM_VENDOR';
-  bool get isDiterimaSebagian => status.toUpperCase() == 'DITERIMA_SEBAGIAN';
   bool get isSelesai => status.toUpperCase() == 'DITERIMA_LENGKAP';
 
   factory PesananPembelianModel.fromJson(Map<String, dynamic> json) {

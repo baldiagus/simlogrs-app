@@ -65,10 +65,6 @@ class PrHeaderModel {
 
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
 
-  bool get isSiapPo {
-    final s = status.toUpperCase();
-    return s == 'DISETUJUI' || s == 'DITERUSKAN_KE_PENGADAAN';
-  }
 
   bool get isDisetujui {
     final s = status.toUpperCase();

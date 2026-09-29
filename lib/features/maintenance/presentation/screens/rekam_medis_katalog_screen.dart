@@ -4,6 +4,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../providers/ipsrs_providers.dart';
 import 'rekam_medis_detail_screen.dart';
 
@@ -15,13 +19,7 @@ class RekamMedisKatalogScreen extends ConsumerStatefulWidget {
 }
 
 class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScreen> {
-  final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,40 +46,25 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
               color: AppColors.surface,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari kode AST-..., nomor seri, atau alat...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(rekamMedisSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari kode AST-..., nomor seri, atau alat...',
                     onChanged: (val) {
                       ref.read(rekamMedisSearchQueryProvider.notifier).state = val;
                     },
                   ),
                   const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Semua Kondisi', null, selectedKondisi),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Kondisi: Baik', 'BAIK', selectedKondisi),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Rusak Ringan', 'RUSAK_RINGAN', selectedKondisi),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Rusak Berat', 'RUSAK_BERAT', selectedKondisi),
-                      ],
-                    ),
+                  AppFilterChipBar<String?>(
+                    padding: EdgeInsets.zero,
+                    selected: selectedKondisi,
+                    onSelected: (val) {
+                      ref.read(rekamMedisKondisiFilterProvider.notifier).state = val;
+                    },
+                    options: const [
+                      AppFilterOption(label: 'Semua Kondisi', value: null),
+                      AppFilterOption(label: 'Kondisi: Baik', value: 'BAIK'),
+                      AppFilterOption(label: 'Rusak Ringan', value: 'RUSAK_RINGAN'),
+                      AppFilterOption(label: 'Rusak Berat', value: 'RUSAK_BERAT'),
+                    ],
                   ),
                 ],
               ),
@@ -91,29 +74,10 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
             // Asset List
             Expanded(
               child: katalogAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(rekamMedisKatalogProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(rekamMedisKatalogProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -245,31 +209,4 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
     );
   }
 
-  Widget _buildFilterChip(String label, String? value, String? selected) {
-    final isSelected = selected == value;
-    return InkWell(
-      onTap: () {
-        ref.read(rekamMedisKondisiFilterProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
 }

@@ -83,7 +83,6 @@ class TiketMaintenanceModel {
   bool get isTinggi => prioritas.toUpperCase() == 'TINGGI';
   bool get isDilaporkan => status.toUpperCase() == 'DILAPORKAN';
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
-  bool get isDibatalkan => status.toUpperCase() == 'DIBATALKAN';
 
   String get namaAset => aset['nama']?.toString() ?? 'Aset Fisik';
   String get kodeAset => aset['kode_aset']?.toString() ?? '-';

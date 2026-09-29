@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/app_formatters.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
@@ -16,13 +19,6 @@ class RegisterAsetScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +26,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
     final lokasiTipe = ref.watch(registerAsetLokasiTipeProvider);
     final status = ref.watch(registerAsetStatusProvider);
     final kondisi = ref.watch(registerAsetKondisiProvider);
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -53,22 +49,8 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
               child: Column(
                 children: [
                   // Search Bar
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari kode AST-..., no. seri, nama alat...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(registerAsetSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari kode AST-..., no. seri, nama alat...',
                     onChanged: (val) {
                       ref.read(registerAsetSearchQueryProvider.notifier).state = val;
                     },
@@ -164,29 +146,10 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
             // List Items
             Expanded(
               child: asetAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(registerAsetListProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(registerAsetListProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -298,7 +261,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                                   const SizedBox(width: 8),
                                   if (item.nilaiPerolehan > 0)
                                     Text(
-                                      rupiah.format(item.nilaiPerolehan),
+                                      AppFormatters.rupiah(item.nilaiPerolehan),
                                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                                     ),
                                   const SizedBox(width: 4),

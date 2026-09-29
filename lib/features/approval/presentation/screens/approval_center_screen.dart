@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
+import '../widgets/approval_action_modal.dart';
+import '../widgets/approval_po_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_shadows.dart';
-import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
-import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/data/models/po_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
@@ -41,142 +43,9 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
 
   void _showActionModal({
     required ApprovalItemModel item,
-    required String aksi, // 'setujui', 'tolak', 'serahkan'
+    required String aksi,
   }) {
-    final noteController = TextEditingController();
-    final actionNotifier = ref.read(approvalActionProvider.notifier);
-    final isSetujui = aksi == 'setujui';
-    final isSerahkan = aksi == 'serahkan';
-
-    final Color themeColor = isSetujui
-        ? AppColors.success
-        : (isSerahkan ? AppColors.primaryPurple : AppColors.danger);
-    final IconData icon = isSetujui
-        ? LucideIcons.checkCheck
-        : (isSerahkan ? LucideIcons.send : LucideIcons.alertTriangle);
-    final String modalTitle = isSetujui
-        ? 'Setujui Dokumen'
-        : (isSerahkan ? 'Serahkan ke Bagian Pengadaan' : 'Tolak Dokumen');
-    final String buttonLabel = isSetujui
-        ? 'Ya, Setujui'
-        : (isSerahkan ? 'Ya, Serahkan ke Pengadaan' : 'Ya, Tolak');
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          20,
-          20,
-          MediaQuery.of(ctx).viewInsets.bottom + 20,
-        ),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: themeColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: themeColor, size: 24),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        modalTitle,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${item.kode} • ${item.unit}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: noteController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: isSetujui
-                    ? 'Catatan persetujuan (opsional)...'
-                    : (isSerahkan ? 'Catatan pelimpahan ke bagian pengadaan...' : 'Alasan penolakan dokumen (wajib)...'),
-                filled: true,
-                fillColor: AppColors.canvas,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: buttonLabel,
-              backgroundColor: themeColor,
-              textColor: Colors.white,
-              onPressed: () async {
-                final catatan = noteController.text.trim();
-                if (!isSetujui && !isSerahkan && catatan.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Alasan penolakan wajib diisi!'),
-                      backgroundColor: AppColors.danger,
-                    ),
-                  );
-                  return;
-                }
-                Navigator.pop(ctx);
-                final messenger = ScaffoldMessenger.of(context);
-                final ok = await actionNotifier.eksekusi(
-                  id: item.id,
-                  tipe: item.tipe,
-                  aksi: aksi,
-                  catatan: catatan,
-                );
-                final state = ref.read(approvalActionProvider);
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text(ok ? (state.successMessage ?? 'Berhasil') : (state.errorMessage ?? 'Gagal')),
-                    backgroundColor: ok ? AppColors.success : AppColors.danger,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+    ApprovalActionModal.show(context, item: item, aksi: aksi);
   }
 
   // -------------------------------------------------------------
@@ -285,38 +154,11 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
             ],
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryPurple),
-          ),
-        ),
-        error: (err, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(LucideIcons.alertCircle, size: 40, color: AppColors.danger),
-                const SizedBox(height: 12),
-                const Text(
-                  'Gagal Memuat Antrean',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  err.toString().replaceAll('ApiException: ', ''),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () => ref.invalidate(approvalPendingProvider),
-                  icon: const Icon(LucideIcons.refreshCw, size: 16),
-                  label: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(),
+        error: (err, _) => AppErrorView(
+          title: 'Gagal Memuat Antrean',
+          error: err,
+          onRetry: () => ref.invalidate(approvalPendingProvider),
         ),
       ),
     );
@@ -356,21 +198,19 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                 },
               ),
               const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildPoFilterChip('SEMUA', 'Semua PO', filterStatus),
-                    const SizedBox(width: 6),
-                    _buildPoFilterChip('DITERBITKAN', 'Diterbitkan', filterStatus),
-                    const SizedBox(width: 6),
-                    _buildPoFilterChip('DIKIRIM_VENDOR', 'Dikirim Vendor', filterStatus),
-                    const SizedBox(width: 6),
-                    _buildPoFilterChip('DITERIMA_SEBAGIAN', 'Diterima Sebagian', filterStatus),
-                    const SizedBox(width: 6),
-                    _buildPoFilterChip('DITERIMA_LENGKAP', 'Selesai', filterStatus),
-                  ],
-                ),
+              AppFilterChipBar<String>(
+                padding: EdgeInsets.zero,
+                selected: filterStatus,
+                onSelected: (val) {
+                  ref.read(poStatusFilterProvider.notifier).state = val;
+                },
+                options: const [
+                  AppFilterOption(label: 'Semua PO', value: 'SEMUA'),
+                  AppFilterOption(label: 'Diterbitkan', value: 'DITERBITKAN'),
+                  AppFilterOption(label: 'Dikirim Vendor', value: 'DIKIRIM_VENDOR'),
+                  AppFilterOption(label: 'Diterima Sebagian', value: 'DITERIMA_SEBAGIAN'),
+                  AppFilterOption(label: 'Selesai', value: 'DITERIMA_LENGKAP'),
+                ],
               ),
             ],
           ),
@@ -402,15 +242,19 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                   itemCount: pos.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, i) => _buildPoCard(pos[i], canManagePo, isReadOnly),
+                  itemBuilder: (ctx, i) => ApprovalPoCard(
+                    po: pos[i],
+                    canManagePo: canManagePo,
+                    isReadOnly: isReadOnly,
+                    onUpdateKirim: () => _confirmUpdateKirim(context, pos[i]),
+                  ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPurple)),
-              error: (err, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text('Gagal memuat PO: $err', style: const TextStyle(color: AppColors.danger)),
-                ),
+              loading: () => const AppLoadingView(),
+              error: (err, _) => AppErrorView(
+                title: 'Gagal Memuat PO',
+                error: err,
+                onRetry: () => ref.refresh(poListProvider),
               ),
             ),
           ),
@@ -419,168 +263,27 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     );
   }
 
-  Widget _buildPoFilterChip(String value, String label, String current) {
-    final isSelected = value == current;
-    return InkWell(
-      onTap: () {
-        ref.read(poStatusFilterProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? AppColors.primaryPurple : AppColors.border),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildPoCard(PesananPembelianModel po, bool canManagePo, bool isReadOnly) {
-    final currency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppShadows.softCard,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                po.kode,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
-              ),
-              StatusBadge(status: po.status),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Rekanan / Vendor: ${po.namaPemasok}',
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            po.prKode != null ? 'Dasar PR: ${po.prKode} (${po.prUnit ?? "-"})' : 'Dasar PR: Tanpa PR',
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Nilai PO: ${currency.format(po.totalBiaya)}',
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.tintBlue),
-              ),
-              Text(
-                'Estimasi: ${po.estimasiTanggalKirim}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-              ),
-            ],
-          ),
-          if (po.items.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            Text(
-              '${po.totalItem} Komoditas Dipesan:',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            ...po.items.map((it) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${it.namaBarang} (${it.jumlahDipesan} ${it.satuan})',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        currency.format(it.subtotal),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
-
-          // Action Button: Update status kirim (hanya untuk pengadaan & admin logistik)
-          if (po.isDiterbitkan && canManagePo) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _confirmUpdateKirim(context, po),
-                icon: const Icon(LucideIcons.truck, size: 16, color: Colors.white),
-                label: const Text('Tandai Dikirim Vendor', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.tintBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ),
-          ] else if (isReadOnly) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: AppColors.canvas, borderRadius: BorderRadius.circular(6)),
-              child: const Text('Mode Pengawasan Eksekutif (Hanya Lihat)', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _confirmUpdateKirim(BuildContext context, PesananPembelianModel po) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Konfirmasi Pengiriman Vendor'),
-        content: Text(
+  Future<void> _confirmUpdateKirim(BuildContext context, PesananPembelianModel po) async {
+    final confirmed = await AppConfirmDialog.show(
+      context,
+      title: 'Konfirmasi Pengiriman Vendor',
+      message:
           'Ubah status pesanan ${po.kode} (Vendor: ${po.namaPemasok}) menjadi DIKIRIM_VENDOR? Menandakan barang pesanan sedang dalam proses ekspedisi.',
-          style: const TextStyle(fontSize: 13),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final messenger = ScaffoldMessenger.of(context);
-              final notifier = ref.read(poActionProvider.notifier);
-              final ok = await notifier.updateStatusKirim(po.id);
-              final s = ref.read(poActionProvider);
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(ok ? (s.successMessage ?? 'Status berhasil diperbarui') : (s.errorMessage ?? 'Gagal')),
-                  backgroundColor: ok ? AppColors.success : AppColors.danger,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.tintBlue),
-            child: const Text('Ya, Tandai Dikirim', style: TextStyle(color: Colors.white)),
-          ),
-        ],
+      confirmLabel: 'Ya, Tandai Dikirim',
+      confirmColor: AppColors.tintBlue,
+      icon: LucideIcons.truck,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final notifier = ref.read(poActionProvider.notifier);
+    final ok = await notifier.updateStatusKirim(po.id);
+    final s = ref.read(poActionProvider);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(ok ? (s.successMessage ?? 'Status berhasil diperbarui') : (s.errorMessage ?? 'Gagal')),
+        backgroundColor: ok ? AppColors.success : AppColors.danger,
       ),
     );
   }

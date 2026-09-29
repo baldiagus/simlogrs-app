@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/amprah_model.dart';
 import '../providers/distribusi_provider.dart';
 
@@ -19,14 +22,7 @@ class BarangAmprahPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerSheet> {
-  final _searchController = TextEditingController();
   String _query = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,22 +74,10 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
           // Search Field
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: _searchController,
+            child: AppSearchBar(
+              hint: 'Cari nama barang, kode SKU, atau kategori...',
               onChanged: (v) => setState(() => _query = v.trim()),
-              decoration: InputDecoration(
-                hintText: 'Cari nama barang, kode SKU, atau kategori...',
-                prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
-                suffixIcon: _query.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(LucideIcons.xCircle, size: 16),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-              ),
+              onClear: () => setState(() => _query = ''),
             ),
           ),
           const SizedBox(height: 12),
@@ -239,18 +223,11 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                   },
                 );
               },
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryPurple),
-              ),
-              error: (err, _) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    err.toString().replaceAll('ApiException: ', ''),
-                    style: const TextStyle(color: AppColors.danger, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              loading: () => const AppLoadingView(),
+              error: (err, _) => AppErrorView(
+                title: 'Gagal Memuat Katalog',
+                error: err,
+                onRetry: () => ref.refresh(katalogAmprahProvider(_query)),
               ),
             ),
           ),

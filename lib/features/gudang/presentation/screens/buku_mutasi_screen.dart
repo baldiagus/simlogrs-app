@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/persediaan_providers.dart';
@@ -13,13 +17,7 @@ class BukuMutasiScreen extends ConsumerStatefulWidget {
 }
 
 class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
-  final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,42 +44,26 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
               color: AppColors.surface,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari komoditas, nomor batch, atau dokumen...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(mutasiSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari komoditas, nomor batch, atau dokumen...',
                     onChanged: (val) {
                       ref.read(mutasiSearchQueryProvider.notifier).state = val;
                     },
                   ),
                   const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Semua Transaksi', null, selectedJenis),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Masuk (Inbound)', 'MASUK', selectedJenis),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Keluar (Distribusi)', 'KELUAR', selectedJenis),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Penyesuaian (Opname)', 'PENYESUAIAN', selectedJenis),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Transfer Rak', 'TRANSFER', selectedJenis),
-                      ],
-                    ),
+                  AppFilterChipBar<String?>(
+                    padding: EdgeInsets.zero,
+                    selected: selectedJenis,
+                    onSelected: (val) {
+                      ref.read(mutasiJenisFilterProvider.notifier).state = val;
+                    },
+                    options: const [
+                      AppFilterOption(label: 'Semua Transaksi', value: null),
+                      AppFilterOption(label: 'Masuk (Inbound)', value: 'MASUK'),
+                      AppFilterOption(label: 'Keluar (Distribusi)', value: 'KELUAR'),
+                      AppFilterOption(label: 'Penyesuaian (Opname)', value: 'PENYESUAIAN'),
+                      AppFilterOption(label: 'Transfer Rak', value: 'TRANSFER'),
+                    ],
                   ),
                 ],
               ),
@@ -91,29 +73,10 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
             // Mutation List
             Expanded(
               child: mutasiAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(bukuMutasiListProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(bukuMutasiListProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -242,34 +205,6 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String? value, String? selected) {
-    final isSelected = selected == value;
-    return InkWell(
-      onTap: () {
-        ref.read(mutasiJenisFilterProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
         ),
       ),
     );

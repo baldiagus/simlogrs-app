@@ -30,7 +30,6 @@ class AsetTersediaModel {
   });
 
   bool get isGudang => tipePenyedia.toUpperCase() == 'GUDANG';
-  bool get isRuangan => tipePenyedia.toUpperCase() == 'RUANGAN';
 
   factory AsetTersediaModel.fromJson(Map<String, dynamic> json) {
     return AsetTersediaModel(

@@ -126,20 +126,6 @@ class PengadaanRepository {
     }
   }
 
-  /// Detail lengkap satu dokumen PO
-  Future<PesananPembelianModel> getDetailPo(int id) async {
-    try {
-      final response = await _client.dio.get('/pengadaan/po/$id');
-      final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
-        return PesananPembelianModel.fromJson(data['data'] as Map<String, dynamic>);
-      }
-      throw ApiException(message: 'Format data PO tidak valid');
-    } on DioException catch (e) {
-      if (e.error is ApiException) throw e.error as ApiException;
-      throw ApiException(message: e.message ?? 'Gagal memuat detail PO');
-    }
-  }
 
   /// Menerbitkan dokumen PO baru dari PR yang statusnya sudah diserahkan ke pengadaan
   Future<Map<String, dynamic>> terbitkanPo({

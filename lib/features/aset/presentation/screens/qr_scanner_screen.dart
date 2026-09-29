@@ -6,6 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/aset_provider.dart';
+import '../widgets/input_manual_kode_dialog.dart';
 import 'aset_detail_screen.dart';
 
 class QrScannerScreen extends ConsumerStatefulWidget {
@@ -88,55 +89,11 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
     }
   }
 
-  void _showManualInputDialog() {
-    final inputController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(LucideIcons.keyboard, color: AppColors.primaryPurple, size: 20),
-            SizedBox(width: 10),
-            Text('Input Kode Aset', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ketik kode aset atau nomor seri untuk mencari data:',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: inputController,
-              autofocus: true,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                hintText: 'misal: AST-2026-001',
-                prefixIcon: Icon(LucideIcons.qrCode, size: 18),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _handleBarcodeDetected(inputController.text.trim());
-            },
-            child: const Text('Cari Aset'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _showManualInputDialog() async {
+    final code = await InputManualKodeDialog.show(context);
+    if (code != null && code.isNotEmpty) {
+      _handleBarcodeDetected(code);
+    }
   }
 
   @override

@@ -4,6 +4,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../../shared/widgets/app_search_bar.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../data/models/jadwal_preventif_model.dart';
 import '../../data/repositories/ipsrs_repository.dart';
 import '../providers/ipsrs_providers.dart';
@@ -21,52 +26,34 @@ class JadwalPreventifScreen extends ConsumerStatefulWidget {
 }
 
 class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
-  final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
-  void _confirmEksekusi(JadwalPreventifItemModel j) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Terbitkan SPK Servis Preventif'),
-        content: Text(
+  Future<void> _confirmEksekusi(JadwalPreventifItemModel j) async {
+    final confirmed = await AppConfirmDialog.show(
+      context,
+      title: 'Terbitkan SPK Servis Preventif',
+      message:
           'Terbitkan Surat Perintah Kerja (SPK) untuk pemeliharaan berkala "${j.jenisMaintenance}" pada sarana ${j.namaSarana} (${j.kodeAset}) dan tugaskan ke ${j.teknisiNama}?',
-          style: const TextStyle(fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final messenger = ScaffoldMessenger.of(context);
-              try {
-                final res = await ref.read(ipsrsRepositoryProvider).eksekusiPreventif(j.id);
-                ref.invalidate(jadwalPreventifListProvider);
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text('SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              } catch (e) {
-                messenger.showSnackBar(
-                  SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-                );
-              }
-            },
-            child: const Text('Terbitkan SPK Sekarang'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Terbitkan SPK Sekarang',
+      icon: LucideIcons.calendarCheck,
     );
+    if (!confirmed || !mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final res = await ref.read(ipsrsRepositoryProvider).eksekusiPreventif(j.id);
+      ref.invalidate(jadwalPreventifListProvider);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
+      );
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -98,40 +85,25 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
               color: AppColors.surface,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari alat, kode aset, atau pekerjaan...',
-                      prefixIcon: const Icon(LucideIcons.search, size: 18),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(LucideIcons.x, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                ref.read(preventifSearchQueryProvider.notifier).state = '';
-                              },
-                            )
-                          : null,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                  AppSearchBar(
+                    hint: 'Cari alat, kode aset, atau pekerjaan...',
                     onChanged: (val) {
                       ref.read(preventifSearchQueryProvider.notifier).state = val;
                     },
                   ),
                   const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Semua Jadwal', 'SEMUA', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Terlambat (Overdue)', 'OVERDUE', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Hari Ini', 'HARI_INI', selectedFilter),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Mendatang', 'MENDATANG', selectedFilter),
-                      ],
-                    ),
+                  AppFilterChipBar<String>(
+                    padding: EdgeInsets.zero,
+                    selected: selectedFilter,
+                    onSelected: (val) {
+                      ref.read(preventifStatusFilterProvider.notifier).state = val;
+                    },
+                    options: const [
+                      AppFilterOption(label: 'Semua Jadwal', value: 'SEMUA'),
+                      AppFilterOption(label: 'Terlambat (Overdue)', value: 'OVERDUE'),
+                      AppFilterOption(label: 'Hari Ini', value: 'HARI_INI'),
+                      AppFilterOption(label: 'Mendatang', value: 'MENDATANG'),
+                    ],
                   ),
                 ],
               ),
@@ -141,29 +113,10 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
             // Schedule List
             Expanded(
               child: jadwalAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                        const SizedBox(height: 12),
-                        Text(
-                          err.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => ref.refresh(jadwalPreventifListProvider),
-                          icon: const Icon(LucideIcons.refreshCw, size: 16),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                loading: () => const AppLoadingView(),
+                error: (err, _) => AppErrorView(
+                  error: err,
+                  onRetry: () => ref.refresh(jadwalPreventifListProvider),
                 ),
                 data: (items) {
                   if (items.isEmpty) {
@@ -300,34 +253,6 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, String selected) {
-    final isSelected = selected == value;
-    return InkWell(
-      onTap: () {
-        ref.read(preventifStatusFilterProvider.notifier).state = value;
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPurple : AppColors.canvas,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryPurple : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
         ),
       ),
     );

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import '../widgets/qr_sticker_sheet.dart';
+import '../widgets/aset_detail_sections.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../widgets/modal_pengembalian_aset_sheet.dart';
+import '../widgets/modal_perpanjang_peminjaman_sheet.dart';
 import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_detail_screen.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
-import '../providers/peminjaman_provider.dart';
 import 'form_peminjaman_aset_screen.dart';
 
 class AsetDetailScreen extends ConsumerStatefulWidget {
@@ -69,467 +72,34 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
   }
 
   void _showQrStickerModal(AsetDetailModel aset) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'Stiker QR Code Inventaris',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Gunakan QR ini untuk pemindaian fisik dan verifikasi di lapangan.',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            // Physical Sticker Box
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border, width: 2),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
-                ],
-              ),
-              child: Column(
-                children: [
-                  QrImageView(
-                    data: aset.kodeAset,
-                    version: QrVersions.auto,
-                    size: 180,
-                    backgroundColor: Colors.white,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    aset.kodeAset,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    aset.namaKomoditas,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (aset.nomorSeri != '-') ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      'SN: ${aset.nomorSeri}',
-                      style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: Color(0xFF64748B)),
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  const Divider(color: Color(0xFFE2E8F0), height: 1),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'SIMLOG RS • REGISTER INVENTARIS',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF64748B),
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: 'Tutup Stiker',
-              onPressed: () => Navigator.pop(ctx),
-            ),
-          ],
-        ),
-      ),
-    );
+    QrStickerSheet.show(context, aset);
   }
 
   void _showPerpanjangModal(AsetDetailModel aset) {
     final pinjamInfo = aset.peminjamanAktif;
     if (pinjamInfo == null) return;
-
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    final displayFormat = DateFormat('dd/MM/yyyy');
-
-    DateTime currentRencana;
-    try {
-      currentRencana = DateTime.parse(pinjamInfo.tanggalKembaliRencana ?? '');
-    } catch (_) {
-      currentRencana = DateTime.now();
-    }
-
-    DateTime selectedDate = currentRencana.add(const Duration(days: 7));
-    if (selectedDate.isBefore(DateTime.now().add(const Duration(days: 1)))) {
-      selectedDate = DateTime.now().add(const Duration(days: 7));
-    }
-
-    final tglController = TextEditingController(text: dateFormat.format(selectedDate));
-    final alasanController = TextEditingController();
-    bool isSubmitting = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Container(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
-              ),
-              const SizedBox(height: 16),
-              const Row(
-                children: [
-                  Icon(LucideIcons.calendarPlus, size: 20, color: AppColors.primaryPurple),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Perpanjang Masa Pinjam',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Dokumen: ${pinjamInfo.kodePinjam} • Batas Saat Ini: ${pinjamInfo.tanggalKembaliRencana ?? '-'}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Tanggal Rencana Kembali Baru:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 6),
-              InkWell(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: ctx,
-                    initialDate: selectedDate,
-                    firstDate: DateTime.now().add(const Duration(days: 1)),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    setModalState(() {
-                      selectedDate = picked;
-                      tglController.text = dateFormat.format(picked);
-                    });
-                  }
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.canvas,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        displayFormat.format(selectedDate),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                      ),
-                      const Icon(LucideIcons.calendar, size: 18, color: AppColors.primaryPurple),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              const Text('Alasan Perpanjangan (Wajib):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: alasanController,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  hintText: 'Misal: Perpanjangan durasi tindakan pelayanan...',
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              CustomButton(
-                text: 'Konfirmasi Perpanjang Peminjaman',
-                isLoading: isSubmitting,
-                icon: const Icon(LucideIcons.check, size: 18, color: Colors.white),
-                onPressed: () async {
-                  final alasan = alasanController.text.trim();
-                  if (alasan.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Alasan perpanjangan wajib dicantumkan.'),
-                        backgroundColor: AppColors.danger,
-                      ),
-                    );
-                    return;
-                  }
-
-                  setModalState(() => isSubmitting = true);
-                  final messenger = ScaffoldMessenger.of(context);
-                  Navigator.pop(ctx);
-
-                  final notifier = ref.read(peminjamanActionProvider.notifier);
-                  final ok = await notifier.perpanjangPeminjaman(
-                    id: pinjamInfo.peminjamanId,
-                    tanggalKembaliBaru: tglController.text.trim(),
-                    alasan: alasan,
-                  );
-
-                  if (!mounted) return;
-                  final state = ref.read(peminjamanActionProvider);
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(ok ? (state.successMessage ?? 'Masa pinjam berhasil diperpanjang.') : (state.errorMessage ?? 'Gagal memperpanjang.')),
-                      backgroundColor: ok ? AppColors.success : AppColors.danger,
-                    ),
-                  );
-
-                  if (ok) {
-                    _fetchAset();
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+    ModalPerpanjangPeminjamanSheet.show(
+      context,
+      peminjamanId: pinjamInfo.peminjamanId,
+      kodeDokumen: pinjamInfo.kodePinjam,
+      tanggalKembaliSaatIni: pinjamInfo.tanggalKembaliRencana,
+      onSuccess: _fetchAset,
     );
   }
 
   void _showPengembalianModal() {
     if (_aset == null) return;
     final currentAset = _aset!;
-    String kondisiKembali = 'BAIK';
-    final catatanController = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Container(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            20,
-            20,
-            MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.tintOrangeBg,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(LucideIcons.packageCheck, size: 22, color: AppColors.tintOrange),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Inspeksi Fisik Pengembalian',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          '${currentAset.kodeAset} • ${currentAset.namaKomoditas}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              // Kondisi fisik selector
-              const Text(
-                'Kondisi Fisik Saat Kembali:',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _buildKondisiChip('BAIK', 'Baik', kondisiKembali, (v) {
-                    setModalState(() => kondisiKembali = v);
-                  }),
-                  const SizedBox(width: 8),
-                  _buildKondisiChip('RUSAK_RINGAN', 'Rusak Ringan', kondisiKembali, (v) {
-                    setModalState(() => kondisiKembali = v);
-                  }),
-                  const SizedBox(width: 8),
-                  _buildKondisiChip('RUSAK_BERAT', 'Rusak Berat', kondisiKembali, (v) {
-                    setModalState(() => kondisiKembali = v);
-                  }),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Catatan
-              const Text(
-                'Catatan Hasil Pemeriksaan:',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: catatanController,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  hintText: 'Kelengkapan aksesoris, kebersihan, atau keluhan fisik...',
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              CustomButton(
-                text: 'Konfirmasi Pengembalian Selesai',
-                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  Navigator.pop(ctx);
-                  final peminjamanId = currentAset.peminjamanAktif?.peminjamanId;
-                  if (peminjamanId == null) return;
-
-                  final notifier = ref.read(asetActionProvider.notifier);
-                  final ok = await notifier.konfirmasiPengembalian(
-                    peminjamanId: peminjamanId,
-                    inspeksi: [
-                      {
-                        'permintaan_peminjaman_detail_id': peminjamanId,
-                        'aset_id': currentAset.id,
-                        'kondisi_saat_kembali': kondisiKembali,
-                        'catatan': catatanController.text.trim(),
-                      }
-                    ],
-                    catatan: catatanController.text.trim(),
-                  );
-
-                  if (!mounted) return;
-                  final state = ref.read(asetActionProvider);
-                  if (ok) {
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(state.successMessage ?? 'Pengembalian aset berhasil diproses.'),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                    _fetchAset();
-                  } else {
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(state.errorMessage ?? 'Gagal memproses pengembalian.'),
-                        backgroundColor: AppColors.danger,
-                      ),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKondisiChip(
-    String val,
-    String label,
-    String currentVal,
-    ValueChanged<String> onSelect,
-  ) {
-    final isSelected = currentVal == val;
-    Color color = AppColors.success;
-    if (val == 'RUSAK_RINGAN') color = AppColors.warning;
-    if (val == 'RUSAK_BERAT') color = AppColors.danger;
-
-    return Expanded(
-      child: InkWell(
-        onTap: () => onSelect(val),
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.12) : AppColors.surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? color : AppColors.border,
-              width: isSelected ? 1.5 : 1.0,
-            ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              color: isSelected ? color : AppColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+    final peminjamanId = currentAset.peminjamanAktif?.peminjamanId;
+    if (peminjamanId == null) return;
+    ModalPengembalianAsetSheet.show(
+      context,
+      peminjamanId: peminjamanId,
+      detailId: peminjamanId,
+      asetId: currentAset.id,
+      kodeDokumen: currentAset.kodeAset,
+      namaBarang: currentAset.namaKomoditas,
+      onSuccess: _fetchAset,
     );
   }
 
@@ -539,7 +109,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
       return Scaffold(
         backgroundColor: AppColors.canvas,
         appBar: AppBar(title: const Text('Profil Aset Fisik')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const AppLoadingView(),
       );
     }
 
@@ -547,28 +117,9 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
       return Scaffold(
         backgroundColor: AppColors.canvas,
         appBar: AppBar(title: const Text('Profil Aset Fisik')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(LucideIcons.circleAlert, size: 48, color: AppColors.danger),
-                const SizedBox(height: 12),
-                Text(
-                  _errorMessage ?? 'Data aset tidak ditemukan',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _fetchAset,
-                  icon: const Icon(LucideIcons.refreshCw, size: 16),
-                  label: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        body: AppErrorView(
+          error: _errorMessage ?? 'Data aset tidak ditemukan',
+          onRetry: _fetchAset,
         ),
       );
     }
@@ -577,7 +128,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     final actionState = ref.watch(asetActionProvider);
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
-    final rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -730,96 +281,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 const SizedBox(height: 16),
               ],
 
-              // 3. Asset Location & Condition Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow(
-                      icon: LucideIcons.mapPin,
-                      label: 'Lokasi Tercatat Saat Ini',
-                      value: currentAset.lokasiTercatat,
-                    ),
-                    const Divider(color: AppColors.border, height: 20),
-                    _buildInfoRow(
-                      icon: LucideIcons.userCheck,
-                      label: 'Penanggung Jawab / Peminjam',
-                      value: currentAset.penanggungJawab,
-                    ),
-                    const Divider(color: AppColors.border, height: 20),
-                    _buildInfoRow(
-                      icon: LucideIcons.activity,
-                      label: 'Kondisi Fisik',
-                      value: currentAset.kondisi.replaceAll('_', ' '),
-                      badge: StatusBadge(status: currentAset.kondisi),
-                    ),
-                  ],
-                ),
-              ),
+              AsetDetailLokasiCard(aset: currentAset),
               const SizedBox(height: 16),
-
-              // 4. Spesifikasi & Informasi Finansial Pengadaan
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(LucideIcons.fileSpreadsheet, size: 16, color: AppColors.primaryPurple),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Spesifikasi & Nilai Perolehan',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      icon: LucideIcons.tag,
-                      label: 'Merek Pabrikan',
-                      value: currentAset.merek,
-                    ),
-                    const Divider(color: AppColors.border, height: 16),
-                    _buildInfoRow(
-                      icon: LucideIcons.banknote,
-                      label: 'Nilai Perolehan Awal',
-                      value: currentAset.nilaiPerolehan > 0 ? rupiah.format(currentAset.nilaiPerolehan) : '-',
-                    ),
-                    const Divider(color: AppColors.border, height: 16),
-                    _buildInfoRow(
-                      icon: LucideIcons.calendarCheck2,
-                      label: 'Tanggal Perolehan RS',
-                      value: currentAset.tanggalPerolehan,
-                    ),
-                    if (currentAset.spesifikasi != '-') ...[
-                      const Divider(color: AppColors.border, height: 16),
-                      _buildInfoRow(
-                        icon: LucideIcons.cpu,
-                        label: 'Spesifikasi / Kapasitas',
-                        value: currentAset.spesifikasi,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              AsetDetailSpesifikasiCard(aset: currentAset),
               const SizedBox(height: 16),
-
-              // 5. Rekam Jejak Pemeliharaan (IPSRS Track Record)
-              InkWell(
+              AsetDetailIpsrsCard(
+                aset: currentAset,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -831,203 +298,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                     ),
                   );
                 },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(
-                            child: Row(
-                              children: [
-                                Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Histori Pemeliharaan (IPSRS)',
-                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrangeBg : AppColors.surfaceSecondary,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '${currentAset.totalRiwayatServis}x Servis',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: currentAset.totalRiwayatServis > 0 ? AppColors.tintOrange : AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.primaryPurple),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      if (currentAset.servisTerakhir != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.canvas,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      currentAset.servisTerakhir!.kode,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w800,
-                                        fontFamily: 'monospace',
-                                        color: AppColors.primaryPurple,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  StatusBadge(status: currentAset.servisTerakhir!.status),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                currentAset.servisTerakhir!.deskripsi,
-                                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Tgl: ${currentAset.servisTerakhir!.tanggalPengajuan}',
-                                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Flexible(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            'Buka Rekam Medis & Preventif',
-                                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        SizedBox(width: 2),
-                                        Icon(LucideIcons.arrowRight, size: 12, color: AppColors.primaryPurple),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ] else ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.canvas,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'Belum ada tiket servis. Buka rekam medis & preventif.',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Icon(LucideIcons.arrowRight, size: 14, color: AppColors.primaryPurple),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
               ),
               const SizedBox(height: 16),
 
               // 6. Active Loan Details if DIPINJAM
               if (currentAset.peminjamanAktif != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(LucideIcons.repeat, size: 16, color: AppColors.primaryPurple),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Transaksi Peminjaman Aktif',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                        icon: LucideIcons.fileText,
-                        label: 'Kode Peminjaman',
-                        value: currentAset.peminjamanAktif!.kodePinjam,
-                      ),
-                      const Divider(color: AppColors.border, height: 16),
-                      _buildInfoRow(
-                        icon: LucideIcons.building,
-                        label: 'Unit Peminjam',
-                        value: currentAset.peminjamanAktif!.unitPeminjam,
-                      ),
-                      const Divider(color: AppColors.border, height: 16),
-                      _buildInfoRow(
-                        icon: LucideIcons.calendar,
-                        label: 'Batas Rencana Kembali',
-                        value: currentAset.peminjamanAktif!.tanggalKembaliRencana ?? '-',
-                      ),
-                    ],
-                  ),
-                ),
+                AsetDetailActiveLoanCard(loan: currentAset.peminjamanAktif!),
                 const SizedBox(height: 24),
               ],
 
@@ -1128,42 +404,4 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    Widget? badge,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.canvas,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, size: 18, color: AppColors.primaryPurple),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
-            ],
-          ),
-        ),
-        if (badge != null) badge,
-      ],
-    );
-  }
 }

@@ -1,6 +1,5 @@
 import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
 import '../../../anggaran/presentation/screens/pagu_realisasi_screen.dart';
-import '../../../../core/theme/app_shadows.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -14,10 +13,6 @@ import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
-import '../../../gudang/presentation/screens/fefo_monitoring_screen.dart';
-import '../../../gudang/presentation/screens/buku_mutasi_screen.dart';
-import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
-import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -26,6 +21,10 @@ import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/user_top_bar.dart';
+import '../widgets/gudang_shortcut_grid.dart';
+import '../../../../shared/widgets/app_action_banner_card.dart';
+import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_loading_view.dart';
 
 class HomeScreen extends ConsumerWidget {
   final ValueChanged<int>? onNavigateTab;
@@ -92,104 +91,31 @@ class HomeScreen extends ConsumerWidget {
                       }
                     },
                   ),
-                  loading: () => Container(
-                    height: 180,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceSecondary,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryPurple,
-                        ),
-                      ),
-                    ),
-                  ),
-                  error: (_, __) => Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: const Column(
-                      children: [
-                        Text(
-                          'Gagal Memuat Ringkasan',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          'Tarik ke bawah untuk memuat ulang data.',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
+                  loading: () => const AppLoadingView(),
+                  error: (err, _) => AppErrorView(
+                    title: 'Gagal Memuat Ringkasan',
+                    error: err,
+                    onRetry: () => ref.invalidate(dashboardSummaryProvider),
                   ),
                 ),
                 const SizedBox(height: 20),
 
                 // Banner Pengadaan Ruangan (Hanya untuk unit pemohon, bukan teknisi)
                 if (ref.watch(authStateProvider).user?.isTeknisi != true) ...[
-                  InkWell(
+                  AppActionBannerCard(
+                    title: ref.watch(authStateProvider).user?.isPengadaan == true
+                        ? 'Monitoring & Verifikasi PR'
+                        : 'Pengadaan Barang Unit (PR)',
+                    subtitle: ref.watch(authStateProvider).user?.isPengadaan == true
+                        ? 'Daftar pengajuan PR dari seluruh unit rumah sakit'
+                        : 'Ajukan permohonan PR & pantau status tindak lanjut',
+                    icon: LucideIcons.fileSpreadsheet,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const RiwayatPrScreen()),
                       );
                     },
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.tintVioletBg,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(LucideIcons.fileSpreadsheet, size: 20, color: AppColors.primaryPurple),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  ref.watch(authStateProvider).user?.isPengadaan == true
-                                      ? 'Monitoring & Verifikasi PR'
-                                      : 'Pengadaan Barang Unit (PR)',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  ref.watch(authStateProvider).user?.isPengadaan == true
-                                      ? 'Daftar pengajuan PR dari seluruh unit rumah sakit'
-                                      : 'Ajukan permohonan PR & pantau status tindak lanjut',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
-                        ],
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -399,57 +325,17 @@ class HomeScreen extends ConsumerWidget {
                 // Banner Pusat Audit SPI & CAPA (Khusus Auditor & Manajemen)
                 if (ref.watch(authStateProvider).user?.hasAuditAccess == true) ...[
                   const SizedBox(height: 16),
-                  InkWell(
+                  AppActionBannerCard(
+                    title: 'Pusat Audit Internal SPI & CAPA',
+                    subtitle: 'Audit trail, kepatuhan PO, selisih opname, register temuan',
+                    icon: LucideIcons.shieldAlert,
+                    borderColor: AppColors.primaryPurple.withValues(alpha: 0.3),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
                       );
                     },
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.primaryPurple.withValues(alpha: 0.3)),
-                        boxShadow: AppShadows.softCard,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.tintVioletBg,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(LucideIcons.shieldAlert, size: 22, color: AppColors.primaryPurple),
-                          ),
-                          const SizedBox(width: 14),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Pusat Audit Internal SPI & CAPA',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Audit trail, kepatuhan PO, selisih opname, register temuan',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
-                        ],
-                      ),
-                    ),
                   ),
                 ],
 
@@ -459,57 +345,19 @@ class HomeScreen extends ConsumerWidget {
                     ref.watch(authStateProvider).user?.isPengadaan == true ||
                     ref.watch(authStateProvider).user?.isAdminLogistik == true) ...[
                   const SizedBox(height: 12),
-                  InkWell(
+                  AppActionBannerCard(
+                    title: 'Pagu & Realisasi Anggaran RS',
+                    subtitle: 'Screening pengeluaran logistik ruangan & suku cadang IPSRS',
+                    icon: LucideIcons.banknote,
+                    iconColor: AppColors.tintTeal,
+                    iconBgColor: AppColors.tintTealBg,
+                    borderColor: AppColors.tintTeal.withValues(alpha: 0.3),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const PaguRealisasiScreen()),
                       );
                     },
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.tintTeal.withValues(alpha: 0.3)),
-                        boxShadow: AppShadows.softCard,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.tintTealBg,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(LucideIcons.banknote, size: 22, color: AppColors.tintTeal),
-                          ),
-                          const SizedBox(width: 14),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Pagu & Realisasi Anggaran RS',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Screening pengeluaran logistik ruangan & suku cadang IPSRS',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textMuted),
-                        ],
-                      ),
-                    ),
                   ),
                 ],
                 // Modul Persediaan & Opname Gudang (Hanya Kepala Gudang & Petugas Gudang, bukan teknisi)
@@ -524,85 +372,7 @@ class HomeScreen extends ConsumerWidget {
                       (user?.hasPersediaanAccess ?? false);
                   if (!isGudangUser) return const SizedBox.shrink();
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Persediaan & Opname Gudang',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            'Sirkulasi & Stok Fisik',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildGudangMiniCard(
-                              context: context,
-                              title: 'Monitoring FEFO',
-                              subtitle: 'Kedaluwarsa & ROP',
-                              icon: LucideIcons.hourglass,
-                              iconColor: AppColors.tintOrange,
-                              bgColor: AppColors.tintOrangeBg,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FefoMonitoringScreen())),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildGudangMiniCard(
-                              context: context,
-                              title: 'Buku Mutasi',
-                              subtitle: 'Pergerakan stok riil',
-                              icon: LucideIcons.fileSpreadsheet,
-                              iconColor: AppColors.tintBlue,
-                              bgColor: AppColors.tintBlueBg,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BukuMutasiScreen())),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildGudangMiniCard(
-                              context: context,
-                              title: 'Stock Opname',
-                              subtitle: 'Hitung fisik di rak',
-                              icon: LucideIcons.clipboardCheck,
-                              iconColor: AppColors.primaryPurple,
-                              bgColor: AppColors.tintVioletBg,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StockOpnameHubScreen())),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildGudangMiniCard(
-                              context: context,
-                              title: 'Otorisasi Selisih',
-                              subtitle: 'Penyesuaian saldo',
-                              icon: LucideIcons.shieldCheck,
-                              iconColor: AppColors.tintTeal,
-                              bgColor: AppColors.tintTealBg,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen())),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
+                  return const GudangShortcutGrid();
                 }(),
                 const SizedBox(height: 24),
 
@@ -621,61 +391,4 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGudangMiniCard({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconColor,
-    required Color bgColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: iconColor, size: 18),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
