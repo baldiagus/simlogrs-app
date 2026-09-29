@@ -1,13 +1,14 @@
 class PeminjamanAktifInfo {
   final int peminjamanId;
+  final int? peminjamanDetailId;
   final String kodePinjam;
   final String unitPeminjam;
   final String? tanggalPinjam;
   final String? tanggalKembaliRencana;
   final bool isOverdue;
-
   const PeminjamanAktifInfo({
     required this.peminjamanId,
+    this.peminjamanDetailId,
     required this.kodePinjam,
     required this.unitPeminjam,
     this.tanggalPinjam,
@@ -20,6 +21,9 @@ class PeminjamanAktifInfo {
       peminjamanId: json['peminjaman_id'] is int
           ? json['peminjaman_id'] as int
           : int.parse(json['peminjaman_id'].toString()),
+      peminjamanDetailId: json['peminjaman_detail_id'] != null
+          ? int.tryParse(json['peminjaman_detail_id'].toString())
+          : null,
       kodePinjam: json['kode_pinjam']?.toString() ?? '',
       unitPeminjam: json['unit_peminjam']?.toString() ?? 'Unit Peminjam',
       tanggalPinjam: json['tanggal_pinjam']?.toString(),

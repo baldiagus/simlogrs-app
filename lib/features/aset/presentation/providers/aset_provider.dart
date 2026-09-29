@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../../data/repositories/aset_repository.dart';
-
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import 'peminjaman_provider.dart';
 final asetRepositoryProvider = Provider<AsetRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return AsetRepository(client);
@@ -38,8 +39,9 @@ class AsetActionState {
 
 class AsetActionNotifier extends StateNotifier<AsetActionState> {
   final AsetRepository _repository;
+  final Ref _ref;
 
-  AsetActionNotifier(this._repository) : super(const AsetActionState());
+  AsetActionNotifier(this._repository, this._ref) : super(const AsetActionState());
 
   Future<AsetDetailModel?> scanAset(String query) async {
     state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
@@ -96,6 +98,10 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
         isLoading: false,
         successMessage: 'Pengembalian fisik ($kodeRet) berhasil dicatat.',
       );
+      _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+      _ref.invalidate(dashboardSummaryProvider);
       // Reload current scanned asset if available
       if (state.aset != null) {
         await scanAset(state.aset!.kodeAset);
@@ -118,5 +124,5 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
 final asetActionProvider =
     StateNotifierProvider<AsetActionNotifier, AsetActionState>((ref) {
   final repository = ref.watch(asetRepositoryProvider);
-  return AsetActionNotifier(repository);
+  return AsetActionNotifier(repository, ref);
 });

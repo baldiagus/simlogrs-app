@@ -97,7 +97,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     ModalPengembalianAsetSheet.show(
       context,
       peminjamanId: peminjamanId,
-      detailId: peminjamanId,
+      detailId: currentAset.peminjamanAktif?.peminjamanDetailId ?? peminjamanId,
       asetId: currentAset.id,
       kodeDokumen: currentAset.kodeAset,
       namaBarang: currentAset.namaKomoditas,
