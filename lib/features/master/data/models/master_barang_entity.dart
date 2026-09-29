@@ -43,7 +43,7 @@ class MasterBarangItemModel {
     required this.totalAset,
   });
 
-  int get totalStokFisik => tipe == 'ASET' ? totalAset : (stokGudang + stokRuangan);
+  int get totalStokFisik => tipe == 'ASET' ? (totalAset + stokGudang) : (stokGudang + stokRuangan);
 
   bool get isPerluPesan => titikPesan > 0 && totalStokFisik <= titikPesan;
   bool get isHabis => totalStokFisik <= 0;

@@ -267,9 +267,16 @@ class DetailBarangScreen extends ConsumerWidget {
                       ],
                     );
                   }(),
-                  if (isAset)
-                    DetailBarangAsetList(daftarAset: detail.daftarAset)
-                  else ...[
+                  if (isAset) ...[
+                    DetailBarangAsetList(daftarAset: detail.daftarAset),
+                    if (detail.daftarBatch.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      DetailBarangBatchList(
+                        daftarBatch: detail.daftarBatch,
+                        simbolSatuan: b.simbolSatuan,
+                      ),
+                    ],
+                  ] else ...[
                     DetailBarangBatchList(
                       daftarBatch: detail.daftarBatch,
                       simbolSatuan: b.simbolSatuan,

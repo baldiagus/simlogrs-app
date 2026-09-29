@@ -220,12 +220,14 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                     children: [
                                       Text(
                                         isAset
-                                            ? '${item.totalAset} Unit Fisik'
+                                            ? (item.stokGudang > 0
+                                                ? '${item.totalAset} Terdaftar • ${item.stokGudang} di Gudang'
+                                                : '${item.totalAset} Unit Fisik')
                                             : 'Total: ${item.totalStokFisik} ${item.simbolSatuan}',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
-                                          color: item.isHabis
+                                          color: (isAset && item.totalAset == 0 && item.stokGudang == 0) || (!isAset && item.isHabis)
                                               ? AppColors.danger
                                               : (item.isPerluPesan ? AppColors.warning : AppColors.success),
                                         ),
