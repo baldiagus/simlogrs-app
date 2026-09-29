@@ -55,16 +55,31 @@ class DetailBarangParamCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildRow('Merek Pabrikan', b.merek),
-          const Divider(color: AppColors.border, height: 16),
-          _buildRow('Pemasok Rekanan', b.pemasok),
-          const Divider(color: AppColors.border, height: 16),
-          _buildRow('Harga Beli Terakhir', AppFormatters.rupiah(b.hargaBeliTerakhir)),
-          const Divider(color: AppColors.border, height: 16),
-          _buildRow('Titik Pesan Ulang (ROP)', '${b.titikPesan} ${b.simbolSatuan}'),
+          _buildRow('Merek Pabrikan', b.merek.isEmpty || b.merek == '-' ? '-' : b.merek),
           const Divider(color: AppColors.border, height: 16),
           _buildRow(
-              'Batas Stok Min / Max', '${b.stokMinimum} / ${b.stokMaksimum} ${b.simbolSatuan}'),
+              'Pemasok Rekanan',
+              b.pemasok.isEmpty || b.pemasok == '-'
+                  ? 'Belum ditentukan'
+                  : b.pemasok),
+          const Divider(color: AppColors.border, height: 16),
+          _buildRow(
+              'Harga Beli Terakhir',
+              b.hargaBeliTerakhir > 0
+                  ? AppFormatters.rupiah(b.hargaBeliTerakhir)
+                  : 'Belum ada riwayat'),
+          const Divider(color: AppColors.border, height: 16),
+          _buildRow(
+              'Titik Pesan Ulang (ROP)',
+              b.titikPesan > 0
+                  ? '${b.titikPesan} ${b.simbolSatuan}'
+                  : '- (Tanpa Batas)'),
+          const Divider(color: AppColors.border, height: 16),
+          _buildRow(
+              'Batas Stok Min / Max',
+              (b.stokMinimum <= 0 && b.stokMaksimum <= 0)
+                  ? '- (Tanpa Batas)'
+                  : '${b.stokMinimum > 0 ? b.stokMinimum : "-"} / ${b.stokMaksimum > 0 ? b.stokMaksimum : "-"} ${b.simbolSatuan}'),
           if (b.spesifikasi != null && b.spesifikasi!.isNotEmpty) ...[
             const Divider(color: AppColors.border, height: 16),
             _buildRow('Spesifikasi Fisik', b.spesifikasi!),

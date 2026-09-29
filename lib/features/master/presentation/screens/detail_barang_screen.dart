@@ -118,7 +118,11 @@ class DetailBarangScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Estimasi: ${AppFormatters.rupiah(b.hargaEstimasi)} / ${b.simbolSatuan}',
+                          b.hargaEstimasi > 0
+                              ? 'Estimasi: ${AppFormatters.rupiah(b.hargaEstimasi)} / ${b.simbolSatuan}'
+                              : (b.hargaBeliTerakhir > 0
+                                  ? 'Beli Terakhir: ${AppFormatters.rupiah(b.hargaBeliTerakhir)} / ${b.simbolSatuan}'
+                                  : 'Estimasi: Rp 0 / ${b.simbolSatuan}'),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,

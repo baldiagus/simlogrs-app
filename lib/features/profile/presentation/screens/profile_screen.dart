@@ -40,8 +40,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         return 'Manajemen Direksi';
       case 'auditor':
         return 'Auditor Internal';
-      case 'staf_gudang':
-        return 'Staf Gudang';
       case 'panel_user':
         return 'Pengguna Portal';
       default:
