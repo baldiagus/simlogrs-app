@@ -67,7 +67,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isPengadaan ? 'Tolak di Meja Pengadaan' : 'Tolak Permohonan PR'),
+        title: Text(isPengadaan ? 'Tolak oleh Tim Pengadaan' : 'Tolak Permohonan PR'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

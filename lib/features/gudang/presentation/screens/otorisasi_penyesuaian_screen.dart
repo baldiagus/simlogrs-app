@@ -133,8 +133,10 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false) ||
         (user?.can('update_gudang_stok::otorisasi::penyesuaian') ?? false);
-
-
+    final canView = canAuthorize ||
+        (user?.hasRole('auditor') ?? false) ||
+        (user?.hasRole('manajemen') ?? false) ||
+        (user?.can('view_any_gudang_stok::otorisasi::penyesuaian') ?? false);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -146,10 +148,23 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Status Filter Tabs
+      body: !canView
+          ? const SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: AppErrorView(
+                    title: 'Akses Dibatasi',
+                    error:
+                        'Hanya Kepala Gudang & Pimpinan yang berwenang mengakses otorisasi penyesuaian selisih stok opname.',
+                  ),
+                ),
+              ),
+            )
+          : SafeArea(
+              child: Column(
+                children: [
+                  // Status Filter Tabs
             Container(
               color: AppColors.surface,
               child: SingleChildScrollView(

@@ -109,12 +109,12 @@ class DetailAmprahScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Progres Persetujuan 2 Meja:',
+                          'Tahapan Persetujuan:',
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 12),
                         _buildStepRow(
-                          title: 'Meja 1: Otorisasi Kepala Ruangan (Karu)',
+                          title: 'Tahap 1: Persetujuan Kepala Ruangan (Karu)',
                           subtitle: amprah.isDiajukan
                               ? 'Menunggu persetujuan Karu'
                               : (amprah.isDitolak ? 'Ditolak' : 'Disetujui Karu'),
@@ -123,7 +123,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         _buildStepRow(
-                          title: 'Meja 2: Otorisasi Gudang Logistik',
+                          title: 'Tahap 2: Otorisasi Gudang Logistik',
                           subtitle: amprah.isDisetujuiKaru
                               ? 'Menunggu verifikasi stok gudang'
                               : (amprah.isDisetujuiGudang || amprah.isSelesai

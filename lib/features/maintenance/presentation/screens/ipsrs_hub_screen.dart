@@ -179,13 +179,13 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               controller: _tabController,
               children: isTeknisi
                   ? [
-                      const SpkListScreen(isEmbedded: true),
+                      const SpkListScreen(isEmbedded: true, allowedStatuses: ['DITUGASKAN']),
                       const JadwalPreventifScreen(isEmbedded: true),
                       _buildTiketUnitView(),
                     ]
                   : [
                       _buildTiketUnitView(),
-                      const SpkListScreen(isEmbedded: true),
+                      const SpkListScreen(isEmbedded: true, allowedStatuses: ['DITUGASKAN']),
                       const JadwalPreventifScreen(isEmbedded: true),
                     ],
             )

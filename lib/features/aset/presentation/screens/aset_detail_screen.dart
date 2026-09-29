@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../widgets/qr_sticker_sheet.dart';
 import '../widgets/aset_detail_sections.dart';
+import '../widgets/aset_riwayat_peminjaman_card.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
@@ -17,6 +18,7 @@ import '../../data/models/aset_tersedia_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
 import 'form_peminjaman_aset_screen.dart';
+import 'histori_sirkulasi_aset_screen.dart';
 
 class AsetDetailScreen extends ConsumerStatefulWidget {
   final AsetDetailModel? initialAset;
@@ -304,8 +306,27 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               // 6. Active Loan Details if DIPINJAM
               if (currentAset.peminjamanAktif != null) ...[
                 AsetDetailActiveLoanCard(loan: currentAset.peminjamanAktif!),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
               ],
+
+              // 7. Riwayat Sirkulasi Peminjaman Unit
+              AsetRiwayatPeminjamanCard(
+                riwayat: currentAset.riwayatPeminjaman,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HistoriSirkulasiAsetScreen(
+                        asetId: currentAset.id,
+                        kodeAset: currentAset.kodeAset,
+                        namaKomoditas: currentAset.namaKomoditas,
+                        nomorSeri: currentAset.nomorSeri,
+                        initialRiwayat: currentAset.riwayatPeminjaman,
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               // 7. Contextual Action Buttons
               if (currentAset.isDipinjam && currentAset.peminjamanAktif != null) ...[

@@ -5,12 +5,23 @@ import '../../../gudang/presentation/screens/buku_mutasi_screen.dart';
 import '../../../gudang/presentation/screens/fefo_monitoring_screen.dart';
 import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 
-class GudangShortcutGrid extends StatelessWidget {
+class GudangShortcutGrid extends ConsumerWidget {
   const GudangShortcutGrid({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).user;
+    final isPetugasGudang = user?.isPetugasGudang ?? false;
+    final canOtorisasi = (user?.can('view_any_gudang_stok::otorisasi::penyesuaian') ?? false) ||
+        (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('super_admin') ?? false) ||
+        (user?.hasRole('auditor') ?? false) ||
+        (user?.hasRole('manajemen') ?? false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,16 +29,16 @@ class GudangShortcutGrid extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Persediaan & Opname Gudang',
-              style: TextStyle(
+            Text(
+              isPetugasGudang ? 'Persediaan Stok Gudang' : 'Persediaan & Opname Gudang',
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
             ),
             Text(
-              'Sirkulasi & Stok Fisik',
+              isPetugasGudang ? 'Monitoring FEFO & Mutasi' : 'Sirkulasi & Stok Fisik',
               style:
                   TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
             ),
@@ -67,40 +78,55 @@ class GudangShortcutGrid extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _buildGudangMiniCard(
-                context: context,
-                title: 'Stock Opname',
-                subtitle: 'Hitung fisik di rak',
-                icon: LucideIcons.clipboardCheck,
-                iconColor: AppColors.primaryPurple,
-                bgColor: AppColors.tintVioletBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
+        if (!isPetugasGudang) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildGudangMiniCard(
+                  context: context,
+                  title: 'Stock Opname',
+                  subtitle: 'Hitung fisik di rak',
+                  icon: LucideIcons.clipboardCheck,
+                  iconColor: AppColors.primaryPurple,
+                  bgColor: AppColors.tintVioletBg,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildGudangMiniCard(
-                context: context,
-                title: 'Otorisasi Selisih',
-                subtitle: 'Penyesuaian saldo',
-                icon: LucideIcons.shieldCheck,
-                iconColor: AppColors.tintTeal,
-                bgColor: AppColors.tintTealBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
-                ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: canOtorisasi
+                    ? _buildGudangMiniCard(
+                        context: context,
+                        title: 'Otorisasi Selisih',
+                        subtitle: 'Penyesuaian saldo',
+                        icon: LucideIcons.shieldCheck,
+                        iconColor: AppColors.tintTeal,
+                        bgColor: AppColors.tintTealBg,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
+                        ),
+                      )
+                    : _buildGudangMiniCard(
+                        context: context,
+                        title: 'Tata Letak Rak',
+                        subtitle: 'Lokasi bin & rak fisik',
+                        icon: LucideIcons.archive,
+                        iconColor: AppColors.tintBlue,
+                        bgColor: AppColors.tintBlueBg,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
+                        ),
+                      ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }

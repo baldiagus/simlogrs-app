@@ -86,6 +86,8 @@ class ApprovalPendingResponse {
     required this.totalPr,
     required this.totalAmprah,
   });
+  int get total => totalPr + totalAmprah;
+
 
 
   factory ApprovalPendingResponse.fromJson(Map<String, dynamic> json) {

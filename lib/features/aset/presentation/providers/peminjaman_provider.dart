@@ -24,6 +24,13 @@ final daftarPeminjamanAktifDipinjamProvider =
   return all.where((item) => item.status == 'DIPINJAM').toList();
 });
 
+final daftarPeminjamanAktifDipinjamkanProvider =
+    FutureProvider.autoDispose<List<PeminjamanAsetModel>>((ref) async {
+  final repository = ref.watch(asetRepositoryProvider);
+  final all = await repository.getDaftarPeminjaman(perspektif: 'penyedia');
+  return all.where((item) => item.status == 'DIPINJAM').toList();
+});
+
 final daftarApprovalPeminjamanProvider =
     FutureProvider.autoDispose<List<ApprovalPeminjamanModel>>((ref) async {
   final user = ref.watch(authStateProvider).user;

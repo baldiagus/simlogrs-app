@@ -11,6 +11,7 @@ class PeminjamanCardItem extends StatelessWidget {
   final VoidCallback? onReturnTap;
   final VoidCallback? onExtendTap;
   final VoidCallback? onDetailTap;
+  final bool isPenyediaPerspective;
 
   const PeminjamanCardItem({
     super.key,
@@ -19,6 +20,7 @@ class PeminjamanCardItem extends StatelessWidget {
     this.onReturnTap,
     this.onExtendTap,
     this.onDetailTap,
+    this.isPenyediaPerspective = false,
   });
 
   @override
@@ -89,7 +91,9 @@ class PeminjamanCardItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Kode: $asetCode • Asal: ${item.namaPenyedia}',
+                  isPenyediaPerspective
+                      ? 'Kode: $asetCode • Dipinjam oleh: ${item.unitPeminjam}'
+                      : 'Kode: $asetCode • Asal: ${item.namaPenyedia}',
                   style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 10),
@@ -177,7 +181,7 @@ class PeminjamanCardItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  if (onExtendTap != null)
+                  if (!isPenyediaPerspective && onExtendTap != null)
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: onExtendTap,
@@ -191,15 +195,19 @@ class PeminjamanCardItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (onExtendTap != null && onReturnTap != null)
+                  if (!isPenyediaPerspective && onExtendTap != null && onReturnTap != null)
                     const SizedBox(width: 10),
                   if (onReturnTap != null)
                     Expanded(
                       child: CustomButton(
-                        text: 'Kembalikan Fisik',
+                        text: isPenyediaPerspective ? 'Inspeksi & Terima Kembali' : 'Kembalikan Fisik',
                         height: 38,
-                        backgroundColor: AppColors.primaryPurple,
-                        icon: const Icon(LucideIcons.packageCheck, size: 15, color: Colors.white),
+                        backgroundColor: isPenyediaPerspective ? const Color(0xFF047857) : AppColors.primaryPurple,
+                        icon: Icon(
+                          isPenyediaPerspective ? LucideIcons.clipboardCheck : LucideIcons.packageCheck,
+                          size: 15,
+                          color: Colors.white,
+                        ),
                         onPressed: onReturnTap,
                       ),
                     ),

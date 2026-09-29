@@ -10,30 +10,101 @@ import '../../../../shared/widgets/app_loading_view.dart';
 import '../../data/models/spk_model.dart';
 import '../providers/maintenance_provider.dart';
 import 'spk_detail_screen.dart';
+class SpkTabItem {
+  final String label;
+  final String status;
+  const SpkTabItem(this.label, this.status);
+}
 
 class SpkListScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
-  final String initialStatus;
+  final String? initialStatus;
   final String? customTitle;
+  final bool automaticallyImplyLeading;
+  final Widget? leading;
+  final List<String>? allowedStatuses;
 
   const SpkListScreen({
     super.key,
     this.isEmbedded = false,
-    this.initialStatus = 'SEMUA',
+    this.initialStatus,
     this.customTitle,
+    this.automaticallyImplyLeading = true,
+    this.leading,
+    this.allowedStatuses,
   });
-
   @override
   ConsumerState<SpkListScreen> createState() => _SpkListScreenState();
 }
-class _SpkListScreenState extends ConsumerState<SpkListScreen> {
+
+class _SpkListScreenState extends ConsumerState<SpkListScreen>
+    with SingleTickerProviderStateMixin {
+  late final List<SpkTabItem> _tabs;
+  TabController? _tabController;
   late String _selectedStatus;
 
   @override
   void initState() {
     super.initState();
-    _selectedStatus = widget.initialStatus;
+    final allowed = widget.allowedStatuses;
+    if (allowed != null && allowed.length == 1) {
+      _tabs = [
+        SpkTabItem(
+          allowed.first == 'DITUGASKAN' ? 'Ditugaskan' : allowed.first,
+          allowed.first,
+        ),
+      ];
+      _selectedStatus = allowed.first;
+      _tabController = null;
+    } else if (allowed != null &&
+        allowed.contains('DITERIMA') &&
+        allowed.contains('SELESAI') &&
+        allowed.length == 2) {
+      _tabs = const [
+        SpkTabItem('Aktif Dikerjakan', 'DITERIMA'),
+        SpkTabItem('Riwayat Selesai', 'SELESAI'),
+      ];
+      _selectedStatus = widget.initialStatus ?? 'DITERIMA';
+      final initialIdx = _tabs.indexWhere((t) => t.status == _selectedStatus);
+      _tabController = TabController(
+        length: 2,
+        vsync: this,
+        initialIndex: initialIdx >= 0 ? initialIdx : 0,
+      );
+      _tabController!.addListener(_onTabChanged);
+    } else {
+      _tabs = const [
+        SpkTabItem('Semua', 'SEMUA'),
+        SpkTabItem('Ditugaskan', 'DITUGASKAN'),
+        SpkTabItem('Diterima', 'DITERIMA'),
+        SpkTabItem('Selesai', 'SELESAI'),
+      ];
+      _selectedStatus = widget.initialStatus ?? 'SEMUA';
+      final initialIdx = _tabs.indexWhere((t) => t.status == _selectedStatus);
+      _tabController = TabController(
+        length: _tabs.length,
+        vsync: this,
+        initialIndex: initialIdx >= 0 ? initialIdx : 0,
+      );
+      _tabController!.addListener(_onTabChanged);
+    }
   }
+
+  void _onTabChanged() {
+    if (_tabController != null && !_tabController!.indexIsChanging) {
+      setState(() {
+        _selectedStatus = _tabs[_tabController!.index].status;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.removeListener(_onTabChanged);
+    _tabController?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final spkListAsync = ref.watch(spkListProvider(_selectedStatus));
@@ -42,7 +113,12 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
       appBar: widget.isEmbedded
           ? null
           : AppBar(
-              title: Text(widget.customTitle ?? 'Surat Perintah Kerja (SPK)'),
+              automaticallyImplyLeading: widget.automaticallyImplyLeading,
+              leading: widget.leading,
+              title: Text(widget.customTitle ??
+                  (_tabs.length == 1
+                      ? 'Surat Perintah Kerja (SPK)'
+                      : 'Lembar Kerja (SPK Aktif)')),
               actions: [
                 IconButton(
                   icon: const Icon(LucideIcons.refreshCw, size: 18),
@@ -50,27 +126,42 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
                   onPressed: () => ref.invalidate(spkListProvider(_selectedStatus)),
                 ),
               ],
+              bottom: _tabs.length > 1 && _tabController != null
+                  ? TabBar(
+                      controller: _tabController,
+                      indicatorColor: AppColors.primaryPurple,
+                      indicatorWeight: 3,
+                      labelColor: AppColors.primaryPurple,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      labelStyle:
+                          const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                      unselectedLabelStyle:
+                          const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                      tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
+                    )
+                  : null,
             ),
       body: SafeArea(
         child: Column(
           children: [
-            // Filter Status Horizontal Pills
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              color: AppColors.surface,
-              child: AppFilterChipBar<String>(
-                selected: _selectedStatus,
-                onSelected: (val) => setState(() => _selectedStatus = val),
-                options: const [
-                  AppFilterOption(label: 'Semua SPK', value: 'SEMUA'),
-                  AppFilterOption(label: 'Ditugaskan', value: 'DITUGASKAN'),
-                  AppFilterOption(label: 'Diterima', value: 'DITERIMA'),
-                  AppFilterOption(label: 'Selesai', value: 'SELESAI'),
-                ],
+            if (widget.isEmbedded && _tabs.length > 1) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                color: AppColors.surface,
+                child: AppFilterChipBar<String>(
+                  selected: _selectedStatus,
+                  onSelected: (val) {
+                    setState(() => _selectedStatus = val);
+                    final idx = _tabs.indexWhere((t) => t.status == val);
+                    if (idx >= 0 && _tabController != null) _tabController!.animateTo(idx);
+                  },
+                  options: _tabs
+                      .map((t) => AppFilterOption(label: t.label, value: t.status))
+                      .toList(),
+                ),
               ),
-            ),
-            const Divider(height: 1, color: AppColors.border),
-
+              const Divider(height: 1, color: AppColors.border),
+            ],
             // Content List
             Expanded(
               child: RefreshIndicator(
@@ -83,10 +174,26 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: SizedBox(
                           height: MediaQuery.of(context).size.height * 0.65,
-                          child: const EmptyStateView(
-                            icon: LucideIcons.wrench,
-                            title: 'Tidak Ada Tugas SPK',
-                            message: 'Saat ini belum ada surat perintah kerja perbaikan yang ditugaskan ke Anda.',
+                          child: Builder(
+                            builder: (context) {
+                              String emptyTitle = 'Tidak Ada Data SPK';
+                              String emptyMsg = 'Belum ada surat perintah kerja pada status ini.';
+                              if (_selectedStatus == 'DITUGASKAN') {
+                                emptyTitle = 'Tidak Ada Tugas SPK Baru';
+                                emptyMsg = 'Saat ini belum ada surat perintah kerja baru yang ditugaskan kepada Anda.';
+                              } else if (_selectedStatus == 'DITERIMA') {
+                                emptyTitle = 'Tidak Ada SPK Berjalan';
+                                emptyMsg = 'Belum ada SPK yang sedang dikerjakan. Silakan konfirmasi tugas baru di menu Tugas SPK.';
+                              } else if (_selectedStatus == 'SELESAI') {
+                                emptyTitle = 'Belum Ada Riwayat Selesai';
+                                emptyMsg = 'Belum ada SPK yang diselesaikan pada daftar riwayat ini.';
+                              }
+                              return EmptyStateView(
+                                icon: LucideIcons.wrench,
+                                title: emptyTitle,
+                                message: emptyMsg,
+                              );
+                            },
                           ),
                         ),
                       );
@@ -246,7 +353,11 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen> {
                     Row(
                       children: [
                         Text(
-                          spk.status.toUpperCase() == 'SELESAI' ? 'Buka SPK' : 'Catat Lembar Kerja',
+                          spk.status.toUpperCase() == 'SELESAI'
+                              ? 'Buka Arsip SPK'
+                              : (spk.status.toUpperCase() == 'DITUGASKAN'
+                                  ? 'Konfirmasi & Buka SPK'
+                                  : 'Catat Lembar Kerja'),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
                         ),
                         const Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),

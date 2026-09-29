@@ -55,6 +55,56 @@ class ServisTerakhirInfo {
   }
 }
 
+class RiwayatPeminjamanAsetItemModel {
+  final int id;
+  final String kodePeminjaman;
+  final String unitPeminjam;
+  final String peminjam;
+  final String tanggalPinjam;
+  final String tanggalKembaliRencana;
+  final String? tanggalKembaliAktual;
+  final String status;
+  final String keperluan;
+  final String kondisiSaatPinjam;
+  final String? kondisiSaatKembali;
+  final String? catatanPengembalian;
+  final String? pemeriksaKembali;
+
+  const RiwayatPeminjamanAsetItemModel({
+    required this.id,
+    required this.kodePeminjaman,
+    required this.unitPeminjam,
+    required this.peminjam,
+    required this.tanggalPinjam,
+    required this.tanggalKembaliRencana,
+    this.tanggalKembaliAktual,
+    required this.status,
+    required this.keperluan,
+    required this.kondisiSaatPinjam,
+    this.kondisiSaatKembali,
+    this.catatanPengembalian,
+    this.pemeriksaKembali,
+  });
+
+  factory RiwayatPeminjamanAsetItemModel.fromJson(Map<String, dynamic> json) {
+    return RiwayatPeminjamanAsetItemModel(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      kodePeminjaman: json['kode_peminjaman']?.toString() ?? '-',
+      unitPeminjam: json['unit_peminjam']?.toString() ?? 'Ruangan',
+      peminjam: json['peminjam']?.toString() ?? '-',
+      tanggalPinjam: json['tanggal_pinjam']?.toString() ?? '-',
+      tanggalKembaliRencana: json['tanggal_kembali_rencana']?.toString() ?? '-',
+      tanggalKembaliAktual: json['tanggal_kembali_aktual']?.toString(),
+      status: json['status']?.toString() ?? '-',
+      keperluan: json['keperluan']?.toString() ?? '-',
+      kondisiSaatPinjam: json['kondisi_saat_pinjam']?.toString() ?? 'BAIK',
+      kondisiSaatKembali: json['kondisi_saat_kembali']?.toString(),
+      catatanPengembalian: json['catatan_pengembalian']?.toString(),
+      pemeriksaKembali: json['pemeriksa_kembali']?.toString(),
+    );
+  }
+}
+
 class AsetDetailModel {
   final int id;
   final String kodeAset;
@@ -70,8 +120,10 @@ class AsetDetailModel {
   final double nilaiPerolehan;
   final String tanggalPerolehan;
   final int totalRiwayatServis;
+  final int totalRiwayatPeminjaman;
   final ServisTerakhirInfo? servisTerakhir;
   final PeminjamanAktifInfo? peminjamanAktif;
+  final List<RiwayatPeminjamanAsetItemModel> riwayatPeminjaman;
 
   const AsetDetailModel({
     required this.id,
@@ -88,8 +140,10 @@ class AsetDetailModel {
     required this.nilaiPerolehan,
     required this.tanggalPerolehan,
     required this.totalRiwayatServis,
+    this.totalRiwayatPeminjaman = 0,
     this.servisTerakhir,
     this.peminjamanAktif,
+    this.riwayatPeminjaman = const [],
   });
 
   bool get isTersedia => status.toUpperCase() == 'TERSEDIA';
@@ -113,12 +167,17 @@ class AsetDetailModel {
       nilaiPerolehan: double.tryParse(json['nilai_perolehan']?.toString() ?? '0') ?? 0,
       tanggalPerolehan: json['tanggal_perolehan']?.toString() ?? '-',
       totalRiwayatServis: int.tryParse(json['total_riwayat_servis']?.toString() ?? '0') ?? 0,
+      totalRiwayatPeminjaman: int.tryParse(json['total_riwayat_peminjaman']?.toString() ?? '0') ?? 0,
       servisTerakhir: json['servis_terakhir'] is Map<String, dynamic>
           ? ServisTerakhirInfo.fromJson(json['servis_terakhir'] as Map<String, dynamic>)
           : null,
       peminjamanAktif: json['peminjaman_aktif'] is Map<String, dynamic>
           ? PeminjamanAktifInfo.fromJson(json['peminjaman_aktif'] as Map<String, dynamic>)
           : null,
+      riwayatPeminjaman: (json['riwayat_peminjaman'] as List<dynamic>?)
+              ?.map((e) => RiwayatPeminjamanAsetItemModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 }

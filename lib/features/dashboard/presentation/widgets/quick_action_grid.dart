@@ -28,6 +28,10 @@ class QuickActionGrid extends StatelessWidget {
   final bool isAuditor;
   final bool isManajemen;
   final bool isPengadaan;
+  final bool isKaru;
+  final bool isKepalaGudang;
+  final bool isPetugasGudang;
+  final VoidCallback? onStockOpnameTap;
   final VoidCallback onApprovalTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
@@ -51,7 +55,11 @@ class QuickActionGrid extends StatelessWidget {
     this.isAuditor = false,
     this.isManajemen = false,
     this.isPengadaan = false,
+    this.isKaru = false,
+    this.isKepalaGudang = false,
     this.onAuditSpiTap,
+    this.isPetugasGudang = false,
+    this.onStockOpnameTap,
     this.onPaguRealisasiTap,
     required this.onApprovalTap,
     required this.onRakGudangTap,
@@ -72,8 +80,8 @@ class QuickActionGrid extends StatelessWidget {
         'Aksi Cepat Teknisi IPSRS',
         [
           _QuickActionItem(
-            title: 'Perintah Kerja',
-            subtitle: 'SPK Tugas Servis',
+            title: 'Tugas SPK',
+            subtitle: 'Surat Perintah Kerja',
             icon: LucideIcons.clipboardCheck,
             bgColor: AppColors.tintVioletBg,
             iconColor: AppColors.primaryPurple,
@@ -203,32 +211,54 @@ class QuickActionGrid extends StatelessWidget {
       );
     }
 
+    final isPetugasUnit = !isKaru &&
+        !isGudangUser &&
+        !isAdminLogistik &&
+        !isAuditor &&
+        !isManajemen &&
+        !isPengadaan &&
+        !isTeknisi;
+
     return (
       'Aksi Cepat Operasional',
       [
         _QuickActionItem(
           title: 'Approval Cepat',
-          subtitle: '$pendingCount menunggu',
+          subtitle: isPetugasUnit
+              ? (pendingCount > 0 ? '$pendingCount menunggu' : 'Tidak ada antrean')
+              : (pendingCount > 0 ? '$pendingCount menunggu' : 'Semua disetujui'),
           icon: LucideIcons.checkSquare,
           bgColor: AppColors.tintVioletBg,
           iconColor: AppColors.tintViolet,
           onTap: onApprovalTap,
         ),
         _QuickActionItem(
-          title: isAdminLogistik
+          title: (isAdminLogistik || isKepalaGudang)
               ? 'Sirkulasi Aset'
-              : (isGudangUser ? 'Daftar Rak Gudang' : 'Amprah Ruangan'),
-          subtitle: isAdminLogistik
-              ? 'Peminjaman & Cek'
-              : (isGudangUser ? 'Stok & Aset per Rak' : 'Distribusi & SPPB'),
-          icon: isAdminLogistik
+              : (isPetugasGudang
+                  ? 'Stock Opname'
+                  : (isGudangUser ? 'Daftar Rak Gudang' : 'Amprah Ruangan')),
+          subtitle: (isAdminLogistik || isKepalaGudang)
+              ? 'Peminjaman & Gudang'
+              : (isPetugasGudang
+                  ? 'Hitung Fisik di Rak'
+                  : (isGudangUser ? 'Stok & Aset per Rak' : 'Distribusi & SPPB')),
+          icon: (isAdminLogistik || isKepalaGudang)
               ? LucideIcons.armchair
-              : (isGudangUser ? LucideIcons.archive : LucideIcons.boxes),
-          bgColor: isAdminLogistik ? AppColors.tintOrangeBg : AppColors.tintBlueBg,
-          iconColor: isAdminLogistik ? AppColors.tintOrange : AppColors.tintBlue,
-          onTap: isAdminLogistik
+              : (isPetugasGudang
+                  ? LucideIcons.clipboardCheck
+                  : (isGudangUser ? LucideIcons.archive : LucideIcons.boxes)),
+          bgColor: (isAdminLogistik || isKepalaGudang)
+              ? AppColors.tintOrangeBg
+              : (isPetugasGudang ? AppColors.tintVioletBg : AppColors.tintBlueBg),
+          iconColor: (isAdminLogistik || isKepalaGudang)
+              ? AppColors.tintOrange
+              : (isPetugasGudang ? AppColors.primaryPurple : AppColors.tintBlue),
+          onTap: (isAdminLogistik || isKepalaGudang)
               ? onAsetTap
-              : (isGudangUser ? onRakGudangTap : (onAmprahTap ?? onRakGudangTap)),
+              : (isPetugasGudang
+                  ? (onStockOpnameTap ?? onRakGudangTap)
+                  : (isGudangUser ? onRakGudangTap : (onAmprahTap ?? onRakGudangTap))),
         ),
         _QuickActionItem(
           title: isGudangUser ? 'Penerimaan PO' : 'Sirkulasi Aset',

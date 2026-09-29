@@ -136,7 +136,12 @@ class DashboardSummaryModel {
   final HeroMetricModel hero;
   final List<ActivityItemModel> recentActivities;
 
-  int get totalPendingApproval => hero.total;
+  int get totalPendingApproval {
+    if (hero.judul.toLowerCase().contains('pengajuan')) {
+      return prCount + amprahCount;
+    }
+    return hero.total;
+  }
 
   int get prCount {
     for (final s in hero.subMetrik) {

@@ -10,9 +10,11 @@ import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../../master/presentation/screens/master_barang_screen.dart';
 import '../../../master/presentation/screens/register_aset_screen.dart';
 import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
+import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
+import '../../../approval/presentation/providers/approval_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -225,17 +227,26 @@ class HomeScreen extends ConsumerWidget {
                 // 3. Quick Action Grid 2x2
                 () {
                   final user = ref.watch(authStateProvider).user;
+                  final approvalAsync = ref.watch(approvalPendingProvider);
                   final isTeknisi = user?.isTeknisi ?? false;
                   final isAdminLogistik = user?.isAdminLogistik ?? false;
                   final isAuditor = user?.isAuditor ?? false;
                   final isManajemen = user?.isManajemen ?? false;
                   final isPengadaan = user?.isPengadaan ?? false;
+                  final isKaru = user?.isKaru ?? false;
+                  final isKepalaGudang = user?.isKepalaGudang ?? false;
                   final isGudangUser = (!isTeknisi) && ((user?.gudang != null) ||
                       (user?.hasRole('petugas_gudang') ?? false) ||
                       (user?.hasRole('kepala_gudang') ?? false));
+                  final effectivePending = approvalAsync.valueOrNull?.total ??
+                      summaryAsync.valueOrNull?.totalPendingApproval ??
+                      0;
 
                   return QuickActionGrid(
-                    pendingCount: summaryAsync.valueOrNull?.totalPendingApproval ?? 0,
+                    pendingCount: effectivePending,
+                    isKaru: isKaru,
+                    isKepalaGudang: isKepalaGudang,
+                    isPetugasGudang: user?.isPetugasGudang ?? false,
                     isGudangUser: isGudangUser,
                     isTeknisi: isTeknisi,
                     isAdminLogistik: isAdminLogistik,
@@ -261,6 +272,12 @@ class HomeScreen extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
+                      );
+                    },
+                    onStockOpnameTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
                       );
                     },
                     onAsetTap: () {
@@ -293,7 +310,12 @@ class HomeScreen extends ConsumerWidget {
                     onSpkTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const SpkListScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const SpkListScreen(
+                            allowedStatuses: ['DITUGASKAN'],
+                            customTitle: 'Surat Perintah Kerja (SPK)',
+                          ),
+                        ),
                       );
                     },
                     onLembarKerjaTap: () {
@@ -301,7 +323,8 @@ class HomeScreen extends ConsumerWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const SpkListScreen(
-                            initialStatus: 'DITUGASKAN',
+                            allowedStatuses: ['DITERIMA', 'SELESAI'],
+                            initialStatus: 'DITERIMA',
                             customTitle: 'Lembar Kerja (SPK Aktif)',
                           ),
                         ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../shared/widgets/floating_bottom_nav_bar.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../approval/presentation/screens/approval_center_screen.dart';
@@ -126,7 +127,16 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
 
           // 1: Approval Center untuk umum / Tugas SPK untuk Teknisi
           isTeknisi
-              ? const SpkListScreen(isEmbedded: true)
+              ? SpkListScreen(
+                  isEmbedded: false,
+                  leading: IconButton(
+                    icon: const Icon(LucideIcons.arrowLeft),
+                    tooltip: 'Kembali ke Beranda',
+                    onPressed: () => setState(() => _currentIndex = 0),
+                  ),
+                  allowedStatuses: const ['DITUGASKAN'],
+                  customTitle: 'Surat Perintah Kerja (SPK)',
+                )
               : const ApprovalCenterScreen(),
 
           // 2: IPSRS Fieldwork

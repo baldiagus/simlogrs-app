@@ -28,6 +28,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _canApprove = false;
+  String _subPerspektifSiapKembali = 'dipinjam'; // 'dipinjam' (peminjam) atau 'dipinjamkan' (penyedia)
 
   @override
   void initState() {
@@ -62,6 +63,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
       onSuccess: () {
         ref.invalidate(daftarPeminjamanSayaProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
       },
     );
   }
@@ -85,6 +87,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
       onSuccess: () {
         ref.invalidate(daftarPeminjamanSayaProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
       },
     );
   }
@@ -107,8 +110,10 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
 
     final peminjamanSayaAsync = ref.watch(daftarPeminjamanSayaProvider);
     final approvalPeminjamanAsync = ref.watch(daftarApprovalPeminjamanProvider);
-    final peminjamanAktifAsync = ref.watch(daftarPeminjamanAktifDipinjamProvider);
-
+    final peminjamanAktifDipinjamAsync = ref.watch(daftarPeminjamanAktifDipinjamProvider);
+    final peminjamanAktifDipinjamkanAsync = ref.watch(daftarPeminjamanAktifDipinjamkanProvider);
+    final totalSiapKembali = (peminjamanAktifDipinjamAsync.valueOrNull?.length ?? 0) +
+        (peminjamanAktifDipinjamkanAsync.valueOrNull?.length ?? 0);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -128,6 +133,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
               ref.invalidate(daftarPeminjamanSayaProvider);
               ref.invalidate(daftarApprovalPeminjamanProvider);
               ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+              ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
             },
           ),
         ],
@@ -139,9 +145,11 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           tabs: [
-            const Tab(
+            Tab(
               child: Text(
-                'Pinjaman Saya',
+                (user?.isKepalaGudang == true || user?.isAdminLogistik == true || user?.gudang != null)
+                    ? 'Peminjaman Gudang'
+                    : 'Pinjaman Saya',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -175,17 +183,18 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                     ),
                   ),
                   const SizedBox(width: 4),
-                  _buildBadge(peminjamanAktifAsync.valueOrNull?.length ?? 0),
+                  _buildBadge(totalSiapKembali),
                 ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: ((ref.watch(authStateProvider).user?.unit != null) ||
-              (ref.watch(authStateProvider).user?.isPengadaan == true) ||
-              (ref.watch(authStateProvider).user?.isAuditor == true) ||
-              (ref.watch(authStateProvider).user?.isManajemen == true))
+      floatingActionButton: (user?.isKepalaGudang != true &&
+              ((user?.unit != null) ||
+                  (user?.isPengadaan == true) ||
+                  (user?.isAuditor == true) ||
+                  (user?.isManajemen == true)))
           ? FloatingActionButton.extended(
               onPressed: () async {
                 final created = await Navigator.push<bool>(
@@ -220,11 +229,14 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                       child: EmptyStateView(
                         icon: LucideIcons.armchair,
                         title: 'Belum Ada Peminjaman',
-                        message: 'Unit Anda belum pernah meminjam sarana dari ruangan lain atau gudang.',
-                        action: ((ref.watch(authStateProvider).user?.unit != null) ||
-                                (ref.watch(authStateProvider).user?.isPengadaan == true) ||
-                                (ref.watch(authStateProvider).user?.isAuditor == true) ||
-                                (ref.watch(authStateProvider).user?.isManajemen == true))
+                        message: (user?.isKepalaGudang == true || user?.isAdminLogistik == true || user?.gudang != null)
+                            ? 'Belum ada unit fasilitas gudang yang sedang atau pernah dipinjam oleh ruangan lain.'
+                            : 'Unit Anda belum pernah meminjam sarana dari ruangan lain atau gudang.',
+                        action: (user?.isKepalaGudang != true &&
+                                ((ref.watch(authStateProvider).user?.unit != null) ||
+                                    (ref.watch(authStateProvider).user?.isPengadaan == true) ||
+                                    (ref.watch(authStateProvider).user?.isAuditor == true) ||
+                                    (ref.watch(authStateProvider).user?.isManajemen == true)))
                             ? ElevatedButton.icon(
                                 onPressed: () async {
                                   final created = await Navigator.push<bool>(
@@ -387,44 +399,41 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
               error: (err, _) => AppErrorView(error: err, onRetry: () => ref.invalidate(daftarApprovalPeminjamanProvider)),
             ),
 
-          // Tab 3: Siap Pengembalian
-          peminjamanAktifAsync.when(
-            data: (list) {
-              if (list.isEmpty) {
-                return RefreshIndicator(
-                  onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamProvider),
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.65,
-                      child: const EmptyStateView(
-                        icon: LucideIcons.packageCheck,
-                        title: 'Tidak Ada Aset Dipinjam',
-                        message: 'Unit Anda saat ini tidak memiliki tanggungan aset fisik yang sedang aktif dipinjam.',
+          // Tab 3: Siap Pengembalian (Perspektif: Dipinjam vs Dipinjamkan)
+          Column(
+            children: [
+              Container(
+                color: AppColors.surface,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildSubTabPill(
+                        title: 'Aset Dipinjam',
+                        count: peminjamanAktifDipinjamAsync.valueOrNull?.length ?? 0,
+                        isActive: _subPerspektifSiapKembali == 'dipinjam',
+                        onTap: () => setState(() => _subPerspektifSiapKembali = 'dipinjam'),
                       ),
                     ),
-                  ),
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamProvider),
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final item = list[index];
-                    return PeminjamanCardItem(
-                      item: item,
-                      onExtendTap: () => _showPerpanjangModal(context, item),
-                      onReturnTap: () => _showReturnModal(context, item),
-                    );
-                  },
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildSubTabPill(
+                        title: 'Aset Dipinjamkan',
+                        count: peminjamanAktifDipinjamkanAsync.valueOrNull?.length ?? 0,
+                        isActive: _subPerspektifSiapKembali == 'dipinjamkan',
+                        onTap: () => setState(() => _subPerspektifSiapKembali = 'dipinjamkan'),
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            },
-            loading: () => const AppLoadingView(),
-            error: (err, _) => AppErrorView(error: err, onRetry: () => ref.invalidate(daftarPeminjamanAktifDipinjamProvider)),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+              Expanded(
+                child: _subPerspektifSiapKembali == 'dipinjam'
+                    ? _buildListDipinjam(peminjamanAktifDipinjamAsync)
+                    : _buildListDipinjamkan(peminjamanAktifDipinjamkanAsync),
+              ),
+            ],
           ),
         ],
       ),
@@ -442,6 +451,152 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
       child: Text(
         '$count',
         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryPurple),
+      ),
+    );
+  }
+  Widget _buildListDipinjam(AsyncValue<List<PeminjamanAsetModel>> asyncData) {
+    return asyncData.when(
+      data: (list) {
+        if (list.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamProvider),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.55,
+                child: const EmptyStateView(
+                  icon: LucideIcons.packageCheck,
+                  title: 'Tidak Ada Aset Dipinjam',
+                  message: 'Unit Anda saat ini tidak memiliki tanggungan peminjaman aset dari unit lain atau gudang.',
+                ),
+              ),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamProvider),
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              return PeminjamanCardItem(
+                item: item,
+                isPenyediaPerspective: false,
+                onExtendTap: () => _showPerpanjangModal(context, item),
+                onReturnTap: () => _showReturnModal(context, item),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const AppLoadingView(),
+      error: (err, _) => AppErrorView(error: err, onRetry: () => ref.invalidate(daftarPeminjamanAktifDipinjamProvider)),
+    );
+  }
+
+  Widget _buildListDipinjamkan(AsyncValue<List<PeminjamanAsetModel>> asyncData) {
+    final user = ref.watch(authStateProvider).user;
+    final isGudang = user?.isKepalaGudang == true || user?.isAdminLogistik == true || user?.gudang != null;
+
+    return asyncData.when(
+      data: (list) {
+        if (list.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.55,
+                child: EmptyStateView(
+                  icon: LucideIcons.armchair,
+                  title: 'Tidak Ada Aset Dipinjamkan',
+                  message: isGudang
+                      ? 'Seluruh aset inventaris fasilitas gudang saat ini berada di tempat (tidak ada yang sedang dipinjam unit luar).'
+                      : 'Seluruh aset inventaris unit Anda saat ini berada di tempat (tidak ada yang sedang dipinjam unit lain).',
+                ),
+              ),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider),
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              return PeminjamanCardItem(
+                item: item,
+                isPenyediaPerspective: true,
+                onReturnTap: () => _showReturnModal(context, item),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const AppLoadingView(),
+      error: (err, _) => AppErrorView(error: err, onRetry: () => ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider)),
+    );
+  }
+
+  Widget _buildSubTabPill({
+    required String title,
+    required int count,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.tintVioletBg : AppColors.canvas,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isActive ? AppColors.primaryPurple : AppColors.border,
+            width: isActive ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                  color: isActive ? AppColors.primaryPurple : AppColors.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (count > 0) ...[
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.primaryPurple : AppColors.surfaceSecondary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: isActive ? Colors.white : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
