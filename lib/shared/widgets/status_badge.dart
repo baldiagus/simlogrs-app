@@ -48,7 +48,8 @@ class StatusBadge extends StatelessWidget {
         upper.contains('GAGAL') ||
         upper.contains('RUSAK') ||
         upper.contains('CITO') ||
-        upper.contains('OVERDUE')) {
+        upper.contains('OVERDUE') ||
+        upper.contains('BATAL')) {
       return (const Color(0xFFFEF2F2), AppColors.danger);
     }
 

@@ -66,6 +66,7 @@ class PeminjamanAsetModel {
   bool get isDipinjam => status.toUpperCase() == 'DIPINJAM';
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  bool get isDibatalkan => status.toUpperCase() == 'DIBATALKAN';
 
   factory PeminjamanAsetModel.fromJson(Map<String, dynamic> json) {
     return PeminjamanAsetModel(

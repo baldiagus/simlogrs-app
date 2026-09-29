@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 import '../../data/repositories/aset_repository.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import 'aset_provider.dart';
-
 final katalogAsetTersediaProvider =
     FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
   final repository = ref.watch(asetRepositoryProvider);
@@ -110,6 +110,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
         successMessage: 'Permintaan peminjaman berhasil dibatalkan.',
       );
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
       state = PeminjamanActionState(
