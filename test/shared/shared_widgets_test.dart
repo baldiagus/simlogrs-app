@@ -71,8 +71,9 @@ void main() {
       expect(selected, 'B');
     });
 
-    testWidgets('AppQuantityStepper increments and decrements', (tester) async {
+    testWidgets('AppQuantityStepper increments, decrements, and supports direct keypad entry', (tester) async {
       int qty = 2;
+      bool maxReached = false;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -81,7 +82,8 @@ void main() {
                 return AppQuantityStepper(
                   value: qty,
                   min: 1,
-                  max: 5,
+                  max: 100,
+                  onMaxReached: () => maxReached = true,
                   onChanged: (val) => setState(() => qty = val),
                 );
               },
@@ -94,6 +96,20 @@ void main() {
       await tester.tap(find.byIcon(LucideIcons.plus));
       await tester.pump();
       expect(qty, 3);
+
+      // Direct keypad typing test
+      final textFieldFinder = find.byType(TextField);
+      await tester.enterText(textFieldFinder, '50');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(qty, 50);
+
+      // Clamping test when exceeding max
+      await tester.enterText(textFieldFinder, '999');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(qty, 100);
+      expect(maxReached, isTrue);
     });
 
     testWidgets('AppErrorView renders message and triggers retry', (tester) async {

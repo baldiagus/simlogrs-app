@@ -259,7 +259,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                               initialValue: _syaratBayar,
                               decoration: const InputDecoration(border: OutlineInputBorder()),
                               items: const [
-                                DropdownMenuItem(value: 'CASH', child: Text('CASH', style: TextStyle(fontSize: 12))),
+                                DropdownMenuItem(value: 'TUNAI', child: Text('Tunai / Cash', style: TextStyle(fontSize: 12))),
                                 DropdownMenuItem(value: 'TEMPO_30_HARI', child: Text('Tempo 30 Hari', style: TextStyle(fontSize: 12))),
                                 DropdownMenuItem(value: 'TEMPO_60_HARI', child: Text('Tempo 60 Hari', style: TextStyle(fontSize: 12))),
                               ],

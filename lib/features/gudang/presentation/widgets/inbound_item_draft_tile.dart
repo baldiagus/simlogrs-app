@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -76,6 +77,7 @@ class InboundItemDraftTile extends StatelessWidget {
                     TextFormField(
                       initialValue: '${draft.jumlahDiterima}',
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: (v) => draft.jumlahDiterima = int.tryParse(v) ?? 0,
                       decoration: InputDecoration(
                         suffixText: draft.poItem.satuan,

@@ -93,6 +93,13 @@ class DioClient {
                 errorMessage;
             if (responseData['errors'] is Map<String, dynamic>) {
               errors = responseData['errors'] as Map<String, dynamic>;
+              final details = errors.values
+                  .expand((e) => e is List ? e : [e])
+                  .map((e) => e.toString())
+                  .join('; ');
+              if (details.isNotEmpty) {
+                errorMessage = '$errorMessage: $details';
+              }
             }
           }
 

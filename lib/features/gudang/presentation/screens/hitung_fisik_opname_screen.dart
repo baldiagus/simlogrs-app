@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -177,6 +178,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                               child: TextField(
                                 controller: controller,
                                 keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                 decoration: InputDecoration(
                                   labelText: 'Fisik Riil (${d.satuan})',
                                   hintText: '0',
