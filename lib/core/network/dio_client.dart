@@ -46,11 +46,6 @@ class DioClient {
       },
     );
 
-    storageService.getServerUrl().then((savedUrl) {
-      if (savedUrl != null && savedUrl.trim().isNotEmpty) {
-        dio.options.baseUrl = savedUrl.trim();
-      }
-    });
     // SSL Certificate Pinning opsional untuk lingkungan produksi via --dart-define=SSL_FINGERPRINT=...
     const sslFingerprint = String.fromEnvironment('SSL_FINGERPRINT', defaultValue: '');
     if (!kIsWeb && sslFingerprint.isNotEmpty) {
@@ -118,7 +113,4 @@ class DioClient {
     );
   }
 
-  void setBaseUrl(String url) {
-    dio.options.baseUrl = url.trim();
-  }
 }
