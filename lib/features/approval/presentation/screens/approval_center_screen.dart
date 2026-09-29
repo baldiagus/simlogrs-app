@@ -76,14 +76,23 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     final canApprovePr = isPengadaanUser
         ? false
         : (user?.can('update_pengadaan::permintaan::pengadaan') ?? false);
+    final isKaru = user?.isKaru ?? false;
+    final isGudangUser = (user?.isGudangUser ?? false) || (user?.isKepalaGudang ?? false);
     final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
         (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
-        (user?.hasRole('admin_logistik') ?? false);
+        (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('super_admin') ?? false);
 
     final totalPrBadge = isPengadaanUser
         ? (pendingAsync.valueOrNull?.prList.where((pr) => pr.status == 'DISETUJUI' || pr.status == 'DITERUSKAN_KE_PENGADAAN').length ?? 0)
         : (pendingAsync.valueOrNull?.totalPr ?? 0);
 
+    final totalAmprahBadge = isGudangUser
+        ? (pendingAsync.valueOrNull?.amprahList.where((a) => a.status == 'DISETUJUI_KARU').length ?? 0)
+        : (isKaru
+            ? (pendingAsync.valueOrNull?.amprahList.where((a) => a.status == 'DIAJUKAN').length ?? 0)
+            : (pendingAsync.valueOrNull?.totalAmprah ?? 0));
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -115,7 +124,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   _buildCountBadge(
                     isPengadaanFlow
                         ? (poListAsync?.valueOrNull?.length ?? 0)
-                        : (pendingAsync.valueOrNull?.totalAmprah ?? 0),
+                        : totalAmprahBadge,
                   ),
                 ],
               ),
@@ -146,10 +155,16 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                 _buildPoListTab(canManagePo: canManagePo, isReadOnly: isReadOnly)
               else
                 _buildList(
-                  items: pending.amprahList,
+                  items: isGudangUser
+                      ? pending.amprahList.where((a) => a.status == 'DISETUJUI_KARU').toList()
+                      : (isKaru
+                          ? pending.amprahList.where((a) => a.status == 'DIAJUKAN').toList()
+                          : pending.amprahList),
                   emptyTitle: 'Tidak Ada Antrean Amprah',
-                  emptyMessage: 'Semua permintaan distribusi ruangan telah diproses.',
-                  canApprove: canApproveAmprah,
+                  emptyMessage: isGudangUser
+                      ? 'Tidak ada permohonan amprah yang menunggu otorisasi pengeluaran barang gudang.'
+                      : 'Semua permintaan distribusi ruangan telah diproses.',
+                  canApprove: isReadOnly ? false : canApproveAmprah,
                 ),
             ],
           );
