@@ -51,6 +51,68 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       );
     }
   }
+  Future<void> _confirmReject(PenyesuaianStokHeaderModel adj) async {
+    final catatanCtrl = TextEditingController();
+    final shouldReject = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Tolak Penyesuaian Stok'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tolak dokumen penyesuaian ${adj.kode} (${adj.gudangNama})? Sesi opname terkait akan dibatalkan/diinvestigasi ulang.',
+              style: const TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: catatanCtrl,
+              decoration: const InputDecoration(
+                hintText: 'Alasan penolakan (opsional)...',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ya, Tolak'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReject != true || !mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(persediaanRepositoryProvider).rejectPenyesuaian(
+            adj.id,
+            alasan: catatanCtrl.text.trim(),
+          );
+      ref.invalidate(otorisasiPenyesuaianListProvider);
+      ref.invalidate(dashboardSummaryProvider);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Penyesuaian stok ${adj.kode} telah ditolak.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
+      );
+    }
+  }
 
   void _showDetailModal(PenyesuaianStokHeaderModel adj, bool canAuthorize) {
     DetailPenyesuaianSheet.show(
@@ -58,6 +120,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       adj: adj,
       canAuthorize: canAuthorize,
       onAuthorize: () => _confirmApprove(adj),
+      onReject: () => _confirmReject(adj),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
 import 'package:simlog_mobile/core/utils/app_formatters.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/gudang/data/repositories/persediaan_repository.dart';
 import 'package:simlog_mobile/features/gudang/presentation/providers/persediaan_providers.dart';
 import 'package:simlog_mobile/shared/widgets/app_bottom_sheet_wrapper.dart';
@@ -58,7 +59,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit(List<GudangModel> gudangs) async {
     if (_selectedGudangId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -69,6 +70,22 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
       return;
     }
 
+    final selectedId = _selectedGudangId;
+    final selectedGudang = gudangs.firstWhere(
+      (g) => g.id == selectedId,
+      orElse: () => gudangs.first,
+    );
+    if (selectedGudang.activeBatchesCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Fasilitas "${selectedGudang.nama}" belum memiliki stok batch aktif untuk dihitung opname.',
+          ),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
     setState(() => _isSubmitting = true);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -116,34 +133,78 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
                 data: (gudangs) {
                   final availableIds = gudangs.map((g) => g.id).toList();
                   if (_selectedGudangId == null || !availableIds.contains(_selectedGudangId)) {
-                    _selectedGudangId = gudangs.isNotEmpty ? gudangs.first.id : 1;
+                    final withStock = gudangs.where((g) => (g.activeBatchesCount ?? 0) > 0);
+                    if (withStock.isNotEmpty) {
+                      _selectedGudangId = withStock.first.id;
+                    } else if (availableIds.contains(1)) {
+                      _selectedGudangId = 1;
+                    } else {
+                      _selectedGudangId = gudangs.isNotEmpty ? gudangs.first.id : 1;
+                    }
                   }
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.canvas,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int>(
-                        isExpanded: true,
-                        value: _selectedGudangId,
-                        items: gudangs.map((g) {
-                          return DropdownMenuItem<int>(
-                            value: g.id,
-                            child: Text(
-                              g.nama,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          setState(() => _selectedGudangId = val);
-                        },
+                  final selectedGudang = gudangs.firstWhere(
+                    (g) => g.id == _selectedGudangId,
+                    orElse: () => gudangs.first,
+                  );
+                  final isEmptyGudang = (selectedGudang.activeBatchesCount ?? 0) == 0;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.canvas,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isEmptyGudang
+                                ? AppColors.danger.withValues(alpha: 0.5)
+                                : AppColors.border,
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            isExpanded: true,
+                            value: _selectedGudangId,
+                            items: gudangs.map((g) {
+                              final hasStock = (g.activeBatchesCount ?? 0) > 0;
+                              return DropdownMenuItem<int>(
+                                value: g.id,
+                                 child: Text(
+                                  g.activeBatchesCount != null
+                                      ? '${g.nama} (${g.activeBatchesCount} Batch Aktif)'
+                                      : g.nama,
+                                   maxLines: 1,
+                                   overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: hasStock ? FontWeight.w600 : FontWeight.normal,
+                                    color: hasStock
+                                        ? AppColors.textPrimary
+                                        : AppColors.textMuted,
+                                  ),
+                                 ),
+                               );
+                             }).toList(),
+                            onChanged: (val) {
+                              setState(() => _selectedGudangId = val);
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                      if (isEmptyGudang)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 6),
+                          child: Text(
+                            'Peringatan: Fasilitas ini tidak memiliki stok batch aktif untuk diopname.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.danger,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
                 loading: () => Container(
@@ -188,12 +249,20 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
             decoration: const InputDecoration(hintText: 'Misal: Opname Rutin Akhir Bulan...'),
           ),
           const SizedBox(height: 20),
-          CustomButton(
-            text: 'Buka Sesi Opname Sekarang',
-            isLoading: _isSubmitting,
-            icon: const Icon(LucideIcons.playCircle, size: 18, color: Colors.white),
-            onPressed: _submit,
-          ),
+          ref.watch(masterGudangListProvider).maybeWhen(
+                data: (gudangs) => CustomButton(
+                  text: 'Buka Sesi Opname Sekarang',
+                  isLoading: _isSubmitting,
+                  icon: const Icon(LucideIcons.playCircle, size: 18, color: Colors.white),
+                  onPressed: () => _submit(gudangs),
+                ),
+                orElse: () => CustomButton(
+                  text: 'Buka Sesi Opname Sekarang',
+                  isLoading: _isSubmitting,
+                  icon: const Icon(LucideIcons.playCircle, size: 18, color: Colors.white),
+                  onPressed: null,
+                ),
+              ),
         ],
       ),
     );

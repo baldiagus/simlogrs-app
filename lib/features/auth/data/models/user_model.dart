@@ -28,11 +28,13 @@ class GudangModel {
   final int id;
   final String nama;
   final String? kode;
+  final int? activeBatchesCount;
 
   const GudangModel({
     required this.id,
     required this.nama,
     this.kode,
+    this.activeBatchesCount,
   });
 
   factory GudangModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class GudangModel {
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
       nama: json['nama']?.toString() ?? '',
       kode: json['kode']?.toString(),
+      activeBatchesCount: (json['active_batches_count'] as num?)?.toInt(),
     );
   }
 

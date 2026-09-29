@@ -178,7 +178,20 @@ class PersediaanRepository {
       throw ApiException(message: e.message ?? 'Gagal mengesahkan penyesuaian');
     }
   }
-
+  /// 8. Tolak Penyesuaian Stok (Reject)
+  Future<void> rejectPenyesuaian(int id, {String? alasan}) async {
+    try {
+      await _client.dio.post(
+        '/gudang/penyesuaian/$id/reject',
+        data: {
+          if (alasan != null && alasan.isNotEmpty) 'alasan': alasan,
+        },
+      );
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal menolak penyesuaian');
+    }
+  }
 
   /// 9. Daftar Master Fasilitas Gudang Aktif
   Future<List<GudangModel>> getMasterGudangList() async {

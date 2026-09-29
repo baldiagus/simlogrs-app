@@ -11,12 +11,14 @@ class DetailPenyesuaianSheet extends StatelessWidget {
   final PenyesuaianStokHeaderModel adj;
   final bool canAuthorize;
   final VoidCallback? onAuthorize;
+  final VoidCallback? onReject;
 
   const DetailPenyesuaianSheet({
     super.key,
     required this.adj,
     required this.canAuthorize,
     this.onAuthorize,
+    this.onReject,
   });
 
   static Future<void> show(
@@ -24,6 +26,7 @@ class DetailPenyesuaianSheet extends StatelessWidget {
     required PenyesuaianStokHeaderModel adj,
     required bool canAuthorize,
     VoidCallback? onAuthorize,
+    VoidCallback? onReject,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -33,6 +36,7 @@ class DetailPenyesuaianSheet extends StatelessWidget {
         adj: adj,
         canAuthorize: canAuthorize,
         onAuthorize: onAuthorize,
+        onReject: onReject,
       ),
     );
   }
@@ -133,13 +137,37 @@ class DetailPenyesuaianSheet extends StatelessWidget {
           if (adj.isMenunggu) ...[
             const SizedBox(height: 16),
             if (canAuthorize)
-              CustomButton(
-                text: 'Sahkan Penyesuaian Saldo',
-                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                  onAuthorize?.call();
-                },
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: CustomButton(
+                      text: 'Tolak',
+                      height: 48,
+                      isOutlined: true,
+                      backgroundColor: AppColors.danger,
+                      textColor: AppColors.danger,
+                      icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onReject?.call();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 2,
+                    child: CustomButton(
+                      text: 'Sahkan Saldo',
+                      height: 48,
+                      icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onAuthorize?.call();
+                      },
+                    ),
+                  ),
+                ],
               )
             else
               Container(
