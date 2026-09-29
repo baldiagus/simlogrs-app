@@ -353,11 +353,11 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Total:',
+                            'Total Kebutuhan:',
                             style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                           ),
                           Text(
-                            '$totalQty Unit',
+                            '$totalQty Barang (${_cartItems.length} Jenis)',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

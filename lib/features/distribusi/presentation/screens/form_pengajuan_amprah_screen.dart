@@ -431,7 +431,10 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text('Total Kebutuhan:', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                          Text('$totalQty Unit', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                          Text(
+                            '$totalQty Barang (${_cartItems.length} Jenis)',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                          ),
                         ],
                       ),
                       const SizedBox(width: 16),
