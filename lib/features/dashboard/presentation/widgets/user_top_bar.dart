@@ -13,7 +13,11 @@ class UserTopBar extends ConsumerWidget {
     final initial = (user != null && user.name.isNotEmpty)
         ? user.name.substring(0, 1).toUpperCase()
         : 'U';
-    final unitName = user?.unit?.nama ?? user?.gudang?.nama ?? 'Sentral RS';
+    final unitBadge = user?.unit?.kode ??
+        user?.unit?.nama ??
+        user?.gudang?.kode ??
+        user?.gudang?.nama ??
+        'Sentral RS';
 
     return Row(
       children: [
@@ -75,18 +79,22 @@ class UserTopBar extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceSecondary,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      unitName,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryPurple,
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceSecondary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        unitBadge,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryPurple,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
