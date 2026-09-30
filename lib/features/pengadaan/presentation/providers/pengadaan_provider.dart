@@ -133,7 +133,7 @@ final pemasokListProvider = FutureProvider.autoDispose<List<PemasokOptionModel>>
   return repository.getDaftarPemasok();
 });
 
-final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA');
+final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'DITERBITKAN');
 final poSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
 final poListProvider = FutureProvider.autoDispose<List<PesananPembelianModel>>((ref) async {
@@ -151,6 +151,15 @@ final poListProvider = FutureProvider.autoDispose<List<PesananPembelianModel>>((
   );
 });
 
+final poActionableCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  if (!authState.isAuthenticated || authState.user == null) {
+    return 0;
+  }
+  final repository = ref.watch(pengadaanRepositoryProvider);
+  final list = await repository.getDaftarPo(status: 'DITERBITKAN');
+  return list.length;
+});
 class PoActionState {
   final bool isLoading;
   final String? errorMessage;
@@ -193,9 +202,20 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
         successMessage: 'Pesanan Pembelian $kode berhasil diterbitkan.',
       );
       _ref.invalidate(poListProvider);
+      _ref.invalidate(poActionableCountProvider);
       _ref.invalidate(daftarPrProvider);
       _ref.invalidate(approvalPendingProvider);
-      _ref.invalidate(daftarPoInboundProvider);
+      final user = _ref.read(authStateProvider).user;
+      final canViewInbound = (user?.can('create_gudang_stok::penerimaan::po') ?? false) ||
+          (user?.can('view_any_gudang_stok::penerimaan::po') ?? false) ||
+          (user?.can('view_gudang_stok::penerimaan::po') ?? false) ||
+          (user?.hasRole('petugas_gudang') ?? false) ||
+          (user?.hasRole('kepala_gudang') ?? false) ||
+          (user?.hasRole('admin_logistik') ?? false) ||
+          (user?.isSuperAdmin ?? false);
+      if (canViewInbound) {
+        _ref.invalidate(daftarPoInboundProvider);
+      }
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -220,6 +240,7 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
         successMessage: 'Status PO $kode berhasil diubah menjadi DIKIRIM_VENDOR.',
       );
       _ref.invalidate(poListProvider);
+      _ref.invalidate(poActionableCountProvider);
       _ref.invalidate(daftarPoInboundProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;

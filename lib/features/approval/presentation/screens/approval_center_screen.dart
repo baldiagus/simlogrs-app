@@ -13,6 +13,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/data/models/po_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
+import '../../../pengadaan/data/models/pr_model.dart';
 import '../../data/models/approval_item_model.dart';
 import '../providers/approval_provider.dart';
 import '../widgets/approval_card.dart';
@@ -65,7 +66,6 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
         (user?.isManajemen == true) ||
         (user?.isAuditor == true) ||
         (user?.hasRole('super_admin') == true);
-    final poListAsync = isPengadaanFlow ? ref.watch(poListProvider) : null;
 
     final isPengadaanUser = (user?.isPengadaan == true) &&
         !(user?.hasRole('super_admin') == true) &&
@@ -86,7 +86,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
         (user?.hasRole('super_admin') ?? false);
 
     final totalPrBadge = isPengadaanUser
-        ? (pendingAsync.valueOrNull?.prList.where((pr) => pr.status == 'DISETUJUI' || pr.status == 'DITERUSKAN_KE_PENGADAAN').length ?? 0)
+        ? (pendingAsync.valueOrNull?.prList.where((pr) => pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui).length ?? 0)
         : (pendingAsync.valueOrNull?.totalPr ?? 0);
 
     final totalAmprahBadge = isGudangUser
@@ -124,7 +124,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   const SizedBox(width: 6),
                   _buildCountBadge(
                     isPengadaanFlow
-                        ? (poListAsync?.valueOrNull?.length ?? 0)
+                        ? (ref.watch(poActionableCountProvider).valueOrNull ?? 0)
                         : totalAmprahBadge,
                   ),
                 ],
@@ -141,7 +141,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
               // Tab 1: PR List
               _buildList(
                 items: isPengadaanUser
-                    ? pending.prList.where((pr) => pr.status == 'DISETUJUI' || pr.status == 'DITERUSKAN_KE_PENGADAAN').toList()
+                    ? pending.prList.where((pr) => pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui).toList()
                     : pending.prList,
                 emptyTitle: 'Tidak Ada Antrean PR',
                 emptyMessage: isPengadaanUser
@@ -221,8 +221,8 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   ref.read(poStatusFilterProvider.notifier).state = val;
                 },
                 options: const [
+                  AppFilterOption(label: 'Perlu Tindakan', value: 'DITERBITKAN'),
                   AppFilterOption(label: 'Semua PO', value: 'SEMUA'),
-                  AppFilterOption(label: 'Diterbitkan', value: 'DITERBITKAN'),
                   AppFilterOption(label: 'Dikirim Vendor', value: 'DIKIRIM_VENDOR'),
                   AppFilterOption(label: 'Diterima Sebagian', value: 'DITERIMA_SEBAGIAN'),
                   AppFilterOption(label: 'Selesai', value: 'DITERIMA_LENGKAP'),
@@ -244,10 +244,12 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.55,
-                      child: const EmptyStateView(
+                      child: EmptyStateView(
                         icon: LucideIcons.truck,
-                        title: 'Tidak Ada Pesanan PO',
-                        message: 'Belum ada dokumen PO yang diterbitkan atau cocok dengan filter.',
+                        title: filterStatus == 'DITERBITKAN' ? 'Tidak Ada Antrean PO' : 'Tidak Ada Pesanan PO',
+                        message: filterStatus == 'DITERBITKAN'
+                            ? 'Semua pesanan PO telah ditindaklanjuti. Pilih filter "Semua PO" untuk melihat riwayat.'
+                            : 'Belum ada dokumen PO yang diterbitkan atau cocok dengan filter.',
                       ),
                     ),
                   );

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/approval_item_model.dart';
+import '../../../pengadaan/data/models/pr_model.dart';
 
 class ApprovalCard extends StatefulWidget {
   final ApprovalItemModel item;
@@ -267,7 +268,7 @@ class _ApprovalCardState extends State<ApprovalCard> {
           const Divider(height: 1, color: AppColors.border),
           Padding(
             padding: const EdgeInsets.all(12),
-            child: isPr && (item.status == 'DISETUJUI' || item.status == 'DITERUSKAN_KE_PENGADAAN')
+            child: isPr && (item.status == PrStatus.diteruskanKePengadaan || item.status == PrStatus.disetujui)
                 ? (widget.onTerbitkanPoTap != null
                     ? CustomButton(
                         text: 'Terbitkan PO (Pesanan Pembelian)',

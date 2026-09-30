@@ -62,6 +62,10 @@ class StatusBadge extends StatelessWidget {
       return (const Color(0xFFFFFBEB), AppColors.warning);
     }
 
+    if (upper.contains('DITERUSKAN') || upper.contains('KIRIM')) {
+      return (AppColors.tintVioletBg, AppColors.primaryPurple);
+    }
+
     return (AppColors.surfaceSecondary, AppColors.textSecondary);
   }
 

@@ -1,5 +1,14 @@
 import '../../../approval/data/models/approval_item_model.dart';
 import 'master_barang_model.dart';
+
+abstract final class PrStatus {
+  static const String diajukan = 'DIAJUKAN';
+  static const String diteruskanKePengadaan = 'DITERUSKAN_KE_PENGADAAN';
+  static const String diproses = 'DIPROSES';
+  static const String selesai = 'SELESAI';
+  static const String ditolak = 'DITOLAK';
+  static const String disetujui = 'DISETUJUI';
+}
 class PrDetailItemModel {
   final int id;
   final int barangId;

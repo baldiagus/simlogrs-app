@@ -54,9 +54,8 @@ class PrDetailSheet extends StatelessWidget {
   }
 
   bool get hasActionAvailable {
-    if (pr.status == 'DIAJUKAN' && canApproveKaru) return true;
-    if (pr.status == 'DISETUJUI' && canApproveKaru) return true;
-    if (pr.status == 'DITERUSKAN_KE_PENGADAAN' && canManagePo) return true;
+    if (pr.status == PrStatus.diajukan && canApproveKaru) return true;
+    if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) return true;
     return false;
   }
 
@@ -183,7 +182,7 @@ class PrDetailSheet extends StatelessWidget {
   }
 
   Widget _buildActionRow(BuildContext context) {
-    if (pr.status == 'DIAJUKAN' && canApproveKaru) {
+    if (pr.status == PrStatus.diajukan && canApproveKaru) {
       return Row(
         children: [
           Expanded(
@@ -217,41 +216,7 @@ class PrDetailSheet extends StatelessWidget {
       );
     }
 
-    if (pr.status == 'DISETUJUI' && canApproveKaru) {
-      return Row(
-        children: [
-          Expanded(
-            child: CustomButton(
-              text: 'Tolak',
-              height: 40,
-              isOutlined: true,
-              backgroundColor: AppColors.danger,
-              textColor: AppColors.danger,
-              icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
-              onPressed: () {
-                Navigator.pop(context);
-                onTolak();
-              },
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: CustomButton(
-              text: 'Teruskan ke Pengadaan',
-              height: 40,
-              backgroundColor: AppColors.primaryPurple,
-              icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-                onTeruskan();
-              },
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (pr.status == 'DITERUSKAN_KE_PENGADAAN' && canManagePo) {
+    if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) {
       return Row(
         children: [
           Expanded(

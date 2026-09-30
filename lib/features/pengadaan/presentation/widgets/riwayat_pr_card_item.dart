@@ -29,9 +29,8 @@ class RiwayatPrCardItem extends StatelessWidget {
   });
 
   bool get hasActionAvailable {
-    if (pr.status == 'DIAJUKAN' && canApproveKaru) return true;
-    if (pr.status == 'DISETUJUI' && canApproveKaru) return true;
-    if (pr.status == 'DITERUSKAN_KE_PENGADAAN' && canManagePo) return true;
+    if (pr.status == PrStatus.diajukan && canApproveKaru) return true;
+    if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) return true;
     return false;
   }
 
@@ -231,7 +230,7 @@ class RiwayatPrCardItem extends StatelessWidget {
   }
 
   Widget _buildActionRow() {
-    if (pr.status == 'DIAJUKAN' && canApproveKaru) {
+    if (pr.status == PrStatus.diajukan && canApproveKaru) {
       return Row(
         children: [
           Expanded(
@@ -259,35 +258,7 @@ class RiwayatPrCardItem extends StatelessWidget {
       );
     }
 
-    if (pr.status == 'DISETUJUI' && canApproveKaru) {
-      return Row(
-        children: [
-          Expanded(
-            child: CustomButton(
-              text: 'Tolak',
-              height: 36,
-              isOutlined: true,
-              backgroundColor: AppColors.danger,
-              textColor: AppColors.danger,
-              icon: const Icon(LucideIcons.x, size: 14, color: AppColors.danger),
-              onPressed: onTolakTap,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: CustomButton(
-              text: 'Teruskan ke Pengadaan',
-              height: 36,
-              backgroundColor: AppColors.primaryPurple,
-              icon: const Icon(LucideIcons.send, size: 14, color: Colors.white),
-              onPressed: onTeruskanTap,
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (pr.status == 'DITERUSKAN_KE_PENGADAAN' && canManagePo) {
+    if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) {
       return Row(
         children: [
           Expanded(

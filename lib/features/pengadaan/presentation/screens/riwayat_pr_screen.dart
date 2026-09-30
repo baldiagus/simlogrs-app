@@ -171,8 +171,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
       onTolak: () => _showTolakDialog(
         context,
         pr,
-        isPengadaan: pr.status == 'DITERUSKAN_KE_PENGADAAN' ||
-            (pr.status == 'DISETUJUI' && canManagePo),
+        isPengadaan: (pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo,
       ),
       onTeruskan: () => _showTeruskanDialog(context, pr),
       onTerbitkanPo: () => TerbitkanPoSheet.show(context, pr.toApprovalItem()),
@@ -260,12 +259,11 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
                     onSelected: (val) => setState(() => _selectedFilter = val),
                     options: const [
                       AppFilterOption(label: 'Semua Status', value: 'SEMUA'),
-                      AppFilterOption(label: 'Menunggu Otorisasi', value: 'DIAJUKAN'),
-                      AppFilterOption(label: 'Siap PO (Disetujui)', value: 'DISETUJUI'),
-                      AppFilterOption(label: 'Diteruskan ke Pengadaan', value: 'DITERUSKAN_KE_PENGADAAN'),
-                      AppFilterOption(label: 'Sedang Belanja', value: 'DIPROSES'),
-                      AppFilterOption(label: 'Selesai', value: 'SELESAI'),
-                      AppFilterOption(label: 'Ditolak', value: 'DITOLAK'),
+                      AppFilterOption(label: 'Menunggu Otorisasi', value: PrStatus.diajukan),
+                      AppFilterOption(label: 'Siap PO / Diteruskan', value: PrStatus.diteruskanKePengadaan),
+                      AppFilterOption(label: 'Sedang Belanja', value: PrStatus.diproses),
+                      AppFilterOption(label: 'Selesai', value: PrStatus.selesai),
+                      AppFilterOption(label: 'Ditolak', value: PrStatus.ditolak),
                     ],
                   ),
                 ],
@@ -359,8 +357,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
                           onTolakTap: () => _showTolakDialog(
                             context,
                             pr,
-                            isPengadaan: pr.status == 'DITERUSKAN_KE_PENGADAAN' ||
-                                (pr.status == 'DISETUJUI' && canManagePo),
+                            isPengadaan: (pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo,
                           ),
                           onTeruskanTap: () => _showTeruskanDialog(context, pr),
                           onTerbitkanPoTap: () =>

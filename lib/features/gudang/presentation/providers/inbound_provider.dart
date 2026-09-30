@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../data/models/po_inbound_model.dart';
@@ -7,6 +8,19 @@ import 'gudang_provider.dart';
 
 final daftarPoInboundProvider =
     FutureProvider.autoDispose<List<PoInboundHeaderModel>>((ref) async {
+  final user = ref.watch(authStateProvider).user;
+  final canView = (user?.can('create_gudang_stok::penerimaan::po') ?? false) ||
+      (user?.can('view_any_gudang_stok::penerimaan::po') ?? false) ||
+      (user?.can('view_gudang_stok::penerimaan::po') ?? false) ||
+      (user?.hasRole('petugas_gudang') ?? false) ||
+      (user?.hasRole('kepala_gudang') ?? false) ||
+      (user?.hasRole('admin_logistik') ?? false) ||
+      (user?.isSuperAdmin ?? false);
+
+  if (!canView) {
+    return [];
+  }
+
   final repository = ref.watch(gudangRepositoryProvider);
   return await repository.getPoInboundList();
 });

@@ -27,7 +27,12 @@ class ApprovalPoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: (po.isDiterbitkan && !isReadOnly)
+              ? AppColors.primaryPurple.withValues(alpha: 0.4)
+              : AppColors.border,
+          width: (po.isDiterbitkan && !isReadOnly) ? 1.5 : 1.0,
+        ),
         boxShadow: AppShadows.softCard,
       ),
       child: Column(
@@ -36,10 +41,33 @@ class ApprovalPoCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                po.kode,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    po.kode,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
+                  ),
+                  if (po.isDiterbitkan && !isReadOnly) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.tintVioletBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'Perlu Tindakan',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryPurple,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               StatusBadge(status: po.status),
             ],
