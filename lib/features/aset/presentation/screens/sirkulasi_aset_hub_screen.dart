@@ -39,6 +39,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
 
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
@@ -100,6 +101,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
 
     if (canApproveNow != _canApprove) {
@@ -147,7 +149,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           tabs: [
             Tab(
               child: Text(
-                (user?.isKepalaGudang == true || user?.isAdminLogistik == true || user?.gudang != null)
+                (user?.isKepalaGudang == true || user?.isAdminLogistik == true || (user?.gudang != null && user?.isManajemen != true && user?.isAuditor != true))
                     ? 'Peminjaman Gudang'
                     : 'Pinjaman Saya',
                 maxLines: 1,

@@ -40,6 +40,7 @@ final daftarApprovalPeminjamanProvider =
       (user?.hasRole('kepala_unit') ?? false) ||
       (user?.hasRole('kepala_gudang') ?? false) ||
       (user?.hasRole('admin_logistik') ?? false) ||
+      (user?.hasRole('manajemen') ?? false) ||
       (user?.hasRole('super_admin') ?? false);
 
   if (!canApprove) {
