@@ -97,6 +97,19 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
       return;
     }
 
+    final user = ref.read(authStateProvider).user;
+    final isSameUnit = _selectedAset!.tipePenyedia == 'RUANGAN' &&
+        user?.unit?.id != null &&
+        _selectedAset!.penyediaId == user!.unit!.id;
+    if (isSameUnit) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unit penyedia tidak boleh sama dengan unit peminjam. Aset sudah berada di unit Anda.'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -254,7 +267,14 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.primaryPurple, width: 1.5),
+                            border: Border.all(
+                              color: (_selectedAset!.tipePenyedia == 'RUANGAN' &&
+                                      user?.unit?.id != null &&
+                                      _selectedAset!.penyediaId == user!.unit!.id)
+                                  ? AppColors.danger
+                                  : AppColors.primaryPurple,
+                              width: 1.5,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -296,6 +316,32 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                             ],
                           ),
                         ),
+                      if (_selectedAset != null &&
+                          _selectedAset!.tipePenyedia == 'RUANGAN' &&
+                          user?.unit?.id != null &&
+                          _selectedAset!.penyediaId == user!.unit!.id) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFFCA5A5)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(LucideIcons.alertCircle, size: 16, color: AppColors.danger),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Aset ini sudah berada di ruangan Anda. Peminjaman hanya berlaku untuk aset dari gudang sentral atau ruangan lain.',
+                                  style: TextStyle(fontSize: 11, color: AppColors.danger, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 20),
 
                       // Dates Pickers Row
@@ -426,13 +472,19 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  child: CustomButton(
-                    width: double.infinity,
-                    text: 'Kirim Permohonan Pinjam',
-                    isLoading: actionState.isLoading,
-                    icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
-                    onPressed: _submit,
-                  ),
+                  child: () {
+                    final isSameUnit = _selectedAset != null &&
+                        _selectedAset!.tipePenyedia == 'RUANGAN' &&
+                        user?.unit?.id != null &&
+                        _selectedAset!.penyediaId == user!.unit!.id;
+                    return CustomButton(
+                      width: double.infinity,
+                      text: 'Kirim Permohonan Pinjam',
+                      isLoading: actionState.isLoading,
+                      icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
+                      onPressed: (_selectedAset == null || isSameUnit || actionState.isLoading) ? null : _submit,
+                    );
+                  }(),
                 ),
               ),
             ),
