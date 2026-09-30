@@ -301,15 +301,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           spacing: 6,
                           runSpacing: 6,
                           children: [
-                            _buildRoleChip('Karu IGD', 'kepalaunit@simlogrs.local'),
-                            _buildRoleChip('Petugas Gudang', 'petugasgudang@simlogrs.local'),
-                            _buildRoleChip('Kepala Gudang', 'kepalagudang@simlogrs.local'),
-                            _buildRoleChip('Admin Logistik', 'adminlogistik@simlogrs.local'),
-                            _buildRoleChip('Teknisi IPSRS', 'teknisi@simlogrs.local'),
-                            _buildRoleChip('Pengadaan', 'pengadaan@simlogrs.local'),
-                            _buildRoleChip('Auditor SPI', 'auditor@simlogrs.local'),
-                            _buildRoleChip('Manajemen', 'manajemen@simlogrs.local'),
                             _buildRoleChip('Super Admin', 'superadmin@simlogrs.local'),
+                            _buildRoleChip('Admin Logistik', 'adminlogistik@simlogrs.local'),
+                            _buildRoleChip('Kepala Gudang', 'kepalagudang@simlogrs.local'),
+                            _buildRoleChip('Petugas Gudang', 'petugasgudang@simlogrs.local'),
+                            _buildRoleChip('Pengadaan', 'pengadaan@simlogrs.local'),
+                            _buildRoleChip('Karu IGD', 'kepalaunit@simlogrs.local'),
+                            _buildRoleChip('Petugas Unit', 'petugasunit@simlogrs.local'),
+                            _buildRoleChip('Teknisi IPSRS', 'teknisi@simlogrs.local'),
+                            _buildRoleChip('Manajemen', 'manajemen@simlogrs.local'),
+                            _buildRoleChip('Auditor SPI', 'auditor@simlogrs.local'),
                           ],
                         ),
                       ],
@@ -329,7 +330,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       onTap: () {
         setState(() {
           _emailController.text = email;
-          _passwordController.text = 'password';
+          _passwordController.text = 'SimlogRS@2026!';
         });
       },
       borderRadius: BorderRadius.circular(8),
