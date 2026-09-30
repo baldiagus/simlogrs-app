@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../widgets/sparepart_picker_sheet.dart';
@@ -96,8 +97,6 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-
-    final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(lembarKerjaProvider.notifier);
 
     final ok = await notifier.submitLog(
@@ -116,20 +115,10 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     final state = ref.read(lembarKerjaProvider);
 
     if (ok) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Lembar kerja berhasil disimpan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      AppToast.success(context, state.successMessage ?? 'Lembar kerja berhasil disimpan.');
+      Navigator.pop(context, true);
     } else {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal menyimpan lembar kerja.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal menyimpan lembar kerja.');
     }
   }
 

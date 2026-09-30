@@ -4,6 +4,7 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_filter_chip_bar.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../widgets/approval_action_modal.dart';
 import '../widgets/approval_po_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -290,17 +291,15 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
       icon: LucideIcons.truck,
     );
     if (!confirmed || !context.mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(poActionProvider.notifier);
     final ok = await notifier.updateStatusKirim(po.id);
+    if (!context.mounted) return;
     final s = ref.read(poActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok ? (s.successMessage ?? 'Status berhasil diperbarui') : (s.errorMessage ?? 'Gagal')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
+    if (ok) {
+      AppToast.success(context, s.successMessage ?? 'Status berhasil diperbarui');
+    } else {
+      AppToast.error(context, s.errorMessage ?? 'Gagal');
+    }
   }
 
   Widget _buildList({

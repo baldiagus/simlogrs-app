@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/pr_model.dart';
@@ -129,7 +130,7 @@ class RiwayatPrCardItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Diajukan: ${pr.tanggalPermintaan} • Oleh ${pr.pengaju}',
+                    'Diajukan: ${AppFormatters.tanggalString(pr.tanggalPermintaan)} • Oleh ${pr.pengaju}',
                     style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -144,15 +145,56 @@ class RiwayatPrCardItem extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${pr.jumlahItem} Item Barang',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${pr.jumlahItem} Item Barang',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              if (pr.nomorPo != null) ...[
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.tintBlueBg,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: AppColors.tintBlue.withValues(alpha: 0.2)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(LucideIcons.shoppingCart, size: 10, color: AppColors.tintBlue),
+                                        const SizedBox(width: 3),
+                                        Flexible(
+                                          child: Text(
+                                            pr.nomorPo!,
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.tintBlue,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
+                        const SizedBox(width: 8),
                         const Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               'Detail',

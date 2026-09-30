@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
+import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
@@ -56,25 +57,15 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
       );
 
       if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Temuan CAPA berhasil diterbitkan ke register!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.success(context, 'Temuan CAPA berhasil diterbitkan ke register!');
+        Navigator.pop(context, true);
         ref.invalidate(auditSummaryProvider);
         ref.invalidate(registerTemuanProvider);
         ref.invalidate(kepatuhanPengadaanProvider);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal menerbitkan CAPA: $e'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
+        AppToast.error(context, 'Gagal menerbitkan CAPA: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

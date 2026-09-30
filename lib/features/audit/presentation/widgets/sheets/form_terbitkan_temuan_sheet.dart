@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
+import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/providers/dashboard_provider.dart';
@@ -33,27 +34,15 @@ class _FormTerbitkanTemuanSheetState extends ConsumerState<FormTerbitkanTemuanSh
 
   Future<void> _submit() async {
     if (_objekCtrl.text.trim().length < 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Objek pemeriksaan audit minimal 5 karakter.'),
-            backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Objek pemeriksaan audit minimal 5 karakter.');
       return;
     }
     if (_ringkasanCtrl.text.trim().length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Uraian ringkasan temuan minimal 10 karakter.'),
-            backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Uraian ringkasan temuan minimal 10 karakter.');
       return;
     }
     if (_dueDate.isBefore(_tanggalAudit)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Batas waktu (due date) tidak boleh mendahului tanggal audit.'),
-            backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Batas waktu (due date) tidak boleh mendahului tanggal audit.');
       return;
     }
 
@@ -75,23 +64,15 @@ class _FormTerbitkanTemuanSheetState extends ConsumerState<FormTerbitkanTemuanSh
       );
 
       if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Temuan audit berhasil diterbitkan!'),
-              backgroundColor: AppColors.success),
-        );
+        AppToast.success(context, 'Temuan audit berhasil diterbitkan!');
+        Navigator.pop(context, true);
         ref.invalidate(auditSummaryProvider);
         ref.invalidate(registerTemuanProvider);
         ref.invalidate(dashboardSummaryProvider);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Gagal mendaftarkan temuan: $e'),
-              backgroundColor: AppColors.danger),
-        );
+        AppToast.error(context, 'Gagal mendaftarkan temuan: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

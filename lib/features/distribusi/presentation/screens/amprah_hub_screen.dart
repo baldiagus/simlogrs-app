@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/distribusi_provider.dart';
@@ -180,6 +182,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                                         );
                                         if (created == true && context.mounted) {
                                           ref.invalidate(daftarAmprahProvider);
+                                          ref.invalidate(approvalPendingProvider);
                                           ref.invalidate(dashboardSummaryProvider);
                                         }
                                       },
@@ -204,12 +207,11 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                               final ok = await notifier.batalkanAmprah(item.id);
                               if (!context.mounted) return;
                               final s = ref.read(amprahActionProvider);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(ok ? (s.successMessage ?? 'Dibatalkan') : (s.errorMessage ?? 'Gagal')),
-                                  backgroundColor: ok ? AppColors.success : AppColors.danger,
-                                ),
-                              );
+                              if (ok) {
+                                AppToast.success(context, s.successMessage ?? 'Dibatalkan');
+                              } else {
+                                AppToast.error(context, s.errorMessage ?? 'Gagal');
+                              }
                             },
                           );
                         },
@@ -259,12 +261,11 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                         final ok = await notifier.konfirmasiTerimaSppb(sppb.id);
                         if (!context.mounted) return;
                         final s = ref.read(amprahActionProvider);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? (s.successMessage ?? 'Diterima') : (s.errorMessage ?? 'Gagal')),
-                            backgroundColor: ok ? AppColors.success : AppColors.danger,
-                          ),
-                        );
+                        if (ok) {
+                          AppToast.success(context, s.successMessage ?? 'Diterima');
+                        } else {
+                          AppToast.error(context, s.errorMessage ?? 'Gagal');
+                        }
                       },
                     );
                   },

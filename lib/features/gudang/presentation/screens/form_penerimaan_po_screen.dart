@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../widgets/inbound_item_draft_tile.dart';
 import '../../data/models/po_inbound_model.dart';
@@ -68,36 +69,26 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
 
   Future<void> _submit() async {
     if (!widget.po.canReceive) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PO belum dikirim oleh vendor, penerimaan fisik belum dapat diproses.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'PO belum dikirim oleh vendor, penerimaan fisik belum dapat diproses.');
       return;
     }
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
+    final totalDiterima = _itemDrafts.fold<int>(0, (sum, i) => sum + i.jumlahDiterima);
+    if (totalDiterima <= 0) {
+      AppToast.error(context, 'Kuantitas barang yang diterima minimal 1 item.');
+      return;
+    }
     for (final draft in _itemDrafts) {
       if (draft.jumlahDiterima > 0) {
         if (draft.nomorBatch.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Nomor batch fisik wajib diisi untuk komoditas ${draft.poItem.namaBarang}.'),
-              backgroundColor: AppColors.danger,
-            ),
-          );
+          AppToast.error(context, 'Nomor batch fisik wajib diisi untuk komoditas ${draft.poItem.namaBarang}.');
           return;
         }
         if (draft.lokasiGudangId == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Rak simpan gudang wajib dipilih untuk komoditas ${draft.poItem.namaBarang}.'),
-              backgroundColor: AppColors.danger,
-            ),
-          );
+          AppToast.error(context, 'Rak simpan gudang wajib dipilih untuk komoditas ${draft.poItem.namaBarang}.');
           return;
         }
       }
@@ -115,20 +106,10 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     final state = ref.read(inboundActionProvider);
 
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Penerimaan berhasil disimpan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      AppToast.success(context, state.successMessage ?? 'Penerimaan berhasil disimpan.');
+      Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal memproses penerimaan.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal memproses penerimaan.');
     }
   }
 
@@ -137,7 +118,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     final rakListAsync = ref.watch(daftarRakProvider);
     final actionState = ref.watch(inboundActionProvider);
     final totalDiterima = _itemDrafts.fold<int>(0, (sum, i) => sum + i.jumlahDiterima);
-
+    final totalJenisDiterima = _itemDrafts.where((i) => i.jumlahDiterima > 0).length;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -168,21 +149,26 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white24,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    widget.po.kodePo,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 12,
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white24,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      widget.po.kodePo,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Tgl PO: ${widget.po.tanggalPo}',
                                   style: const TextStyle(color: Colors.white70, fontSize: 11),
@@ -275,6 +261,11 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                               draft.lokasiGudangId = val;
                             });
                           },
+                          onQuantityChanged: (val) {
+                            setState(() {
+                              draft.jumlahDiterima = val;
+                            });
+                          },
                         );
                       }),
                       const SizedBox(height: 20),
@@ -297,26 +288,32 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
                   child: Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Total Diterima:',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                          Text(
-                            '$totalDiterima Item',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                      Flexible(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Total Diterima:',
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                             ),
-                          ),
-                        ],
+                            Text(
+                              '$totalDiterima Barang ($totalJenisDiterima Jenis)',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
+                        flex: 5,
                         child: CustomButton(
                           text: 'Simpan ke Stok Gudang',
                           isLoading: actionState.isLoading,

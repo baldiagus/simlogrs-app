@@ -8,7 +8,9 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../data/models/spk_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
+import '../providers/tiket_maintenance_provider.dart';
 import 'lembar_kerja_screen.dart';
 
 class SpkDetailScreen extends ConsumerWidget {
@@ -245,11 +247,17 @@ class SpkDetailScreen extends ConsumerWidget {
                         width: double.infinity,
                         text: 'Catat Lembar Kerja / Suku Cadang',
                         icon: const Icon(LucideIcons.penTool, size: 18, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          final saved = await Navigator.push<bool>(
                             context,
                             MaterialPageRoute(builder: (_) => LembarKerjaScreen(spk: spk)),
                           );
+                          if (saved == true && context.mounted) {
+                            ref.invalidate(spkDetailProvider(spkId));
+                            ref.invalidate(spkListProvider);
+                            ref.invalidate(daftarTiketUnitProvider);
+                            ref.invalidate(dashboardSummaryProvider);
+                          }
                         },
                       ),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -54,12 +55,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       builder: (ctx) => BarangAmprahPickerSheet(
         onBarangSelected: (barang) {
           if (barang.stokTersedia <= 0) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.'),
-                backgroundColor: AppColors.danger,
-              ),
-            );
+            AppToast.error(context, 'Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.');
             return;
           }
 
@@ -69,12 +65,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
               if (_cartItems[idx].jumlah < barang.stokTersedia) {
                 _cartItems[idx].jumlah += 1;
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Kuantitas "${barang.nama}" telah mencapai batas maksimal stok tersedia (${barang.stokTersedia} ${barang.satuan}).'),
-                    backgroundColor: AppColors.warning,
-                  ),
-                );
+                AppToast.warning(context, 'Kuantitas "${barang.nama}" telah mencapai batas maksimal stok tersedia (${barang.stokTersedia} ${barang.satuan}).');
               }
             } else {
               _cartItems.add(AmprahCartDraftItem(barang: barang));
@@ -87,36 +78,20 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
 
   Future<void> _submit() async {
     if (_cartItems.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pilih minimal 1 komoditas barang dari katalog amprah.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Pilih minimal 1 komoditas barang dari katalog amprah.');
       return;
     }
 
     for (final item in _cartItems) {
       if (item.barang.stokTersedia <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
+        AppToast.error(context, 'Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.');
         return;
       }
       if (item.jumlah > item.barang.stokTersedia) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang (${item.barang.stokTersedia} ${item.barang.satuan}).'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
+        AppToast.error(context, 'Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang (${item.barang.stokTersedia} ${item.barang.satuan}).');
         return;
       }
     }
-    final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(amprahActionProvider.notifier);
 
     final ok = await notifier.submitAmprah(
@@ -129,20 +104,10 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     final state = ref.read(amprahActionProvider);
 
     if (ok) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Permintaan amprah berhasil diajukan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      AppToast.success(context, state.successMessage ?? 'Permintaan amprah berhasil diajukan.');
       Navigator.pop(context, true);
     } else {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal mengajukan amprah.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal mengajukan amprah.');
     }
   }
 
@@ -377,12 +342,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         }
                                       },
                                       onMaxReached: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).'),
-                                            backgroundColor: AppColors.warning,
-                                          ),
-                                        );
+                                        AppToast.warning(context, 'Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).');
                                       },
                                     ),
                                   ],

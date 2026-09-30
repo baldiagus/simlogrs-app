@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/app_date_picker_field.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/peminjaman_provider.dart';
 
@@ -77,18 +77,12 @@ class _ModalPerpanjangPeminjamanSheetState
   Future<void> _submit() async {
     final alasan = _alasanController.text.trim();
     if (alasan.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Alasan perpanjangan wajib dicantumkan.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Alasan perpanjangan wajib dicantumkan.');
       return;
     }
 
     setState(() => _isSubmitting = true);
-    final messenger = ScaffoldMessenger.of(context);
-    Navigator.pop(context);
+    final navigator = Navigator.of(context);
 
     final notifier = ref.read(peminjamanActionProvider.notifier);
     final ok = await notifier.perpanjangPeminjaman(
@@ -97,15 +91,14 @@ class _ModalPerpanjangPeminjamanSheetState
       alasan: alasan,
     );
 
+    if (!mounted) return;
     final state = ref.read(peminjamanActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok
-            ? (state.successMessage ?? 'Masa pinjam berhasil diperpanjang.')
-            : (state.errorMessage ?? 'Gagal memperpanjang.')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'Masa pinjam berhasil diperpanjang.');
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal memperpanjang.');
+    }
+    navigator.pop();
 
     if (ok) {
       widget.onSuccess?.call();

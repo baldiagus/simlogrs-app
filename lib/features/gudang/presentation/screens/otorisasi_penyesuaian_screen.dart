@@ -4,6 +4,7 @@ import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../widgets/detail_penyesuaian_sheet.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -15,6 +16,7 @@ import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
+import '../providers/gudang_provider.dart';
 class OtorisasiPenyesuaianScreen extends ConsumerStatefulWidget {
   const OtorisasiPenyesuaianScreen({super.key});
 
@@ -33,22 +35,18 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       icon: LucideIcons.shieldCheck,
     );
     if (!confirmed || !mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(persediaanRepositoryProvider).approvePenyesuaian(adj.id);
+      if (!mounted) return;
       ref.invalidate(otorisasiPenyesuaianListProvider);
+      ref.invalidate(bukuMutasiListProvider);
+      ref.invalidate(fefoMonitoringProvider);
+      ref.invalidate(daftarRakProvider);
       ref.invalidate(dashboardSummaryProvider);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('Penyesuaian stok ${adj.kode} berhasil disahkan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      AppToast.success(context, 'Penyesuaian stok ${adj.kode} berhasil disahkan.');
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-      );
+      if (!mounted) return;
+      AppToast.error(context, e.toString());
     }
   }
   Future<void> _confirmReject(PenyesuaianStokHeaderModel adj) async {
@@ -93,24 +91,18 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
 
     if (shouldReject != true || !mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(persediaanRepositoryProvider).rejectPenyesuaian(
             adj.id,
             alasan: catatanCtrl.text.trim(),
           );
+      if (!mounted) return;
       ref.invalidate(otorisasiPenyesuaianListProvider);
       ref.invalidate(dashboardSummaryProvider);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('Penyesuaian stok ${adj.kode} telah ditolak.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      AppToast.success(context, 'Penyesuaian stok ${adj.kode} telah ditolak.');
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-      );
+      if (!mounted) return;
+      AppToast.error(context, e.toString());
     }
   }
 

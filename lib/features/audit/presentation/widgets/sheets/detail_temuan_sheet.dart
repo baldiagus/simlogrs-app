@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
+import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
@@ -41,11 +42,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
 
   Future<void> _submitTindakLanjut() async {
     if (_analisisCtrl.text.trim().length < 10 || _tindakanCtrl.text.trim().length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Analisis dan tindakan perbaikan minimal 10 karakter.'),
-            backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Analisis dan tindakan perbaikan minimal 10 karakter.');
       return;
     }
 
@@ -59,22 +56,14 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
       );
 
       if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Tindak lanjut berhasil dikirimkan ke auditor!'),
-              backgroundColor: AppColors.success),
-        );
+        AppToast.success(context, 'Tindak lanjut berhasil dikirimkan ke auditor!');
+        Navigator.pop(context, true);
         ref.invalidate(registerTemuanProvider);
         ref.invalidate(auditSummaryProvider);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Gagal mengirimkan tindak lanjut: $e'),
-              backgroundColor: AppColors.danger),
-        );
+        AppToast.error(context, 'Gagal mengirimkan tindak lanjut: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -83,11 +72,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
 
   Future<void> _submitEvaluasi() async {
     if (_evaluasiCtrl.text.trim().length < 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Catatan evaluasi minimal 5 karakter.'),
-            backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Catatan evaluasi minimal 5 karakter.');
       return;
     }
 
@@ -101,22 +86,14 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
       );
 
       if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Evaluasi closing berhasil disimpan ($_hasilEvaluasi)!'),
-              backgroundColor: AppColors.success),
-        );
+        AppToast.success(context, 'Evaluasi closing berhasil disimpan ($_hasilEvaluasi)!');
+        Navigator.pop(context, true);
         ref.invalidate(registerTemuanProvider);
         ref.invalidate(auditSummaryProvider);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Gagal menyimpan evaluasi: $e'),
-              backgroundColor: AppColors.danger),
-        );
+        AppToast.error(context, 'Gagal menyimpan evaluasi: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

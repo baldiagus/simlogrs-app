@@ -13,6 +13,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../providers/persediaan_providers.dart';
+import '../providers/gudang_provider.dart';
 
 class StockOpnameHubScreen extends ConsumerStatefulWidget {
   const StockOpnameHubScreen({super.key});
@@ -39,6 +40,10 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
       ),
     ).then((_) {
       ref.invalidate(stockOpnameListProvider);
+      ref.invalidate(otorisasiPenyesuaianListProvider);
+      ref.invalidate(bukuMutasiListProvider);
+      ref.invalidate(fefoMonitoringProvider);
+      ref.invalidate(daftarRakProvider);
       ref.invalidate(dashboardSummaryProvider);
     });
   }

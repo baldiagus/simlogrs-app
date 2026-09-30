@@ -7,11 +7,13 @@ import '../widgets/modal_pengembalian_aset_sheet.dart';
 import '../widgets/modal_otorisasi_peminjaman_sheet.dart';
 import '../widgets/modal_perpanjang_peminjaman_sheet.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/peminjaman_aset_model.dart';
+import '../../../master/presentation/providers/register_aset_provider.dart';
 import '../providers/peminjaman_provider.dart';
 import '../widgets/peminjaman_card_item.dart';
 import 'form_peminjaman_aset_screen.dart';
@@ -65,6 +67,8 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         ref.invalidate(daftarPeminjamanSayaProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+        ref.invalidate(registerAsetListProvider);
+        ref.invalidate(dashboardSummaryProvider);
       },
     );
   }
@@ -75,7 +79,14 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
       context,
       item: item,
       aksi: aksi,
-      onSuccess: () => ref.invalidate(daftarApprovalPeminjamanProvider),
+      onSuccess: () {
+        ref.invalidate(daftarApprovalPeminjamanProvider);
+        ref.invalidate(daftarPeminjamanSayaProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+        ref.invalidate(registerAsetListProvider);
+        ref.invalidate(dashboardSummaryProvider);
+      },
     );
   }
 
@@ -89,6 +100,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         ref.invalidate(daftarPeminjamanSayaProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
         ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+        ref.invalidate(dashboardSummaryProvider);
       },
     );
   }
@@ -270,12 +282,11 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                               final ok = await notifier.batalkanPeminjaman(item.id);
                               if (!context.mounted) return;
                               final state = ref.read(peminjamanActionProvider);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(ok ? (state.successMessage ?? 'Dibatalkan') : (state.errorMessage ?? 'Gagal')),
-                                  backgroundColor: ok ? AppColors.success : AppColors.danger,
-                                ),
-                              );
+                              if (ok) {
+                                AppToast.success(context, state.successMessage ?? 'Dibatalkan');
+                              } else {
+                                AppToast.error(context, state.errorMessage ?? 'Gagal');
+                              }
                             }
                           : null,
                     );

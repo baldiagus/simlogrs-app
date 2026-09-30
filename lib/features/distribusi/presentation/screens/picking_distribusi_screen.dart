@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
@@ -168,12 +169,11 @@ class PickingDistribusiScreen extends ConsumerWidget {
                             final ok = await notifier.eksekusiPicking(item.id);
                             if (!context.mounted) return;
                             final s = ref.read(amprahActionProvider);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(ok ? (s.successMessage ?? 'Berhasil picking') : (s.errorMessage ?? 'Gagal')),
-                                backgroundColor: ok ? AppColors.success : AppColors.danger,
-                              ),
-                            );
+                            if (ok) {
+                              AppToast.success(context, s.successMessage ?? 'Berhasil picking');
+                            } else {
+                              AppToast.error(context, s.errorMessage ?? 'Gagal');
+                            }
                           },
                         ),
                       ],

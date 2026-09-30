@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/aset_tersedia_model.dart';
@@ -88,12 +89,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
 
   Future<void> _submit() async {
     if (_selectedAset == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pilih sarana / aset yang ingin dipinjam terlebih dahulu.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Pilih sarana / aset yang ingin dipinjam terlebih dahulu.');
       return;
     }
 
@@ -102,12 +98,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
         user?.unit?.id != null &&
         _selectedAset!.penyediaId == user!.unit!.id;
     if (isSameUnit) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unit penyedia tidak boleh sama dengan unit peminjam. Aset sudah berada di unit Anda.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Unit penyedia tidak boleh sama dengan unit peminjam. Aset sudah berada di unit Anda.');
       return;
     }
     if (!(_formKey.currentState?.validate() ?? false)) {
@@ -126,20 +117,10 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
     if (!mounted) return;
     final state = ref.read(peminjamanActionProvider);
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Peminjaman berhasil diajukan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      AppToast.success(context, state.successMessage ?? 'Peminjaman berhasil diajukan.');
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal mengajukan peminjaman.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal mengajukan peminjaman.');
     }
   }
 

@@ -4,6 +4,7 @@ import '../../data/models/aset_tersedia_model.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'aset_provider.dart';
 final katalogAsetTersediaProvider =
     FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
@@ -92,6 +93,8 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
         successMessage: 'Permintaan peminjaman $kode berhasil diajukan.',
       );
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarApprovalPeminjamanProvider);
+      _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
       state = PeminjamanActionState(
@@ -111,6 +114,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
         successMessage: 'Permintaan peminjaman berhasil dibatalkan.',
       );
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarApprovalPeminjamanProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -139,6 +143,8 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
         successMessage: 'Masa peminjaman berhasil diperpanjang.',
       );
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
       return true;
     } catch (e) {
       state = PeminjamanActionState(
@@ -176,6 +182,10 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
       );
       _ref.invalidate(daftarApprovalPeminjamanProvider);
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+      _ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+      _ref.invalidate(registerAsetListProvider);
+      _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
       state = PeminjamanActionState(

@@ -4,6 +4,7 @@ import 'package:simlog_mobile/core/theme/app_colors.dart';
 import 'package:simlog_mobile/features/aset/data/models/peminjaman_aset_model.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/peminjaman_provider.dart';
 import 'package:simlog_mobile/shared/widgets/app_bottom_sheet_wrapper.dart';
+import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 
 class ModalOtorisasiPeminjamanSheet extends ConsumerStatefulWidget {
   final ApprovalPeminjamanModel item;
@@ -53,7 +54,6 @@ class _ModalOtorisasiPeminjamanSheetState
 
   Future<void> _submit(Color color, String buttonText) async {
     setState(() => _isSubmitting = true);
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
     final notifier = ref.read(peminjamanActionProvider.notifier);
@@ -63,17 +63,14 @@ class _ModalOtorisasiPeminjamanSheetState
       catatan: _catatanController.text.trim(),
     );
 
-    navigator.pop();
+    if (!mounted) return;
     final state = ref.read(peminjamanActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok
-            ? (state.successMessage ?? 'Operasi berhasil.')
-            : (state.errorMessage ?? 'Gagal memproses.')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
-
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'Operasi berhasil.');
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal memproses.');
+    }
+    navigator.pop();
     if (ok) {
       widget.onSuccess?.call();
     }

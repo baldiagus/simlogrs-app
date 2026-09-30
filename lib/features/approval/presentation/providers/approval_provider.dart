@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../distribusi/presentation/providers/distribusi_provider.dart';
+import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../data/models/approval_item_model.dart';
 import '../../data/repositories/approval_repository.dart';
 
@@ -77,6 +79,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
         successMessage: successMsg,
       );
       _ref.invalidate(approvalPendingProvider);
+      _ref.invalidate(daftarPrProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -107,6 +110,18 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
             : 'Amprah Ruangan berhasil ditolak.',
       );
       _ref.invalidate(approvalPendingProvider);
+      _ref.invalidate(daftarAmprahProvider);
+      final user = _ref.read(authStateProvider).user;
+      final canPick = (user?.can('create_gudang_stok::picking::distribusi') ?? false) ||
+          (user?.can('update_gudang_stok::picking::distribusi') ?? false) ||
+          (user?.can('view_any_gudang_stok::picking::distribusi') ?? false) ||
+          (user?.hasRole('petugas_gudang') ?? false) ||
+          (user?.hasRole('kepala_gudang') ?? false) ||
+          (user?.hasRole('admin_logistik') ?? false) ||
+          (user?.isSuperAdmin ?? false);
+      if (canPick) {
+        _ref.invalidate(antreanPickingProvider);
+      }
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/aset_provider.dart';
 import '../widgets/input_manual_kode_dialog.dart';
@@ -80,12 +81,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       );
     } else {
       final error = ref.read(asetActionProvider).errorMessage ?? 'Aset tidak ditemukan';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, error);
     }
   }
 

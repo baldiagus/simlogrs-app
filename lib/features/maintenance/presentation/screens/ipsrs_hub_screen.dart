@@ -6,8 +6,10 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_filter_chip_bar.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
 import '../widgets/tiket_card_item.dart';
 import 'lapor_cepat_screen.dart';
@@ -163,11 +165,15 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
       floatingActionButton: isTeknisi
           ? null
           : FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
                 );
+                if (created == true) {
+                  ref.invalidate(daftarTiketUnitProvider);
+                  ref.invalidate(dashboardSummaryProvider);
+                }
               },
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
@@ -269,11 +275,15 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                         title: 'Tidak Ada Tiket Kerusakan',
                         message: 'Belum ada laporan kerusakan sarana yang sesuai pada ruangan Anda.',
                         action: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            final created = await Navigator.push<bool>(
                               context,
                               MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
                             );
+                            if (created == true) {
+                              ref.invalidate(daftarTiketUnitProvider);
+                              ref.invalidate(dashboardSummaryProvider);
+                            }
                           },
                           icon: const Icon(LucideIcons.plus, size: 16),
                           label: const Text('Buat Laporan Baru'),
@@ -294,12 +304,11 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                         final ok = await ref.read(tiketActionProvider.notifier).batalkanTiket(item.id);
                         if (!context.mounted) return;
                         final s = ref.read(tiketActionProvider);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? (s.successMessage ?? 'Dibatalkan') : (s.errorMessage ?? 'Gagal')),
-                            backgroundColor: ok ? AppColors.success : AppColors.danger,
-                          ),
-                        );
+                        if (ok) {
+                          AppToast.success(context, s.successMessage ?? 'Dibatalkan');
+                        } else {
+                          AppToast.error(context, s.errorMessage ?? 'Gagal');
+                        }
                       },
                     );
                   },

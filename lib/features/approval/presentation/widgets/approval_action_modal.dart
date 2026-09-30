@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/approval_item_model.dart';
 import '../providers/approval_provider.dart';
@@ -125,31 +126,23 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
             onPressed: () async {
               final catatan = _noteController.text.trim();
               if (!isSetujui && !isSerahkan && catatan.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Alasan penolakan wajib diisi!'),
-                    backgroundColor: AppColors.danger,
-                  ),
-                );
+                AppToast.error(context, 'Alasan penolakan wajib diisi!');
                 return;
               }
-              Navigator.pop(context);
-              final messenger = ScaffoldMessenger.of(context);
               final ok = await ref.read(approvalActionProvider.notifier).eksekusi(
                     id: widget.item.id,
                     tipe: widget.item.tipe,
                     aksi: widget.aksi,
                     catatan: catatan,
                   );
+              if (!context.mounted) return;
               final state = ref.read(approvalActionProvider);
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(ok
-                      ? (state.successMessage ?? 'Berhasil')
-                      : (state.errorMessage ?? 'Gagal')),
-                  backgroundColor: ok ? AppColors.success : AppColors.danger,
-                ),
-              );
+              if (ok) {
+                AppToast.success(context, state.successMessage ?? 'Berhasil');
+                Navigator.pop(context, true);
+              } else {
+                AppToast.error(context, state.errorMessage ?? 'Gagal');
+              }
             },
           ),
         ],

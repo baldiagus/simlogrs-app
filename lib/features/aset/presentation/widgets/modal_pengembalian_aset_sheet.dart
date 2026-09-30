@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/aset_provider.dart';
 
@@ -102,8 +103,7 @@ class _ModalPengembalianAsetSheetState
 
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
-    final messenger = ScaffoldMessenger.of(context);
-    Navigator.pop(context);
+    final navigator = Navigator.of(context);
 
     final notifier = ref.read(asetActionProvider.notifier);
     final ok = await notifier.konfirmasiPengembalian(
@@ -119,15 +119,14 @@ class _ModalPengembalianAsetSheetState
       catatan: _catatanController.text.trim(),
     );
 
+    if (!mounted) return;
     final state = ref.read(asetActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok
-            ? (state.successMessage ?? 'Pengembalian aset berhasil diproses.')
-            : (state.errorMessage ?? 'Gagal memproses pengembalian.')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'Pengembalian aset berhasil diproses.');
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal memproses pengembalian.');
+    }
+    navigator.pop();
 
     if (ok) {
       widget.onSuccess?.call();

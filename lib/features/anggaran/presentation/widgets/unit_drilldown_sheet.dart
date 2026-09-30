@@ -173,25 +173,40 @@ class UnitDrilldownSheet extends ConsumerWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(sppb.kode,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        sppb.kode,
                                         style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700)),
-                                    Text(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
                                         '${sppb.gudangNama} • Tgl: ${sppb.tanggalKirim} • ${sppb.totalItem} item',
                                         style: const TextStyle(
-                                            fontSize: 10,
-                                            color: AppColors.textSecondary)),
-                                  ],
+                                          fontSize: 10,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                Text(AppFormatters.rupiah(sppb.totalNilai),
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.tintTeal)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  AppFormatters.rupiah(sppb.totalNilai),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.tintTeal,
+                                  ),
+                                ),
                               ],
                             ),
                           )),
@@ -225,18 +240,28 @@ class UnitDrilldownSheet extends ConsumerWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(servis.sparepartNama,
-                                          style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700)),
                                       Text(
-                                          'Aset: ${servis.asetNama} (SPK: ${servis.spkKode}) • ${servis.tanggal}',
-                                          style: const TextStyle(
-                                              fontSize: 10,
-                                              color: AppColors.textSecondary)),
+                                        servis.sparepartNama,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        'Aset: ${servis.asetNama} (SPK: ${servis.spkKode}) • ${servis.tanggal}',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ],
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [

@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/app_formatters.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../approval/data/models/approval_item_model.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../gudang/presentation/providers/inbound_provider.dart';
 import '../providers/pengadaan_provider.dart';
 
 class TerbitkanPoSheet extends ConsumerStatefulWidget {
@@ -63,20 +66,13 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
 
   Future<void> _submitPo() async {
     if (_selectedPemasokId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih rekanan / vendor pemasok terlebih dahulu.'), backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Pilih rekanan / vendor pemasok terlebih dahulu.');
       return;
     }
 
     for (final it in widget.prItem.items) {
       if (it.barangId == null || it.barangId! <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Item "${it.namaBarang}" tidak memiliki ID barang yang valid.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
+        AppToast.error(context, 'Item "${it.namaBarang}" tidak memiliki ID barang yang valid.');
         return;
       }
     }
@@ -86,12 +82,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
       final it = widget.prItem.items[i];
       final price = double.tryParse(_priceControllers[i]?.text.replaceAll('.', '') ?? '0') ?? 0;
       if (price <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Harga satuan untuk "${it.namaBarang}" wajib lebih dari 0.'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
+        AppToast.error(context, 'Harga satuan untuk "${it.namaBarang}" wajib lebih dari 0.');
         return;
       }
       itemsPayload.add({
@@ -116,17 +107,15 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
       if (mounted) {
         final state = ref.read(poActionProvider);
         if (ok) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.successMessage ?? 'PO Berhasil Diterbitkan!'), backgroundColor: AppColors.success),
-          );
+          AppToast.success(context, state.successMessage ?? 'PO Berhasil Diterbitkan!');
+          Navigator.pop(context, true);
           ref.invalidate(approvalPendingProvider);
           ref.invalidate(poListProvider);
           ref.invalidate(daftarPrProvider);
+          ref.invalidate(daftarPoInboundProvider);
+          ref.invalidate(dashboardSummaryProvider);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Gagal menerbitkan PO'), backgroundColor: AppColors.danger),
-          );
+          AppToast.error(context, state.errorMessage ?? 'Gagal menerbitkan PO');
         }
       }
     } finally {

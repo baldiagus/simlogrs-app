@@ -121,6 +121,9 @@ class DistribusiRepository {
       }
       return [];
     } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        return [];
+      }
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal memuat antrean picking');
     }

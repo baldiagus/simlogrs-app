@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../../data/models/rak_model.dart';
 
@@ -11,6 +11,8 @@ class InboundItemDraftTile extends StatelessWidget {
   final AsyncValue<List<RakModel>> rakListAsync;
   final VoidCallback onPickExpiredDate;
   final ValueChanged<int?> onRakChanged;
+  final ValueChanged<int> onQuantityChanged;
+  final ValueChanged<String>? onBatchChanged;
 
   const InboundItemDraftTile({
     super.key,
@@ -18,6 +20,8 @@ class InboundItemDraftTile extends StatelessWidget {
     required this.rakListAsync,
     required this.onPickExpiredDate,
     required this.onRakChanged,
+    required this.onQuantityChanged,
+    this.onBatchChanged,
   });
 
   @override
@@ -33,10 +37,19 @@ class InboundItemDraftTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Barang Name & Order Info
+          // 1. Header: Icon Box + Nama Barang + Meta Info (Sesuai Desain Acuan)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.tintBlueBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(LucideIcons.package, size: 20, color: AppColors.tintBlue),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,46 +73,56 @@ class InboundItemDraftTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(height: 1, color: AppColors.border),
-          const SizedBox(height: 12),
 
-          // Qty & Batch Inputs Row
+          // 2. Baris Satuan & Stepper Qty (Bersih tanpa teks terlipat di kolom sempit)
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Qty Diterima',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      initialValue: '${draft.jumlahDiterima}',
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (v) => draft.jumlahDiterima = int.tryParse(v) ?? 0,
-                      decoration: InputDecoration(
-                        suffixText: draft.poItem.satuan,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Satuan: ${draft.poItem.satuan}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
+              AppQuantityStepper(
+                value: draft.jumlahDiterima,
+                min: 0,
+                max: draft.poItem.sisaKebutuhan,
+                onChanged: onQuantityChanged,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: AppColors.border),
+          const SizedBox(height: 14),
+
+          // 3. Form Logistik: Nomor Batch Fisik & Tgl Expired (ED)
+          Row(
+            children: [
+              // Nomor Batch Fisik
               Expanded(
                 flex: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Nomor Batch Fisik',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
+                    const Text(
+                      'Nomor Batch Fisik *',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                    const SizedBox(height: 6),
                     TextFormField(
                       initialValue: draft.nomorBatch,
-                      onChanged: (v) => draft.nomorBatch = v.trim(),
+                      onChanged: (v) {
+                        draft.nomorBatch = v.trim();
+                        onBatchChanged?.call(v.trim());
+                      },
                       decoration: const InputDecoration(
                         hintText: 'misal: B-1234',
                         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -108,69 +131,19 @@ class InboundItemDraftTile extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Shelf Location Picker & Expired Date Row
-          Row(
-            children: [
-              // Shelf / Rak Dropdown
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Rak Simpan Gudang *',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
-                    rakListAsync.when(
-                      data: (raks) {
-                        if (draft.lokasiGudangId == null && raks.isNotEmpty) {
-                          draft.lokasiGudangId = raks.first.id;
-                        }
-                        return DropdownButtonFormField<int>(
-                          initialValue: draft.lokasiGudangId,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          ),
-                          items: raks.map((r) {
-                            return DropdownMenuItem<int>(
-                              value: r.id,
-                              child: Text(
-                                '${r.kode} (${r.nama})',
-                                style: const TextStyle(fontSize: 12),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: onRakChanged,
-                        );
-                      },
-                      loading: () => const SizedBox(
-                        height: 40,
-                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      ),
-                      error: (_, __) => const Text('Gagal memuat rak',
-                          style: TextStyle(fontSize: 11, color: AppColors.danger)),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(width: 10),
 
-              // Expired Date Picker Button
+              // Tanggal Expired (ED)
               Expanded(
                 flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Tgl Expired (ED)',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
+                    const Text(
+                      'Tgl Expired (ED)',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                    const SizedBox(height: 6),
                     InkWell(
                       onTap: onPickExpiredDate,
                       borderRadius: BorderRadius.circular(12),
@@ -198,13 +171,59 @@ class InboundItemDraftTile extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const Icon(LucideIcons.calendar,
-                                size: 14, color: AppColors.textSecondary),
+                            const Icon(LucideIcons.calendar, size: 14, color: AppColors.textSecondary),
                           ],
                         ),
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 4. Rak Simpan Gudang (Full Width agar nama rak tidak terpotong)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Rak Simpan Gudang *',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 6),
+              rakListAsync.when(
+                data: (raks) {
+                  if (draft.lokasiGudangId == null && raks.isNotEmpty) {
+                    draft.lokasiGudangId = raks.first.id;
+                  }
+                  return DropdownButtonFormField<int>(
+                    initialValue: draft.lokasiGudangId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                    items: raks.map((r) {
+                      return DropdownMenuItem<int>(
+                        value: r.id,
+                        child: Text(
+                          '${r.kode} (${r.nama})',
+                          style: const TextStyle(fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: onRakChanged,
+                  );
+                },
+                loading: () => const SizedBox(
+                  height: 44,
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                error: (_, __) => const Text(
+                  'Gagal memuat rak',
+                  style: TextStyle(fontSize: 11, color: AppColors.danger),
                 ),
               ),
             ],

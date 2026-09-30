@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
@@ -40,7 +41,6 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
 
   Future<void> _submitCount(bool finalisasi) async {
     setState(() => _isSaving = true);
-    final messenger = ScaffoldMessenger.of(context);
     final List<Map<String, dynamic>> items = [];
     for (final d in widget.opname.details) {
       final text = _controllers[d.id]?.text.trim() ?? '';
@@ -61,21 +61,14 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
           );
 
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(finalisasi
-              ? 'Sesi opname telah difinalisasi dan diterbitkan ke otorisasi penyesuaian.'
-              : 'Hasil hitung fisik berhasil disimpan sementara.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      AppToast.success(context, finalisasi
+          ? 'Sesi opname telah difinalisasi dan diterbitkan ke otorisasi penyesuaian.'
+          : 'Hasil hitung fisik berhasil disimpan sementara.');
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, e.toString());
     }
   }
 

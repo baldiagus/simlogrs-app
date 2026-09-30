@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_filter_chip_bar.dart';
@@ -41,20 +42,17 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     );
     if (!confirmed || !context.mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     final ok = await ref.read(approvalActionProvider.notifier).approvePr(
           id: pr.id,
           aksi: 'setujui',
         );
+    if (!context.mounted) return;
     final state = ref.read(approvalActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok
-            ? (state.successMessage ?? 'PR berhasil disetujui.')
-            : (state.errorMessage ?? 'Gagal menyetujui PR.')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'PR berhasil disetujui.');
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal menyetujui PR.');
+    }
     if (ok) {
       ref.invalidate(daftarPrProvider);
       ref.invalidate(approvalPendingProvider);
@@ -98,30 +96,22 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
             onPressed: () async {
               final catatan = catatanCtrl.text.trim();
               if (catatan.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Alasan penolakan wajib dicantumkan.'),
-                    backgroundColor: AppColors.danger,
-                  ),
-                );
+                AppToast.error(context, 'Alasan penolakan wajib dicantumkan.');
                 return;
               }
               Navigator.pop(ctx);
-              final messenger = ScaffoldMessenger.of(context);
               final ok = await ref.read(approvalActionProvider.notifier).approvePr(
                     id: pr.id,
                     aksi: 'tolak',
                     catatan: catatan,
                   );
+              if (!context.mounted) return;
               final state = ref.read(approvalActionProvider);
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(ok
-                      ? (state.successMessage ?? 'PR telah ditolak.')
-                      : (state.errorMessage ?? 'Gagal menolak PR.')),
-                  backgroundColor: ok ? AppColors.success : AppColors.danger,
-                ),
-              );
+              if (ok) {
+                AppToast.success(context, state.successMessage ?? 'PR telah ditolak.');
+              } else {
+                AppToast.error(context, state.errorMessage ?? 'Gagal menolak PR.');
+              }
               if (ok) {
                 ref.invalidate(daftarPrProvider);
                 ref.invalidate(approvalPendingProvider);
@@ -148,20 +138,17 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     );
     if (!confirmed || !context.mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     final ok = await ref.read(approvalActionProvider.notifier).approvePr(
           id: pr.id,
           aksi: 'teruskan',
         );
+    if (!context.mounted) return;
     final state = ref.read(approvalActionProvider);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(ok
-            ? (state.successMessage ?? 'PR berhasil diteruskan ke Pengadaan.')
-            : (state.errorMessage ?? 'Gagal meneruskan PR.')),
-        backgroundColor: ok ? AppColors.success : AppColors.danger,
-      ),
-    );
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'PR berhasil diteruskan ke Pengadaan.');
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal meneruskan PR.');
+    }
     if (ok) {
       ref.invalidate(daftarPrProvider);
       ref.invalidate(approvalPendingProvider);
@@ -276,6 +263,8 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
                       AppFilterOption(label: 'Menunggu Otorisasi', value: 'DIAJUKAN'),
                       AppFilterOption(label: 'Siap PO (Disetujui)', value: 'DISETUJUI'),
                       AppFilterOption(label: 'Diteruskan ke Pengadaan', value: 'DITERUSKAN_KE_PENGADAAN'),
+                      AppFilterOption(label: 'Sedang Belanja', value: 'DIPROSES'),
+                      AppFilterOption(label: 'Selesai', value: 'SELESAI'),
                       AppFilterOption(label: 'Ditolak', value: 'DITOLAK'),
                     ],
                   ),

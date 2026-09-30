@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../aset/presentation/screens/qr_scanner_screen.dart';
 import '../widgets/aset_unit_picker_sheet.dart';
@@ -60,9 +61,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengambil foto: $e'), backgroundColor: AppColors.danger),
-      );
+      AppToast.error(context, 'Gagal mengambil foto: $e');
     }
   }
 
@@ -70,8 +69,6 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-
-    final messenger = ScaffoldMessenger.of(context);
     final notifier = ref.read(laporCepatProvider.notifier);
 
     final ok = await notifier.submit(
@@ -85,20 +82,10 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     final state = ref.read(laporCepatProvider);
 
     if (ok) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Laporan berhasil dikirim.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      AppToast.success(context, state.successMessage ?? 'Laporan berhasil dikirim.');
+      Navigator.pop(context, true);
     } else {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal mengirim laporan.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal mengirim laporan.');
     }
   }
 

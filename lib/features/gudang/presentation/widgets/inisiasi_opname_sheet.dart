@@ -8,6 +8,7 @@ import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/gudang/data/repositories/persediaan_repository.dart';
 import 'package:simlog_mobile/features/gudang/presentation/providers/persediaan_providers.dart';
 import 'package:simlog_mobile/shared/widgets/app_bottom_sheet_wrapper.dart';
+import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/shared/widgets/app_date_picker_field.dart';
 import 'package:simlog_mobile/shared/widgets/custom_button.dart';
 
@@ -61,12 +62,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
 
   Future<void> _submit(List<GudangModel> gudangs) async {
     if (_selectedGudangId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Fasilitas gudang wajib dipilih terlebih dahulu.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Fasilitas gudang wajib dipilih terlebih dahulu.');
       return;
     }
 
@@ -76,18 +72,10 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
       orElse: () => gudangs.first,
     );
     if (selectedGudang.activeBatchesCount == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Fasilitas "${selectedGudang.nama}" belum memiliki stok batch aktif untuk dihitung opname.',
-          ),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Fasilitas "${selectedGudang.nama}" belum memiliki stok batch aktif untuk dihitung opname.');
       return;
     }
     setState(() => _isSubmitting = true);
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
     try {
@@ -96,25 +84,16 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
             tanggalOpname: AppFormatters.tanggalDb(_tanggalOpname),
             catatan: _catatanController.text.trim(),
           );
+      if (!mounted) return;
       ref.invalidate(stockOpnameListProvider);
       ref.invalidate(dashboardSummaryProvider);
+      AppToast.success(context, 'Sesi Stock Opname berhasil diinisiasi.');
       navigator.pop();
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Sesi Stock Opname berhasil diinisiasi.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
       widget.onSuccess?.call();
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, e.toString());
     }
   }
 

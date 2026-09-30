@@ -45,6 +45,8 @@ class PrHeaderModel {
   final String urgensi;
   final String status;
   final String? catatan;
+  final String? nomorPo;
+  final String? statusPo;
   final int jumlahItem;
   final List<PrDetailItemModel> items;
 
@@ -57,6 +59,8 @@ class PrHeaderModel {
     required this.urgensi,
     required this.status,
     this.catatan,
+    this.nomorPo,
+    this.statusPo,
     required this.jumlahItem,
     required this.items,
   });
@@ -64,13 +68,15 @@ class PrHeaderModel {
   bool get isCito => urgensi.toUpperCase() == 'CITO' || urgensi.toUpperCase() == 'MENDESAK';
 
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
-
+  bool get isDiproses => status.toUpperCase() == 'DIPROSES';
+  bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
   bool get isDisetujui {
     final s = status.toUpperCase();
     return s.contains('SETUJU') ||
         s == 'DITERUSKAN_KE_PENGADAAN' ||
         s.contains('PO') ||
+        s == 'DIPROSES' ||
         s == 'SELESAI';
   }
 
@@ -106,6 +112,8 @@ class PrHeaderModel {
       urgensi: json['urgensi']?.toString() ?? 'REGULER',
       status: json['status']?.toString() ?? 'DIAJUKAN',
       catatan: json['catatan']?.toString(),
+      nomorPo: json['nomor_po']?.toString(),
+      statusPo: json['status_po']?.toString(),
       jumlahItem: json['jumlah_item'] is int
           ? json['jumlah_item'] as int
           : int.tryParse(json['jumlah_item'].toString()) ?? 0,

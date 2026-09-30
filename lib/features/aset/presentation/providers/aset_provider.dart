@@ -3,6 +3,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'peminjaman_provider.dart';
 final asetRepositoryProvider = Provider<AsetRepository>((ref) {
   final client = ref.watch(dioClientProvider);
@@ -101,6 +102,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
       _ref.invalidate(daftarPeminjamanSayaProvider);
       _ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
       _ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+      _ref.invalidate(registerAsetListProvider);
       _ref.invalidate(dashboardSummaryProvider);
       // Reload current scanned asset if available
       if (state.aset != null) {

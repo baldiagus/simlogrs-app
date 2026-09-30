@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
 
 class DetailTiketScreen extends ConsumerWidget {
@@ -376,14 +378,15 @@ class DetailTiketScreen extends ConsumerWidget {
                         final ok = await ref.read(tiketActionProvider.notifier).batalkanTiket(tiket.id);
                         if (!context.mounted) return;
                         final s = ref.read(tiketActionProvider);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? (s.successMessage ?? 'Dibatalkan') : (s.errorMessage ?? 'Gagal')),
-                            backgroundColor: ok ? AppColors.success : AppColors.danger,
-                          ),
-                        );
+                        if (ok) {
+                          AppToast.success(context, s.successMessage ?? 'Dibatalkan');
+                        } else {
+                          AppToast.error(context, s.errorMessage ?? 'Gagal');
+                        }
                         if (ok) {
                           ref.invalidate(detailTiketUnitProvider(tiketId));
+                          ref.invalidate(daftarTiketUnitProvider);
+                          ref.invalidate(dashboardSummaryProvider);
                         }
                       },
                     ),

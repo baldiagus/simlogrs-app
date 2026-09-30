@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../widgets/rekam_medis_tabs.dart';
 import '../../data/repositories/ipsrs_repository.dart';
 import '../providers/ipsrs_providers.dart';
+import '../providers/maintenance_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class RekamMedisDetailScreen extends ConsumerStatefulWidget {
@@ -41,22 +44,17 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
       icon: LucideIcons.calendarCheck,
     );
     if (!confirmed || !mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
     try {
       final res = await ref.read(ipsrsRepositoryProvider).eksekusiPreventif(jId);
+      if (!mounted) return;
       ref.invalidate(rekamMedisDetailProvider(widget.asetId));
       ref.invalidate(jadwalPreventifListProvider);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      ref.invalidate(spkListProvider);
+      ref.invalidate(dashboardSummaryProvider);
+      AppToast.success(context, 'SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.');
     } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger),
-      );
+      if (!mounted) return;
+      AppToast.error(context, e.toString());
     }
   }
 

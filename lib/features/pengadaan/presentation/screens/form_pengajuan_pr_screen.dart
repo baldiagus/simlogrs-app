@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/master_barang_model.dart';
@@ -63,12 +64,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
 
   Future<void> _submit() async {
     if (_cartItems.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pilih minimal 1 barang dari katalog terlebih dahulu.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, 'Pilih minimal 1 barang dari katalog terlebih dahulu.');
       return;
     }
 
@@ -89,20 +85,10 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
 
     final state = ref.read(prSubmissionProvider);
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.successMessage ?? 'Permintaan Pengadaan berhasil diajukan.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      AppToast.success(context, state.successMessage ?? 'Permintaan Pengadaan berhasil diajukan.');
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Gagal mengajukan PR.'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      AppToast.error(context, state.errorMessage ?? 'Gagal mengajukan PR.');
     }
   }
 

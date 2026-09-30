@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../gudang/presentation/providers/gudang_provider.dart';
 import '../../data/models/amprah_model.dart';
 import '../../data/models/sppb_model.dart';
 import '../../data/repositories/distribusi_repository.dart';
@@ -54,6 +57,19 @@ final detailAmprahProvider =
 
 final antreanPickingProvider =
     FutureProvider.autoDispose<List<PickingAntreanModel>>((ref) async {
+  final user = ref.watch(authStateProvider).user;
+  final canPick = (user?.can('create_gudang_stok::picking::distribusi') ?? false) ||
+      (user?.can('update_gudang_stok::picking::distribusi') ?? false) ||
+      (user?.can('view_any_gudang_stok::picking::distribusi') ?? false) ||
+      (user?.hasRole('petugas_gudang') ?? false) ||
+      (user?.hasRole('kepala_gudang') ?? false) ||
+      (user?.hasRole('admin_logistik') ?? false) ||
+      (user?.isSuperAdmin ?? false);
+
+  if (!canPick) {
+    return [];
+  }
+
   final repository = ref.watch(distribusiRepositoryProvider);
   return await repository.getAntreanPicking();
 });
@@ -127,6 +143,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       );
 
       _ref.invalidate(daftarAmprahProvider);
+      _ref.invalidate(approvalPendingProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -148,6 +165,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       );
 
       _ref.invalidate(daftarAmprahProvider);
+      _ref.invalidate(approvalPendingProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -170,6 +188,8 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       );
 
       _ref.invalidate(antreanPickingProvider);
+      _ref.invalidate(sppbInboundProvider);
+      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -193,6 +213,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
 
       _ref.invalidate(sppbInboundProvider);
       _ref.invalidate(daftarAmprahProvider);
+      _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
       state = AmprahActionState(

@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../gudang/presentation/providers/gudang_provider.dart';
+import 'ipsrs_providers.dart';
+import 'tiket_maintenance_provider.dart';
 import '../../data/models/spk_model.dart';
 import '../../data/repositories/maintenance_repository.dart';
 
@@ -62,7 +65,7 @@ class LaporCepatNotifier extends StateNotifier<LaporCepatState> {
         isLoading: false,
         successMessage: 'Laporan kerusakan $kode berhasil diterbitkan ke IPSRS.',
       );
-
+      _ref.invalidate(daftarTiketUnitProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -130,6 +133,10 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
       );
 
       _ref.invalidate(spkDetailProvider(spkId));
+      _ref.invalidate(spkListProvider);
+      _ref.invalidate(daftarTiketUnitProvider);
+      _ref.invalidate(rekamMedisKatalogProvider);
+      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

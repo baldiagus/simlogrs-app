@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -64,10 +65,50 @@ class PrDetailSheet extends StatelessWidget {
     return AppBottomSheetWrapper(
       maxHeightFactor: 0.85,
       title: pr.kode,
-      subtitle: '${pr.unit} • Oleh ${pr.pengaju} (${pr.tanggalPermintaan})',
+      subtitle: '${pr.unit} • Oleh ${pr.pengaju} (${AppFormatters.tanggalString(pr.tanggalPermintaan)})',
       trailing: StatusBadge(status: pr.status),
       child: Column(
         children: [
+          if (pr.nomorPo != null) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.tintBlueBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.tintBlue.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(LucideIcons.shoppingBag, size: 18, color: AppColors.tintBlue),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Realisasi Pesanan Pembelian (PO)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.tintBlue,
+                          ),
+                        ),
+                        Text(
+                          '${pr.nomorPo!}${pr.statusPo != null ? ' • ${pr.statusPo!.replaceAll('_', ' ')}' : ''}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.45,

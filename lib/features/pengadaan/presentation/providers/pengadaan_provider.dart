@@ -3,6 +3,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../gudang/presentation/providers/inbound_provider.dart';
 import '../../data/models/master_barang_model.dart';
 import '../../data/models/pr_model.dart';
 import '../../data/models/po_model.dart';
@@ -193,6 +194,8 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
       );
       _ref.invalidate(poListProvider);
       _ref.invalidate(daftarPrProvider);
+      _ref.invalidate(approvalPendingProvider);
+      _ref.invalidate(daftarPoInboundProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -217,6 +220,7 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
         successMessage: 'Status PO $kode berhasil diubah menjadi DIKIRIM_VENDOR.',
       );
       _ref.invalidate(poListProvider);
+      _ref.invalidate(daftarPoInboundProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

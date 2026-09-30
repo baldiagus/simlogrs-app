@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../../data/repositories/gudang_repository.dart';
 import 'gudang_provider.dart';
@@ -76,6 +77,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
 
       _ref.invalidate(daftarPoInboundProvider);
       _ref.invalidate(daftarRakProvider);
+      _ref.invalidate(daftarPrProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
