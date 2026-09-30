@@ -192,11 +192,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           ],
         ),
       ),
-      floatingActionButton: (user?.isKepalaGudang != true &&
-              ((user?.unit != null) ||
-                  (user?.isPengadaan == true) ||
-                  (user?.isAuditor == true) ||
-                  (user?.isManajemen == true)))
+      floatingActionButton: (user?.unit != null)
           ? FloatingActionButton.extended(
               onPressed: () async {
                 final created = await Navigator.push<bool>(
@@ -234,11 +230,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                         message: (user?.isKepalaGudang == true || user?.isAdminLogistik == true || user?.gudang != null)
                             ? 'Belum ada unit fasilitas gudang yang sedang atau pernah dipinjam oleh ruangan lain.'
                             : 'Unit Anda belum pernah meminjam sarana dari ruangan lain atau gudang.',
-                        action: (user?.isKepalaGudang != true &&
-                                ((ref.watch(authStateProvider).user?.unit != null) ||
-                                    (ref.watch(authStateProvider).user?.isPengadaan == true) ||
-                                    (ref.watch(authStateProvider).user?.isAuditor == true) ||
-                                    (ref.watch(authStateProvider).user?.isManajemen == true)))
+                        action: (user?.unit != null)
                             ? ElevatedButton.icon(
                                 onPressed: () async {
                                   final created = await Navigator.push<bool>(
