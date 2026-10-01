@@ -76,16 +76,27 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     SparepartPickerSheet.show(
       context,
       onSelected: (barang) {
+        if (barang.stok <= 0) {
+          AppToast.error(context, 'Stok suku cadang ${barang.nama} di gudang habis (0 ${barang.satuan}).');
+          return;
+        }
+
         setState(() {
           final idx = _spareparts.indexWhere((e) => e['barang_id'] == barang.id);
           if (idx >= 0) {
-            _spareparts[idx]['jumlah'] = (_spareparts[idx]['jumlah'] as int) + 1;
+            final current = _spareparts[idx]['jumlah'] as int;
+            if (current >= barang.stok) {
+              AppToast.warning(context, 'Jumlah sudah mencapai batas maksimal stok gudang (${barang.stok} ${barang.satuan}).');
+              return;
+            }
+            _spareparts[idx]['jumlah'] = current + 1;
           } else {
             _spareparts.add({
               'barang_id': barang.id,
               'nama': barang.nama,
               'satuan': barang.satuan,
               'jumlah': 1,
+              'stok': barang.stok,
             });
           }
         });
@@ -96,6 +107,14 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
+    }
+    for (final p in _spareparts) {
+      final jml = p['jumlah'] as int;
+      final maxStok = (p['stok'] as int?) ?? 0;
+      if (jml > maxStok) {
+        AppToast.error(context, 'Pemakaian ${p['nama']} ($jml) melebihi stok gudang ($maxStok ${p['satuan']}).');
+        return;
+      }
     }
     final notifier = ref.read(lembarKerjaProvider.notifier);
 
@@ -303,6 +322,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                         )
                       else
                         ..._spareparts.map((p) {
+                          final stok = (p['stok'] as int?) ?? 999;
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -314,19 +334,38 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    '${p['nama']} (${p['satuan']})',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${p['nama']} (${p['satuan']})',
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Tersedia di Gudang: $stok ${p['satuan']}',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 AppQuantityStepper(
                                   value: p['jumlah'] as int,
                                   min: 1,
+                                  max: stok,
+                                  onMaxReached: () {
+                                    AppToast.warning(
+                                      context,
+                                      'Maksimal stok gudang: $stok ${p['satuan']}',
+                                    );
+                                  },
                                   onChanged: (val) {
                                     if (val < 1) {
                                       setState(() => _spareparts.remove(p));
                                     } else {
-                                      setState(() => p['jumlah'] = val);
+                                      final clamped = val > stok ? stok : val;
+                                      setState(() => p['jumlah'] = clamped);
                                     }
                                   },
                                 ),

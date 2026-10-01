@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
@@ -118,71 +119,108 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                   ),
                   itemBuilder: (context, index) {
                     final b = effectiveList[index];
-                    return InkWell(
-                      onTap: () {
-                        widget.onBarangSelected(b);
-                        Navigator.pop(context);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceSecondary,
-                                borderRadius: BorderRadius.circular(12),
+                    final isSparepart = widget.filterTipe == 'SPAREPART';
+                    final isOutOfStock = b.stok <= 0;
+
+                    return Opacity(
+                      opacity: (isSparepart && isOutOfStock) ? 0.6 : 1.0,
+                      child: InkWell(
+                        onTap: () {
+                          if (isSparepart && isOutOfStock) {
+                            AppToast.error(context, 'Stok suku cadang ${b.nama} di gudang habis (0 ${b.satuan}).');
+                            return;
+                          }
+                          widget.onBarangSelected(b);
+                          Navigator.pop(context);
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: (isSparepart && isOutOfStock) ? AppColors.border : AppColors.surfaceSecondary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  LucideIcons.package,
+                                  size: 18,
+                                  color: (isSparepart && isOutOfStock) ? AppColors.textMuted : AppColors.primaryPurple,
+                                ),
                               ),
-                              child: const Icon(
-                                LucideIcons.package,
-                                size: 18,
-                                color: AppColors.primaryPurple,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    b.nama,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            b.nama,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        if (isSparepart) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: isOutOfStock ? const Color(0xFFFEF2F2) : const Color(0xFFECFDF5),
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: isOutOfStock ? const Color(0xFFFCA5A5) : const Color(0xFF6EE7B7),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              isOutOfStock ? 'Stok: 0' : 'Stok: ${b.stok}',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: isOutOfStock ? AppColors.danger : const Color(0xFF047857),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${b.kode} • ${b.kategori} (${b.satuan})',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                  if (b.spesifikasi != null && b.spesifikasi!.isNotEmpty) ...[
                                     const SizedBox(height: 2),
                                     Text(
-                                      b.spesifikasi!,
+                                      '${b.kode} • ${b.kategori} (${b.satuan})',
                                       style: const TextStyle(
-                                        fontSize: 10,
-                                        color: AppColors.textMuted,
+                                        fontSize: 11,
+                                        color: AppColors.textSecondary,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                    if (b.spesifikasi != null && b.spesifikasi!.isNotEmpty) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        b.spesifikasi!,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.textMuted,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              LucideIcons.plusCircle,
-                              size: 20,
-                              color: AppColors.primaryPurple,
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              Icon(
+                                (isSparepart && isOutOfStock) ? LucideIcons.ban : LucideIcons.plusCircle,
+                                size: 20,
+                                color: (isSparepart && isOutOfStock) ? AppColors.danger : AppColors.primaryPurple,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

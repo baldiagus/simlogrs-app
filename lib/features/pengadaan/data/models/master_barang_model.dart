@@ -9,6 +9,7 @@ class MasterBarangModel {
   final String satuan;
   final String merek;
   final double hargaEstimasi;
+  final int stok;
 
   const MasterBarangModel({
     required this.id,
@@ -21,6 +22,7 @@ class MasterBarangModel {
     required this.satuan,
     required this.merek,
     required this.hargaEstimasi,
+    this.stok = 0,
   });
 
   factory MasterBarangModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class MasterBarangModel {
       hargaEstimasi: json['harga_estimasi'] is num
           ? (json['harga_estimasi'] as num).toDouble()
           : double.tryParse(json['harga_estimasi'].toString()) ?? 0.0,
+      stok: (json['stok'] as num?)?.toInt() ?? (json['stok_gudang'] as num?)?.toInt() ?? 0,
     );
   }
 }
