@@ -38,7 +38,9 @@ class HeroMetricModel {
   factory HeroMetricModel.fromJson(Map<String, dynamic> json) {
     return HeroMetricModel(
       judul: json['judul']?.toString() ?? 'Total Antrean Kerja',
-      total: int.tryParse(json['total']?.toString() ?? '0') ?? 0,
+      total: (json['total'] is num)
+          ? (json['total'] as num).toInt()
+          : (double.tryParse(json['total']?.toString() ?? '')?.toInt() ?? 0),
       satuan: json['satuan']?.toString() ?? 'Dokumen',
       labelTombol: json['label_tombol']?.toString() ?? 'Periksa',
       targetAksi: json['target_aksi']?.toString() ?? 'approval',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../data/models/dashboard_summary_model.dart';
 
 class HeroStatusCard extends StatelessWidget {
@@ -77,13 +78,19 @@ class HeroStatusCard extends StatelessWidget {
           const SizedBox(height: 14),
 
           // Total Number
-          Text(
-            '${hero.total} ${hero.satuan}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              hero.satuan == 'Rp'
+                  ? AppFormatters.rupiah(hero.total)
+                  : '${hero.total} ${hero.satuan}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
           const SizedBox(height: 18),
