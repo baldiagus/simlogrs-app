@@ -43,7 +43,9 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
         (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
-    _tabController = TabController(length: _canViewSpk ? 3 : 1, vsync: this);
+    final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
+    final tabCount = isKepalaTeknisi ? 2 : (_canViewSpk ? 3 : 1);
+    _tabController = TabController(length: tabCount, vsync: this);
   }
   @override
   void dispose() {
@@ -63,6 +65,11 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
     final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
+    final expectedLength = isKepalaTeknisi ? 2 : (_canViewSpk ? 3 : 1);
+    if (_tabController.length != expectedLength) {
+      _tabController.dispose();
+      _tabController = TabController(length: expectedLength, vsync: this);
+    }
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -115,16 +122,6 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                               Icon(LucideIcons.wrench, size: 15),
                               SizedBox(width: 5),
                               Flexible(child: Text('Semua SPK', maxLines: 1, overflow: TextOverflow.ellipsis)),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(LucideIcons.calendarClock, size: 15),
-                              SizedBox(width: 5),
-                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
                             ],
                           ),
                         ),
@@ -220,9 +217,8 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               controller: _tabController,
               children: isKepalaTeknisi
                   ? [
-                      _buildTiketUnitView(),
+                      _buildTiketUnitView(hideSearchBar: true),
                       const SpkListScreen(isEmbedded: true),
-                      const JadwalPreventifScreen(isEmbedded: true),
                     ]
                   : isTeknisi
                   ? [
@@ -240,7 +236,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     );
   }
 
-  Widget _buildTiketUnitView() {
+  Widget _buildTiketUnitView({bool hideSearchBar = false}) {
     final tiketListAsync = ref.watch(daftarTiketUnitProvider(_filterParams));
 
     return Column(
@@ -253,12 +249,14 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Search input
-              AppSearchBar(
-                hint: 'Cari kode tiket, nama alat, keluhan...',
-                onChanged: (v) => setState(() => _searchKeyword = v.trim()),
-                onClear: () => setState(() => _searchKeyword = ''),
-              ),
-              const SizedBox(height: 10),
+              if (!hideSearchBar) ...[
+                AppSearchBar(
+                  hint: 'Cari kode tiket, nama alat, keluhan...',
+                  onChanged: (v) => setState(() => _searchKeyword = v.trim()),
+                  onClear: () => setState(() => _searchKeyword = ''),
+                ),
+                const SizedBox(height: 10),
+              ],
               AppFilterChipBar<String>(
                 padding: EdgeInsets.zero,
                 selected: _statusFilter,

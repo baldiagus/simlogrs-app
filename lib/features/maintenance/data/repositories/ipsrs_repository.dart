@@ -58,6 +58,40 @@ class IpsrsRepository {
       throw ApiException(message: e.message ?? 'Gagal menerbitkan SPK preventif');
     }
   }
+  /// Tambah Jadwal Pemeliharaan Preventif Baru
+  Future<Map<String, dynamic>> simpanJadwalPreventif({
+    required int asetId,
+    required String jenisMaintenance,
+    required int intervalNilai,
+    required String intervalTipe,
+    required String tanggalBerikutnya,
+    int? teknisiId,
+    String? catatan,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/maintenance/preventif/jadwal',
+        data: {
+          'aset_id': asetId,
+          'jenis_maintenance': jenisMaintenance,
+          'interval_nilai': intervalNilai,
+          'interval_tipe': intervalTipe,
+          'tanggal_berikutnya': tanggalBerikutnya,
+          if (teknisiId != null) 'teknisi_id': teknisiId,
+          if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return data['data'] as Map<String, dynamic>;
+      }
+      return {};
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal menyimpan jadwal preventif');
+    }
+  }
+
 
   /// 3. Katalog Aset untuk Rekam Medis
   Future<List<RekamMedisAsetKatalogModel>> getKatalogRekamMedis({

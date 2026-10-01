@@ -90,12 +90,12 @@ class QuickActionGrid extends StatelessWidget {
             onTap: onLaporRusakTap,
           ),
           _QuickActionItem(
-            title: 'Otorisasi PR',
-            subtitle: 'Approval Belanja Alat',
-            icon: LucideIcons.checkSquare,
+            title: 'Semua SPK',
+            subtitle: 'Monitoring SPK Aktif',
+            icon: LucideIcons.wrench,
             bgColor: AppColors.tintVioletBg,
             iconColor: AppColors.primaryPurple,
-            onTap: onApprovalTap,
+            onTap: onSpkTap ?? onLaporRusakTap,
           ),
           _QuickActionItem(
             title: 'Jadwal Preventif',

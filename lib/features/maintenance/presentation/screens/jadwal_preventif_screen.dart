@@ -16,6 +16,7 @@ import '../providers/ipsrs_providers.dart';
 import '../providers/maintenance_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../widgets/form_tambah_jadwal_sheet.dart';
 class JadwalPreventifScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
 
@@ -62,8 +63,19 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
         (user?.isKepalaTeknisi == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true);
+    final canTambahJadwal = (user?.isKepalaTeknisi == true) || (user?.hasRole('super_admin') == true);
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
+      floatingActionButton: canTambahJadwal
+          ? FloatingActionButton.extended(
+              onPressed: () => FormTambahJadwalSheet.show(context),
+              backgroundColor: AppColors.primaryPurple,
+              foregroundColor: Colors.white,
+              icon: const Icon(LucideIcons.plus, size: 18),
+              label: const Text('Tambah Jadwal Servis', style: TextStyle(fontWeight: FontWeight.w700)),
+            )
+          : null,
       appBar: widget.isEmbedded
           ? null
           : AppBar(

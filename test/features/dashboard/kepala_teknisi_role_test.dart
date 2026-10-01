@@ -39,7 +39,8 @@ void main() {
 
     expect(find.text('Aksi Komando & Disposisi IPSRS'), findsOneWidget);
     expect(find.text('Atur Tiket Servis'), findsOneWidget);
-    expect(find.text('Otorisasi PR'), findsOneWidget);
+    expect(find.text('Semua SPK'), findsOneWidget);
+    expect(find.text('Otorisasi PR'), findsNothing);
     expect(find.text('Jadwal Preventif'), findsOneWidget);
     expect(find.text('Rekam Medis Aset'), findsOneWidget);
   });

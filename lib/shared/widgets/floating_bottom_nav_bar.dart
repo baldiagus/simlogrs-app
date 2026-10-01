@@ -6,6 +6,7 @@ import '../../core/theme/app_shadows.dart';
 class FloatingBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final bool isTeknisi;
+  final bool isKepalaTeknisi;
   final ValueChanged<int> onTap;
   final VoidCallback onScanPressed;
 
@@ -13,6 +14,7 @@ class FloatingBottomNavBar extends StatelessWidget {
     super.key,
     required this.currentIndex,
     this.isTeknisi = false,
+    this.isKepalaTeknisi = false,
     required this.onTap,
     required this.onScanPressed,
   });
@@ -37,8 +39,8 @@ class FloatingBottomNavBar extends StatelessWidget {
           ),
           _buildNavItem(
             index: 1,
-            icon: isTeknisi ? LucideIcons.clipboardCheck : LucideIcons.checkSquare,
-            label: isTeknisi ? 'Tugas SPK' : 'Approval',
+            icon: (isTeknisi || isKepalaTeknisi) ? LucideIcons.clipboardCheck : LucideIcons.checkSquare,
+            label: isKepalaTeknisi ? 'Semua SPK' : (isTeknisi ? 'Tugas SPK' : 'Approval'),
           ),
           // Center Elevated Scanner Action Button
           Transform.translate(

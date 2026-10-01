@@ -107,7 +107,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
-
+    final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
+    final isTeknisiGroup = isTeknisi || isKepalaTeknisi;
     return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerDown: (_) => _resetInactivityTimer(),
@@ -125,8 +126,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
             },
           ),
 
-          // 1: Approval Center untuk umum / Tugas SPK untuk Teknisi
-          isTeknisi
+          // 1: Approval Center untuk umum / Tugas SPK untuk Teknisi & Kepala Teknisi
+          isTeknisiGroup
               ? SpkListScreen(
                   isEmbedded: false,
                   leading: IconButton(
@@ -134,8 +135,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
                     tooltip: 'Kembali ke Beranda',
                     onPressed: () => setState(() => _currentIndex = 0),
                   ),
-                  allowedStatuses: const ['DITUGASKAN'],
-                  customTitle: 'Surat Perintah Kerja (SPK)',
+                  allowedStatuses: isKepalaTeknisi ? null : const ['DITUGASKAN'],
+                  customTitle: isKepalaTeknisi ? 'Monitoring SPK IPSRS' : 'Surat Perintah Kerja (SPK)',
                 )
               : const ApprovalCenterScreen(),
 
@@ -149,6 +150,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       bottomNavigationBar: FloatingBottomNavBar(
         currentIndex: _currentIndex,
         isTeknisi: isTeknisi,
+        isKepalaTeknisi: isKepalaTeknisi,
         onTap: (index) {
           setState(() => _currentIndex = index);
           _refreshActiveTabData();
