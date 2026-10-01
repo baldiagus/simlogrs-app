@@ -27,7 +27,7 @@ class SpkDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(spkDetailProvider(spkId));
     final user = ref.watch(authStateProvider).user;
-    final isTeknisi = user?.isTeknisi ?? false;
+    final isTeknisi = (user?.isTeknisi ?? false) || (user?.isKepalaTeknisi ?? false);
     final isAuditor = user?.isAuditor ?? false;
     final isManajemen = user?.isManajemen ?? false;
     return Scaffold(

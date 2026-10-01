@@ -40,6 +40,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     _canViewSpk = (user?.can('page_AdminLogistikDashboard') ?? false) ||
         (user?.can('view_any_pemeliharaan::spk::perbaikan') ?? false) ||
         (user?.hasRole('teknisi') ?? false) ||
+        (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
     _tabController = TabController(length: _canViewSpk ? 3 : 1, vsync: this);
@@ -61,11 +62,12 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
+    final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: Text(isTeknisi ? 'Pekerjaan Teknisi IPSRS' : 'Lapor Kerusakan & IPSRS'),
+        title: Text(isKepalaTeknisi ? 'Pusat Komando IPSRS' : (isTeknisi ? 'Pekerjaan Teknisi IPSRS' : 'Lapor Kerusakan & IPSRS')),
         actions: [
           if (_canViewSpk)
             IconButton(
@@ -94,7 +96,40 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                 labelColor: AppColors.primaryPurple,
                 unselectedLabelColor: AppColors.textSecondary,
                 labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                tabs: isTeknisi
+                tabs: isKepalaTeknisi
+                    ? const [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.clipboardList, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.wrench, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Semua SPK', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.calendarClock, size: 15),
+                              SizedBox(width: 5),
+                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                      ]
+                    : isTeknisi
                     ? const [
                         Tab(
                           child: Row(
@@ -183,7 +218,13 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
       body: _canViewSpk
           ? TabBarView(
               controller: _tabController,
-              children: isTeknisi
+              children: isKepalaTeknisi
+                  ? [
+                      _buildTiketUnitView(),
+                      const SpkListScreen(isEmbedded: true),
+                      const JadwalPreventifScreen(isEmbedded: true),
+                    ]
+                  : isTeknisi
                   ? [
                       const SpkListScreen(isEmbedded: true, allowedStatuses: ['DITUGASKAN']),
                       const JadwalPreventifScreen(isEmbedded: true),

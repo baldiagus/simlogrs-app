@@ -229,6 +229,7 @@ class HomeScreen extends ConsumerWidget {
                   final user = ref.watch(authStateProvider).user;
                   final approvalAsync = ref.watch(approvalPendingProvider);
                   final isTeknisi = user?.isTeknisi ?? false;
+                  final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
                   final isAdminLogistik = user?.isAdminLogistik ?? false;
                   final isAuditor = user?.isAuditor ?? false;
                   final isManajemen = user?.isManajemen ?? false;
@@ -249,6 +250,7 @@ class HomeScreen extends ConsumerWidget {
                     isPetugasGudang: user?.isPetugasGudang ?? false,
                     isGudangUser: isGudangUser,
                     isTeknisi: isTeknisi,
+                    isKepalaTeknisi: isKepalaTeknisi,
                     isAdminLogistik: isAdminLogistik,
                     isAuditor: isAuditor,
                     isManajemen: isManajemen,

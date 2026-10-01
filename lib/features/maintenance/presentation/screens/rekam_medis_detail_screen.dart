@@ -63,6 +63,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
     final detailAsync = ref.watch(rekamMedisDetailProvider(widget.asetId));
     final user = ref.watch(authStateProvider).user;
     final canTerbitkanSpk = (user?.isTeknisi == true) ||
+        (user?.isKepalaTeknisi == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true);
     return Scaffold(

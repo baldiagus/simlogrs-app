@@ -24,6 +24,7 @@ class QuickActionGrid extends StatelessWidget {
   final int pendingCount;
   final bool isGudangUser;
   final bool isTeknisi;
+  final bool isKepalaTeknisi;
   final bool isAdminLogistik;
   final bool isAuditor;
   final bool isManajemen;
@@ -51,6 +52,7 @@ class QuickActionGrid extends StatelessWidget {
     required this.pendingCount,
     this.isGudangUser = false,
     this.isTeknisi = false,
+    this.isKepalaTeknisi = false,
     this.isAdminLogistik = false,
     this.isAuditor = false,
     this.isManajemen = false,
@@ -75,6 +77,46 @@ class QuickActionGrid extends StatelessWidget {
   });
 
   (String, List<_QuickActionItem>) _resolveSection() {
+    if (isKepalaTeknisi) {
+      return (
+        'Aksi Komando & Disposisi IPSRS',
+        [
+          _QuickActionItem(
+            title: 'Atur Tiket Servis',
+            subtitle: 'Disposisi SPK Teknisi',
+            icon: LucideIcons.clipboardList,
+            bgColor: AppColors.tintOrangeBg,
+            iconColor: AppColors.tintOrange,
+            onTap: onLaporRusakTap,
+          ),
+          _QuickActionItem(
+            title: 'Otorisasi PR',
+            subtitle: 'Approval Belanja Alat',
+            icon: LucideIcons.checkSquare,
+            bgColor: AppColors.tintVioletBg,
+            iconColor: AppColors.primaryPurple,
+            onTap: onApprovalTap,
+          ),
+          _QuickActionItem(
+            title: 'Jadwal Preventif',
+            subtitle: 'Kalender Servis Berkala',
+            icon: LucideIcons.calendarClock,
+            bgColor: AppColors.tintTealBg,
+            iconColor: AppColors.tintTeal,
+            onTap: onPreventifTap ?? onLaporRusakTap,
+          ),
+          _QuickActionItem(
+            title: 'Rekam Medis Aset',
+            subtitle: 'Audit Kesehatan Alat',
+            icon: LucideIcons.stethoscope,
+            bgColor: AppColors.tintBlueBg,
+            iconColor: AppColors.tintBlue,
+            onTap: onRekamMedisTap ?? onAsetTap,
+          ),
+        ],
+      );
+    }
+
     if (isTeknisi) {
       return (
         'Aksi Cepat Teknisi IPSRS',
