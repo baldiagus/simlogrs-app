@@ -4,6 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/features/aset/data/models/aset_detail_model.dart';
 import 'package:simlog_mobile/features/aset/presentation/screens/aset_detail_screen.dart';
 import 'package:simlog_mobile/features/aset/presentation/screens/histori_sirkulasi_aset_screen.dart';
+import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
+import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
+
+class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
+  MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   testWidgets('AsetDetailScreen renders without overflow on narrow 320px viewport', (tester) async {
@@ -86,5 +95,108 @@ void main() {
 
     expect(find.byType(HistoriSirkulasiAsetScreen), findsOneWidget);
     expect(find.text('Buku Catatan Sirkulasi Unit'), findsOneWidget);
+  });
+  testWidgets('AsetDetailScreen hides Ajukan Peminjaman button if asset belongs to user unit', (tester) async {
+    const userIgd = UserModel(
+      id: 6,
+      name: 'dr. Pratama, Sp.EM',
+      email: 'kepalaunit@simlogrs.local',
+      roles: ['kepala_unit'],
+      permissions: ['page_KepalaUnitDashboard'],
+      unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
+    );
+
+    const asetInIgd = AsetDetailModel(
+      id: 1,
+      kodeAset: 'AST-2026-001',
+      nomorSeri: 'PRINTER-IGD-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'TERSEDIA',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Instalasi Gawat Darurat',
+      penanggungJawab: 'Instalasi Gawat Darurat',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 1,
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userIgd)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetInIgd),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Button Ajukan Peminjaman Aset MUST NOT be shown for own room's asset
+    expect(find.text('Ajukan Peminjaman Aset'), findsNothing);
+    expect(find.text('Lapor Kerusakan Alat (IPSRS)'), findsOneWidget);
+  });
+
+  testWidgets('AsetDetailScreen shows Ajukan Peminjaman button if asset belongs to another unit', (tester) async {
+    const userIgd = UserModel(
+      id: 6,
+      name: 'dr. Pratama, Sp.EM',
+      email: 'kepalaunit@simlogrs.local',
+      roles: ['kepala_unit'],
+      permissions: ['page_KepalaUnitDashboard'],
+      unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
+    );
+
+    const asetInDireksi = AsetDetailModel(
+      id: 3,
+      kodeAset: 'AST-2026-003',
+      nomorSeri: 'PRINTER-MJN-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'TERSEDIA',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Direktorat & Manajemen Eksekutif',
+      penanggungJawab: 'Direktorat & Manajemen Eksekutif',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 8,
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userIgd)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetInDireksi),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Button Ajukan Peminjaman Aset MUST be shown for other unit's asset
+    expect(find.text('Ajukan Peminjaman Aset'), findsOneWidget);
+    expect(find.text('Lapor Kerusakan Alat (IPSRS)'), findsOneWidget);
   });
 }

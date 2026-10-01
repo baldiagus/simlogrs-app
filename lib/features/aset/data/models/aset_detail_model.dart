@@ -128,7 +128,11 @@ class AsetDetailModel {
   final ServisTerakhirInfo? servisTerakhir;
   final PeminjamanAktifInfo? peminjamanAktif;
   final List<RiwayatPeminjamanAsetItemModel> riwayatPeminjaman;
-
+  final int? unitId;
+  final int? gudangId;
+  final String? tipePenyedia;
+  final int? penyediaId;
+  final String? namaPenyedia;
   const AsetDetailModel({
     required this.id,
     required this.kodeAset,
@@ -148,6 +152,11 @@ class AsetDetailModel {
     this.servisTerakhir,
     this.peminjamanAktif,
     this.riwayatPeminjaman = const [],
+    this.unitId,
+    this.gudangId,
+    this.tipePenyedia,
+    this.penyediaId,
+    this.namaPenyedia,
   });
 
   bool get isTersedia => status.toUpperCase() == 'TERSEDIA';
@@ -182,6 +191,11 @@ class AsetDetailModel {
               ?.map((e) => RiwayatPeminjamanAsetItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      unitId: (json['unit_id'] as num?)?.toInt(),
+      gudangId: (json['gudang_id'] as num?)?.toInt(),
+      tipePenyedia: json['tipe_penyedia']?.toString(),
+      penyediaId: (json['penyedia_id'] as num?)?.toInt(),
+      namaPenyedia: json['nama_penyedia']?.toString(),
     );
   }
 }

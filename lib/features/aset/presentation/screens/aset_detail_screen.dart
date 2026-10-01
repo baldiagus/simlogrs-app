@@ -131,7 +131,29 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
 
+    // Cek apakah aset berada di unit/ruangan/gudang pengguna sendiri
+    final isAsetUnitPengguna = currentAset.unitId != null &&
+        user?.unit?.id != null &&
+        currentAset.unitId == user!.unit!.id;
 
+    final isAsetGudangPengguna = currentAset.gudangId != null &&
+        user?.gudang?.id != null &&
+        currentAset.gudangId == user!.gudang!.id;
+
+    final isSameLocationName = (user?.unit?.nama != null &&
+            (currentAset.penanggungJawab == user!.unit!.nama ||
+                currentAset.lokasiTercatat.contains(user.unit!.nama))) ||
+        (user?.gudang?.nama != null &&
+            (currentAset.penanggungJawab == user!.gudang!.nama ||
+                currentAset.lokasiTercatat.contains(user.gudang!.nama)));
+
+    final isOwnedByCurrentUserLocation = isAsetUnitPengguna || isAsetGudangPengguna || isSameLocationName;
+
+    final canPinjam = !isTeknisi &&
+        user?.unit != null &&
+        !isOwnedByCurrentUserLocation &&
+        currentAset.isTersedia &&
+        !currentAset.isRusak;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -362,7 +384,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-              ] else if (!isTeknisi && currentAset.isTersedia && !currentAset.isRusak) ...[
+              ] else if (canPinjam) ...[
                 CustomButton(
                   text: 'Ajukan Peminjaman Aset',
                   icon: const Icon(LucideIcons.repeat, size: 18, color: Colors.white),
@@ -378,8 +400,9 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                       satuan: 'Unit',
                       merek: currentAset.merek,
                       kondisi: currentAset.kondisi,
-                      tipePenyedia: currentAset.lokasiTercatat.contains('Rak:') ? 'GUDANG' : 'RUANGAN',
-                      namaPenyedia: currentAset.penanggungJawab,
+                      tipePenyedia: currentAset.tipePenyedia ?? (currentAset.gudangId != null ? 'GUDANG' : (currentAset.lokasiTercatat.contains('Rak:') ? 'GUDANG' : 'RUANGAN')),
+                      penyediaId: currentAset.penyediaId ?? (currentAset.gudangId ?? currentAset.unitId),
+                      namaPenyedia: currentAset.namaPenyedia ?? currentAset.penanggungJawab,
                       lokasiLengkap: currentAset.lokasiTercatat,
                     );
                     Navigator.push(
