@@ -76,10 +76,6 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
   }
 
   Widget _buildUnitCard(UnitAnggaranModel item, String tahun) {
-    final statusColor = item.status == 'Over-Budget'
-        ? AppColors.danger
-        : (item.status == 'Waspada' ? AppColors.warning : AppColors.success);
-
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -92,52 +88,33 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.tintBlueBg,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        item.unitKode.isNotEmpty ? item.unitKode : item.kode,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 10, color: AppColors.tintBlue),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        item.unitNama,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            color: AppColors.textPrimary),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  color: AppColors.tintBlueBg,
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  item.status,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 10, color: statusColor),
+                  item.unitKode.isNotEmpty ? item.unitKode : item.kode,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w800, fontSize: 10, color: AppColors.tintBlue),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.unitNama,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: AppColors.textPrimary),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -180,28 +157,9 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Pagu: ${AppFormatters.rupiah(item.pagu)}',
-                  style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-              Text('Serapan: ${item.serapan.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.w700, color: statusColor)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (item.serapan / 100).clamp(0.0, 1.0),
-              backgroundColor: AppColors.border,
-              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-              minHeight: 5,
-            ),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
+          const Divider(height: 1, color: AppColors.border),
+          const SizedBox(height: 6),
           Align(
             alignment: Alignment.centerRight,
             child: InkWell(

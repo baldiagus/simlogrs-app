@@ -71,6 +71,11 @@ class HomeScreen extends ConsumerWidget {
                           context,
                           MaterialPageRoute(builder: (_) => const AuditSpiHubScreen()),
                         );
+                      } else if (target == 'pagu_realisasi') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const PaguRealisasiScreen()),
+                        );
                       } else if (target == 'spk_list') {
                         onNavigateTab?.call(2); // Navigasi ke Tab IPSRS
                       } else if (target == 'amprah_hub') {

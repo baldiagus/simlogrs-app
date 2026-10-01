@@ -71,21 +71,6 @@ class AnggaranSparepartTab extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Text('Pagu Alokasi',
-                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                            Text(
-                              AppFormatters.rupiah(data.sparepartAnggaran!.pagu),
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              'Sisa: ${AppFormatters.rupiah(data.sparepartAnggaran!.sisa)}',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ],
