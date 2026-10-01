@@ -149,6 +149,16 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
 
     final isOwnedByCurrentUserLocation = isAsetUnitPengguna || isAsetGudangPengguna || isSameLocationName;
 
+    final isGlobalAdmin = user?.isSuperAdmin == true || user?.isAdminLogistik == true;
+
+    final isAsetSedangDipinjamUnitUser = currentAset.isDipinjam &&
+        currentAset.peminjamanAktif != null &&
+        user?.unit?.nama != null &&
+        currentAset.peminjamanAktif!.unitPeminjam == user!.unit!.nama;
+
+    final canLaporRusak = !isTeknisi &&
+        (isOwnedByCurrentUserLocation || isAsetSedangDipinjamUnitUser || isGlobalAdmin);
+
     final canPinjam = !isTeknisi &&
         user?.unit != null &&
         !isOwnedByCurrentUserLocation &&
@@ -417,7 +427,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               ],
 
               // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
-              if (!isTeknisi) ...[
+              if (canLaporRusak) ...[
                 OutlinedButton.icon(
                   onPressed: () {
                     Navigator.push(

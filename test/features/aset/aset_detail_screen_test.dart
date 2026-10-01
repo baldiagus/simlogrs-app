@@ -197,6 +197,66 @@ void main() {
 
     // Button Ajukan Peminjaman Aset MUST be shown for other unit's asset
     expect(find.text('Ajukan Peminjaman Aset'), findsOneWidget);
+    // Button Lapor Kerusakan MUST NOT be shown for other unit's asset
+    expect(find.text('Lapor Kerusakan Alat (IPSRS)'), findsNothing);
+  });
+
+  testWidgets('AsetDetailScreen shows Lapor Kerusakan if asset is currently borrowed by user unit', (tester) async {
+    const userIgd = UserModel(
+      id: 6,
+      name: 'dr. Pratama, Sp.EM',
+      email: 'kepalaunit@simlogrs.local',
+      roles: ['kepala_unit'],
+      permissions: ['page_KepalaUnitDashboard'],
+      unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
+    );
+
+    const asetBorrowedByIgd = AsetDetailModel(
+      id: 3,
+      kodeAset: 'AST-2026-003',
+      nomorSeri: 'PRINTER-MJN-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'DIPINJAM',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Instalasi Gawat Darurat',
+      penanggungJawab: 'Instalasi Gawat Darurat',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 8, // Origin: Direksi
+      peminjamanAktif: PeminjamanAktifInfo(
+        peminjamanId: 10,
+        kodePinjam: 'PINJ-2026-002',
+        unitPeminjam: 'Instalasi Gawat Darurat',
+        isOverdue: false,
+      ),
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userIgd)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetBorrowedByIgd),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Asset is on loan to user's unit: can report damage
     expect(find.text('Lapor Kerusakan Alat (IPSRS)'), findsOneWidget);
+    // Cannot borrow an already borrowed asset
+    expect(find.text('Ajukan Peminjaman Aset'), findsNothing);
   });
 }
