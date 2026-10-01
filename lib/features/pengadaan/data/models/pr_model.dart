@@ -17,6 +17,8 @@ class PrDetailItemModel {
   final String satuan;
   final int jumlah;
   final String? catatan;
+  final double? hargaBeliTerakhir;
+  final double? hargaEstimasi;
 
   const PrDetailItemModel({
     required this.id,
@@ -26,6 +28,8 @@ class PrDetailItemModel {
     required this.satuan,
     required this.jumlah,
     this.catatan,
+    this.hargaBeliTerakhir,
+    this.hargaEstimasi,
   });
 
   factory PrDetailItemModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +45,8 @@ class PrDetailItemModel {
           ? json['jumlah'] as int
           : int.tryParse(json['jumlah'].toString()) ?? 1,
       catatan: json['catatan']?.toString(),
+      hargaBeliTerakhir: (json['harga_beli_terakhir'] as num?)?.toDouble(),
+      hargaEstimasi: (json['harga_estimasi'] as num?)?.toDouble(),
     );
   }
 }
@@ -107,6 +113,8 @@ class PrHeaderModel {
                 kodeBarang: i.kodeBarang,
                 satuan: i.satuan,
                 jumlah: i.jumlah,
+                hargaBeliTerakhir: i.hargaBeliTerakhir,
+                hargaEstimasi: i.hargaEstimasi,
               ))
           .toList(),
     );

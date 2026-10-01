@@ -4,6 +4,8 @@ class ApprovalDetailItem {
   final String? kodeBarang;
   final String? satuan;
   final int jumlah;
+  final double? hargaBeliTerakhir;
+  final double? hargaEstimasi;
 
   const ApprovalDetailItem({
     this.barangId,
@@ -11,6 +13,8 @@ class ApprovalDetailItem {
     this.kodeBarang,
     this.satuan,
     required this.jumlah,
+    this.hargaBeliTerakhir,
+    this.hargaEstimasi,
   });
 
   factory ApprovalDetailItem.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class ApprovalDetailItem {
       jumlah: json['jumlah'] is int
           ? json['jumlah'] as int
           : int.tryParse(json['jumlah'].toString()) ?? 0,
+      hargaBeliTerakhir: (json['harga_beli_terakhir'] as num?)?.toDouble(),
+      hargaEstimasi: (json['harga_estimasi'] as num?)?.toDouble(),
     );
   }
 }

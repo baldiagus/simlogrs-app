@@ -41,7 +41,14 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
   void initState() {
     super.initState();
     for (int i = 0; i < widget.prItem.items.length; i++) {
-      _priceControllers[i] = TextEditingController(text: '100000');
+      final it = widget.prItem.items[i];
+      final defaultPrice = (it.hargaBeliTerakhir != null && it.hargaBeliTerakhir! > 0)
+          ? it.hargaBeliTerakhir!
+          : ((it.hargaEstimasi != null && it.hargaEstimasi! > 0)
+              ? it.hargaEstimasi!
+              : 0.0);
+      final priceText = defaultPrice > 0 ? defaultPrice.toInt().toString() : '';
+      _priceControllers[i] = TextEditingController(text: priceText);
     }
   }
 
@@ -305,12 +312,24 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                                 child: TextField(
                                   controller: _priceControllers[idx],
                                   keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), border: OutlineInputBorder()),
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    border: const OutlineInputBorder(),
+                                    hintText: '0',
+                                  ),
                                   onChanged: (_) => setState(() {}),
                                 ),
                               ),
                             ],
                           ),
+                          if (it.hargaBeliTerakhir != null && it.hargaBeliTerakhir! > 0) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Harga beli terakhir: ${AppFormatters.rupiah(it.hargaBeliTerakhir!)}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            ),
+                          ],
                         ],
                       ),
                     );
