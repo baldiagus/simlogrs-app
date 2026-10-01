@@ -133,6 +133,10 @@ class AsetDetailModel {
   final String? tipePenyedia;
   final int? penyediaId;
   final String? namaPenyedia;
+  final bool isSedangDiajukan;
+  final String? statusSirkulasi;
+  final Map<String, dynamic>? antreanPeminjaman;
+
   const AsetDetailModel({
     required this.id,
     required this.kodeAset,
@@ -157,13 +161,20 @@ class AsetDetailModel {
     this.tipePenyedia,
     this.penyediaId,
     this.namaPenyedia,
+    this.isSedangDiajukan = false,
+    this.statusSirkulasi,
+    this.antreanPeminjaman,
   });
 
   bool get isTersedia => status.toUpperCase() == 'TERSEDIA';
   bool get isDipinjam => status.toUpperCase() == 'DIPINJAM';
   bool get isMaintenance => status.toUpperCase() == 'DALAM_MAINTENANCE';
   bool get isRusak => status.toUpperCase() == 'RUSAK' || kondisi.toUpperCase().contains('RUSAK');
-
+  bool get isSedangDalamProsesPinjam =>
+      isSedangDiajukan ||
+      statusSirkulasi == 'DIAJUKAN' ||
+      statusSirkulasi == 'DISETUJUI' ||
+      antreanPeminjaman != null;
   factory AsetDetailModel.fromJson(Map<String, dynamic> json) {
     return AsetDetailModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -196,6 +207,11 @@ class AsetDetailModel {
       tipePenyedia: json['tipe_penyedia']?.toString(),
       penyediaId: (json['penyedia_id'] as num?)?.toInt(),
       namaPenyedia: json['nama_penyedia']?.toString(),
+      isSedangDiajukan: json['is_sedang_diajukan'] == true,
+      statusSirkulasi: json['status_sirkulasi']?.toString(),
+      antreanPeminjaman: json['antrean_peminjaman'] is Map<String, dynamic>
+          ? json['antrean_peminjaman'] as Map<String, dynamic>
+          : null,
     );
   }
 }

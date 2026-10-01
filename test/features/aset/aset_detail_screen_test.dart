@@ -259,4 +259,68 @@ void main() {
     // Cannot borrow an already borrowed asset
     expect(find.text('Ajukan Peminjaman Aset'), findsNothing);
   });
+
+  testWidgets('AsetDetailScreen hides Ajukan Peminjaman and shows banner if asset has pending loan request by another unit', (tester) async {
+    const userIgd = UserModel(
+      id: 6,
+      name: 'dr. Pratama, Sp.EM',
+      email: 'kepalaunit@simlogrs.local',
+      roles: ['kepala_unit'],
+      permissions: ['page_KepalaUnitDashboard'],
+      unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
+    );
+
+    const asetPendingLoan = AsetDetailModel(
+      id: 4,
+      kodeAset: 'AST-2026-004',
+      nomorSeri: 'PRINTER-AUD-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'TERSEDIA',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Satuan Pengawas Internal (SPI)',
+      penanggungJawab: 'Satuan Pengawas Internal (SPI)',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 9, // Origin: SPI
+      isSedangDiajukan: true,
+      statusSirkulasi: 'DIAJUKAN',
+      antreanPeminjaman: {
+        'peminjaman_id': 15,
+        'kode_pinjam': 'PINJ-2026-009',
+        'unit_peminjam': 'Direktorat & Manajemen Eksekutif',
+        'pengaju': 'Drs. H. Mulyono',
+        'status': 'DIAJUKAN',
+      },
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userIgd)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetPendingLoan),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Button Ajukan Peminjaman Aset MUST NOT be shown
+    expect(find.text('Ajukan Peminjaman Aset'), findsNothing);
+    // Banner Sedang Dalam Proses Peminjaman MUST be shown
+    expect(find.text('Sedang Dalam Proses Peminjaman'), findsOneWidget);
+    expect(find.textContaining('Direktorat & Manajemen Eksekutif'), findsOneWidget);
+    expect(find.textContaining('PINJ-2026-009'), findsOneWidget);
+  });
 }

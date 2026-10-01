@@ -163,7 +163,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
         user?.unit != null &&
         !isOwnedByCurrentUserLocation &&
         currentAset.isTersedia &&
-        !currentAset.isRusak;
+        !currentAset.isRusak &&
+        !currentAset.isSedangDalamProsesPinjam;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -424,6 +425,49 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                   },
                 ),
                 const SizedBox(height: 10),
+              ] else if (!isOwnedByCurrentUserLocation && currentAset.isSedangDalamProsesPinjam && !currentAset.isDipinjam) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.tintOrangeBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.tintOrange.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(LucideIcons.clockAlert, size: 20, color: AppColors.tintOrange),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Sedang Dalam Proses Peminjaman',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.tintOrange,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              currentAset.antreanPeminjaman != null
+                                  ? 'Aset ini sedang diajukan peminjaman oleh ${currentAset.antreanPeminjaman!['unit_peminjam']} (${currentAset.antreanPeminjaman!['kode_pinjam']}) dengan status ${currentAset.antreanPeminjaman!['status']}.'
+                                  : 'Aset ini sedang dalam antrean proses peminjaman unit lain dan belum dapat dipinjam.',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
 
               // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
