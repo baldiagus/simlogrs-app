@@ -4,6 +4,8 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../gudang/presentation/providers/gudang_provider.dart';
+import '../../../master/presentation/providers/register_aset_provider.dart';
+import '../../../aset/presentation/providers/peminjaman_provider.dart';
 import '../../data/models/amprah_model.dart';
 import '../../data/models/sppb_model.dart';
 import '../../data/repositories/distribusi_repository.dart';
@@ -213,6 +215,8 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
 
       _ref.invalidate(sppbInboundProvider);
       _ref.invalidate(daftarAmprahProvider);
+      _ref.invalidate(registerAsetListProvider);
+      _ref.invalidate(daftarPeminjamanSayaProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

@@ -312,10 +312,10 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                                 child: TextField(
                                   controller: _priceControllers[idx],
                                   keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     isDense: true,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                    border: const OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    border: OutlineInputBorder(),
                                     hintText: '0',
                                   ),
                                   onChanged: (_) => setState(() {}),
