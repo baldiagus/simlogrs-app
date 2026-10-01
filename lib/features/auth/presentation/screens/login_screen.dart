@@ -308,6 +308,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             _buildRoleChip('Pengadaan', 'pengadaan@simlogrs.local'),
                             _buildRoleChip('Karu IGD', 'kepalaunit@simlogrs.local'),
                             _buildRoleChip('Petugas Unit', 'petugasunit@simlogrs.local'),
+                            _buildRoleChip('Kepala Teknisi', 'karu_ipsrs@simlogrs.local'),
                             _buildRoleChip('Teknisi IPSRS', 'teknisi@simlogrs.local'),
                             _buildRoleChip('Manajemen', 'manajemen@simlogrs.local'),
                             _buildRoleChip('Auditor SPI', 'auditor@simlogrs.local'),
