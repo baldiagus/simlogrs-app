@@ -9,6 +9,9 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/maintenance_provider.dart';
+import '../widgets/disposisi_spk_sheet.dart';
 
 class DetailTiketScreen extends ConsumerWidget {
   final int tiketId;
@@ -50,7 +53,8 @@ class DetailTiketScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailTiketUnitProvider(tiketId));
     final actionState = ref.watch(tiketActionProvider);
-
+    final user = ref.watch(authStateProvider).user;
+    final canDisposisi = (user?.isKepalaTeknisi == true) || (user?.isAdminLogistik == true) || (user?.hasRole('super_admin') == true);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -257,7 +261,7 @@ class DetailTiketScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        if (tiket.penugasan.isEmpty)
+                        if (tiket.penugasan.isEmpty) ...[
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -276,7 +280,33 @@ class DetailTiketScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                          )
+                          ),
+                          if (canDisposisi && (tiket.status == 'DILAPORKAN' || tiket.status == 'MENUNGGU_SPK')) ...[
+                            const SizedBox(height: 10),
+                            CustomButton(
+                              width: double.infinity,
+                              text: 'Disposisi SPK ke Teknisi',
+                              icon: const Icon(LucideIcons.wrench, size: 16, color: Colors.white),
+                              onPressed: () async {
+                                final created = await DisposisiSpkSheet.show(
+                                  context,
+                                  tiketId: tiket.id,
+                                  kodeTiket: tiket.kode,
+                                  namaAset: tiket.aset['nama']?.toString() ?? 'Sarana Medis',
+                                  unitPelapor: tiket.unit,
+                                  prioritas: tiket.prioritas,
+                                  keluhan: tiket.deskripsiMasalah,
+                                );
+                                if (created == true) {
+                                  ref.invalidate(detailTiketUnitProvider(tiketId));
+                                  ref.invalidate(daftarTiketUnitProvider);
+                                  ref.invalidate(spkListProvider);
+                                  ref.invalidate(dashboardSummaryProvider);
+                                }
+                              },
+                            ),
+                          ],
+                        ]
                         else
                           ...tiket.penugasan.map((spk) {
                             return Padding(
@@ -367,7 +397,7 @@ class DetailTiketScreen extends ConsumerWidget {
                   ],
 
                   // Tombol Batalkan Tiket (Hanya jika DILAPORKAN dan canCancel)
-                  if (tiket.canCancel) ...[
+                  if (tiket.canCancel && !canDisposisi) ...[
                     CustomButton(
                       text: 'Batalkan Tiket Kerusakan',
                       backgroundColor: const Color(0xFFFEF2F2),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/tiket_maintenance_model.dart';
+import '../../data/models/teknisi_option_model.dart';
 import '../../data/repositories/maintenance_repository.dart';
 import 'maintenance_provider.dart';
 
@@ -50,6 +51,12 @@ final detailTiketUnitProvider =
   return await repository.getDetailTiketUnit(id);
 });
 
+final teknisiListProvider =
+    FutureProvider.autoDispose<List<TeknisiOptionModel>>((ref) async {
+  final repository = ref.watch(maintenanceRepositoryProvider);
+  return await repository.getDaftarTeknisi();
+});
+
 class TiketActionState {
   final bool isLoading;
   final String? errorMessage;
@@ -78,6 +85,44 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
       );
 
       _ref.invalidate(daftarTiketUnitProvider);
+      _ref.invalidate(dashboardSummaryProvider);
+      return true;
+    } catch (e) {
+      state = TiketActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> disposisiTiket({
+    required int tiketId,
+    required int teknisiId,
+    String? tanggalPenugasan,
+    String? targetSelesai,
+    String? instruksiKhusus,
+  }) async {
+    state = const TiketActionState(isLoading: true);
+    try {
+      final res = await _repository.disposisiTiket(
+        tiketId: tiketId,
+        teknisiId: teknisiId,
+        tanggalPenugasan: tanggalPenugasan,
+        targetSelesai: targetSelesai,
+        instruksiKhusus: instruksiKhusus,
+      );
+
+      final kodeSpk = res['kode_spk']?.toString() ?? 'SPK';
+      final namaTeknisi = res['teknisi']?.toString() ?? 'Teknisi';
+      state = TiketActionState(
+        isLoading: false,
+        successMessage: 'SPK $kodeSpk berhasil diterbitkan dan ditugaskan ke $namaTeknisi.',
+      );
+
+      _ref.invalidate(daftarTiketUnitProvider);
+      _ref.invalidate(detailTiketUnitProvider(tiketId));
+      _ref.invalidate(spkListProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

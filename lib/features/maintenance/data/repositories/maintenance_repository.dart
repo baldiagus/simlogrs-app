@@ -4,6 +4,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/spk_model.dart';
 import '../models/tiket_maintenance_model.dart';
+import '../models/teknisi_option_model.dart';
 
 class MaintenanceRepository {
   final DioClient _client;
@@ -86,6 +87,50 @@ class MaintenanceRepository {
         throw e.error as ApiException;
       }
       throw ApiException(message: e.message ?? 'Gagal membatalkan tiket kerusakan');
+    }
+  }
+
+  Future<List<TeknisiOptionModel>> getDaftarTeknisi() async {
+    try {
+      final response = await _client.dio.get('/maintenance/teknisi');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is List) {
+        return (data['data'] as List)
+            .map((e) => TeknisiOptionModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal memuat daftar teknisi');
+    }
+  }
+
+  Future<Map<String, dynamic>> disposisiTiket({
+    required int tiketId,
+    required int teknisiId,
+    String? tanggalPenugasan,
+    String? targetSelesai,
+    String? instruksiKhusus,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/maintenance/tiket/$tiketId/disposisi',
+        data: {
+          'teknisi_id': teknisiId,
+          if (tanggalPenugasan != null) 'tanggal_penugasan': tanggalPenugasan,
+          if (targetSelesai != null) 'target_selesai': targetSelesai,
+          if (instruksiKhusus != null && instruksiKhusus.isNotEmpty) 'instruksi_khusus': instruksiKhusus,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return data['data'] as Map<String, dynamic>;
+      }
+      return {};
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal mendisposisikan tiket');
     }
   }
 

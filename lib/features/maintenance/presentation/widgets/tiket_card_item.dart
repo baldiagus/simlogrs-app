@@ -8,11 +8,13 @@ import '../screens/detail_tiket_screen.dart';
 class TiketCardItem extends StatelessWidget {
   final TiketMaintenanceModel item;
   final VoidCallback? onCancelTap;
+  final VoidCallback? onDisposisiTap;
 
   const TiketCardItem({
     super.key,
     required this.item,
     this.onCancelTap,
+    this.onDisposisiTap,
   });
 
   Color _getPrioritasColor(String p) {
@@ -204,8 +206,35 @@ class TiketCardItem extends StatelessWidget {
                 ),
               ),
 
-              // Tombol Batal jika canCancel
-              if (item.canCancel && onCancelTap != null) ...[
+              // Tombol Disposisi SPK (Jika canDisposisi) atau Tombol Batal
+              if (onDisposisiTap != null && (item.status == 'DILAPORKAN' || item.status == 'MENUNGGU_SPK')) ...[
+                const SizedBox(height: 10),
+                const Divider(height: 1, color: AppColors.border),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Tgl: ${item.dibuatPada ?? '-'}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: onDisposisiTap,
+                      icon: const Icon(LucideIcons.wrench, size: 13, color: Colors.white),
+                      label: const Text('Disposisi SPK', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryPurple,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                ),
+              ] else if (item.canCancel && onCancelTap != null) ...[
                 const SizedBox(height: 10),
                 const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 8),

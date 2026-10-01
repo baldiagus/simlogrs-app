@@ -11,7 +11,9 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
+import '../providers/maintenance_provider.dart';
 import '../widgets/tiket_card_item.dart';
+import '../widgets/disposisi_spk_sheet.dart';
 import 'lapor_cepat_screen.dart';
 import 'spk_list_screen.dart';
 import 'jadwal_preventif_screen.dart';
@@ -65,6 +67,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     final user = ref.watch(authStateProvider).user;
     final isTeknisi = user?.isTeknisi ?? false;
     final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
+    final canDisposisi = isKepalaTeknisi || (user?.isAdminLogistik ?? false) || (user?.hasRole('super_admin') ?? false);
     final expectedLength = isKepalaTeknisi ? 2 : (_canViewSpk ? 3 : 1);
     if (_tabController.length != expectedLength) {
       _tabController.dispose();
@@ -217,26 +220,26 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               controller: _tabController,
               children: isKepalaTeknisi
                   ? [
-                      _buildTiketUnitView(hideSearchBar: true),
+                      _buildTiketUnitView(hideSearchBar: true, canDisposisi: canDisposisi),
                       const SpkListScreen(isEmbedded: true),
                     ]
                   : isTeknisi
                   ? [
                       const SpkListScreen(isEmbedded: true, allowedStatuses: ['DITUGASKAN']),
                       const JadwalPreventifScreen(isEmbedded: true),
-                      _buildTiketUnitView(),
+                      _buildTiketUnitView(canDisposisi: canDisposisi),
                     ]
                   : [
-                      _buildTiketUnitView(),
+                      _buildTiketUnitView(canDisposisi: canDisposisi),
                       const SpkListScreen(isEmbedded: true, allowedStatuses: ['DITUGASKAN']),
                       const JadwalPreventifScreen(isEmbedded: true),
                     ],
             )
-          : _buildTiketUnitView(),
+          : _buildTiketUnitView(canDisposisi: canDisposisi),
     );
   }
 
-  Widget _buildTiketUnitView({bool hideSearchBar = false}) {
+  Widget _buildTiketUnitView({bool hideSearchBar = false, bool canDisposisi = false}) {
     final tiketListAsync = ref.watch(daftarTiketUnitProvider(_filterParams));
 
     return Column(
@@ -339,6 +342,24 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     final item = list[index];
                     return TiketCardItem(
                       item: item,
+                      onDisposisiTap: canDisposisi
+                          ? () async {
+                              final created = await DisposisiSpkSheet.show(
+                                context,
+                                tiketId: item.id,
+                                kodeTiket: item.kode,
+                                namaAset: item.aset['nama']?.toString() ?? 'Sarana Medis',
+                                unitPelapor: item.unit,
+                                prioritas: item.prioritas,
+                                keluhan: item.deskripsiMasalah,
+                              );
+                              if (created == true) {
+                                ref.invalidate(daftarTiketUnitProvider);
+                                ref.invalidate(spkListProvider);
+                                ref.invalidate(dashboardSummaryProvider);
+                              }
+                            }
+                          : null,
                       onCancelTap: () async {
                         final ok = await ref.read(tiketActionProvider.notifier).batalkanTiket(item.id);
                         if (!context.mounted) return;
