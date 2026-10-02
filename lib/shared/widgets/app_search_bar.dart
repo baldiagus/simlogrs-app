@@ -59,7 +59,12 @@ class _AppSearchBarState extends State<AppSearchBar> {
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
+            prefixIcon: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 42, minHeight: 40),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
             suffixIcon: hasText
                 ? IconButton(
                     icon: const Icon(LucideIcons.x, size: 16, color: AppColors.textSecondary),
@@ -70,7 +75,6 @@ class _AppSearchBarState extends State<AppSearchBar> {
                     },
                   )
                 : null,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             filled: true,
             fillColor: AppColors.surface,
             border: OutlineInputBorder(
