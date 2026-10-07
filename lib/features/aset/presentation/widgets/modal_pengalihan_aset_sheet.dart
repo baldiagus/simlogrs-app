@@ -188,7 +188,7 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                       ],
                     ),
                     const SizedBox(height: 8),
-                    if (_chosenAset != null) ...[
+                    if (widget.aset != null && _chosenAset != null) ...[
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -228,30 +228,65 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                               ),
                             );
                           }
-                          return DropdownButtonFormField<int>(
-                            key: const Key('dropdown_aset_asal'),
-                            isExpanded: true,
-                            initialValue: _chosenAset?.id,
-                            decoration: const InputDecoration(
-                              labelText: 'Pilih Aset Fisik Inventaris *',
-                              prefixIcon: Icon(LucideIcons.armchair, size: 18),
-                            ),
-                            items: asets.map((a) {
-                              return DropdownMenuItem<int>(
-                                value: a.id,
-                                child: Text(
-                                  '${a.namaKomoditas} (${a.kodeAset})',
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DropdownButtonFormField<int>(
+                                key: const Key('dropdown_aset_asal'),
+                                isExpanded: true,
+                                initialValue: _chosenAset?.id,
+                                decoration: const InputDecoration(
+                                  labelText: 'Pilih Aset Fisik Inventaris *',
+                                  prefixIcon: Icon(LucideIcons.armchair, size: 18),
                                 ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                _chosenAset = asets.firstWhere((a) => a.id == val);
-                              });
-                            },
-                            validator: (v) => _chosenAset == null ? 'Pilih aset inventaris' : null,
+                                items: asets.map((a) {
+                                  return DropdownMenuItem<int>(
+                                    value: a.id,
+                                    child: Text(
+                                      '${a.namaKomoditas} (${a.kodeAset})',
+                                      style: const TextStyle(fontSize: 12),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    _chosenAset = asets.firstWhere((a) => a.id == val);
+                                  });
+                                },
+                                validator: (v) => _chosenAset == null ? 'Pilih aset inventaris' : null,
+                              ),
+                              if (_chosenAset != null) ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _chosenAset!.namaKomoditas,
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Kode: ${_chosenAset!.kodeAset} • SN: ${_chosenAset!.nomorSeri}',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Kondisi: ${_chosenAset!.kondisi} • Satuan: ${_chosenAset!.satuan}',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           );
                         },
                         loading: () => const LinearProgressIndicator(),

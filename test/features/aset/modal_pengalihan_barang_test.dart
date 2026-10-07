@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/pengalihan_provider.dart';
 import 'package:simlog_mobile/features/aset/presentation/widgets/modal_pengalihan_barang_sheet.dart';
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
@@ -145,12 +146,18 @@ void main() {
     // Verify stock availability text appears
     expect(find.textContaining('Stok tersedia di gudang asal: 26 unit'), findsOneWidget);
 
-    // Enter valid quantity (5)
-    final qtyField = find.byKey(const Key('field_jumlah_barang'));
-    await tester.enterText(qtyField, '5');
+    // Verify stepper exists and increase quantity using + button
+    final stepperFinder = find.byKey(const Key('stepper_jumlah_barang'));
+    expect(stepperFinder, findsOneWidget);
+    final plusBtn = find.descendant(of: stepperFinder, matching: find.byIcon(LucideIcons.plus));
+    await tester.tap(plusBtn);
     await tester.pumpAndSettle();
+    await tester.tap(plusBtn);
+    await tester.pumpAndSettle();
+    expect(find.text('3'), findsOneWidget);
 
     // Tap submit again
+    await tester.ensureVisible(submitBtn);
     await tester.tap(submitBtn);
     await tester.pumpAndSettle();
 
@@ -198,12 +205,14 @@ void main() {
     await tester.tap(find.textContaining('Kertas A4').last);
     await tester.pumpAndSettle();
 
-    // Enter quantity 25 (exceeding stock of 10)
-    final qtyField = find.byKey(const Key('field_jumlah_barang'));
-    await tester.enterText(qtyField, '25');
+    // Enter quantity 25 via stepper text field (exceeding stock of 10)
+    final stepperField = find.descendant(of: find.byKey(const Key('stepper_jumlah_barang')), matching: find.byType(TextField));
+    expect(stepperField, findsOneWidget);
+    await tester.enterText(stepperField, '25');
     await tester.pumpAndSettle();
 
-    // Should be clamped to 10
+    // Should be clamped to max 10
     expect(find.text('10'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
   });
 }

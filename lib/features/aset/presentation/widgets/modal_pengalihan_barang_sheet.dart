@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../master/presentation/providers/master_barang_provider.dart';
 import '../providers/pengalihan_provider.dart';
@@ -30,7 +31,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
   final _formKey = GlobalKey<FormState>();
   final _alasanController = TextEditingController();
   final _catatanController = TextEditingController();
-  final _quantityController = TextEditingController(text: '1');
+  int _quantity = 1;
 
   int? _selectedBarangId;
   int? _selectedGudangAsalId;
@@ -39,7 +40,6 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
   void dispose() {
     _alasanController.dispose();
     _catatanController.dispose();
-    _quantityController.dispose();
     super.dispose();
   }
 
@@ -59,7 +59,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
       return;
     }
 
-    final jumlah = int.tryParse(_quantityController.text.trim()) ?? 1;
+    final jumlah = _quantity;
     if (_selectedBarangId != null && _selectedGudangAsalId != null) {
       final stokAsync = ref.read(stokTersediaGudangProvider((barangId: _selectedBarangId!, gudangId: _selectedGudangAsalId!)));
       final stokTersedia = stokAsync.valueOrNull;
@@ -314,37 +314,63 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                         ),
                       ],
 
-                      // Jumlah Unit
-                      TextFormField(
-                        key: const Key('field_jumlah_barang'),
-                        controller: _quantityController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        decoration: InputDecoration(
-                          labelText: 'Jumlah Kuantitas Dialihkan *',
-                          helperText: stokTersedia != null && stokTersedia > 0 ? 'Maksimal $stokTersedia unit' : null,
-                          prefixIcon: const Icon(LucideIcons.hash, size: 18),
+                      // Stepper Kuantitas
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
                         ),
-                        onChanged: (val) {
-                          final parsed = int.tryParse(val.trim());
-                          if (parsed != null && stokTersedia != null && stokTersedia > 0 && parsed > stokTersedia) {
-                            _quantityController.text = stokTersedia.toString();
-                            _quantityController.selection = TextSelection.fromPosition(
-                              TextPosition(offset: _quantityController.text.length),
-                            );
-                            setState(() {});
-                          }
-                        },
-                        validator: (v) {
-                          final parsed = int.tryParse(v?.trim() ?? '');
-                          if (parsed == null || parsed < 1) {
-                            return 'Jumlah kuantitas minimal 1';
-                          }
-                          if (stokTersedia != null && parsed > stokTersedia) {
-                            return 'Jumlah melebihi stok tersedia (maksimal $stokTersedia)';
-                          }
-                          return null;
-                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Jumlah Kuantitas Dialihkan *',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    stokTersedia != null && stokTersedia > 0
+                                        ? 'Maksimal $stokTersedia unit tersedia'
+                                        : 'Pilih barang & gudang asal terlebih dahulu',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: stokTersedia != null && stokTersedia > 0
+                                          ? AppColors.textSecondary
+                                          : AppColors.warning,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            AppQuantityStepper(
+                              key: const Key('stepper_jumlah_barang'),
+                              value: _quantity,
+                              min: 1,
+                              max: (stokTersedia != null && stokTersedia > 0) ? stokTersedia : null,
+                              onChanged: (val) {
+                                setState(() {
+                                  _quantity = val;
+                                });
+                              },
+                              onMaxReached: () {
+                                if (stokTersedia != null) {
+                                  AppToast.info(context, 'Mencapai batas stok maksimum ($stokTersedia unit).');
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 12),
 
