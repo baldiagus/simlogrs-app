@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simlog_mobile/features/aset/data/models/peminjaman_aset_model.dart';
 import 'package:simlog_mobile/features/aset/data/models/pengalihan_model.dart';
-import 'package:simlog_mobile/features/aset/presentation/providers/peminjaman_provider.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/pengalihan_provider.dart';
-import 'package:simlog_mobile/features/aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
+import 'package:simlog_mobile/features/aset/presentation/screens/pengalihan_hub_screen.dart';
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 
@@ -45,7 +43,7 @@ void main() {
     ),
   ];
 
-  testWidgets('SirkulasiAsetHubScreen renders Pengalihan tab and lists transfer items', (tester) async {
+  testWidgets('PengalihanHubScreen renders Aktif, Otorisasi, and Riwayat tabs and displays transfer items', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -57,31 +55,29 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testKaruUser)),
-          daftarPeminjamanSayaProvider.overrideWith((ref) => Future.value(<PeminjamanAsetModel>[])),
-          daftarApprovalPeminjamanProvider.overrideWith((ref) => Future.value(<ApprovalPeminjamanModel>[])),
-          daftarPeminjamanAktifDipinjamProvider.overrideWith((ref) => Future.value(<PeminjamanAsetModel>[])),
-          daftarPeminjamanAktifDipinjamkanProvider.overrideWith((ref) => Future.value(<PeminjamanAsetModel>[])),
           daftarPengalihanProvider('aktif').overrideWith((ref) => Future.value(dummyPengalihan)),
+          daftarPengalihanProvider('otorisasi').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
+          daftarPengalihanProvider('riwayat').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
         ],
         child: const MaterialApp(
-          home: SirkulasiAsetHubScreen(),
+          home: PengalihanHubScreen(),
         ),
       ),
     );
 
     await tester.pumpAndSettle();
 
-    // Verify Tab Pengalihan exists
-    final pengalihanTab = find.text('Pengalihan');
-    expect(pengalihanTab, findsOneWidget);
+    // Verify tabs exist
+    expect(find.text('Aktif'), findsOneWidget);
+    expect(find.text('Otorisasi'), findsOneWidget);
+    expect(find.text('Riwayat'), findsOneWidget);
 
-    // Tap Tab Pengalihan
-    await tester.tap(pengalihanTab);
-    await tester.pumpAndSettle();
-
-    // Verify transfer item details are shown
+    // Verify transfer item details
     expect(find.text('TRF-202610-050'), findsOneWidget);
     expect(find.text('Ventilator Hamilton C1'), findsOneWidget);
     expect(find.textContaining('IGD ➔ ICU'), findsOneWidget);
+
+    // Verify FAB
+    expect(find.text('Ajukan Pengalihan'), findsOneWidget);
   });
 }

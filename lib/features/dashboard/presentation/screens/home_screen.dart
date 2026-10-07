@@ -5,6 +5,7 @@ import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart'
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
+import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
 import '../../../master/presentation/screens/master_barang_screen.dart';
@@ -126,6 +127,25 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                 ],
+                // Banner Pengalihan & Mutasi Aset (Semua unit, bukan teknisi murni)
+                if (ref.watch(authStateProvider).user?.isTeknisi != true) ...[
+                  AppActionBannerCard(
+                    title: 'Pengalihan & Mutasi Aset',
+                    subtitle: 'Mutasi permanen kepemilikan dan penanggung jawab fisik alat',
+                    icon: LucideIcons.arrowRightLeft,
+                    iconColor: AppColors.primaryPurple,
+                    iconBgColor: AppColors.tintVioletBg,
+                    borderColor: AppColors.primaryPurple.withValues(alpha: 0.25),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PengalihanHubScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
 
                 // Master Katalog & Register Aset (Semua Role)
                 Row(
