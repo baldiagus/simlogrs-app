@@ -77,7 +77,7 @@ void main() {
     expect(find.text('Ventilator Hamilton C1'), findsOneWidget);
     expect(find.textContaining('IGD ➔ ICU'), findsOneWidget);
 
-    // Verify FAB
-    expect(find.text('Ajukan Pengalihan'), findsOneWidget);
+    // Verify dynamic FAB for ASET category
+    expect(find.text('Ajukan Pengalihan Aset'), findsOneWidget);
   });
 }

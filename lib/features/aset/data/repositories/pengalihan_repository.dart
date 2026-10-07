@@ -52,6 +52,25 @@ class PengalihanRepository {
     }
   }
 
+  Future<Map<String, dynamic>> submitPengalihanBarang(Map<String, dynamic> payload) async {
+    try {
+      final response = await _client.dio.post(
+        '/gudang/pengalihan-barang',
+        data: payload,
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return data['data'] as Map<String, dynamic>;
+      }
+      return {'status': 'DIAJUKAN'};
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Gagal mengajukan pengalihan barang');
+    }
+  }
+
   Future<void> otorisasiPengalihan({
     required int id,
     required String aksi,

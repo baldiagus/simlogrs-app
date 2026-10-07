@@ -12,6 +12,7 @@ import '../../data/models/pengalihan_model.dart';
 import '../providers/pengalihan_provider.dart';
 import '../widgets/aset_picker_bottom_sheet.dart';
 import '../widgets/modal_pengalihan_aset_sheet.dart';
+import '../widgets/modal_pengalihan_barang_sheet.dart';
 
 class PengalihanHubScreen extends ConsumerStatefulWidget {
   const PengalihanHubScreen({super.key});
@@ -46,7 +47,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     super.dispose();
   }
 
-  void _openCreateFlow() {
+  void _openCreateAsetFlow() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -56,14 +57,27 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           Navigator.pop(ctx);
           ModalPengalihanAsetSheet.show(context, aset: aset).then((ok) {
             if (ok == true) {
-              ref.invalidate(daftarPengalihanProvider('aktif'));
-              ref.invalidate(daftarPengalihanProvider('otorisasi'));
-              ref.invalidate(daftarPengalihanProvider('riwayat'));
+              _refreshAll();
             }
           });
         },
       ),
     );
+  }
+
+  void _openCreateBarangFlow() {
+    ModalPengalihanBarangSheet.show(context).then((ok) {
+      if (ok == true) {
+        _refreshAll();
+      }
+    });
+  }
+
+  void _refreshAll() {
+    ref.invalidate(daftarPengalihanProvider('aktif'));
+    ref.invalidate(daftarPengalihanProvider('otorisasi'));
+    ref.invalidate(daftarPengalihanProvider('riwayat'));
+    ref.invalidate(countOtorisasiPengalihanProvider);
   }
 
   @override
@@ -98,12 +112,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             tooltip: 'Segarkan',
-            onPressed: () {
-              ref.invalidate(daftarPengalihanProvider('aktif'));
-              ref.invalidate(daftarPengalihanProvider('otorisasi'));
-              ref.invalidate(daftarPengalihanProvider('riwayat'));
-              ref.invalidate(countOtorisasiPengalihanProvider);
-            },
+            onPressed: _refreshAll,
           ),
         ],
         bottom: TabBar(
@@ -138,15 +147,25 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           ],
         ),
       ),
-      floatingActionButton: selectedKategori == 'ASET' && (user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true)
-          ? FloatingActionButton.extended(
-              onPressed: _openCreateFlow,
-              backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
-              icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Ajukan Pengalihan', style: TextStyle(fontWeight: FontWeight.w700)),
-            )
-          : null,
+      floatingActionButton: () {
+        final canCreateAset = user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true || user?.isGudangUser == true;
+        final canCreateBarang = user?.isGudangUser == true || user?.isKepalaGudang == true || user?.isPetugasGudang == true || user?.isAdminLogistik == true || user?.isSuperAdmin == true || user?.gudang != null;
+        final canCreate = selectedKategori == 'ASET' ? canCreateAset : canCreateBarang;
+
+        if (!canCreate) return null;
+
+        return FloatingActionButton.extended(
+          key: Key('fab_ajukan_pengalihan_${selectedKategori.toLowerCase()}'),
+          onPressed: selectedKategori == 'ASET' ? _openCreateAsetFlow : _openCreateBarangFlow,
+          backgroundColor: selectedKategori == 'ASET' ? AppColors.primaryPurple : AppColors.tintBlue,
+          foregroundColor: Colors.white,
+          icon: const Icon(LucideIcons.plus, size: 18),
+          label: Text(
+            selectedKategori == 'ASET' ? 'Ajukan Pengalihan Aset' : 'Ajukan Pengalihan Barang',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        );
+      }(),
       body: Column(
         children: [
           if (isWarehouseOrAdmin)
@@ -216,6 +235,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
   }
 
   Widget _buildTabContent(String tab, int countOtorisasi) {
+    final user = ref.watch(authStateProvider).user;
     final asyncData = ref.watch(daftarPengalihanProvider(tab));
     final selectedKategori = ref.watch(selectedKategoriPengalihanProvider);
     final tipeLabel = selectedKategori == 'ASET' ? 'aset' : 'barang persediaan';
@@ -272,18 +292,26 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                           : (tab == 'otorisasi'
                               ? 'Tidak ada dokumen pengalihan yang menunggu otorisasi Anda.'
                               : 'Belum ada riwayat mutasi yang diselesaikan.'),
-                      action: tab == 'aktif' && selectedKategori == 'ASET'
-                          ? ElevatedButton.icon(
-                              onPressed: _openCreateFlow,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryPurple,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              icon: const Icon(LucideIcons.plus, size: 16),
-                              label: const Text('Ajukan Sekarang'),
-                            )
-                          : null,
+                      action: () {
+                        final canCreateAset = user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true || user?.isGudangUser == true;
+                        final canCreateBarang = user?.isGudangUser == true || user?.isKepalaGudang == true || user?.isPetugasGudang == true || user?.isAdminLogistik == true || user?.isSuperAdmin == true || user?.gudang != null;
+                        final canCreate = selectedKategori == 'ASET' ? canCreateAset : canCreateBarang;
+
+                        if (tab != 'aktif' || !canCreate) return null;
+
+                        return ElevatedButton.icon(
+                          onPressed: selectedKategori == 'ASET' ? _openCreateAsetFlow : _openCreateBarangFlow,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: selectedKategori == 'ASET' ? AppColors.primaryPurple : AppColors.tintBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          icon: const Icon(LucideIcons.plus, size: 16),
+                          label: Text(
+                            selectedKategori == 'ASET' ? 'Ajukan Pengalihan Aset' : 'Ajukan Pengalihan Barang',
+                          ),
+                        );
+                      }(),
                     ),
                   ),
                 ],

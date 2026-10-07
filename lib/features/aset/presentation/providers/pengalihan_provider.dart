@@ -65,6 +65,26 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     }
   }
 
+  Future<bool> ajukanPengalihanBarang(Map<String, dynamic> payload) async {
+    state = const PengalihanActionState(isLoading: true);
+    try {
+      final res = await _repository.submitPengalihanBarang(payload);
+      final kode = res['kode']?.toString() ?? 'Pengalihan';
+      state = PengalihanActionState(
+        isLoading: false,
+        successMessage: 'Pengalihan barang $kode berhasil diajukan.',
+      );
+      _invalidateLists();
+      return true;
+    } catch (e) {
+      state = PengalihanActionState(
+        isLoading: false,
+        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
   Future<bool> otorisasiPengalihan({
     required int id,
     required String aksi,
