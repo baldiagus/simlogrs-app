@@ -85,6 +85,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.unauthenticated(e.toString());
     }
   }
+  Future<void> gantiPasswordWajib({
+    required String passwordSaatIni,
+    required String passwordBaru,
+    required String passwordBaruConfirmation,
+  }) async {
+    final updatedUser = await _repository.gantiPasswordWajib(
+      passwordSaatIni: passwordSaatIni,
+      passwordBaru: passwordBaru,
+      passwordBaruConfirmation: passwordBaruConfirmation,
+    );
+    state = AuthState.authenticated(updatedUser);
+  }
+
+  void clearError() {
+    if (state.errorMessage != null) {
+      state = AuthState(
+        status: state.status,
+        user: state.user,
+        errorMessage: null,
+      );
+    }
+  }
+
 
   Future<void> logout() async {
     state = AuthState.unauthenticated();

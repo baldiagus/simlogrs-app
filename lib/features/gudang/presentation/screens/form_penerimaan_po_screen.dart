@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../widgets/inbound_item_draft_tile.dart';
+import '../widgets/modal_tolak_penerimaan_sheet.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../providers/gudang_provider.dart';
 import '../providers/inbound_provider.dart';
@@ -123,6 +124,22 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: Text('Terima PO: ${widget.po.kodePo}'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.ban, size: 20, color: AppColors.danger),
+            tooltip: 'Tolak Kiriman Fisik',
+            onPressed: () async {
+              final rejected = await ModalTolakPenerimaanSheet.show(
+                context,
+                po: widget.po,
+                nomorSuratJalanAwal: _suratJalanController.text.trim(),
+              );
+              if (rejected == true && mounted) {
+                Navigator.pop(context, true);
+              }
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(

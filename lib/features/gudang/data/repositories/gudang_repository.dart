@@ -100,4 +100,33 @@ class GudangRepository {
       throw ApiException(message: e.message ?? 'Gagal menyimpan penerimaan barang');
     }
   }
+  Future<Map<String, dynamic>> tolakPenerimaanPo({
+    required int poId,
+    required String nomorSuratJalan,
+    required String alasanPenolakan,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/gudang/penerimaan-po/tolak',
+        data: {
+          'pesanan_pembelian_id': poId,
+          'nomor_surat_jalan': nomorSuratJalan,
+          'alasan_penolakan': alasanPenolakan,
+          'items': items,
+        },
+      );
+
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return data['data'] as Map<String, dynamic>;
+      }
+      return {'status': 'DITOLAK'};
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Gagal menolak penerimaan barang');
+    }
+  }
 }

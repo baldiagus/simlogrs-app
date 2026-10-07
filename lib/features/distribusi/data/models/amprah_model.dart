@@ -49,6 +49,7 @@ class AmprahDetailItemModel {
   final String satuan;
   final int jumlahDiminta;
   final int jumlahDisetujui;
+  final int jumlahDikirim;
   final String? catatan;
 
   const AmprahDetailItemModel({
@@ -59,8 +60,11 @@ class AmprahDetailItemModel {
     required this.satuan,
     required this.jumlahDiminta,
     required this.jumlahDisetujui,
+    this.jumlahDikirim = 0,
     this.catatan,
   });
+
+  int get sisaBackorder => (jumlahDisetujui - jumlahDikirim).clamp(0, jumlahDisetujui);
 
   factory AmprahDetailItemModel.fromJson(Map<String, dynamic> json) {
     return AmprahDetailItemModel(
@@ -77,6 +81,15 @@ class AmprahDetailItemModel {
       jumlahDisetujui: json['jumlah_disetujui'] is int
           ? json['jumlah_disetujui'] as int
           : int.tryParse(json['jumlah_disetujui']?.toString() ?? '') ?? 0,
+      jumlahDikirim: json['jumlah_dikirim'] is int
+          ? json['jumlah_dikirim'] as int
+          : (json['jumlah_terkirim'] is int
+              ? json['jumlah_terkirim'] as int
+              : (int.tryParse(json['jumlah_dikirim']?.toString() ??
+                      json['jumlah_terkirim']?.toString() ??
+                      json['terkirim']?.toString() ??
+                      '') ??
+                  0)),
       catatan: json['catatan']?.toString(),
     );
   }
@@ -117,6 +130,7 @@ class AmprahHeaderModel {
   bool get isDisetujuiGudang => status.toUpperCase() == 'DISETUJUI_GUDANG';
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  bool get isDikirimSebagian => status.toUpperCase() == 'DIKIRIM_SEBAGIAN';
 
   factory AmprahHeaderModel.fromJson(Map<String, dynamic> json) {
     return AmprahHeaderModel(

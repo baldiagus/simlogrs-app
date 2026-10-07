@@ -98,6 +98,31 @@ class DetailAmprahScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
 
+                  // Banner Pengiriman Sebagian (Backorder)
+                  if (amprah.isDikirimSebagian) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(LucideIcons.clock, size: 18, color: AppColors.warning),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Permintaan ini telah dikirim sebagian. Sisa barang yang terhutang akan diprioritaskan saat restok gudang.',
+                              style: TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // Tracking Progres Meja Otorisasi
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -127,10 +152,12 @@ class DetailAmprahScreen extends ConsumerWidget {
                           title: 'Tahap 2: Otorisasi Gudang Logistik',
                           subtitle: amprah.isDisetujuiKaru
                               ? 'Menunggu verifikasi stok gudang'
-                              : (amprah.isDisetujuiGudang || amprah.isSelesai
-                                  ? 'Disetujui untuk pengeluaran barang'
-                                  : '-'),
-                          isPassed: amprah.isDisetujuiGudang || amprah.isSelesai,
+                              : (amprah.isDikirimSebagian
+                                  ? 'Disetujui Sebagian (Pengiriman Bertahap)'
+                                  : (amprah.isDisetujuiGudang || amprah.isSelesai
+                                      ? 'Disetujui untuk pengeluaran barang'
+                                      : '-')),
+                          isPassed: amprah.isDisetujuiGudang || amprah.isSelesai || amprah.isDikirimSebagian,
                           isCurrent: amprah.isDisetujuiKaru,
                         ),
                       ],
@@ -217,6 +244,17 @@ class DetailAmprahScreen extends ConsumerWidget {
                                   'Acc: ${d.jumlahDisetujui}',
                                   style: const TextStyle(fontSize: 11, color: AppColors.tintBlue, fontWeight: FontWeight.w700),
                                 ),
+                              if (d.jumlahDikirim > 0 || amprah.isDikirimSebagian) ...[
+                                Text(
+                                  'Terkirim: ${d.jumlahDikirim}',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600),
+                                ),
+                                if (d.sisaBackorder > 0)
+                                  Text(
+                                    'Sisa: ${d.sisaBackorder}',
+                                    style: const TextStyle(fontSize: 11, color: AppColors.danger, fontWeight: FontWeight.w600),
+                                  ),
+                              ],
                             ],
                           ),
                         ],

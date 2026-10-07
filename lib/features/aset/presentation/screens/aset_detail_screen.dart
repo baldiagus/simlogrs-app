@@ -11,6 +11,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../widgets/modal_pengembalian_aset_sheet.dart';
 import '../widgets/modal_perpanjang_peminjaman_sheet.dart';
+import '../widgets/modal_pengalihan_aset_sheet.dart';
 import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_detail_screen.dart';
 import '../../data/models/aset_detail_model.dart';
@@ -471,6 +472,41 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               ],
 
               // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
+              // Tombol Pengalihan / Mutasi Aset (Untuk aset milik unit sendiri atau Admin)
+              if ((isOwnedByCurrentUserLocation || isGlobalAdmin) && !currentAset.isDipinjam) ...[
+                OutlinedButton.icon(
+                  onPressed: () {
+                    final asetTersedia = AsetTersediaModel(
+                      id: currentAset.id,
+                      kodeAset: currentAset.kodeAset,
+                      nomorSeri: currentAset.nomorSeri,
+                      namaKomoditas: currentAset.namaKomoditas,
+                      spesifikasi: currentAset.spesifikasi,
+                      kategori: currentAset.kategori,
+                      satuan: 'Unit',
+                      merek: currentAset.merek,
+                      kondisi: currentAset.kondisi,
+                      tipePenyedia: currentAset.tipePenyedia ?? (currentAset.gudangId != null ? 'GUDANG' : 'RUANGAN'),
+                      penyediaId: currentAset.penyediaId ?? (currentAset.gudangId ?? currentAset.unitId ?? 0),
+                      namaPenyedia: currentAset.namaPenyedia ?? currentAset.penanggungJawab,
+                      lokasiLengkap: currentAset.lokasiTercatat,
+                    );
+                    ModalPengalihanAsetSheet.show(context, aset: asetTersedia);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: AppColors.primaryPurple),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(LucideIcons.arrowRightLeft, size: 18, color: AppColors.primaryPurple),
+                  label: const Text(
+                    'Pengalihan / Mutasi Aset',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+
               if (canLaporRusak) ...[
                 OutlinedButton.icon(
                   onPressed: () {

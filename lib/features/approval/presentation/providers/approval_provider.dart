@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_response.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
@@ -83,9 +84,10 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
+      final msg = e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', '');
       state = ApprovalActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: msg,
       );
       return false;
     }
@@ -125,9 +127,10 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
+      final msg = e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', '');
       state = ApprovalActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: msg,
       );
       return false;
     }

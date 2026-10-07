@@ -5,6 +5,7 @@ import '../../../shell/presentation/screens/main_shell_screen.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'splash_screen.dart';
+import 'ganti_password_wajib_screen.dart';
 
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
@@ -31,6 +32,9 @@ class AuthGate extends ConsumerWidget {
         );
 
       case AuthStatus.authenticated:
+        if (authState.user?.wajibGantiPassword == true) {
+          return const GantiPasswordWajibScreen();
+        }
         return const MainShellScreen();
 
       case AuthStatus.unauthenticated:

@@ -86,6 +86,42 @@ class AuthRepository {
       throw ApiException(message: e.message ?? 'Gagal mengambil profil pengguna');
     }
   }
+  Future<UserModel> gantiPasswordWajib({
+    required String passwordSaatIni,
+    required String passwordBaru,
+    required String passwordBaruConfirmation,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/auth/ganti-password',
+        data: {
+          'password_saat_ini': passwordSaatIni,
+          'password_baru': passwordBaru,
+          'password_baru_confirmation': passwordBaruConfirmation,
+        },
+      );
+
+      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+        response.data as Map<String, dynamic>,
+        (json) => json as Map<String, dynamic>,
+      );
+
+      if (!apiResponse.sukses || apiResponse.data == null) {
+        throw ApiException(message: apiResponse.pesan);
+      }
+
+      final data = apiResponse.data!;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      await _storage.saveCachedUser(jsonEncode(user.toJson()));
+      return user;
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Gagal memperbarui kata sandi');
+    }
+  }
+
 
   Future<void> logout() async {
     try {

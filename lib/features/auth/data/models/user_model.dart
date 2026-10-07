@@ -65,6 +65,7 @@ class UserModel {
   final GudangModel? gudang;
   final List<String> roles;
   final List<String> permissions;
+  final bool wajibGantiPassword;
 
   const UserModel({
     required this.id,
@@ -78,6 +79,7 @@ class UserModel {
     this.gudang,
     required this.roles,
     required this.permissions,
+    this.wajibGantiPassword = false,
   });
   /// Pengecekan wewenang dinamis Spatie Capability-Based RBAC
   bool can(String permission) => permissions.contains(permission);
@@ -121,6 +123,7 @@ class UserModel {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      wajibGantiPassword: json['wajib_ganti_password'] == true,
     );
   }
 
@@ -136,5 +139,6 @@ class UserModel {
         if (gudang != null) 'gudang': gudang!.toJson(),
         'roles': roles,
         'permissions': permissions,
+        'wajib_ganti_password': wajibGantiPassword,
       };
 }

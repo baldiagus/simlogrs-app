@@ -102,6 +102,38 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
       return false;
     }
   }
+
+  Future<bool> tolakPenerimaan({
+    required int poId,
+    required String nomorSuratJalan,
+    required String alasanPenolakan,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    state = const InboundActionState(isLoading: true);
+    try {
+      final res = await _repository.tolakPenerimaanPo(
+        poId: poId,
+        nomorSuratJalan: nomorSuratJalan.trim(),
+        alasanPenolakan: alasanPenolakan.trim(),
+        items: items,
+      );
+
+      final nomorDokumen = res['nomor_dokumen']?.toString() ?? 'Penolakan';
+      state = InboundActionState(
+        isLoading: false,
+        successMessage: 'Kiriman fisik berhasil ditolak ($nomorDokumen).',
+      );
+
+      _ref.invalidate(daftarPoInboundProvider);
+      return true;
+    } catch (e) {
+      state = InboundActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
 }
 
 final inboundActionProvider =

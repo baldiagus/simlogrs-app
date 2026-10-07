@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../providers/auth_provider.dart';
 import '../../../../core/security/security_device_service.dart';
 
@@ -42,6 +43,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final isRootedAsync = ref.watch(isDeviceRootedProvider);
+    ref.listen<AuthState>(authStateProvider, (prev, next) {
+      if (next.errorMessage != null && next.errorMessage != prev?.errorMessage) {
+        AppToast.error(context, next.errorMessage!);
+      }
+    });
     final isLoading = authState.status == AuthStatus.loading;
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -217,6 +223,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       hintText: 'nama@simlogrs.local',
                       prefixIcon: Icon(LucideIcons.mail, size: 20, color: AppColors.textSecondary),
                     ),
+                    onChanged: (_) {
+                      if (authState.errorMessage != null) {
+                        ref.read(authStateProvider.notifier).clearError();
+                      }
+                    },
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return 'Email wajib diisi';
                       if (!v.contains('@')) return 'Format email tidak valid';
@@ -255,6 +266,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         },
                       ),
                     ),
+                    onChanged: (_) {
+                      if (authState.errorMessage != null) {
+                        ref.read(authStateProvider.notifier).clearError();
+                      }
+                    },
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Kata sandi wajib diisi';
                       return null;
@@ -329,6 +345,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget _buildRoleChip(String label, String email) {
     return InkWell(
       onTap: () {
+        ref.read(authStateProvider.notifier).clearError();
         setState(() {
           _emailController.text = email;
           _passwordController.text = 'SimlogRS@2026!';
