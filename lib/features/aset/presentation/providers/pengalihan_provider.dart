@@ -10,10 +10,20 @@ final pengalihanRepositoryProvider = Provider<PengalihanRepository>((ref) {
   return PengalihanRepository(client);
 });
 
+final selectedKategoriPengalihanProvider = StateProvider<String>((ref) => 'ASET');
+
 final daftarPengalihanProvider =
     FutureProvider.family.autoDispose<List<PengalihanItemModel>, String>((ref, tab) async {
   final repository = ref.watch(pengalihanRepositoryProvider);
-  return await repository.getDaftarPengalihan(tab: tab);
+  final kategori = ref.watch(selectedKategoriPengalihanProvider);
+  return await repository.getDaftarPengalihan(tab: tab, tipe: kategori);
+});
+
+final countOtorisasiPengalihanProvider = FutureProvider.autoDispose<int>((ref) async {
+  final repository = ref.watch(pengalihanRepositoryProvider);
+  final kategori = ref.watch(selectedKategoriPengalihanProvider);
+  final list = await repository.getDaftarPengalihan(tab: 'otorisasi', tipe: kategori);
+  return list.length;
 });
 
 class PengalihanActionState {
@@ -59,6 +69,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     required int id,
     required String aksi,
     String? catatan,
+    String tipe = 'ASET',
   }) async {
     state = const PengalihanActionState(isLoading: true);
     try {
@@ -66,12 +77,13 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
         id: id,
         aksi: aksi,
         catatan: catatan,
+        tipe: tipe,
       );
       state = PengalihanActionState(
         isLoading: false,
         successMessage: aksi == 'APPROVE'
-            ? 'Pengalihan aset berhasil disetujui.'
-            : 'Pengalihan aset berhasil ditolak.',
+            ? 'Pengalihan berhasil disetujui.'
+            : 'Pengalihan berhasil ditolak.',
       );
       _invalidateLists();
       return true;
@@ -87,13 +99,14 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
   Future<bool> serahTerimaPengalihan({
     required int id,
     String kondisi = 'BAIK',
+    String tipe = 'ASET',
   }) async {
     state = const PengalihanActionState(isLoading: true);
     try {
-      await _repository.serahTerimaPengalihan(id: id, kondisi: kondisi);
+      await _repository.serahTerimaPengalihan(id: id, kondisi: kondisi, tipe: tipe);
       state = const PengalihanActionState(
         isLoading: false,
-        successMessage: 'Serah terima fisik aset berhasil diselesaikan (Status: SELESAI).',
+        successMessage: 'Serah terima fisik berhasil diselesaikan (Status: SELESAI).',
       );
       _invalidateLists();
       return true;
@@ -109,13 +122,14 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
   Future<bool> batalPengalihan({
     required int id,
     String? alasan,
+    String tipe = 'ASET',
   }) async {
     state = const PengalihanActionState(isLoading: true);
     try {
-      await _repository.batalPengalihan(id: id, alasan: alasan);
+      await _repository.batalPengalihan(id: id, alasan: alasan, tipe: tipe);
       state = const PengalihanActionState(
         isLoading: false,
-        successMessage: 'Pengalihan aset berhasil dibatalkan.',
+        successMessage: 'Pengalihan berhasil dibatalkan.',
       );
       _invalidateLists();
       return true;
@@ -127,11 +141,11 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
       return false;
     }
   }
-
   void _invalidateLists() {
     _ref.invalidate(daftarPengalihanProvider('aktif'));
     _ref.invalidate(daftarPengalihanProvider('otorisasi'));
     _ref.invalidate(daftarPengalihanProvider('riwayat'));
+    _ref.invalidate(countOtorisasiPengalihanProvider);
     _ref.invalidate(dashboardSummaryProvider);
   }
 }

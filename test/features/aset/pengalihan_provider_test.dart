@@ -15,12 +15,20 @@ class FakePengalihanRepo extends Fake implements PengalihanRepository {
   }
 
   @override
-  Future<void> otorisasiPengalihan({required int id, required String aksi, String? catatan}) async {
+  Future<void> otorisasiPengalihan({
+    required int id,
+    required String aksi,
+    String? catatan,
+    String tipe = 'ASET',
+  }) async {
     approveCalled = true;
   }
 
   @override
-  Future<List<PengalihanItemModel>> getDaftarPengalihan({String tab = 'aktif'}) async {
+  Future<List<PengalihanItemModel>> getDaftarPengalihan({
+    String tab = 'aktif',
+    String tipe = 'ASET',
+  }) async {
     return [];
   }
 }

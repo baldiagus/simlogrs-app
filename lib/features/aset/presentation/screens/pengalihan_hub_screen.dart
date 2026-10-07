@@ -83,10 +83,17 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
       _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
     }
 
+    final countOtorisasi = ref.watch(countOtorisasiPengalihanProvider).valueOrNull ?? 0;
+    final selectedKategori = ref.watch(selectedKategoriPengalihanProvider);
+    final isWarehouseOrAdmin = user?.isGudangUser == true ||
+        user?.isAdminLogistik == true ||
+        user?.isSuperAdmin == true ||
+        user?.gudang != null;
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Pengalihan Aset RS'),
+        title: Text(selectedKategori == 'ASET' ? 'Pengalihan Aset RS' : 'Pengalihan Barang Gudang'),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
@@ -95,6 +102,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
               ref.invalidate(daftarPengalihanProvider('aktif'));
               ref.invalidate(daftarPengalihanProvider('otorisasi'));
               ref.invalidate(daftarPengalihanProvider('riwayat'));
+              ref.invalidate(countOtorisasiPengalihanProvider);
             },
           ),
         ],
@@ -107,12 +115,30 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           tabs: [
             const Tab(text: 'Aktif'),
-            if (_canApprove) const Tab(text: 'Otorisasi'),
+            if (_canApprove)
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Flexible(
+                      child: Text(
+                        'Otorisasi',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (countOtorisasi > 0) ...[
+                      const SizedBox(width: 4),
+                      _buildBadge(countOtorisasi),
+                    ],
+                  ],
+                ),
+              ),
             const Tab(text: 'Riwayat'),
           ],
         ),
       ),
-      floatingActionButton: (user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true)
+      floatingActionButton: selectedKategori == 'ASET' && (user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true)
           ? FloatingActionButton.extended(
               onPressed: _openCreateFlow,
               backgroundColor: AppColors.primaryPurple,
@@ -121,50 +147,146 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
               label: const Text('Ajukan Pengalihan', style: TextStyle(fontWeight: FontWeight.w700)),
             )
           : null,
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildTabContent('aktif'),
-          if (_canApprove) _buildTabContent('otorisasi'),
-          _buildTabContent('riwayat'),
+          if (isWarehouseOrAdmin)
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              color: AppColors.surface,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Center(
+                        child: Text('Aset Fisik', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                      ),
+                      selected: selectedKategori == 'ASET',
+                      onSelected: (val) {
+                        if (val) {
+                          ref.read(selectedKategoriPengalihanProvider.notifier).state = 'ASET';
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Center(
+                        child: Text('Barang Gudang', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                      ),
+                      selected: selectedKategori == 'BARANG',
+                      onSelected: (val) {
+                        if (val) {
+                          ref.read(selectedKategoriPengalihanProvider.notifier).state = 'BARANG';
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildTabContent('aktif', countOtorisasi),
+                if (_canApprove) _buildTabContent('otorisasi', countOtorisasi),
+                _buildTabContent('riwayat', countOtorisasi),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTabContent(String tab) {
-    final asyncData = ref.watch(daftarPengalihanProvider(tab));
+  Widget _buildBadge(int count) {
+    if (count == 0) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.tintVioletBg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryPurple),
+      ),
+    );
+  }
 
+  Widget _buildTabContent(String tab, int countOtorisasi) {
+    final asyncData = ref.watch(daftarPengalihanProvider(tab));
+    final selectedKategori = ref.watch(selectedKategoriPengalihanProvider);
+    final tipeLabel = selectedKategori == 'ASET' ? 'aset' : 'barang persediaan';
     return asyncData.when(
       data: (list) {
         if (list.isEmpty) {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(daftarPengalihanProvider(tab)),
             child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65,
-                child: EmptyStateView(
-                  icon: LucideIcons.arrowRightLeft,
-                  title: 'Belum Ada Pengalihan',
-                  message: tab == 'aktif'
-                      ? 'Tidak ada pengalihan aset yang sedang berjalan.'
-                      : (tab == 'otorisasi'
-                          ? 'Tidak ada dokumen pengalihan yang menunggu otorisasi Anda.'
-                          : 'Belum ada riwayat mutasi aset yang diselesaikan.'),
-                  action: tab == 'aktif'
-                      ? ElevatedButton.icon(
-                          onPressed: _openCreateFlow,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryPurple,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(LucideIcons.plus, size: 16),
-                          label: const Text('Ajukan Sekarang'),
-                        )
-                      : null,
-                ),
+              child: Column(
+                children: [
+                  if (tab == 'aktif' && countOtorisasi > 0)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFBEB),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(LucideIcons.alertCircle, color: AppColors.warning, size: 20),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Terdapat $countOtorisasi permohonan pengalihan $tipeLabel menunggu persetujuan Anda di tab Otorisasi.',
+                                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.3),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () => _tabController.animateTo(1),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primaryPurple,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              child: const Text('Buka', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.55,
+                    child: EmptyStateView(
+                      icon: LucideIcons.arrowRightLeft,
+                      title: 'Belum Ada Pengalihan',
+                      message: tab == 'aktif'
+                          ? (countOtorisasi > 0
+                              ? 'Tidak ada permohonan aktif keluar/masuk. Periksa tab Otorisasi untuk permohonan dari fasilitas lain.'
+                              : 'Tidak ada pengalihan $tipeLabel yang sedang berjalan.')
+                          : (tab == 'otorisasi'
+                              ? 'Tidak ada dokumen pengalihan yang menunggu otorisasi Anda.'
+                              : 'Belum ada riwayat mutasi yang diselesaikan.'),
+                      action: tab == 'aktif' && selectedKategori == 'ASET'
+                          ? ElevatedButton.icon(
+                              onPressed: _openCreateFlow,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryPurple,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              icon: const Icon(LucideIcons.plus, size: 16),
+                              label: const Text('Ajukan Sekarang'),
+                            )
+                          : null,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -205,9 +327,29 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                item.kode,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+              Row(
+                children: [
+                  Text(
+                    item.kode,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: item.tipe == 'ASET' ? AppColors.tintOrangeBg : AppColors.tintBlueBg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      item.tipe,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: item.tipe == 'ASET' ? AppColors.tintOrange : AppColors.tintBlue,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               StatusBadge(status: item.status),
             ],
@@ -246,7 +388,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                 if (item.canCancel)
                   TextButton(
                     onPressed: () async {
-                      final ok = await ref.read(pengalihanActionProvider.notifier).batalPengalihan(id: item.id);
+                      final ok = await ref.read(pengalihanActionProvider.notifier).batalPengalihan(id: item.id, tipe: item.tipe);
                       if (ok && mounted) {
                         AppToast.success(context, 'Pengalihan berhasil dibatalkan');
                       }
@@ -257,7 +399,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                 if (item.canApprove) ...[
                   OutlinedButton(
                     onPressed: () async {
-                      final ok = await ref.read(pengalihanActionProvider.notifier).otorisasiPengalihan(id: item.id, aksi: 'REJECT');
+                      final ok = await ref.read(pengalihanActionProvider.notifier).otorisasiPengalihan(id: item.id, aksi: 'REJECT', tipe: item.tipe);
                       if (ok && mounted) {
                         AppToast.success(context, 'Pengalihan berhasil ditolak');
                       }
@@ -272,7 +414,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () async {
-                      final ok = await ref.read(pengalihanActionProvider.notifier).otorisasiPengalihan(id: item.id, aksi: 'APPROVE');
+                      final ok = await ref.read(pengalihanActionProvider.notifier).otorisasiPengalihan(id: item.id, aksi: 'APPROVE', tipe: item.tipe);
                       if (ok && mounted) {
                         AppToast.success(context, 'Pengalihan berhasil disetujui');
                       }
@@ -288,9 +430,9 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                 if (item.canReceive)
                   ElevatedButton.icon(
                     onPressed: () async {
-                      final ok = await ref.read(pengalihanActionProvider.notifier).serahTerimaPengalihan(id: item.id);
+                      final ok = await ref.read(pengalihanActionProvider.notifier).serahTerimaPengalihan(id: item.id, tipe: item.tipe);
                       if (ok && mounted) {
-                        AppToast.success(context, 'Serah terima fisik selesai. Aset resmi dimutasi.');
+                        AppToast.success(context, 'Serah terima fisik selesai. Mutasi resmi dibukukan.');
                       }
                     },
                     style: ElevatedButton.styleFrom(

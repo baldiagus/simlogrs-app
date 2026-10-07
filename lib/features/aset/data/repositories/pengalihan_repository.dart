@@ -8,10 +8,14 @@ class PengalihanRepository {
 
   PengalihanRepository(this._client);
 
-  Future<List<PengalihanItemModel>> getDaftarPengalihan({String tab = 'aktif'}) async {
+  Future<List<PengalihanItemModel>> getDaftarPengalihan({
+    String tab = 'aktif',
+    String tipe = 'ASET',
+  }) async {
     try {
+      final endpoint = tipe == 'BARANG' ? '/gudang/pengalihan-barang' : '/aset/pengalihan';
       final response = await _client.dio.get(
-        '/aset/pengalihan',
+        endpoint,
         queryParameters: {'tab': tab},
       );
       final data = response.data;
@@ -25,7 +29,7 @@ class PengalihanRepository {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
-      throw ApiException(message: e.message ?? 'Gagal memuat daftar pengalihan aset');
+      throw ApiException(message: e.message ?? 'Gagal memuat daftar pengalihan');
     }
   }
 
@@ -52,10 +56,14 @@ class PengalihanRepository {
     required int id,
     required String aksi,
     String? catatan,
+    String tipe = 'ASET',
   }) async {
     try {
+      final endpoint = tipe == 'BARANG'
+          ? '/gudang/pengalihan-barang/$id/otorisasi'
+          : '/aset/pengalihan/$id/otorisasi';
       await _client.dio.post(
-        '/aset/pengalihan/$id/otorisasi',
+        endpoint,
         data: {
           'aksi': aksi,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
@@ -65,41 +73,49 @@ class PengalihanRepository {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
-      throw ApiException(message: e.message ?? 'Gagal memproses otorisasi pengalihan aset');
+      throw ApiException(message: e.message ?? 'Gagal memproses otorisasi pengalihan');
     }
   }
 
   Future<void> serahTerimaPengalihan({
     required int id,
     String kondisi = 'BAIK',
+    String tipe = 'ASET',
   }) async {
     try {
+      final endpoint = tipe == 'BARANG'
+          ? '/gudang/pengalihan-barang/$id/serah-terima'
+          : '/aset/pengalihan/$id/serah-terima';
       await _client.dio.post(
-        '/aset/pengalihan/$id/serah-terima',
+        endpoint,
         data: {'kondisi': kondisi},
       );
     } on DioException catch (e) {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
-      throw ApiException(message: e.message ?? 'Gagal memproses serah terima fisik aset');
+      throw ApiException(message: e.message ?? 'Gagal memproses serah terima fisik');
     }
   }
 
   Future<void> batalPengalihan({
     required int id,
     String? alasan,
+    String tipe = 'ASET',
   }) async {
     try {
+      final endpoint = tipe == 'BARANG'
+          ? '/gudang/pengalihan-barang/$id/batal'
+          : '/aset/pengalihan/$id/batal';
       await _client.dio.post(
-        '/aset/pengalihan/$id/batal',
+        endpoint,
         data: {if (alasan != null && alasan.isNotEmpty) 'alasan': alasan},
       );
     } on DioException catch (e) {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
-      throw ApiException(message: e.message ?? 'Gagal membatalkan pengalihan aset');
+      throw ApiException(message: e.message ?? 'Gagal membatalkan pengalihan');
     }
   }
 }
