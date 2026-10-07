@@ -7,6 +7,7 @@ import 'package:simlog_mobile/features/aset/presentation/widgets/modal_pengaliha
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:simlog_mobile/features/master/presentation/providers/master_barang_provider.dart';
+import 'package:simlog_mobile/features/aset/presentation/providers/peminjaman_provider.dart';
 
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
   MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
@@ -34,11 +35,11 @@ class FakePengalihanActionNotifier extends StateNotifier<PengalihanActionState>
 void main() {
   const testUser = UserModel(
     id: 5,
-    name: 'Karu IGD',
-    email: 'karu_igd@simlogrs.local',
+    name: 'Karu ICU',
+    email: 'karu_icu@simlogrs.local',
     roles: ['kepala_unit'],
     permissions: [],
-    unit: UnitModel(id: 3, nama: 'Instalasi Gawat Darurat (IGD)', kode: 'IGD'),
+    unit: UnitModel(id: 4, nama: 'Intensive Care Unit (ICU)', kode: 'ICU'),
   );
 
   const testAset = AsetTersediaModel(
@@ -76,8 +77,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
-          masterUnitListProvider.overrideWith((ref) => Future.value(dummyUnits)),
-          masterGudangListProvider.overrideWith((ref) => Future.value([])),
+          katalogAsetTersediaProvider('').overrideWith((ref) => Future.value([testAset])),
           pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(
@@ -91,12 +91,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Tahap 1 and Tahap 2 card headers
-    expect(find.text('Tahap 1: Aset & Fasilitas Asal'), findsOneWidget);
-    expect(find.text('Tahap 2: Fasilitas Tujuan & Alasan'), findsOneWidget);
+    expect(find.text('Tahap 1: Komoditas & Fasilitas Asal (Sumber)'), findsOneWidget);
+    expect(find.text('Tahap 2: Kuantitas & Alasan'), findsOneWidget);
 
-    // Verify locked origin unit is displayed
-    expect(find.text('Instalasi Gawat Darurat (IGD)'), findsWidgets);
-
+    // Verify locked destination unit is displayed
+    expect(find.text('Intensive Care Unit (ICU)'), findsWidgets);
+    expect(find.textContaining('Instalasi Gawat Darurat (IGD)'), findsWidgets);
     // Verify submit button exists
     final submitBtn = find.text('Ajukan Pengalihan Aset');
     expect(submitBtn, findsOneWidget);
@@ -130,9 +130,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
-          daftarAsetAsalProvider.overrideWith((ref) => Future.value([testAset])),
-          masterUnitListProvider.overrideWith((ref) => Future.value(dummyUnits)),
-          masterGudangListProvider.overrideWith((ref) => Future.value([])),
+          katalogAsetTersediaProvider('').overrideWith((ref) => Future.value([testAset])),
           pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(
@@ -161,8 +159,9 @@ void main() {
       'Relokasi mandiri alat medis ke ICU',
     );
     await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Ajukan Pengalihan Aset'));
+    final submitBtn = find.text('Ajukan Pengalihan Aset');
+    await tester.ensureVisible(submitBtn);
+    await tester.tap(submitBtn);
     await tester.pumpAndSettle();
 
     expect(fakeNotifier.ajukanCalled, isTrue);

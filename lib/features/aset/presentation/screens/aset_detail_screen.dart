@@ -472,8 +472,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
               ],
 
               // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
-              // Tombol Pengalihan / Mutasi Aset (Untuk aset milik unit sendiri atau Admin)
-              if ((isOwnedByCurrentUserLocation || isGlobalAdmin) && !currentAset.isDipinjam) ...[
+              // Tombol Pengalihan / Mutasi Aset (Meminta aset dari fasilitas lain masuk ke unit kerja Anda)
+              if ((!isOwnedByCurrentUserLocation || isGlobalAdmin) && currentAset.isTersedia && !currentAset.isDipinjam) ...[
                 OutlinedButton.icon(
                   onPressed: () {
                     final asetTersedia = AsetTersediaModel(
