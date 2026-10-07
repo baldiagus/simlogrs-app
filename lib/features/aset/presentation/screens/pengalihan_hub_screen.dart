@@ -10,7 +10,6 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/pengalihan_model.dart';
 import '../providers/pengalihan_provider.dart';
-import '../widgets/aset_picker_bottom_sheet.dart';
 import '../widgets/modal_pengalihan_aset_sheet.dart';
 import '../widgets/modal_pengalihan_barang_sheet.dart';
 
@@ -46,23 +45,12 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     _tabController.dispose();
     super.dispose();
   }
-
   void _openCreateAsetFlow() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => AsetPickerBottomSheet(
-        onAsetSelected: (aset) {
-          Navigator.pop(ctx);
-          ModalPengalihanAsetSheet.show(context, aset: aset).then((ok) {
-            if (ok == true) {
-              _refreshAll();
-            }
-          });
-        },
-      ),
-    );
+    ModalPengalihanAsetSheet.show(context).then((ok) {
+      if (ok == true) {
+        _refreshAll();
+      }
+    });
   }
 
   void _openCreateBarangFlow() {
