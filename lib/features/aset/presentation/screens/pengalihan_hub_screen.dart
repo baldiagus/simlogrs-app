@@ -299,7 +299,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             itemCount: list.length,
             itemBuilder: (context, index) {
               final item = list[index];
-              return _buildPengalihanCard(item);
+              return _buildPengalihanCard(item, tab);
             },
           ),
         );
@@ -312,7 +312,12 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     );
   }
 
-  Widget _buildPengalihanCard(PengalihanItemModel item) {
+  Widget _buildPengalihanCard(PengalihanItemModel item, String tab) {
+    final showApproveActions = tab == 'otorisasi' && item.canApprove;
+    final showCancelAction = tab == 'aktif' && item.canCancel;
+    final showReceiveAction = tab == 'aktif' && item.canReceive;
+    final hasActions = showApproveActions || showCancelAction || showReceiveAction;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -327,30 +332,36 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    item.kode,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                    decoration: BoxDecoration(
-                      color: item.tipe == 'ASET' ? AppColors.tintOrangeBg : AppColors.tintBlueBg,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      item.tipe,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: item.tipe == 'ASET' ? AppColors.tintOrange : AppColors.tintBlue,
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        item.kode,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: item.tipe == 'ASET' ? AppColors.tintOrangeBg : AppColors.tintBlueBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.tipe,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: item.tipe == 'ASET' ? AppColors.tintOrange : AppColors.tintBlue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               StatusBadge(status: item.status),
             ],
           ),
@@ -378,14 +389,14 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             'Tgl: ${item.tanggalPengalihan} • ${item.alasan ?? '-'}',
             style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
           ),
-          if (item.canApprove || item.canReceive || item.canCancel) ...[
+          if (hasActions) ...[
             const SizedBox(height: 12),
             const Divider(height: 1, color: AppColors.border),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (item.canCancel)
+                if (showCancelAction)
                   TextButton(
                     onPressed: () async {
                       final ok = await ref.read(pengalihanActionProvider.notifier).batalPengalihan(id: item.id, tipe: item.tipe);
@@ -396,7 +407,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                     style: TextButton.styleFrom(foregroundColor: AppColors.danger),
                     child: const Text('Batalkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                   ),
-                if (item.canApprove) ...[
+                if (showApproveActions) ...[
                   OutlinedButton(
                     onPressed: () async {
                       final ok = await ref.read(pengalihanActionProvider.notifier).otorisasiPengalihan(id: item.id, aksi: 'REJECT', tipe: item.tipe);
@@ -427,7 +438,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                     child: const Text('Setujui', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                   ),
                 ],
-                if (item.canReceive)
+                if (showReceiveAction)
                   ElevatedButton.icon(
                     onPressed: () async {
                       final ok = await ref.read(pengalihanActionProvider.notifier).serahTerimaPengalihan(id: item.id, tipe: item.tipe);
