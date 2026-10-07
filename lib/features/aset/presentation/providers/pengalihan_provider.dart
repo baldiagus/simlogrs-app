@@ -3,6 +3,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/pengalihan_model.dart';
+import '../../data/models/aset_tersedia_model.dart';
 import '../../data/repositories/pengalihan_repository.dart';
 
 final pengalihanRepositoryProvider = Provider<PengalihanRepository>((ref) {
@@ -24,6 +25,17 @@ final countOtorisasiPengalihanProvider = FutureProvider.autoDispose<int>((ref) a
   final kategori = ref.watch(selectedKategoriPengalihanProvider);
   final list = await repository.getDaftarPengalihan(tab: 'otorisasi', tipe: kategori);
   return list.length;
+});
+
+final daftarAsetAsalProvider = FutureProvider.autoDispose<List<AsetTersediaModel>>((ref) async {
+  final repository = ref.watch(pengalihanRepositoryProvider);
+  return await repository.getDaftarAsetAsal();
+});
+
+final stokTersediaGudangProvider =
+    FutureProvider.family.autoDispose<int, ({int barangId, int gudangId})>((ref, arg) async {
+  final repository = ref.watch(pengalihanRepositoryProvider);
+  return await repository.getStokTersedia(barangId: arg.barangId, gudangId: arg.gudangId);
 });
 
 class PengalihanActionState {

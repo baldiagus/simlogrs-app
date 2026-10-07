@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/pengalihan_model.dart';
+import '../models/aset_tersedia_model.dart';
 
 class PengalihanRepository {
   final DioClient _client;
@@ -68,6 +69,40 @@ class PengalihanRepository {
         throw e.error as ApiException;
       }
       throw ApiException(message: e.message ?? 'Gagal mengajukan pengalihan barang');
+    }
+  }
+
+  Future<List<AsetTersediaModel>> getDaftarAsetAsal() async {
+    try {
+      final response = await _client.dio.get('/aset/pengalihan/inventaris-asal');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is List) {
+        return (data['data'] as List)
+            .map((item) => AsetTersediaModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.error is ApiException) {
+        throw e.error as ApiException;
+      }
+      throw ApiException(message: e.message ?? 'Gagal memuat inventaris aset asal');
+    }
+  }
+
+  Future<int> getStokTersedia({required int barangId, required int gudangId}) async {
+    try {
+      final response = await _client.dio.get(
+        '/gudang/stok-tersedia',
+        queryParameters: {'barang_id': barangId, 'gudang_id': gudangId},
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+        return (data['data']['stok_tersedia'] as num?)?.toInt() ?? 0;
+      }
+      return 0;
+    } catch (_) {
+      return 0;
     }
   }
 

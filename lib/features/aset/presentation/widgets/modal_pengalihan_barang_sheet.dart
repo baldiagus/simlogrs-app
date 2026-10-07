@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -59,6 +60,14 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
     }
 
     final jumlah = int.tryParse(_quantityController.text.trim()) ?? 1;
+    if (_selectedBarangId != null && _selectedGudangAsalId != null) {
+      final stokAsync = ref.read(stokTersediaGudangProvider((barangId: _selectedBarangId!, gudangId: _selectedGudangAsalId!)));
+      final stokTersedia = stokAsync.valueOrNull;
+      if (stokTersedia != null && (stokTersedia <= 0 || jumlah > stokTersedia)) {
+        AppToast.error(context, 'Jumlah kuantitas melebihi stok tersedia di gudang asal (maksimal $stokTersedia).');
+        return;
+      }
+    }
 
     final payload = {
       'barang_id': _selectedBarangId,
@@ -91,6 +100,11 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
     final barangAsync = ref.watch(masterBarangListProvider);
     final gudangsAsync = ref.watch(masterGudangListProvider);
     final actionState = ref.watch(pengalihanActionProvider);
+
+    final stokTersediaAsync = (_selectedBarangId != null && _selectedGudangAsalId != null)
+        ? ref.watch(stokTersediaGudangProvider((barangId: _selectedBarangId!, gudangId: _selectedGudangAsalId!)))
+        : null;
+    final stokTersedia = stokTersediaAsync?.valueOrNull;
 
     return AppBottomSheetWrapper(
       maxHeightFactor: 0.9,
@@ -257,19 +271,77 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                       ),
                       const SizedBox(height: 12),
 
+                      if (_selectedBarangId != null && _selectedGudangAsalId != null && stokTersediaAsync != null) ...[
+                        stokTersediaAsync.when(
+                          data: (stok) {
+                            final isHabis = stok <= 0;
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isHabis ? const Color(0xFFFEF2F2) : AppColors.tintTealBg,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isHabis ? AppColors.danger.withValues(alpha: 0.3) : AppColors.tintTeal.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isHabis ? LucideIcons.alertTriangle : LucideIcons.packageCheck,
+                                    size: 16,
+                                    color: isHabis ? AppColors.danger : AppColors.tintTeal,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      isHabis
+                                          ? 'Stok kosong di gudang asal terpilih (0 unit).'
+                                          : 'Stok tersedia di gudang asal: $stok unit',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isHabis ? AppColors.danger : AppColors.tintTeal,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          loading: () => const LinearProgressIndicator(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
+                      ],
+
                       // Jumlah Unit
                       TextFormField(
                         key: const Key('field_jumlah_barang'),
                         controller: _quantityController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: InputDecoration(
                           labelText: 'Jumlah Kuantitas Dialihkan *',
-                          prefixIcon: Icon(LucideIcons.hash, size: 18),
+                          helperText: stokTersedia != null && stokTersedia > 0 ? 'Maksimal $stokTersedia unit' : null,
+                          prefixIcon: const Icon(LucideIcons.hash, size: 18),
                         ),
+                        onChanged: (val) {
+                          final parsed = int.tryParse(val.trim());
+                          if (parsed != null && stokTersedia != null && stokTersedia > 0 && parsed > stokTersedia) {
+                            _quantityController.text = stokTersedia.toString();
+                            _quantityController.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _quantityController.text.length),
+                            );
+                            setState(() {});
+                          }
+                        },
                         validator: (v) {
                           final parsed = int.tryParse(v?.trim() ?? '');
                           if (parsed == null || parsed < 1) {
                             return 'Jumlah kuantitas minimal 1';
+                          }
+                          if (stokTersedia != null && parsed > stokTersedia) {
+                            return 'Jumlah melebihi stok tersedia (maksimal $stokTersedia)';
                           }
                           return null;
                         },

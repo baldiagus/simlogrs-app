@@ -115,4 +115,57 @@ void main() {
     expect(fakeNotifier.ajukanCalled, isTrue);
     await tester.pump(const Duration(seconds: 4));
   });
+
+  testWidgets('ModalPengalihanAsetSheet renders standalone dropdown selector when opened without initial asset', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeNotifier = FakePengalihanActionNotifier();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+          daftarAsetAsalProvider.overrideWith((ref) => Future.value([testAset])),
+          masterUnitListProvider.overrideWith((ref) => Future.value(dummyUnits)),
+          masterGudangListProvider.overrideWith((ref) => Future.value([])),
+          pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: ModalPengalihanAsetSheet(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify standalone asset dropdown is rendered
+    final dropdownFinder = find.byKey(const Key('dropdown_aset_asal'));
+    expect(dropdownFinder, findsOneWidget);
+
+    // Select asset
+    await tester.tap(dropdownFinder);
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Bed Pasien Elektrik').last);
+    await tester.pumpAndSettle();
+
+    // Fill reason and submit
+    await tester.enterText(
+      find.byKey(const Key('field_alasan_pengalihan')),
+      'Relokasi mandiri alat medis ke ICU',
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Ajukan Pengalihan Aset'));
+    await tester.pumpAndSettle();
+
+    expect(fakeNotifier.ajukanCalled, isTrue);
+    await tester.pump(const Duration(seconds: 4));
+  });
 }

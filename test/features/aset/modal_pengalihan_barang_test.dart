@@ -87,6 +87,7 @@ void main() {
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testGudangUser)),
           masterBarangListProvider.overrideWith((ref) => Future.value(dummyBarangs)),
           masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          stokTersediaGudangProvider((barangId: 2, gudangId: 3)).overrideWith((ref) => Future.value(26)),
           pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(
@@ -141,11 +142,68 @@ void main() {
     await tester.tap(optionKertas);
     await tester.pumpAndSettle();
 
+    // Verify stock availability text appears
+    expect(find.textContaining('Stok tersedia di gudang asal: 26 unit'), findsOneWidget);
+
+    // Enter valid quantity (5)
+    final qtyField = find.byKey(const Key('field_jumlah_barang'));
+    await tester.enterText(qtyField, '5');
+    await tester.pumpAndSettle();
+
     // Tap submit again
     await tester.tap(submitBtn);
     await tester.pumpAndSettle();
 
     expect(fakeNotifier.ajukanBarangCalled, isTrue);
     await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('ModalPengalihanBarangSheet clamps quantity when exceeding available stock', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeNotifier = FakePengalihanActionNotifier();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testGudangUser)),
+          masterBarangListProvider.overrideWith((ref) => Future.value(dummyBarangs)),
+          masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          stokTersediaGudangProvider((barangId: 2, gudangId: 3)).overrideWith((ref) => Future.value(10)),
+          pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: ModalPengalihanBarangSheet(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Select origin warehouse & barang
+    await tester.tap(find.byKey(const Key('dropdown_gudang_asal_barang')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gudang ATK & Cetakan').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('dropdown_barang_logistik')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Kertas A4').last);
+    await tester.pumpAndSettle();
+
+    // Enter quantity 25 (exceeding stock of 10)
+    final qtyField = find.byKey(const Key('field_jumlah_barang'));
+    await tester.enterText(qtyField, '25');
+    await tester.pumpAndSettle();
+
+    // Should be clamped to 10
+    expect(find.text('10'), findsOneWidget);
   });
 }

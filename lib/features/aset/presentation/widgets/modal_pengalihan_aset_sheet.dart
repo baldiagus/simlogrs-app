@@ -11,14 +11,14 @@ import '../../data/models/aset_tersedia_model.dart';
 import '../providers/pengalihan_provider.dart';
 
 class ModalPengalihanAsetSheet extends ConsumerStatefulWidget {
-  final AsetTersediaModel aset;
+  final AsetTersediaModel? aset;
 
   const ModalPengalihanAsetSheet({
     super.key,
-    required this.aset,
+    this.aset,
   });
 
-  static Future<bool?> show(BuildContext context, {required AsetTersediaModel aset}) {
+  static Future<bool?> show(BuildContext context, {AsetTersediaModel? aset}) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -35,10 +35,17 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
   final _formKey = GlobalKey<FormState>();
   final _alasanController = TextEditingController();
   final _catatanController = TextEditingController();
+  AsetTersediaModel? _chosenAset;
 
   String _tipeTujuan = 'RUANGAN'; // 'RUANGAN' | 'GUDANG'
   int? _selectedUnitTujuanId;
   int? _selectedGudangTujuanId;
+
+  @override
+  void initState() {
+    super.initState();
+    _chosenAset = widget.aset;
+  }
 
   @override
   void dispose() {
@@ -51,9 +58,13 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final user = ref.read(authStateProvider).user;
-    final unitAsalId = user?.unit?.id ?? (widget.aset.tipePenyedia == 'RUANGAN' ? widget.aset.penyediaId : null);
-    final gudangAsalId = user?.gudang?.id ?? (widget.aset.tipePenyedia == 'GUDANG' ? widget.aset.penyediaId : null);
+    if (_chosenAset == null) {
+      AppToast.error(context, 'Pilih aset fisik yang ingin dialihkan.');
+      return;
+    }
 
+    final unitAsalId = user?.unit?.id ?? (_chosenAset!.tipePenyedia == 'RUANGAN' ? _chosenAset!.penyediaId : null);
+    final gudangAsalId = user?.gudang?.id ?? (_chosenAset!.tipePenyedia == 'GUDANG' ? _chosenAset!.penyediaId : null);
     // Anti self-transfer guard
     if (_tipeTujuan == 'RUANGAN' && _selectedUnitTujuanId != null && unitAsalId != null) {
       if (_selectedUnitTujuanId == unitAsalId) {
@@ -69,7 +80,7 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
       'unit_asal_id': unitAsalId,
       'gudang_asal_id': gudangAsalId,
       'tipe_asal': unitAsalId != null ? 'RUANGAN' : 'GUDANG',
-      'aset_ids': [widget.aset.id],
+      'aset_ids': [_chosenAset!.id],
       'tanggal_pengalihan': DateTime.now().toIso8601String().substring(0, 10),
       'alasan': _alasanController.text.trim(),
       if (_catatanController.text.trim().isNotEmpty) 'catatan': _catatanController.text.trim(),
@@ -92,7 +103,7 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final unitAsalNama = user?.unit?.nama ?? widget.aset.namaPenyedia;
+    final unitAsalNama = user?.unit?.nama ?? _chosenAset?.namaPenyedia ?? 'Fasilitas Anda';
     final unitsAsync = ref.watch(masterUnitListProvider);
     final gudangsAsync = ref.watch(masterGudangListProvider);
     final actionState = ref.watch(pengalihanActionProvider);
@@ -177,33 +188,76 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.border),
+                    if (_chosenAset != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _chosenAset!.namaKomoditas,
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Kode: ${_chosenAset!.kodeAset} • SN: ${_chosenAset!.nomorSeri}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Kondisi: ${_chosenAset!.kondisi} • Satuan: ${_chosenAset!.satuan}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.aset.namaKomoditas,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Kode: ${widget.aset.kodeAset} • SN: ${widget.aset.nomorSeri}',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Kondisi: ${widget.aset.kondisi} • Satuan: ${widget.aset.satuan}',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                          ),
-                        ],
+                    ] else ...[
+                      ref.watch(daftarAsetAsalProvider).when(
+                        data: (asets) {
+                          if (asets.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                'Tidak ada aset fisik di fasilitas Anda yang siap dialihkan.',
+                                style: TextStyle(fontSize: 12, color: AppColors.warning),
+                              ),
+                            );
+                          }
+                          return DropdownButtonFormField<int>(
+                            key: const Key('dropdown_aset_asal'),
+                            isExpanded: true,
+                            initialValue: _chosenAset?.id,
+                            decoration: const InputDecoration(
+                              labelText: 'Pilih Aset Fisik Inventaris *',
+                              prefixIcon: Icon(LucideIcons.armchair, size: 18),
+                            ),
+                            items: asets.map((a) {
+                              return DropdownMenuItem<int>(
+                                value: a.id,
+                                child: Text(
+                                  '${a.namaKomoditas} (${a.kodeAset})',
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                _chosenAset = asets.firstWhere((a) => a.id == val);
+                              });
+                            },
+                            validator: (v) => _chosenAset == null ? 'Pilih aset inventaris' : null,
+                          );
+                        },
+                        loading: () => const LinearProgressIndicator(),
+                        error: (_, __) => const Text('Gagal memuat inventaris aset'),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
