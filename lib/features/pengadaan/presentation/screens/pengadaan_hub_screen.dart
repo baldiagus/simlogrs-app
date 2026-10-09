@@ -348,7 +348,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
           ),
           _buildPoTab(canManagePo: canManagePo),
           if (canViewInbound)
-            _buildInboundTab(isGudangUser: isGudangUser || isAdminLogistik || isSuperAdmin),
+            _buildInboundTab(canReceiveInbound: user?.canReceiveInbound ?? false),
         ],
       ),
     );
@@ -537,7 +537,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     );
   }
 
-  Widget _buildInboundTab({required bool isGudangUser}) {
+  Widget _buildInboundTab({required bool canReceiveInbound}) {
     final inboundAsync = ref.watch(daftarPoInboundProvider);
 
     return Column(
@@ -587,7 +587,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (ctx, idx) {
                     final item = filtered[idx];
-                    return _buildInboundCard(context, item, isGudangUser);
+                    return _buildInboundCard(context, item, canReceiveInbound);
                   },
                 );
               },
@@ -604,7 +604,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     );
   }
 
-  Widget _buildInboundCard(BuildContext context, PoInboundHeaderModel item, bool isGudangUser) {
+  Widget _buildInboundCard(BuildContext context, PoInboundHeaderModel item, bool canReceiveInbound) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -638,7 +638,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
             '${item.totalItem} Item Barang • Tanggal PO: ${item.tanggalPo}',
             style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
-          if (isGudangUser && item.canReceive) ...[
+          if (canReceiveInbound && item.canReceive) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -663,6 +663,26 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
+              ),
+            ),
+          ] else if (item.canReceive && !canReceiveInbound) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSecondary,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.eye, size: 13, color: AppColors.textSecondary),
+                  SizedBox(width: 6),
+                  Text(
+                    'Mode Pemantauan (Penerimaan Fisik di Gudang Sentral)',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  ),
+                ],
               ),
             ),
           ],

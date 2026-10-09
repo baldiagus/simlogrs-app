@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
@@ -69,6 +70,11 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
   }
 
   Future<void> _submit() async {
+    final user = ref.read(authStateProvider).user;
+    if (!(user?.canReceiveInbound ?? false)) {
+      AppToast.error(context, 'Anda tidak memiliki wewenang untuk menerima PO gudang.');
+      return;
+    }
     if (!widget.po.canReceive) {
       AppToast.error(context, 'PO belum dikirim oleh vendor, penerimaan fisik belum dapat diproses.');
       return;
@@ -124,22 +130,24 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: Text('Terima PO: ${widget.po.kodePo}'),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.ban, size: 20, color: AppColors.danger),
-            tooltip: 'Tolak Kiriman Fisik',
-            onPressed: () async {
-              final rejected = await ModalTolakPenerimaanSheet.show(
-                context,
-                po: widget.po,
-                nomorSuratJalanAwal: _suratJalanController.text.trim(),
-              );
-              if (rejected == true && mounted) {
-                Navigator.pop(context, true);
-              }
-            },
-          ),
-        ],
+        actions: (ref.watch(authStateProvider).user?.canReceiveInbound ?? false)
+            ? [
+                IconButton(
+                  icon: const Icon(LucideIcons.ban, size: 20, color: AppColors.danger),
+                  tooltip: 'Tolak Kiriman Fisik',
+                  onPressed: () async {
+                    final rejected = await ModalTolakPenerimaanSheet.show(
+                      context,
+                      po: widget.po,
+                      nomorSuratJalanAwal: _suratJalanController.text.trim(),
+                    );
+                    if (rejected == true && mounted) {
+                      Navigator.pop(context, true);
+                    }
+                  },
+                ),
+              ]
+            : null,
       ),
       body: SafeArea(
         child: Column(
@@ -331,12 +339,29 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                       const SizedBox(width: 12),
                       Expanded(
                         flex: 5,
-                        child: CustomButton(
-                          text: 'Simpan ke Stok Gudang',
-                          isLoading: actionState.isLoading,
-                          icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
-                          onPressed: _submit,
-                        ),
+                        child: (ref.watch(authStateProvider).user?.canReceiveInbound ?? false)
+                            ? CustomButton(
+                                text: 'Simpan ke Stok Gudang',
+                                isLoading: actionState.isLoading,
+                                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                                onPressed: _submit,
+                              )
+                            : Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceSecondary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text(
+                                  'Mode Peninjauan (Hanya Lihat)',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
                       ),
                     ],
                   ),

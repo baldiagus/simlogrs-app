@@ -90,7 +90,13 @@ class UserModel {
   bool get isSuperAdmin => hasRole('super_admin');
   bool get isKepalaTeknisi => hasRole('kepala_teknisi') && !isSuperAdmin;
   bool get isTeknisi => hasRole('teknisi') && !isKepalaTeknisi && !isSuperAdmin;
-  bool get isGudangUser => (hasRole('petugas_gudang') || hasRole('kepala_gudang') || hasRole('admin_logistik') || gudang != null) && !isSuperAdmin;
+  bool get isGudangUser => (hasRole('petugas_gudang') || hasRole('kepala_gudang') || hasRole('admin_logistik')) && !isSuperAdmin;
+  bool get canReceiveInbound =>
+      isSuperAdmin ||
+      isAdminLogistik ||
+      hasRole('kepala_gudang') ||
+      hasRole('petugas_gudang') ||
+      can('create_gudang_stok::penerimaan::po');
   bool get isKepalaGudang => (hasRole('kepala_gudang') || can('page_KepalaGudangDashboard')) && !isSuperAdmin;
   bool get isPetugasGudang => hasRole('petugas_gudang') && !isSuperAdmin;
   bool get isKaru => (hasRole('kepala_unit') || isKepalaTeknisi || can('page_KepalaUnitDashboard')) && !isSuperAdmin;

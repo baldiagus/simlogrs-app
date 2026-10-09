@@ -4,8 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/features/gudang/data/models/po_inbound_model.dart';
 import 'package:simlog_mobile/features/gudang/data/models/rak_model.dart';
+import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
+import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:simlog_mobile/features/gudang/presentation/providers/gudang_provider.dart';
 import 'package:simlog_mobile/features/gudang/presentation/screens/form_penerimaan_po_screen.dart';
+
+class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
+  MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   const mockPo = PoInboundHeaderModel(
@@ -44,6 +53,14 @@ void main() {
     ),
   ];
 
+  const gudangUser = UserModel(
+    id: 1,
+    name: 'Petugas Gudang',
+    email: 'gudang@simlogrs.local',
+    roles: ['petugas_gudang'],
+    permissions: ['create_gudang_stok::penerimaan::po'],
+  );
+
   testWidgets('FormPenerimaanPoScreen displays clean item card and reactive total format', (tester) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -55,6 +72,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(gudangUser)),
           daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
         ],
         child: const MaterialApp(
@@ -94,6 +112,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(gudangUser)),
           daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
         ],
         child: const MaterialApp(
