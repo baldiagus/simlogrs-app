@@ -49,44 +49,46 @@ class DashboardIpsrsView extends ConsumerWidget {
         const MasterShortcutSection(),
         const SizedBox(height: 20),
 
-        // 3. Quick Action Grid (Khusus Komando & Lapangan IPSRS)
-        QuickActionGrid(
-          pendingCount: summary.totalPendingApproval,
-          isTeknisi: isTeknisi,
-          isKepalaTeknisi: isKepalaTeknisi,
-          onApprovalTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
-            );
-          },
-          onPengadaanTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
-            );
-          },
-          onAmprahTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
-            );
-          },
-          onAsetTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
-            );
-          },
-          onLaporRusakTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
-            );
-          },
-          onRakGudangTap: () {},
-        ),
-        const SizedBox(height: 16),
+        // 3. Quick Action Grid (Dihapus pada beranda role teknisi saja)
+        if (!isTeknisi) ...[
+          QuickActionGrid(
+            pendingCount: summary.totalPendingApproval,
+            isTeknisi: isTeknisi,
+            isKepalaTeknisi: isKepalaTeknisi,
+            onApprovalTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+              );
+            },
+            onPengadaanTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
+              );
+            },
+            onAmprahTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+              );
+            },
+            onAsetTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
+              );
+            },
+            onLaporRusakTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
+              );
+            },
+            onRakGudangTap: () {},
+          ),
+          const SizedBox(height: 16),
+        ],
 
         // 4. Modul Khusus Pengerjaan Teknisi IPSRS
         const IpsrsShortcutGrid(),

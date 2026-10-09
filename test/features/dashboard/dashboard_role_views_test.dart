@@ -24,6 +24,7 @@ import 'package:simlog_mobile/features/maintenance/presentation/providers/mainte
 import 'package:simlog_mobile/features/maintenance/presentation/providers/tiket_maintenance_provider.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/tiket_maintenance_model.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/spk_header_model.dart';
+import 'package:simlog_mobile/features/dashboard/presentation/widgets/gudang_shortcut_grid.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/widgets/ipsrs_shortcut_grid.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/providers/pengadaan_provider.dart';
@@ -87,6 +88,13 @@ void main() {
     unit: UnitModel(id: 8, nama: 'Direksi', kode: 'DIREKSI'),
   );
 
+  const superadminUser = UserModel(
+    id: 99,
+    name: 'Bambang Superadmin',
+    email: 'superadmin@simlogrs.local',
+    roles: ['super_admin'],
+    permissions: [],
+  );
   Widget createWidgetForUser(UserModel user) {
     return ProviderScope(
       overrides: [
@@ -185,13 +193,35 @@ void main() {
 
     await tester.pumpWidget(createWidgetForUser(teknisiUser));
     await tester.pumpAndSettle();
-
     expect(find.byType(DashboardIpsrsView), findsOneWidget);
     expect(find.byType(IpsrsShortcutGrid), findsOneWidget);
     expect(find.text('Tugas Lapangan Teknisi'), findsOneWidget);
-    expect(find.text('Pengadaan'), findsOneWidget);
+    expect(find.text('Pengadaan'), findsNothing);
+    expect(find.text('Amprah Ruangan'), findsNothing);
+    expect(find.text('Sirkulasi Aset'), findsNothing);
+    expect(find.text('Lapor Rusak'), findsNothing);
+    expect(find.byType(DashboardRuanganView), findsNothing);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardEksekutifView), findsNothing);
+  });
+
+  testWidgets('HomeScreen routes Superadmin user to DashboardEksekutifView with GudangShortcutGrid', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createWidgetForUser(superadminUser));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DashboardEksekutifView), findsOneWidget);
+    expect(find.byType(GudangShortcutGrid), findsOneWidget);
+    expect(find.text('Monitoring FEFO'), findsOneWidget);
+    expect(find.text('Buku Mutasi'), findsOneWidget);
+    expect(find.text('Stock Opname'), findsOneWidget);
+    expect(find.text('Otorisasi Selisih'), findsOneWidget);
   });
 
   testWidgets('HomeScreen routes Manajemen user to DashboardEksekutifView', (tester) async {

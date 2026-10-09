@@ -15,6 +15,7 @@ import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
 import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
+import '../widgets/gudang_shortcut_grid.dart';
 import '../widgets/user_top_bar.dart';
 
 class DashboardEksekutifView extends ConsumerWidget {
@@ -32,6 +33,7 @@ class DashboardEksekutifView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
+    final isSuperAdmin = user?.isSuperAdmin ?? false;
     final isAuditor = user?.isAuditor ?? false;
     final isManajemen = user?.isManajemen ?? false;
     final isPengadaan = user?.isPengadaan ?? false;
@@ -99,6 +101,12 @@ class DashboardEksekutifView extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 16),
+
+        // 4. Modul Khusus Gudang (FEFO, Mutasi, Opname, Otorisasi Selisih untuk Super Admin)
+        if (isSuperAdmin) ...[
+          const GudangShortcutGrid(),
+          const SizedBox(height: 16),
+        ],
 
         // 4. Modul Khusus Pengadaan (Monitoring & Verifikasi PR)
         if (isPengadaan) ...[
