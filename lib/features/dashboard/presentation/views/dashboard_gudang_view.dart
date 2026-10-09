@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_action_banner_card.dart';
-import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
+import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
+import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
@@ -58,7 +62,18 @@ class DashboardGudangView extends ConsumerWidget {
           isKepalaGudang: isKepalaGudang,
           isPetugasGudang: isPetugasGudang,
           isAdminLogistik: isAdminLogistik,
-          onApprovalTap: () => onNavigateTab?.call(1),
+          onApprovalTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+            );
+          },
+          onAmprahTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+            );
+          },
           onPickingTap: () {
             Navigator.push(
               context,
@@ -83,8 +98,18 @@ class DashboardGudangView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
             );
           },
-          onAsetTap: () {},
-          onLaporRusakTap: () {},
+          onAsetTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
+            );
+          },
+          onLaporRusakTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+            );
+          },
         ),
         const SizedBox(height: 16),
 

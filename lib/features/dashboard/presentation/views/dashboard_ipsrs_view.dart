@@ -4,6 +4,9 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../approval/presentation/screens/approval_center_screen.dart';
+import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
@@ -47,8 +50,24 @@ class DashboardIpsrsView extends ConsumerWidget {
           pendingCount: summary.totalPendingApproval,
           isTeknisi: isTeknisi,
           isKepalaTeknisi: isKepalaTeknisi,
-          onApprovalTap: () => onNavigateTab?.call(1),
-          onLaporRusakTap: () => onNavigateTab?.call(2), // Tab IPSRS
+          onApprovalTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+            );
+          },
+          onAmprahTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+            );
+          },
+          onLaporRusakTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+            );
+          },
           onSpkTap: () {
             Navigator.push(
               context,

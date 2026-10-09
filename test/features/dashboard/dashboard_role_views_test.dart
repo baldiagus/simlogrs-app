@@ -14,7 +14,14 @@ import 'package:simlog_mobile/features/dashboard/presentation/views/dashboard_ek
 import 'package:simlog_mobile/features/dashboard/presentation/views/dashboard_gudang_view.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/views/dashboard_ipsrs_view.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/views/dashboard_ruangan_view.dart';
-
+import 'package:simlog_mobile/features/distribusi/presentation/screens/amprah_hub_screen.dart';
+import 'package:simlog_mobile/features/distribusi/presentation/providers/distribusi_provider.dart';
+import 'package:simlog_mobile/features/distribusi/data/models/amprah_model.dart';
+import 'package:simlog_mobile/features/distribusi/data/models/sppb_model.dart';
+import 'package:simlog_mobile/features/maintenance/presentation/screens/lapor_cepat_screen.dart';
+import 'package:simlog_mobile/features/maintenance/presentation/screens/spk_list_screen.dart';
+import 'package:simlog_mobile/features/maintenance/presentation/providers/maintenance_provider.dart';
+import 'package:simlog_mobile/features/maintenance/data/models/spk_header_model.dart';
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
   MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
 
@@ -79,6 +86,9 @@ void main() {
         approvalPendingProvider.overrideWith((ref) => Future.value(const ApprovalPendingResponse(prList: [], amprahList: [], totalPr: 0, totalAmprah: 0))),
         daftarPengalihanProvider('aktif').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
         daftarPengalihanProvider('riwayat').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
+        daftarAmprahProvider.overrideWith((ref, params) => Future.value(<AmprahHeaderModel>[])),
+        sppbInboundProvider.overrideWith((ref) => Future.value(<SppbHeaderModel>[])),
+        spkListProvider.overrideWith((ref, status) => Future.value(<SpkHeaderModel>[])),
       ],
       child: const MaterialApp(
         home: HomeScreen(),
@@ -103,6 +113,24 @@ void main() {
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardIpsrsView), findsNothing);
     expect(find.byType(DashboardEksekutifView), findsNothing);
+
+    // Tap Amprah Ruangan button
+    final amprahBtn = find.text('Amprah Ruangan');
+    await tester.ensureVisible(amprahBtn);
+    await tester.tap(amprahBtn);
+    await tester.pumpAndSettle();
+    expect(find.byType(AmprahHubScreen), findsOneWidget);
+
+    // Go back
+    Navigator.pop(tester.element(find.byType(AmprahHubScreen)));
+    await tester.pumpAndSettle();
+
+    // Tap Lapor Rusak button
+    final laporBtn = find.text('Lapor Rusak');
+    await tester.ensureVisible(laporBtn);
+    await tester.tap(laporBtn);
+    await tester.pumpAndSettle();
+    expect(find.byType(LaporCepatScreen), findsOneWidget);
   });
 
   testWidgets('HomeScreen routes Gudang user to DashboardGudangView', (tester) async {
@@ -159,5 +187,23 @@ void main() {
     expect(find.byType(DashboardRuanganView), findsNothing);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardIpsrsView), findsNothing);
+
+    // Tap Amprah Ruangan button in executive dashboard
+    final amprahBtn = find.text('Amprah Ruangan');
+    await tester.ensureVisible(amprahBtn);
+    await tester.tap(amprahBtn);
+    await tester.pumpAndSettle();
+    expect(find.byType(AmprahHubScreen), findsOneWidget);
+
+    // Go back
+    Navigator.pop(tester.element(find.byType(AmprahHubScreen)));
+    await tester.pumpAndSettle();
+
+    // Tap Pantau SPK button in executive dashboard
+    final spkBtn = find.text('Pantau SPK');
+    await tester.ensureVisible(spkBtn);
+    await tester.tap(spkBtn);
+    await tester.pumpAndSettle();
+    expect(find.byType(SpkListScreen), findsOneWidget);
   });
 }

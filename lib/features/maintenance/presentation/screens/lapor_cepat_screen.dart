@@ -286,15 +286,16 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                           style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
                           children: [
                             OutlinedButton.icon(
                               onPressed: () => _pickImage(ImageSource.camera),
                               icon: const Icon(LucideIcons.camera, size: 16),
                               label: const Text('Buka Kamera'),
                             ),
-                            const SizedBox(width: 10),
                             OutlinedButton.icon(
                               onPressed: () => _pickImage(ImageSource.gallery),
                               icon: const Icon(LucideIcons.folder, size: 16),

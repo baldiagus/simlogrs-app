@@ -8,6 +8,8 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
@@ -49,14 +51,28 @@ class DashboardRuanganView extends ConsumerWidget {
         QuickActionGrid(
           pendingCount: summary.totalPendingApproval,
           isKaru: isKaru,
-          onApprovalTap: () => onNavigateTab?.call(1),
+          onApprovalTap: () {
+            if (isKaru) {
+              onNavigateTab?.call(1);
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+              );
+            }
+          },
           onAmprahTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
             );
           },
-          onLaporRusakTap: () => onNavigateTab?.call(2), // Tab IPSRS
+          onLaporRusakTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+            );
+          },
           onAsetTap: () {
             Navigator.push(
               context,

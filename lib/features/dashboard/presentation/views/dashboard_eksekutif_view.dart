@@ -10,6 +10,9 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../master/presentation/screens/master_barang_screen.dart';
 import '../../../master/presentation/screens/register_aset_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
+import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
@@ -76,7 +79,29 @@ class DashboardEksekutifView extends ConsumerWidget {
             );
           },
           onRakGudangTap: () {},
-          onLaporRusakTap: () {},
+          onAmprahTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+            );
+          },
+          onSpkTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SpkListScreen(
+                  allowedStatuses: null,
+                  customTitle: 'Monitoring SPK Rumah Sakit',
+                ),
+              ),
+            );
+          },
+          onLaporRusakTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+            );
+          },
         ),
         const SizedBox(height: 16),
 
