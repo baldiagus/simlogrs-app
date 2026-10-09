@@ -228,11 +228,11 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     final isSuperAdmin = user?.hasRole('super_admin') ?? false;
     final isAdminLogistik = user?.isAdminLogistik ?? false;
     final isKaru = user?.isKaru ?? false;
-    final isGudangUser = user?.isGudangUser ?? false;
+    final isKepalaGudang = user?.isKepalaGudang ?? false;
 
     final canApproveKaru = !isPengadaan &&
         (isKaru ||
-            isGudangUser ||
+            isKepalaGudang ||
             isAdminLogistik ||
             isSuperAdmin ||
             (user?.can('update_pengadaan::permintaan::pengadaan') ?? false));

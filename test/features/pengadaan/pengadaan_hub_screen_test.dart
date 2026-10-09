@@ -35,6 +35,25 @@ void main() {
     permissions: [],
     unit: UnitModel(id: 3, nama: 'Ruang Melati', kode: 'MELATI'),
   );
+
+  const petugasGudangUser = UserModel(
+    id: 3,
+    name: 'Joko Gudang',
+    email: 'petugasgudang@simlogrs.local',
+    roles: ['petugas_gudang'],
+    permissions: ['view_any_gudang_stok::penerimaan::po'],
+    gudang: GudangModel(id: 1, nama: 'Gudang Sentral', kode: 'GUD_SENTRAL'),
+  );
+
+  const kepalaGudangUser = UserModel(
+    id: 4,
+    name: 'Hendra Kepala Gudang',
+    email: 'kepalagudang@simlogrs.local',
+    roles: ['kepala_gudang'],
+    permissions: ['view_any_gudang_stok::penerimaan::po'],
+    gudang: GudangModel(id: 1, nama: 'Gudang Sentral', kode: 'GUD_SENTRAL'),
+  );
+
   const dummyPr = PrHeaderModel(
     id: 10,
     kode: 'PR-202610-001',
@@ -148,8 +167,50 @@ void main() {
     // Switch to Tab 2 (Pesanan PO)
     await tester.tap(find.text('Pesanan (PO)'));
     await tester.pumpAndSettle();
-
     // On Tab 2 (PO): FAB 'Ajukan PR Baru' is hidden
     expect(find.text('Ajukan PR Baru'), findsNothing);
+  });
+
+  testWidgets('PengadaanHubScreen hides PR authorization buttons for Petugas Gudang but shows for Kepala Gudang', (tester) async {
+    const diajukanPr = PrHeaderModel(
+      id: 11,
+      kode: 'PR-202610-002',
+      unit: 'Gudang Sentral',
+      pengaju: 'Staf Logistik',
+      tanggalPermintaan: '2026-10-08',
+      urgensi: 'NORMAL',
+      status: 'DIAJUKAN',
+      jumlahItem: 1,
+      items: [],
+    );
+
+    Widget createCustomWidget(UserModel user) {
+      return ProviderScope(
+        key: UniqueKey(),
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
+          daftarPrProvider.overrideWith((ref) => Future.value([diajukanPr])),
+          poListProvider.overrideWith((ref) => Future.value([])),
+          daftarPoInboundProvider.overrideWith((ref) => Future.value([])),
+        ],
+        child: const MaterialApp(
+          home: PengadaanHubScreen(),
+        ),
+      );
+    }
+
+    // 1. Petugas Gudang: Buttons 'Setujui' & 'Tolak' MUST BE HIDDEN
+    await tester.pumpWidget(createCustomWidget(petugasGudangUser));
+    await tester.pumpAndSettle();
+    expect(find.text('PR-202610-002'), findsOneWidget);
+    expect(find.text('Setujui'), findsNothing);
+    expect(find.text('Tolak'), findsNothing);
+
+    // 2. Kepala Gudang: Buttons 'Setujui' & 'Tolak' MUST BE VISIBLE
+    await tester.pumpWidget(createCustomWidget(kepalaGudangUser));
+    await tester.pumpAndSettle();
+    expect(find.text('PR-202610-002'), findsOneWidget);
+    expect(find.text('Setujui'), findsOneWidget);
+    expect(find.text('Tolak'), findsOneWidget);
   });
 }

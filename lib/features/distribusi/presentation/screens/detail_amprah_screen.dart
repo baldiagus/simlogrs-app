@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/distribusi_provider.dart';
 
 class DetailAmprahScreen extends ConsumerWidget {
@@ -23,7 +25,12 @@ class DetailAmprahScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailAmprahProvider(amprahId));
     final actionState = ref.watch(amprahActionProvider);
-
+    final user = ref.watch(authStateProvider).user;
+    final canPick = (user?.isPetugasGudang == true) ||
+        (user?.isKepalaGudang == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.isSuperAdmin == true) ||
+        (user?.can('create_gudang_stok::picking::distribusi') == true);
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -262,6 +269,46 @@ class DetailAmprahScreen extends ConsumerWidget {
                     );
                   }),
                   const SizedBox(height: 24),
+                  // Tombol Eksekusi Picking FEFO (Khusus Petugas / Kepala Gudang)
+                  if (canPick &&
+                      (amprah.status == 'DISETUJUI_GUDANG' ||
+                          amprah.status == 'DISETUJUI_KARU' ||
+                          amprah.status == 'DIKIRIM_SEBAGIAN')) ...[
+                    CustomButton(
+                      text: 'Eksekusi Picking FEFO & Terbitkan SPPB',
+                      height: 44,
+                      backgroundColor: AppColors.primaryPurple,
+                      icon: const Icon(LucideIcons.arrowRightCircle, size: 18, color: Colors.white),
+                      isLoading: actionState.isLoading,
+                      onPressed: () async {
+                        final confirmed = await AppConfirmDialog.show(
+                          context,
+                          title: 'Konfirmasi Picking FEFO',
+                          message:
+                              'Alokasikan stok batch FEFO gudang dan terbitkan dokumen pengiriman SPPB untuk ${amprah.kode}?',
+                          confirmLabel: 'Ya, Eksekusi Picking',
+                          confirmColor: AppColors.primaryPurple,
+                          icon: LucideIcons.arrowRightCircle,
+                        );
+                        if (!confirmed || !context.mounted) return;
+
+                        final notifier = ref.read(amprahActionProvider.notifier);
+                        final ok = await notifier.eksekusiPicking(amprah.id);
+                        if (!context.mounted) return;
+                        final s = ref.read(amprahActionProvider);
+                        if (ok) {
+                          AppToast.success(context, s.successMessage ?? 'Picking FEFO berhasil. SPPB telah diterbitkan.');
+                          ref.invalidate(detailAmprahProvider(amprahId));
+                          ref.invalidate(daftarAmprahProvider);
+                          ref.invalidate(antreanPickingProvider);
+                          ref.invalidate(sppbInboundProvider);
+                        } else {
+                          AppToast.error(context, s.errorMessage ?? 'Gagal mengeksekusi picking');
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Batal Action button if canCancel
                   if (amprah.canCancel) ...[
