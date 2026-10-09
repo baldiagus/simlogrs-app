@@ -15,9 +15,15 @@ import '../../../maintenance/presentation/providers/maintenance_provider.dart';
 import '../../../maintenance/presentation/providers/tiket_maintenance_provider.dart';
 import '../../../maintenance/presentation/screens/ipsrs_hub_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
+import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
+import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
+import '../../../anggaran/presentation/screens/pagu_realisasi_screen.dart';
+import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
-
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key});
 
@@ -103,61 +109,160 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     );
   }
 
+  _ShellNavConfig _resolveNavConfig(UserModel? user) {
+    final homeScreen = HomeScreen(
+      onNavigateTab: (index) {
+        setState(() => _currentIndex = index);
+        _refreshActiveTabData();
+      },
+    );
+    const profileScreen = ProfileScreen();
+
+    // 1. Teknik & IPSRS (Teknisi / Kepala Teknisi)
+    if (user?.isTeknisi == true || user?.isKepalaTeknisi == true) {
+      final isKepalaTeknisi = user?.isKepalaTeknisi == true;
+      return _ShellNavConfig(
+        screens: [
+          homeScreen,
+          SpkListScreen(
+            isEmbedded: false,
+            leading: IconButton(
+              icon: const Icon(LucideIcons.arrowLeft),
+              tooltip: 'Kembali ke Beranda',
+              onPressed: () => setState(() => _currentIndex = 0),
+            ),
+            allowedStatuses: isKepalaTeknisi ? null : const ['DITUGASKAN'],
+            customTitle: isKepalaTeknisi ? 'Monitoring SPK IPSRS' : 'Surat Perintah Kerja (SPK)',
+          ),
+          const IpsrsHubScreen(),
+          profileScreen,
+        ],
+        navItems: [
+          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+          BottomNavItem(
+            icon: LucideIcons.clipboardCheck,
+            label: isKepalaTeknisi ? 'Semua SPK' : 'Tugas SPK',
+          ),
+          const BottomNavItem(icon: LucideIcons.wrench, label: 'IPSRS'),
+          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+        ],
+      );
+    }
+
+    // 2. Gudang & Logistik Sentral (Kepala Gudang, Petugas Gudang, Admin Logistik)
+    if (user?.isGudangUser == true) {
+      return _ShellNavConfig(
+        screens: [
+          homeScreen,
+          const InboundPoListScreen(),
+          const PickingDistribusiScreen(),
+          profileScreen,
+        ],
+        navItems: [
+          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+          const BottomNavItem(icon: LucideIcons.packageCheck, label: 'Inbound PO'),
+          const BottomNavItem(icon: LucideIcons.truck, label: 'Picking'),
+          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+        ],
+      );
+    }
+
+    // 3. Eksekutif & Pengawas (Manajemen, Auditor SPI, Pengadaan, Super Admin)
+    if (user?.isManajemen == true ||
+        user?.isAuditor == true ||
+        user?.isPengadaan == true ||
+        user?.isSuperAdmin == true) {
+      final isAuditor = user?.isAuditor == true;
+      return _ShellNavConfig(
+        screens: [
+          homeScreen,
+          const ApprovalCenterScreen(),
+          isAuditor ? const AuditSpiHubScreen() : const PaguRealisasiScreen(),
+          profileScreen,
+        ],
+        navItems: [
+          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+          const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
+          BottomNavItem(
+            icon: isAuditor ? LucideIcons.shieldAlert : LucideIcons.banknote,
+            label: isAuditor ? 'Audit SPI' : 'Pagu RS',
+          ),
+          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+        ],
+      );
+    }
+
+    // 4. Ruangan Pelayanan: Kepala Unit (Karu) vs Petugas Unit
+    if (user?.isKaru == true) {
+      return _ShellNavConfig(
+        screens: [
+          homeScreen,
+          const ApprovalCenterScreen(),
+          const AmprahHubScreen(),
+          profileScreen,
+        ],
+        navItems: [
+          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+          const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
+          const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
+          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+        ],
+      );
+    }
+
+    // Default: Petugas Unit / Staf Ruangan
+    return _ShellNavConfig(
+      screens: [
+        homeScreen,
+        const AmprahHubScreen(),
+        const SirkulasiAsetHubScreen(),
+        profileScreen,
+      ],
+      navItems: [
+        const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+        const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
+        const BottomNavItem(icon: LucideIcons.repeat, label: 'Sirkulasi'),
+        const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final isTeknisi = user?.isTeknisi ?? false;
-    final isKepalaTeknisi = user?.isKepalaTeknisi ?? false;
-    final isTeknisiGroup = isTeknisi || isKepalaTeknisi;
+    final navConfig = _resolveNavConfig(user);
+    final activeIndex = _currentIndex.clamp(0, navConfig.screens.length - 1);
+
     return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerDown: (_) => _resetInactivityTimer(),
       onPointerMove: (_) => _resetInactivityTimer(),
       child: Scaffold(
         backgroundColor: AppColors.canvas,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          // 0: Beranda
-          HomeScreen(
-            onNavigateTab: (index) {
-              setState(() => _currentIndex = index);
-              _refreshActiveTabData();
-            },
-          ),
-
-          // 1: Approval Center untuk umum / Tugas SPK untuk Teknisi & Kepala Teknisi
-          isTeknisiGroup
-              ? SpkListScreen(
-                  isEmbedded: false,
-                  leading: IconButton(
-                    icon: const Icon(LucideIcons.arrowLeft),
-                    tooltip: 'Kembali ke Beranda',
-                    onPressed: () => setState(() => _currentIndex = 0),
-                  ),
-                  allowedStatuses: isKepalaTeknisi ? null : const ['DITUGASKAN'],
-                  customTitle: isKepalaTeknisi ? 'Monitoring SPK IPSRS' : 'Surat Perintah Kerja (SPK)',
-                )
-              : const ApprovalCenterScreen(),
-
-          // 2: IPSRS Fieldwork
-          const IpsrsHubScreen(),
-
-          // 3: Profil
-          const ProfileScreen(),
-        ],
+        body: IndexedStack(
+          index: activeIndex,
+          children: navConfig.screens,
+        ),
+        bottomNavigationBar: FloatingBottomNavBar(
+          currentIndex: activeIndex,
+          items: navConfig.navItems,
+          onTap: (index) {
+            setState(() => _currentIndex = index);
+            _refreshActiveTabData();
+          },
+          onScanPressed: _onScanPressed,
+        ),
       ),
-      bottomNavigationBar: FloatingBottomNavBar(
-        currentIndex: _currentIndex,
-        isTeknisi: isTeknisi,
-        isKepalaTeknisi: isKepalaTeknisi,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-          _refreshActiveTabData();
-        },
-        onScanPressed: _onScanPressed,
-      ),
-    ),
-  );
+    );
+  }
 }
+
+class _ShellNavConfig {
+  final List<Widget> screens;
+  final List<BottomNavItem> navItems;
+
+  const _ShellNavConfig({
+    required this.screens,
+    required this.navItems,
+  });
 }

@@ -3,12 +3,23 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_shadows.dart';
 
+class BottomNavItem {
+  final IconData icon;
+  final String label;
+
+  const BottomNavItem({
+    required this.icon,
+    required this.label,
+  });
+}
+
 class FloatingBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final bool isTeknisi;
   final bool isKepalaTeknisi;
   final ValueChanged<int> onTap;
   final VoidCallback onScanPressed;
+  final List<BottomNavItem>? items;
 
   const FloatingBottomNavBar({
     super.key,
@@ -17,8 +28,8 @@ class FloatingBottomNavBar extends StatelessWidget {
     this.isKepalaTeknisi = false,
     required this.onTap,
     required this.onScanPressed,
+    this.items,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,15 +45,20 @@ class FloatingBottomNavBar extends StatelessWidget {
         children: [
           _buildNavItem(
             index: 0,
-            icon: LucideIcons.home,
-            label: 'Beranda',
+            icon: items?[0].icon ?? LucideIcons.home,
+            label: items?[0].label ?? 'Beranda',
           ),
           _buildNavItem(
             index: 1,
-            icon: (isTeknisi || isKepalaTeknisi) ? LucideIcons.clipboardCheck : LucideIcons.checkSquare,
-            label: isKepalaTeknisi ? 'Semua SPK' : (isTeknisi ? 'Tugas SPK' : 'Approval'),
+            icon: items?[1].icon ??
+                ((isTeknisi || isKepalaTeknisi)
+                    ? LucideIcons.clipboardCheck
+                    : LucideIcons.checkSquare),
+            label: items?[1].label ??
+                (isKepalaTeknisi
+                    ? 'Semua SPK'
+                    : (isTeknisi ? 'Tugas SPK' : 'Approval')),
           ),
-          // Center Elevated Scanner Action Button
           Transform.translate(
             offset: const Offset(0, -12),
             child: GestureDetector(
@@ -65,13 +81,13 @@ class FloatingBottomNavBar extends StatelessWidget {
           ),
           _buildNavItem(
             index: 2,
-            icon: LucideIcons.wrench,
-            label: 'IPSRS',
+            icon: items?[2].icon ?? LucideIcons.wrench,
+            label: items?[2].label ?? 'IPSRS',
           ),
           _buildNavItem(
             index: 3,
-            icon: LucideIcons.user,
-            label: 'Profil',
+            icon: items?[3].icon ?? LucideIcons.user,
+            label: items?[3].label ?? 'Profil',
           ),
         ],
       ),

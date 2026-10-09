@@ -110,7 +110,13 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Pengadaan (PR)'),
+                  const Flexible(
+                    child: Text(
+                      'Pengadaan (PR)',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
                   const SizedBox(width: 6),
                   _buildCountBadge(totalPrBadge),
                 ],
@@ -120,7 +126,13 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(isPengadaanFlow ? 'Pesanan (PO)' : 'Amprah Ruangan'),
+                  Flexible(
+                    child: Text(
+                      isPengadaanFlow ? 'Pesanan (PO)' : 'Amprah Ruangan',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
                   const SizedBox(width: 6),
                   _buildCountBadge(
                     isPengadaanFlow
