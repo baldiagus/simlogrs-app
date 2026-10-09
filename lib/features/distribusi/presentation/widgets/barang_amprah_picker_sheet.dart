@@ -54,12 +54,15 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Katalog Barang Amprah',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                const Expanded(
+                  child: Text(
+                    'Katalog Barang Amprah',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
@@ -103,19 +106,12 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                   itemBuilder: (context, index) {
                     final b = list[index];
                     final hasStok = b.stokTersedia > 0;
-
-                    return Opacity(
-                      opacity: hasStok ? 1.0 : 0.55,
-                      child: InkWell(
-                        onTap: hasStok
-                            ? () {
-                                widget.onBarangSelected(b);
-                                Navigator.pop(context);
-                              }
-                            : () {
-                                AppToast.error(context, 'Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.');
-                              },
-                        borderRadius: BorderRadius.circular(12),
+                    return InkWell(
+                      onTap: () {
+                        widget.onBarangSelected(b);
+                        Navigator.pop(context);
+                      },
+                      borderRadius: BorderRadius.circular(12),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Row(
@@ -178,11 +174,11 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                     Text(
                                       hasStok
                                           ? 'Stok Tersedia: ${b.stokTersedia} ${b.satuan}'
-                                          : 'Stok Kosong (0 ${b.satuan})',
+                                          : 'Stok Kosong (Dicatat sebagai Backorder)',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: hasStok ? AppColors.success : AppColors.danger,
+                                        color: hasStok ? AppColors.success : const Color(0xFFEA580C),
                                       ),
                                     ),
                                   ],
@@ -199,20 +195,20 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEF2F2),
+                                    color: const Color(0xFFFFF7ED),
                                     borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: const Color(0xFFFDBA74).withValues(alpha: 0.5)),
                                   ),
                                   child: const Text(
-                                    'Habis',
+                                    'Backorder',
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.danger,
+                                      color: Color(0xFFEA580C),
                                     ),
                                   ),
                                 ),
                             ],
-                          ),
                         ),
                       ),
                     );

@@ -275,7 +275,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                     return PeminjamanCardItem(
                       item: item,
                       onExtendTap: item.isDipinjam ? () => _showPerpanjangModal(context, item) : null,
-                      onReturnTap: item.isDipinjam ? () => _showReturnModal(context, item) : null,
+                      onReturnTap: null,
                       onCancelTap: item.isDiajukan
                           ? () async {
                               final notifier = ref.read(peminjamanActionProvider.notifier);
@@ -490,7 +490,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
                 item: item,
                 isPenyediaPerspective: false,
                 onExtendTap: () => _showPerpanjangModal(context, item),
-                onReturnTap: () => _showReturnModal(context, item),
+                onReturnTap: null,
               );
             },
           ),

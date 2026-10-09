@@ -80,6 +80,21 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
       return;
     }
 
+    final katalogList = ref.read(katalogAsetPengalihanProvider('')).valueOrNull ?? [];
+    final matchingAssets = katalogList.where((a) =>
+      a.namaKomoditas.trim().toLowerCase() == _chosenAset!.namaKomoditas.trim().toLowerCase() &&
+      a.tipePenyedia == _chosenAset!.tipePenyedia &&
+      a.penyediaId == _chosenAset!.penyediaId
+    ).toList();
+
+    final List<int> selectedAsetIds = [_chosenAset!.id];
+    for (final extra in matchingAssets) {
+      if (selectedAsetIds.length >= _quantity) break;
+      if (!selectedAsetIds.contains(extra.id)) {
+        selectedAsetIds.add(extra.id);
+      }
+    }
+
     final payload = {
       'tipe_tujuan': tipeTujuan,
       'unit_tujuan_id': unitTujuanId,
@@ -87,13 +102,12 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
       'unit_asal_id': unitAsalId,
       'gudang_asal_id': gudangAsalId,
       'tipe_asal': tipeAsal,
-      'aset_ids': [_chosenAset!.id],
-      'jumlah': _quantity,
+      'aset_ids': selectedAsetIds,
+      'jumlah': selectedAsetIds.length,
       'tanggal_pengalihan': DateTime.now().toIso8601String().substring(0, 10),
       'alasan': _alasanController.text.trim(),
       if (_catatanController.text.trim().isNotEmpty) 'catatan': _catatanController.text.trim(),
     };
-
     final notifier = ref.read(pengalihanActionProvider.notifier);
     final ok = await notifier.ajukanPengalihan(payload);
 
@@ -112,7 +126,7 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
     final lokasiTujuanUser = user?.unit?.nama ?? (user?.gudang?.nama ?? 'Fasilitas Kerja Anda');
-    final katalogAsync = ref.watch(katalogAsetTersediaProvider(''));
+    final katalogAsync = ref.watch(katalogAsetPengalihanProvider(''));
     final actionState = ref.watch(pengalihanActionProvider);
 
     return AppBottomSheetWrapper(
@@ -274,22 +288,71 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                                     labelText: 'Pilih Aset dari Fasilitas Lain (Sumber) *',
                                     prefixIcon: Icon(LucideIcons.armchair, size: 18),
                                   ),
+                                  selectedItemBuilder: (context) {
+                                    return asets.map((a) {
+                                      return Text(
+                                        '${a.namaKomoditas} (${a.kodeAset}) - ${a.namaPenyedia}',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                        overflow: TextOverflow.ellipsis,
+                                      );
+                                    }).toList();
+                                  },
                                   items: asets.map((a) {
                                     return DropdownMenuItem<int>(
                                       value: a.id,
-                                      child: Text(
-                                        '${a.namaKomoditas} (${a.kodeAset}) - ${a.namaPenyedia}',
-                                        style: const TextStyle(fontSize: 12),
-                                        overflow: TextOverflow.ellipsis,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    a.namaKomoditas,
+                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.tintVioletBg,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    a.tipePenyedia,
+                                                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '${a.kodeAset} • ${a.namaPenyedia}',
+                                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   }).toList(),
                                   onChanged: (val) {
                                     setState(() {
                                       _chosenAset = asets.firstWhere((a) => a.id == val);
+                                      final count = asets.where((a) =>
+                                        a.namaKomoditas.trim().toLowerCase() == _chosenAset!.namaKomoditas.trim().toLowerCase() &&
+                                        a.tipePenyedia == _chosenAset!.tipePenyedia &&
+                                        a.penyediaId == _chosenAset!.penyediaId
+                                      ).length;
+                                      _quantity = _quantity.clamp(1, count > 0 ? count : 1);
                                     });
                                   },
-                                  validator: (v) => _chosenAset == null ? 'Pilih aset inventaris sumber' : null,
                                 ),
                                 if (_chosenAset != null) ...[
                                   const SizedBox(height: 10),
@@ -381,11 +444,11 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Jumlah Unit Dialihkan *',
                                     style: TextStyle(
                                       fontSize: 12,
@@ -393,21 +456,49 @@ class _ModalPengalihanAsetSheetState extends ConsumerState<ModalPengalihanAsetSh
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    '1 unit per nomor inventaris fisik',
-                                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  const SizedBox(height: 2),
+                                  Builder(
+                                    builder: (context) {
+                                      final list = katalogAsync.valueOrNull ?? [];
+                                      final count = _chosenAset != null
+                                          ? list.where((a) =>
+                                              a.namaKomoditas.trim().toLowerCase() == _chosenAset!.namaKomoditas.trim().toLowerCase() &&
+                                              a.tipePenyedia == _chosenAset!.tipePenyedia &&
+                                              a.penyediaId == _chosenAset!.penyediaId
+                                            ).length
+                                          : 1;
+                                      final maxAvailable = count > 0 ? count : 1;
+                                      return Text(
+                                        _chosenAset != null && maxAvailable > 1
+                                            ? 'Tersedia: $maxAvailable unit di ${_chosenAset!.namaPenyedia}'
+                                            : '1 unit per nomor inventaris fisik',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
                             ),
                             const SizedBox(width: 12),
-                            AppQuantityStepper(
-                              key: const Key('stepper_jumlah_aset'),
-                              value: _quantity,
-                              min: 1,
-                              max: 1,
-                              onChanged: (val) => setState(() => _quantity = val),
+                            Builder(
+                              builder: (context) {
+                                final list = katalogAsync.valueOrNull ?? [];
+                                final count = _chosenAset != null
+                                    ? list.where((a) =>
+                                        a.namaKomoditas.trim().toLowerCase() == _chosenAset!.namaKomoditas.trim().toLowerCase() &&
+                                        a.tipePenyedia == _chosenAset!.tipePenyedia &&
+                                        a.penyediaId == _chosenAset!.penyediaId
+                                      ).length
+                                    : 1;
+                                final maxAvailable = count > 0 ? count : 1;
+                                return AppQuantityStepper(
+                                  key: const Key('stepper_jumlah_aset'),
+                                  value: _quantity.clamp(1, maxAvailable),
+                                  min: 1,
+                                  max: maxAvailable,
+                                  onChanged: (val) => setState(() => _quantity = val),
+                                );
+                              },
                             ),
                           ],
                         ),

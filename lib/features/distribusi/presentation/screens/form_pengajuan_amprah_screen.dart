@@ -54,19 +54,10 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       backgroundColor: Colors.transparent,
       builder: (ctx) => BarangAmprahPickerSheet(
         onBarangSelected: (barang) {
-          if (barang.stokTersedia <= 0) {
-            AppToast.error(context, 'Komoditas di gudang saat ini kosong (0). Tidak dapat diajukan amprah.');
-            return;
-          }
-
           setState(() {
             final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
             if (idx >= 0) {
-              if (_cartItems[idx].jumlah < barang.stokTersedia) {
-                _cartItems[idx].jumlah += 1;
-              } else {
-                AppToast.warning(context, 'Kuantitas "${barang.nama}" telah mencapai batas maksimal stok tersedia (${barang.stokTersedia} ${barang.satuan}).');
-              }
+              _cartItems[idx].jumlah += 1;
             } else {
               _cartItems.add(AmprahCartDraftItem(barang: barang));
             }
@@ -81,17 +72,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       AppToast.error(context, 'Pilih minimal 1 komoditas barang dari katalog amprah.');
       return;
     }
-
-    for (final item in _cartItems) {
-      if (item.barang.stokTersedia <= 0) {
-        AppToast.error(context, 'Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.');
-        return;
-      }
-      if (item.jumlah > item.barang.stokTersedia) {
-        AppToast.error(context, 'Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang (${item.barang.stokTersedia} ${item.barang.satuan}).');
-        return;
-      }
-    }
+    // Tidak memblokir stok kosong atau melebihi stok: selisih otomatis menjadi backorder
     final notifier = ref.read(amprahActionProvider.notifier);
 
     final ok = await notifier.submitAmprah(
@@ -309,31 +290,35 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Satuan: ${cartItem.barang.satuan}',
-                                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
-                                        ),
-                                        Text(
-                                          'Maksimal: ${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: cartItem.jumlah >= cartItem.barang.stokTersedia
-                                                ? AppColors.warning
-                                                : AppColors.textMuted,
-                                            fontWeight: cartItem.jumlah >= cartItem.barang.stokTersedia
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Satuan: ${cartItem.barang.satuan}',
+                                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                                           ),
-                                        ),
-                                      ],
+                                          Text(
+                                            'Stok Gudang: ${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: cartItem.barang.stokTersedia > 0
+                                                  ? AppColors.textSecondary
+                                                  : const Color(0xFFEA580C),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    const SizedBox(width: 8),
                                     AppQuantityStepper(
+                                      key: const Key('stepper_amprah_item'),
                                       value: cartItem.jumlah,
                                       min: 1,
-                                      max: cartItem.barang.stokTersedia,
+                                      max: 9999,
                                       onChanged: (val) {
                                         if (val < 1) {
                                           setState(() => _cartItems.remove(cartItem));
@@ -341,12 +326,54 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                           setState(() => cartItem.jumlah = val);
                                         }
                                       },
-                                      onMaxReached: () {
-                                        AppToast.warning(context, 'Kuantitas "${cartItem.barang.nama}" telah mencapai batas stok maksimal (${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}).');
-                                      },
                                     ),
                                   ],
                                 ),
+                                if (cartItem.barang.stokTersedia <= 0) ...[
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF7ED),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0xFFFDBA74).withValues(alpha: 0.5)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(LucideIcons.clock, size: 13, color: Color(0xFFEA580C)),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            'Stok Gudang 0 • Permintaan ${cartItem.jumlah} ${cartItem.barang.satuan} akan dicatat sebagai Backorder (Hutang Gudang)',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFC2410C)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ] else if (cartItem.jumlah > cartItem.barang.stokTersedia) ...[
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF7ED),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0xFFFDBA74).withValues(alpha: 0.5)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(LucideIcons.info, size: 13, color: Color(0xFFEA580C)),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            'Stok Gudang: ${cartItem.barang.stokTersedia} • Selisih ${cartItem.jumlah - cartItem.barang.stokTersedia} ${cartItem.barang.satuan} otomatis dicatat sebagai Backorder',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFC2410C)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           );

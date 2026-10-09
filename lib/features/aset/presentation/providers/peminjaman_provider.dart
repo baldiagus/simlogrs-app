@@ -12,6 +12,12 @@ final katalogAsetTersediaProvider =
   return await repository.getKatalogTersedia(cari: query);
 });
 
+final katalogAsetPengalihanProvider =
+    FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
+  final repository = ref.watch(asetRepositoryProvider);
+  return await repository.getKatalogTersedia(cari: query, tujuan: 'pengalihan');
+});
+
 final daftarPeminjamanSayaProvider =
     FutureProvider.autoDispose<List<PeminjamanAsetModel>>((ref) async {
   final repository = ref.watch(asetRepositoryProvider);

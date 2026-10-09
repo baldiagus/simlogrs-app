@@ -364,36 +364,72 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
 
               // 7. Contextual Action Buttons
               if (currentAset.isDipinjam && currentAset.peminjamanAktif != null) ...[
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showPerpanjangModal(currentAset),
-                        icon: const Icon(LucideIcons.calendarPlus, size: 16, color: AppColors.primaryPurple),
-                        label: const Text(
-                          'Perpanjang',
-                          style: TextStyle(color: AppColors.primaryPurple, fontSize: 13, fontWeight: FontWeight.w700),
-                          overflow: TextOverflow.ellipsis,
+                Builder(
+                  builder: (context) {
+                    final isProviderOwner = isGlobalAdmin || isOwnedByCurrentUserLocation || user == null;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: isProviderOwner ? 2 : 1,
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showPerpanjangModal(currentAset),
+                                icon: const Icon(LucideIcons.calendarPlus, size: 16, color: AppColors.primaryPurple),
+                                label: const Text(
+                                  'Perpanjang',
+                                  style: TextStyle(color: AppColors.primaryPurple, fontSize: 13, fontWeight: FontWeight.w700),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: AppColors.primaryPurple, width: 1.5),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                              ),
+                            ),
+                            if (isProviderOwner) ...[
+                              const SizedBox(width: 10),
+                              Expanded(
+                                flex: 3,
+                                child: CustomButton(
+                                  text: 'Kembalikan Fisik',
+                                  icon: const Icon(LucideIcons.packageCheck, size: 18, color: Colors.white),
+                                  isLoading: actionState.isLoading,
+                                  onPressed: _showPengembalianModal,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.primaryPurple, width: 1.5),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: CustomButton(
-                        text: 'Kembalikan Fisik',
-                        icon: const Icon(LucideIcons.packageCheck, size: 18, color: Colors.white),
-                        isLoading: actionState.isLoading,
-                        onPressed: _showPengembalianModal,
-                      ),
-                    ),
-                  ],
+                        if (!isProviderOwner) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.canvas,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.info, size: 16, color: AppColors.textSecondary),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Peminjam menyerahkan fisik aset ke unit ${currentAset.namaPenyedia} untuk proses inspeksi pengembalian resmi.',
+                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
               ] else if (canPinjam) ...[

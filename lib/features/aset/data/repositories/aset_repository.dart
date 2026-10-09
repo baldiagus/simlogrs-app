@@ -48,13 +48,14 @@ class AsetRepository {
     }
   }
 
-  Future<List<AsetTersediaModel>> getKatalogTersedia({String? cari, String? penyediaTipe}) async {
+  Future<List<AsetTersediaModel>> getKatalogTersedia({String? cari, String? penyediaTipe, String? tujuan}) async {
     try {
       final response = await _client.dio.get(
         '/aset/katalog-tersedia',
         queryParameters: {
           if (cari != null && cari.trim().isNotEmpty) 'cari': cari.trim(),
           if (penyediaTipe != null) 'penyedia_tipe': penyediaTipe,
+          if (tujuan != null) 'tujuan': tujuan,
         },
       );
 
@@ -261,7 +262,10 @@ class AsetRepository {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
-      throw ApiException(message: e.message ?? 'Gagal memproses pengembalian aset');
+      final msg = e.response?.data is Map<String, dynamic>
+          ? (e.response?.data['message'] ?? e.response?.data['pesan'] ?? e.message)
+          : (e.message ?? 'Gagal memproses pengembalian aset');
+      throw ApiException(message: msg?.toString() ?? 'Gagal memproses pengembalian aset');
     }
   }
 }
