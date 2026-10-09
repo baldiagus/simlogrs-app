@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../widgets/qr_sticker_sheet.dart';
 import '../widgets/aset_detail_sections.dart';
 import '../widgets/aset_riwayat_peminjaman_card.dart';
+import '../widgets/aset_histori_pengalihan_card.dart';
+import 'histori_pengalihan_aset_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
@@ -361,8 +363,27 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                   );
                 },
               ),
+              const SizedBox(height: 16),
 
-              // 7. Contextual Action Buttons
+              // 8. Riwayat Pengalihan & Mutasi Fisik
+              AsetHistoriPengalihanCard(
+                riwayat: currentAset.riwayatPengalihan,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HistoriPengalihanAsetScreen(
+                        asetId: currentAset.id,
+                        kodeAset: currentAset.kodeAset,
+                        namaKomoditas: currentAset.namaKomoditas,
+                        nomorSeri: currentAset.nomorSeri,
+                        initialRiwayat: currentAset.riwayatPengalihan,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
               if (currentAset.isDipinjam && currentAset.peminjamanAktif != null) ...[
                 Builder(
                   builder: (context) {

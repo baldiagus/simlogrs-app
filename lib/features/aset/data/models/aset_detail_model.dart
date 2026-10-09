@@ -108,6 +108,58 @@ class RiwayatPeminjamanAsetItemModel {
     );
   }
 }
+class RiwayatPengalihanAsetItemModel {
+  final int id;
+  final int? pengalihanId;
+  final String kodePengalihan;
+  final String asalNama;
+  final String tujuanNama;
+  final String tanggalPengalihan;
+  final String tanggalSerahTerima;
+  final String status;
+  final String alasan;
+  final String kondisiSebelum;
+  final String kondisiSaatDiterima;
+  final String pengaju;
+  final String penerima;
+  final String? catatan;
+
+  const RiwayatPengalihanAsetItemModel({
+    required this.id,
+    this.pengalihanId,
+    required this.kodePengalihan,
+    required this.asalNama,
+    required this.tujuanNama,
+    required this.tanggalPengalihan,
+    required this.tanggalSerahTerima,
+    required this.status,
+    required this.alasan,
+    required this.kondisiSebelum,
+    required this.kondisiSaatDiterima,
+    required this.pengaju,
+    required this.penerima,
+    this.catatan,
+  });
+
+  factory RiwayatPengalihanAsetItemModel.fromJson(Map<String, dynamic> json) {
+    return RiwayatPengalihanAsetItemModel(
+      id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
+      pengalihanId: (json['pengalihan_id'] as num?)?.toInt(),
+      kodePengalihan: json['kode_pengalihan']?.toString() ?? '-',
+      asalNama: json['asal_nama']?.toString() ?? '-',
+      tujuanNama: json['tujuan_nama']?.toString() ?? '-',
+      tanggalPengalihan: json['tanggal_pengalihan']?.toString() ?? '-',
+      tanggalSerahTerima: json['tanggal_serah_terima']?.toString() ?? '-',
+      status: json['status']?.toString() ?? 'SELESAI',
+      alasan: json['alasan']?.toString() ?? '-',
+      kondisiSebelum: json['kondisi_sebelum']?.toString() ?? 'BAIK',
+      kondisiSaatDiterima: json['kondisi_saat_diterima']?.toString() ?? 'BAIK',
+      pengaju: json['pengaju']?.toString() ?? '-',
+      penerima: json['penerima']?.toString() ?? '-',
+      catatan: json['catatan']?.toString(),
+    );
+  }
+}
 
 class AsetDetailModel {
   final int id;
@@ -128,6 +180,8 @@ class AsetDetailModel {
   final ServisTerakhirInfo? servisTerakhir;
   final PeminjamanAktifInfo? peminjamanAktif;
   final List<RiwayatPeminjamanAsetItemModel> riwayatPeminjaman;
+  final int totalRiwayatPengalihan;
+  final List<RiwayatPengalihanAsetItemModel> riwayatPengalihan;
   final int? unitId;
   final int? gudangId;
   final String? tipePenyedia;
@@ -156,6 +210,8 @@ class AsetDetailModel {
     this.servisTerakhir,
     this.peminjamanAktif,
     this.riwayatPeminjaman = const [],
+    this.totalRiwayatPengalihan = 0,
+    this.riwayatPengalihan = const [],
     this.unitId,
     this.gudangId,
     this.tipePenyedia,
@@ -200,6 +256,11 @@ class AsetDetailModel {
           : null,
       riwayatPeminjaman: (json['riwayat_peminjaman'] as List<dynamic>?)
               ?.map((e) => RiwayatPeminjamanAsetItemModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      totalRiwayatPengalihan: int.tryParse(json['total_riwayat_pengalihan']?.toString() ?? '0') ?? 0,
+      riwayatPengalihan: (json['riwayat_pengalihan'] as List<dynamic>?)
+              ?.map((e) => RiwayatPengalihanAsetItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
       unitId: (json['unit_id'] as num?)?.toInt(),
