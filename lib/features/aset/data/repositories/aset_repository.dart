@@ -182,6 +182,9 @@ class AsetRepository {
       }
       return [];
     } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        return [];
+      }
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }

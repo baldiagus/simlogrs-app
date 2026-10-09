@@ -674,13 +674,15 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(LucideIcons.eye, size: 13, color: AppColors.textSecondary),
                   SizedBox(width: 6),
-                  Text(
-                    'Mode Pemantauan (Penerimaan Fisik di Gudang Sentral)',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  Expanded(
+                    child: Text(
+                      'Mode Pemantauan (Penerimaan di Gudang)',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

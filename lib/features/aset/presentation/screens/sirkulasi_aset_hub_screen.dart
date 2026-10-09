@@ -38,7 +38,6 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     final user = ref.read(authStateProvider).user;
     _canApprove = (user?.can('update_layanan_unit::approval::peminjaman') ?? false) ||
         (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
-        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
         (user?.hasRole('kepala_teknisi') ?? false) ||
@@ -111,13 +110,11 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     final user = ref.watch(authStateProvider).user;
     final canApproveNow = (user?.can('update_layanan_unit::approval::peminjaman') ?? false) ||
         (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
-        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
         (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
-
     if (canApproveNow != _canApprove) {
       _canApprove = canApproveNow;
       _tabController.dispose();
@@ -125,7 +122,9 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     }
 
     final peminjamanSayaAsync = ref.watch(daftarPeminjamanSayaProvider);
-    final approvalPeminjamanAsync = ref.watch(daftarApprovalPeminjamanProvider);
+    final approvalPeminjamanAsync = _canApprove
+        ? ref.watch(daftarApprovalPeminjamanProvider)
+        : const AsyncValue.data(<ApprovalPeminjamanModel>[]);
     final peminjamanAktifDipinjamAsync = ref.watch(daftarPeminjamanAktifDipinjamProvider);
     final peminjamanAktifDipinjamkanAsync = ref.watch(daftarPeminjamanAktifDipinjamkanProvider);
     final totalSiapKembali = (peminjamanAktifDipinjamAsync.valueOrNull?.length ?? 0) +
