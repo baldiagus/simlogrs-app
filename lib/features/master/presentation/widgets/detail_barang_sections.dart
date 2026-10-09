@@ -17,9 +17,16 @@ class DetailBarangParamCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-        const SizedBox(width: 12),
-        Flexible(
+        Expanded(
+          flex: 4,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 5,
           child: Text(
             value,
             style: const TextStyle(
@@ -47,10 +54,14 @@ class DetailBarangParamCard extends StatelessWidget {
             children: [
               Icon(LucideIcons.slidersHorizontal, size: 16, color: AppColors.primaryPurple),
               SizedBox(width: 8),
-              Text(
-                'Parameter Logistik & Pengadaan',
-                style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              Expanded(
+                child: Text(
+                  'Parameter Logistik & Pengadaan',
+                  style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -226,10 +237,14 @@ class DetailBarangBatchList extends StatelessWidget {
           children: [
             Icon(LucideIcons.layers, size: 18, color: AppColors.primaryPurple),
             SizedBox(width: 8),
-            Text(
-              'Persediaan Stok Batch di Gudang',
-              style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            Expanded(
+              child: Text(
+                'Persediaan Stok Batch di Gudang',
+                style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
