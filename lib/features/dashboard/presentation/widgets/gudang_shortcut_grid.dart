@@ -29,18 +29,22 @@ class GudangShortcutGrid extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              isPetugasGudang ? 'Persediaan Stok Gudang' : 'Persediaan & Opname Gudang',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+            Expanded(
+              child: Text(
+                isPetugasGudang ? 'Persediaan Stok Gudang' : 'Persediaan & Opname Gudang',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 8),
             Text(
-              isPetugasGudang ? 'Monitoring FEFO & Mutasi' : 'Sirkulasi & Stok Fisik',
-              style:
-                  TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
+              isPetugasGudang ? 'Monitoring FEFO' : 'Sirkulasi Fisik',
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
             ),
           ],
         ),
