@@ -40,8 +40,11 @@ class SppbCardItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -50,6 +53,7 @@ class SppbCardItem extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(LucideIcons.truck, size: 14, color: AppColors.tintBlue),
                           const SizedBox(width: 4),
@@ -71,7 +75,7 @@ class SppbCardItem extends StatelessWidget {
 
                 // Asal Gudang & Tujuan
                 Text(
-                  'Kiriman dari ${item.gudang}',
+                  'Dikirim ke ${item.unit}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -80,7 +84,7 @@ class SppbCardItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Tgl Kirim: ${item.tanggalKirim ?? '-'} • Ekspedisi: ${item.pengirim}',
+                  'Asal: ${item.gudang} • Tgl Kirim: ${item.tanggalKirim ?? '-'} • Ekspedisi: ${item.pengirim}',
                   style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 10),
@@ -95,8 +99,11 @@ class SppbCardItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
                         children: [
                           Text(
                             '${item.totalItem} Item Barang Dikirim:',

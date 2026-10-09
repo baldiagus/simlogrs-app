@@ -42,6 +42,9 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
+    final isGudangRole = (user?.isPetugasGudang == true) || (user?.isKepalaGudang == true);
+    final canKonfirmasiDiRuangan = !isGudangRole &&
+        (user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true);
     final canAjukanAmprah = (user?.unit != null) ||
         (user?.isPengadaan == true) ||
         (user?.isAuditor == true) ||
@@ -258,28 +261,30 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                     final sppb = list[index];
                     return SppbCardItem(
                       item: sppb,
-                      onTerimaTap: () async {
-                        final confirmed = await AppConfirmDialog.show(
-                          context,
-                          title: 'Konfirmasi Terima Barang SPPB',
-                          message:
-                              'Konfirmasi bahwa komoditas pada dokumen ${sppb.kode} telah diterima secara fisik di ruangan?',
-                          confirmLabel: 'Ya, Terima Barang',
-                          confirmColor: AppColors.success,
-                          icon: LucideIcons.checkCheck,
-                        );
-                        if (!confirmed || !context.mounted) return;
+                      onTerimaTap: canKonfirmasiDiRuangan
+                          ? () async {
+                              final confirmed = await AppConfirmDialog.show(
+                                context,
+                                title: 'Konfirmasi Terima Barang SPPB',
+                                message:
+                                    'Konfirmasi bahwa komoditas pada dokumen ${sppb.kode} telah diterima secara fisik di ruangan?',
+                                confirmLabel: 'Ya, Terima Barang',
+                                confirmColor: AppColors.success,
+                                icon: LucideIcons.checkCheck,
+                              );
+                              if (!confirmed || !context.mounted) return;
 
-                        final notifier = ref.read(amprahActionProvider.notifier);
-                        final ok = await notifier.konfirmasiTerimaSppb(sppb.id);
-                        if (!context.mounted) return;
-                        final s = ref.read(amprahActionProvider);
-                        if (ok) {
-                          AppToast.success(context, s.successMessage ?? 'Barang berhasil diterima di ruangan.');
-                        } else {
-                          AppToast.error(context, s.errorMessage ?? 'Gagal memproses penerimaan.');
-                        }
-                      },
+                              final notifier = ref.read(amprahActionProvider.notifier);
+                              final ok = await notifier.konfirmasiTerimaSppb(sppb.id);
+                              if (!context.mounted) return;
+                              final s = ref.read(amprahActionProvider);
+                              if (ok) {
+                                AppToast.success(context, s.successMessage ?? 'Barang berhasil diterima di ruangan.');
+                              } else {
+                                AppToast.error(context, s.errorMessage ?? 'Gagal memproses penerimaan.');
+                              }
+                            }
+                          : null,
                     );
                   },
                 );
