@@ -143,6 +143,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
         if (!canCreate) return null;
 
         return FloatingActionButton.extended(
+          heroTag: null,
           key: Key('fab_ajukan_pengalihan_${selectedKategori.toLowerCase()}'),
           onPressed: selectedKategori == 'ASET' ? _openCreateAsetFlow : _openCreateBarangFlow,
           backgroundColor: selectedKategori == 'ASET' ? AppColors.primaryPurple : AppColors.tintBlue,

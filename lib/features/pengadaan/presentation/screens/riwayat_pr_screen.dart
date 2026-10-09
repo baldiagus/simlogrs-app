@@ -219,6 +219,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
       ),
       floatingActionButton: canCreate
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () async {
                 final created = await Navigator.push<bool>(
                   context,

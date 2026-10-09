@@ -4,15 +4,15 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
-import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
+import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/user_top_bar.dart';
-
 class DashboardIpsrsView extends ConsumerWidget {
   final DashboardSummaryModel summary;
   final ValueChanged<int>? onNavigateTab;
@@ -43,6 +43,10 @@ class DashboardIpsrsView extends ConsumerWidget {
           summary: summary,
           onInspectPressed: onHeroInspect,
         ),
+        const SizedBox(height: 16),
+
+        // Master Barang & Register Aset
+        const MasterShortcutSection(),
         const SizedBox(height: 20),
 
         // 3. Quick Action Grid (Khusus Komando & Lapangan IPSRS)
@@ -65,7 +69,7 @@ class DashboardIpsrsView extends ConsumerWidget {
           onLaporRusakTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+              MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
             );
           },
           onSpkTap: () {

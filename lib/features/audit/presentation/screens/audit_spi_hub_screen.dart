@@ -135,6 +135,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
       ),
       floatingActionButton: isAuditor
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _openFormTerbitkanTemuan(context),
               backgroundColor: AppColors.primaryPurple,
               icon: const Icon(LucideIcons.filePlus, color: Colors.white, size: 18),

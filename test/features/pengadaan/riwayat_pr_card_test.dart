@@ -64,7 +64,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-
     expect(tester.takeException(), isNull);
     // Verifikasi tanggal baku terformat 30/09/2026
     expect(find.textContaining('30/09/2026'), findsOneWidget);

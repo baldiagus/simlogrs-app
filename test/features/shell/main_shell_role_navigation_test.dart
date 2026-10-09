@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/features/approval/data/models/approval_item_model.dart';
 import 'package:simlog_mobile/features/approval/presentation/providers/approval_provider.dart';
 import 'package:simlog_mobile/features/approval/presentation/screens/approval_center_screen.dart';
-import 'package:simlog_mobile/features/anggaran/presentation/screens/pagu_realisasi_screen.dart';
 import 'package:simlog_mobile/features/aset/data/models/pengalihan_model.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/pengalihan_provider.dart';
 import 'package:simlog_mobile/features/aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
@@ -24,7 +23,6 @@ import 'package:simlog_mobile/features/gudang/presentation/screens/inbound_po_li
 import 'package:simlog_mobile/features/gudang/presentation/providers/inbound_provider.dart';
 import 'package:simlog_mobile/features/gudang/data/models/po_inbound_model.dart';
 import 'package:simlog_mobile/features/distribusi/presentation/providers/distribusi_provider.dart';
-import 'package:simlog_mobile/features/distribusi/data/models/amprah_model.dart';
 import 'package:simlog_mobile/features/distribusi/data/models/sppb_model.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/tiket_maintenance_model.dart';
 import 'package:simlog_mobile/features/shell/presentation/screens/main_shell_screen.dart';
@@ -219,7 +217,7 @@ void main() {
     expect(find.byType(IpsrsHubScreen), findsOneWidget);
   });
 
-  testWidgets('MainShellScreen renders Manajemen navigation (Beranda, Approval, Pagu RS, Profil)', (tester) async {
+  testWidgets('MainShellScreen renders Manajemen navigation (Beranda, Approval, Amprah, Profil)', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -232,7 +230,7 @@ void main() {
 
     expect(find.text('Beranda'), findsOneWidget);
     expect(find.text('Approval'), findsOneWidget);
-    expect(find.text('Pagu RS'), findsOneWidget);
+    expect(find.text('Amprah'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('IPSRS'), findsNothing);
 
@@ -241,9 +239,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(ApprovalCenterScreen), findsOneWidget);
 
-    // Tap Pagu RS tab (index 2)
-    await tester.tap(find.text('Pagu RS'));
+    // Tap Amprah tab (index 2)
+    await tester.tap(find.text('Amprah'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byType(PaguRealisasiScreen), findsOneWidget);
+    expect(find.byType(AmprahHubScreen), findsOneWidget);
   });
 }

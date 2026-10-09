@@ -38,37 +38,33 @@ class ApprovalPoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    po.kode,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
-                  ),
-                  if (po.isDiterbitkan && !isReadOnly) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.tintVioletBg,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'Perlu Tindakan',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primaryPurple,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+              Text(
+                po.kode,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
               ),
+              if (po.isDiterbitkan && !isReadOnly)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.tintVioletBg,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'Perlu Tindakan',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primaryPurple,
+                    ),
+                  ),
+                ),
               StatusBadge(status: po.status),
             ],
           ),
@@ -86,8 +82,11 @@ class ApprovalPoCard extends StatelessWidget {
             style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
               Text(
                 'Nilai PO: ${AppFormatters.rupiah(po.totalBiaya)}',

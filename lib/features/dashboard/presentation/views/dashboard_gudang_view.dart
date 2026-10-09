@@ -8,20 +8,19 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
-import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
-import '../../../master/presentation/screens/master_barang_screen.dart';
-import '../../../master/presentation/screens/register_aset_screen.dart';
+import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/gudang_shortcut_grid.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
+import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/user_top_bar.dart';
-
 class DashboardGudangView extends ConsumerWidget {
   final DashboardSummaryModel summary;
   final ValueChanged<int>? onNavigateTab;
@@ -53,6 +52,10 @@ class DashboardGudangView extends ConsumerWidget {
           summary: summary,
           onInspectPressed: onHeroInspect,
         ),
+        const SizedBox(height: 16),
+
+        // Master Barang & Register Aset
+        const MasterShortcutSection(),
         const SizedBox(height: 20),
 
         // 3. Quick Action Grid (Khusus Pergudangan & Distribusi)
@@ -66,6 +69,12 @@ class DashboardGudangView extends ConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+            );
+          },
+          onPengadaanTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PengadaanHubScreen(initialTabIndex: 2)),
             );
           },
           onAmprahTap: () {
@@ -107,7 +116,7 @@ class DashboardGudangView extends ConsumerWidget {
           onLaporRusakTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+              MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
             );
           },
         ),
@@ -132,98 +141,6 @@ class DashboardGudangView extends ConsumerWidget {
                 MaterialPageRoute(builder: (_) => const PengalihanHubScreen()),
               );
             },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MasterBarangScreen()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.tintBlueBg,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(LucideIcons.package, color: AppColors.tintBlue, size: 18),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Master Barang',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Katalog komoditas BHP',
-                          style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const RegisterAsetScreen()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.tintOrangeBg,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(LucideIcons.qrCode, color: AppColors.tintOrange, size: 18),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Register Aset',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Inventaris alat fisik',
-                          style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
           const SizedBox(height: 16),
         ],

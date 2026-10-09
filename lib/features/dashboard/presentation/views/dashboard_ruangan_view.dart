@@ -7,12 +7,13 @@ import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
-import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
-import '../../../maintenance/presentation/screens/lapor_cepat_screen.dart';
+import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
+import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
 import '../widgets/live_activity_feed.dart';
+import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/user_top_bar.dart';
 
@@ -45,6 +46,10 @@ class DashboardRuanganView extends ConsumerWidget {
           summary: summary,
           onInspectPressed: onHeroInspect,
         ),
+        const SizedBox(height: 16),
+
+        // Master Barang & Register Aset
+        const MasterShortcutSection(),
         const SizedBox(height: 20),
 
         // 3. Quick Action Grid (Khusus Alur Kerja Ruangan Pelayanan)
@@ -61,6 +66,12 @@ class DashboardRuanganView extends ConsumerWidget {
               );
             }
           },
+          onPengadaanTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
+            );
+          },
           onAmprahTap: () {
             Navigator.push(
               context,
@@ -70,7 +81,7 @@ class DashboardRuanganView extends ConsumerWidget {
           onLaporRusakTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const LaporCepatScreen()),
+              MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
             );
           },
           onAsetTap: () {
@@ -82,21 +93,7 @@ class DashboardRuanganView extends ConsumerWidget {
           onRakGudangTap: () {},
         ),
         const SizedBox(height: 16),
-
-        // 4. Layanan Pengadaan & Mutasi Ruangan
-        AppActionBannerCard(
-          title: 'Pengadaan Barang Unit (PR)',
-          subtitle: 'Ajukan permohonan PR & pantau status tindak lanjut pengadaan',
-          icon: LucideIcons.fileSpreadsheet,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RiwayatPrScreen()),
-            );
-          },
-        ),
-        const SizedBox(height: 12),
-
+        // 4. Layanan Pengalihan & Mutasi Ruangan
         AppActionBannerCard(
           title: 'Pengalihan & Mutasi Aset',
           subtitle: 'Mutasi permanen kepemilikan dan penanggung jawab fisik alat',

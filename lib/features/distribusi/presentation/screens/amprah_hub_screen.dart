@@ -111,6 +111,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
       ),
       floatingActionButton: canAjukanAmprah
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () async {
                 final created = await Navigator.push<bool>(
                   context,

@@ -34,6 +34,7 @@ class QuickActionGrid extends StatelessWidget {
   final bool isPetugasGudang;
   final VoidCallback? onStockOpnameTap;
   final VoidCallback onApprovalTap;
+  final VoidCallback? onPengadaanTap;
   final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
   final VoidCallback onLaporRusakTap;
@@ -64,6 +65,7 @@ class QuickActionGrid extends StatelessWidget {
     this.onStockOpnameTap,
     this.onPaguRealisasiTap,
     required this.onApprovalTap,
+    this.onPengadaanTap,
     required this.onRakGudangTap,
     required this.onAsetTap,
     required this.onLaporRusakTap,
@@ -162,20 +164,20 @@ class QuickActionGrid extends StatelessWidget {
         isAuditor ? 'Aksi Pengawasan SPI' : 'Aksi Eksekutif Direksi',
         [
           _QuickActionItem(
-            title: 'Audit SPI Hub',
-            subtitle: 'Forensik & CAPA',
-            icon: LucideIcons.shieldAlert,
+            title: 'Pengadaan',
+            subtitle: 'Siklus PR, PO & Inbound',
+            icon: LucideIcons.shoppingBag,
             bgColor: AppColors.tintVioletBg,
-            iconColor: AppColors.primaryPurple,
-            onTap: onAuditSpiTap ?? onApprovalTap,
+            iconColor: AppColors.tintViolet,
+            onTap: onPengadaanTap ?? onApprovalTap,
           ),
           _QuickActionItem(
-            title: 'Pagu & Realisasi',
-            subtitle: 'Logistik & IPSRS',
-            icon: LucideIcons.banknote,
-            bgColor: AppColors.tintTealBg,
-            iconColor: AppColors.tintTeal,
-            onTap: onPaguRealisasiTap ?? onApprovalTap,
+            title: 'Lapor Rusak',
+            subtitle: 'Tiket & Lapor Cepat',
+            icon: LucideIcons.wrench,
+            bgColor: AppColors.tintOrangeBg,
+            iconColor: AppColors.tintOrange,
+            onTap: onLaporRusakTap,
           ),
           _QuickActionItem(
             title: 'Sirkulasi Aset',
@@ -218,12 +220,12 @@ class QuickActionGrid extends StatelessWidget {
         'Aksi Cepat Pengadaan & Belanja',
         [
           _QuickActionItem(
-            title: 'Verifikasi PR',
-            subtitle: '$pendingCount menunggu verifikasi',
-            icon: LucideIcons.checkSquare,
+            title: 'Pengadaan',
+            subtitle: 'Siklus PR, PO & Inbound',
+            icon: LucideIcons.shoppingBag,
             bgColor: AppColors.tintVioletBg,
             iconColor: AppColors.tintViolet,
-            onTap: onApprovalTap,
+            onTap: onPengadaanTap ?? onApprovalTap,
           ),
           _QuickActionItem(
             title: 'Sirkulasi Aset',
@@ -253,26 +255,16 @@ class QuickActionGrid extends StatelessWidget {
       );
     }
 
-    final isPetugasUnit = !isKaru &&
-        !isGudangUser &&
-        !isAdminLogistik &&
-        !isAuditor &&
-        !isManajemen &&
-        !isPengadaan &&
-        !isTeknisi;
-
     return (
       'Aksi Cepat Operasional',
       [
         _QuickActionItem(
-          title: 'Approval Cepat',
-          subtitle: isPetugasUnit
-              ? (pendingCount > 0 ? '$pendingCount menunggu' : 'Tidak ada antrean')
-              : (pendingCount > 0 ? '$pendingCount menunggu' : 'Semua disetujui'),
-          icon: LucideIcons.checkSquare,
+          title: 'Pengadaan',
+          subtitle: isGudangUser ? 'Inbound PO & Usulan PR' : 'Usulan PR & Pesanan PO',
+          icon: LucideIcons.shoppingBag,
           bgColor: AppColors.tintVioletBg,
           iconColor: AppColors.tintViolet,
-          onTap: onApprovalTap,
+          onTap: onPengadaanTap ?? onApprovalTap,
         ),
         _QuickActionItem(
           title: (isAdminLogistik || isKepalaGudang)
@@ -358,61 +350,86 @@ class QuickActionGrid extends StatelessWidget {
   }
 
   Widget _buildActionCard(_QuickActionItem item) {
-    return InkWell(
-      onTap: item.onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(15, 23, 42, 0.03),
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: item.bgColor,
-                borderRadius: BorderRadius.circular(14),
+    return _TactileActionCard(item: item);
+  }
+}
+
+class _TactileActionCard extends StatefulWidget {
+  final _QuickActionItem item;
+  const _TactileActionCard({required this.item});
+
+  @override
+  State<_TactileActionCard> createState() => _TactileActionCardState();
+}
+
+class _TactileActionCardState extends State<_TactileActionCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _isPressed ? 0.97 : 1.0,
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOutCubic,
+      child: InkWell(
+        onTap: widget.item.onTap,
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(15, 23, 42, 0.03),
+                blurRadius: 10,
+                offset: Offset(0, 4),
               ),
-              child: Icon(
-                item.icon,
-                color: item.iconColor,
-                size: 22,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: widget.item.bgColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  widget.item.icon,
+                  color: widget.item.iconColor,
+                  size: 22,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              item.title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+              const SizedBox(height: 14),
+              Text(
+                widget.item.title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 3),
-            Text(
-              item.subtitle,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 3),
+              Text(
+                widget.item.subtitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

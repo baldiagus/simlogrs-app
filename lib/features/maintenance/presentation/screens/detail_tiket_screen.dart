@@ -87,8 +87,11 @@ class DetailTiketScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -138,11 +141,14 @@ class DetailTiketScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 6,
                           children: [
                             Text(
-                              'Dilaporkan pada: ${tiket.dibuatPada ?? '-'}',
+                              'Dilaporkan: ${tiket.dibuatPada ?? '-'}',
                               style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                             ),
                             Container(
@@ -254,9 +260,11 @@ class DetailTiketScreen extends ConsumerWidget {
                           children: [
                             Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
                             SizedBox(width: 8),
-                            Text(
-                              'Disposisi & Penugasan Teknisi',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            Expanded(
+                              child: Text(
+                                'Disposisi & Penugasan Teknisi',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              ),
                             ),
                           ],
                         ),

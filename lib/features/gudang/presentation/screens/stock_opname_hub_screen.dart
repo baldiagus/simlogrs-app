@@ -63,6 +63,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         backgroundColor: AppColors.primaryPurple,
         foregroundColor: Colors.white,
         icon: const Icon(LucideIcons.plus, size: 20),

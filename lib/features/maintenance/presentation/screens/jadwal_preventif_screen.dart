@@ -69,6 +69,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
       backgroundColor: AppColors.canvas,
       floatingActionButton: canTambahJadwal
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => FormTambahJadwalSheet.show(context),
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,

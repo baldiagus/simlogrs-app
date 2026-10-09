@@ -18,10 +18,18 @@ import 'package:simlog_mobile/features/distribusi/presentation/screens/amprah_hu
 import 'package:simlog_mobile/features/distribusi/presentation/providers/distribusi_provider.dart';
 import 'package:simlog_mobile/features/distribusi/data/models/amprah_model.dart';
 import 'package:simlog_mobile/features/distribusi/data/models/sppb_model.dart';
-import 'package:simlog_mobile/features/maintenance/presentation/screens/lapor_cepat_screen.dart';
+import 'package:simlog_mobile/features/maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import 'package:simlog_mobile/features/maintenance/presentation/screens/spk_list_screen.dart';
 import 'package:simlog_mobile/features/maintenance/presentation/providers/maintenance_provider.dart';
+import 'package:simlog_mobile/features/maintenance/presentation/providers/tiket_maintenance_provider.dart';
+import 'package:simlog_mobile/features/maintenance/data/models/tiket_maintenance_model.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/spk_header_model.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/providers/pengadaan_provider.dart';
+import 'package:simlog_mobile/features/pengadaan/data/models/pr_model.dart';
+import 'package:simlog_mobile/features/pengadaan/data/models/po_model.dart';
+import 'package:simlog_mobile/features/gudang/presentation/providers/inbound_provider.dart';
+import 'package:simlog_mobile/features/gudang/data/models/po_inbound_model.dart';
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
   MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
 
@@ -89,6 +97,10 @@ void main() {
         daftarAmprahProvider.overrideWith((ref, params) => Future.value(<AmprahHeaderModel>[])),
         sppbInboundProvider.overrideWith((ref) => Future.value(<SppbHeaderModel>[])),
         spkListProvider.overrideWith((ref, status) => Future.value(<SpkHeaderModel>[])),
+        daftarTiketUnitProvider.overrideWith((ref, params) => Future.value(<TiketMaintenanceModel>[])),
+        daftarPrProvider.overrideWith((ref) => Future.value(<PrHeaderModel>[])),
+        poListProvider.overrideWith((ref) => Future.value(<PesananPembelianModel>[])),
+        daftarPoInboundProvider.overrideWith((ref) => Future.value(<PoInboundHeaderModel>[])),
       ],
       child: const MaterialApp(
         home: HomeScreen(),
@@ -108,7 +120,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardRuanganView), findsOneWidget);
-    expect(find.text('Pengadaan Barang Unit (PR)'), findsOneWidget);
+    expect(find.text('Pengadaan'), findsOneWidget);
     expect(find.text('Pengalihan & Mutasi Aset'), findsOneWidget);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardIpsrsView), findsNothing);
@@ -125,12 +137,23 @@ void main() {
     Navigator.pop(tester.element(find.byType(AmprahHubScreen)));
     await tester.pumpAndSettle();
 
-    // Tap Lapor Rusak button
+    // Tap Lapor Rusak button -> now opens LaporRusakHubScreen
     final laporBtn = find.text('Lapor Rusak');
     await tester.ensureVisible(laporBtn);
     await tester.tap(laporBtn);
     await tester.pumpAndSettle();
-    expect(find.byType(LaporCepatScreen), findsOneWidget);
+    expect(find.byType(LaporRusakHubScreen), findsOneWidget);
+
+    // Go back
+    Navigator.pop(tester.element(find.byType(LaporRusakHubScreen)));
+    await tester.pumpAndSettle();
+
+    // Tap Pengadaan button -> opens PengadaanHubScreen
+    final pengadaanBtn = find.text('Pengadaan');
+    await tester.ensureVisible(pengadaanBtn);
+    await tester.tap(pengadaanBtn);
+    await tester.pumpAndSettle();
+    expect(find.byType(PengadaanHubScreen), findsOneWidget);
   });
 
   testWidgets('HomeScreen routes Gudang user to DashboardGudangView', (tester) async {
@@ -164,7 +187,7 @@ void main() {
 
     expect(find.byType(DashboardIpsrsView), findsOneWidget);
     expect(find.text('Aksi Cepat Teknisi IPSRS'), findsOneWidget);
-    expect(find.text('Pengadaan Barang Unit (PR)'), findsNothing);
+    expect(find.text('Pengadaan'), findsNothing);
     expect(find.byType(DashboardRuanganView), findsNothing);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardEksekutifView), findsNothing);
@@ -182,8 +205,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardEksekutifView), findsOneWidget);
-    expect(find.text('Pagu & Realisasi Anggaran RS'), findsOneWidget);
-    expect(find.text('Pusat Audit Internal SPI & CAPA'), findsOneWidget);
+    expect(find.text('Pengalihan & Mutasi Aset'), findsOneWidget);
+    expect(find.text('Pagu & Realisasi Anggaran RS'), findsNothing);
+    expect(find.text('Pusat Audit Internal SPI & CAPA'), findsNothing);
     expect(find.byType(DashboardRuanganView), findsNothing);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardIpsrsView), findsNothing);

@@ -80,52 +80,43 @@ class TiketCardItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row: Kode Tiket, Prioritas, Status
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Header: Kode Tiket, Prioritas, Status
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                runSpacing: 6,
                 children: [
-                  Flexible(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.tintVioletBg,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              item.kode,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryPurple,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: pBg,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            item.prioritas,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: pColor,
-                            ),
-                          ),
-                        ),
-                      ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.tintVioletBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      item.kode,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryPurple,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: pBg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      item.prioritas,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: pColor,
+                      ),
+                    ),
+                  ),
                   StatusBadge(status: item.status),
                 ],
               ),

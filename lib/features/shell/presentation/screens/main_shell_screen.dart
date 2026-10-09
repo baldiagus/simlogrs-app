@@ -19,8 +19,6 @@ import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
-import '../../../anggaran/presentation/screens/pagu_realisasi_screen.dart';
-import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -172,21 +170,17 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
         user?.isAuditor == true ||
         user?.isPengadaan == true ||
         user?.isSuperAdmin == true) {
-      final isAuditor = user?.isAuditor == true;
       return _ShellNavConfig(
         screens: [
           homeScreen,
           const ApprovalCenterScreen(),
-          isAuditor ? const AuditSpiHubScreen() : const PaguRealisasiScreen(),
+          const AmprahHubScreen(),
           profileScreen,
         ],
         navItems: [
           const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
           const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
-          BottomNavItem(
-            icon: isAuditor ? LucideIcons.shieldAlert : LucideIcons.banknote,
-            label: isAuditor ? 'Audit SPI' : 'Pagu RS',
-          ),
+          const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
           const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
         ],
       );

@@ -42,7 +42,6 @@ void main() {
         ),
       ),
     );
-
     expect(tester.takeException(), isNull);
     expect(find.text('MNT-2026-9999-LONG-CODE'), findsOneWidget);
     expect(find.text('CITO'), findsOneWidget);
