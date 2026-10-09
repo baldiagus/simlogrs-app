@@ -331,10 +331,14 @@ class DetailBarangRuanganList extends StatelessWidget {
           children: [
             Icon(LucideIcons.building2, size: 18, color: AppColors.primaryPurple),
             SizedBox(width: 8),
-            Text(
-              'Sebaran Saldo di Ruangan Unit',
-              style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            Expanded(
+              child: Text(
+                'Sebaran Saldo di Ruangan Unit',
+                style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -363,20 +367,27 @@ class DetailBarangRuanganList extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(LucideIcons.mapPin,
-                            size: 14, color: AppColors.textSecondary),
-                        const SizedBox(width: 8),
-                        Text(
-                          r.unit,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary),
-                        ),
-                      ],
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(LucideIcons.mapPin,
+                              size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              r.unit,
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       '${r.jumlah} $simbolSatuan',
                       style: const TextStyle(
