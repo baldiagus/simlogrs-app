@@ -36,12 +36,13 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
   void initState() {
     super.initState();
     final user = ref.read(authStateProvider).user;
-    _canApprove = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
+    _canApprove = (user?.can('update_layanan_unit::approval::peminjaman') ?? false) ||
+        (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
         (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
-        (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
 
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
@@ -108,12 +109,13 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final canApproveNow = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
+    final canApproveNow = (user?.can('update_layanan_unit::approval::peminjaman') ?? false) ||
+        (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
         (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
         (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
-        (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
 
     if (canApproveNow != _canApprove) {

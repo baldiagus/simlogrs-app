@@ -110,7 +110,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
     final canProcessInbound = (user?.isGudangUser == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true) ||
-        (user?.can('create_pengadaan::penerimaan::po') ?? false);
+        (user?.can('create_gudang_stok::penerimaan::po') ?? false);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(

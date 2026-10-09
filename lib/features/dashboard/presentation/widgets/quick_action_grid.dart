@@ -79,182 +79,6 @@ class QuickActionGrid extends StatelessWidget {
   });
 
   (String, List<_QuickActionItem>) _resolveSection() {
-    if (isKepalaTeknisi) {
-      return (
-        'Aksi Komando & Disposisi IPSRS',
-        [
-          _QuickActionItem(
-            title: 'Atur Tiket Servis',
-            subtitle: 'Disposisi SPK Teknisi',
-            icon: LucideIcons.clipboardList,
-            bgColor: AppColors.tintOrangeBg,
-            iconColor: AppColors.tintOrange,
-            onTap: onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Semua SPK',
-            subtitle: 'Monitoring SPK Aktif',
-            icon: LucideIcons.wrench,
-            bgColor: AppColors.tintVioletBg,
-            iconColor: AppColors.primaryPurple,
-            onTap: onSpkTap ?? onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Jadwal Preventif',
-            subtitle: 'Kalender Servis Berkala',
-            icon: LucideIcons.calendarClock,
-            bgColor: AppColors.tintTealBg,
-            iconColor: AppColors.tintTeal,
-            onTap: onPreventifTap ?? onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Rekam Medis Aset',
-            subtitle: 'Audit Kesehatan Alat',
-            icon: LucideIcons.stethoscope,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onRekamMedisTap ?? onAsetTap,
-          ),
-        ],
-      );
-    }
-
-    if (isTeknisi) {
-      return (
-        'Aksi Cepat Teknisi IPSRS',
-        [
-          _QuickActionItem(
-            title: 'Tugas SPK',
-            subtitle: 'Surat Perintah Kerja',
-            icon: LucideIcons.clipboardCheck,
-            bgColor: AppColors.tintVioletBg,
-            iconColor: AppColors.primaryPurple,
-            onTap: onSpkTap ?? onApprovalTap,
-          ),
-          _QuickActionItem(
-            title: 'Lembar Kerja',
-            subtitle: 'Log Pengerjaan Fisik',
-            icon: LucideIcons.wrench,
-            bgColor: AppColors.tintOrangeBg,
-            iconColor: AppColors.tintOrange,
-            onTap: onLembarKerjaTap ?? onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Rekam Medis Aset',
-            subtitle: 'Histori & Kesehatan',
-            icon: LucideIcons.stethoscope,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onRekamMedisTap ?? onAsetTap,
-          ),
-          _QuickActionItem(
-            title: 'Jadwal Preventif',
-            subtitle: 'Kalender Servis Rutin',
-            icon: LucideIcons.calendarClock,
-            bgColor: AppColors.tintTealBg,
-            iconColor: AppColors.tintTeal,
-            onTap: onPreventifTap ?? onRakGudangTap,
-          ),
-        ],
-      );
-    }
-
-    if (isAuditor || isManajemen) {
-      return (
-        isAuditor ? 'Aksi Pengawasan SPI' : 'Aksi Eksekutif Direksi',
-        [
-          _QuickActionItem(
-            title: 'Pengadaan',
-            subtitle: 'Siklus PR, PO & Inbound',
-            icon: LucideIcons.shoppingBag,
-            bgColor: AppColors.tintVioletBg,
-            iconColor: AppColors.tintViolet,
-            onTap: onPengadaanTap ?? onApprovalTap,
-          ),
-          _QuickActionItem(
-            title: 'Lapor Rusak',
-            subtitle: 'Tiket & Lapor Cepat',
-            icon: LucideIcons.wrench,
-            bgColor: AppColors.tintOrangeBg,
-            iconColor: AppColors.tintOrange,
-            onTap: onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Sirkulasi Aset',
-            subtitle: 'Peminjaman & Cek',
-            icon: LucideIcons.armchair,
-            bgColor: AppColors.tintOrangeBg,
-            iconColor: AppColors.tintOrange,
-            onTap: onAsetTap,
-          ),
-          _QuickActionItem(
-            title: 'Pantau SPK',
-            subtitle: 'Semua SPK RS (Lihat)',
-            icon: LucideIcons.clipboardCheck,
-            bgColor: AppColors.tintTealBg,
-            iconColor: AppColors.tintTeal,
-            onTap: onSpkTap ?? onLaporRusakTap,
-          ),
-          _QuickActionItem(
-            title: 'Amprah Ruangan',
-            subtitle: 'Distribusi & SPPB',
-            icon: LucideIcons.boxes,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onAmprahTap ?? onRakGudangTap,
-          ),
-          _QuickActionItem(
-            title: 'Inbound PO',
-            subtitle: 'Status Vendor',
-            icon: LucideIcons.truck,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onInboundTap ?? onAsetTap,
-          ),
-        ],
-      );
-    }
-
-    if (isPengadaan) {
-      return (
-        'Aksi Cepat Pengadaan & Belanja',
-        [
-          _QuickActionItem(
-            title: 'Pengadaan',
-            subtitle: 'Siklus PR, PO & Inbound',
-            icon: LucideIcons.shoppingBag,
-            bgColor: AppColors.tintVioletBg,
-            iconColor: AppColors.tintViolet,
-            onTap: onPengadaanTap ?? onApprovalTap,
-          ),
-          _QuickActionItem(
-            title: 'Sirkulasi Aset',
-            subtitle: 'Peminjaman & Cek',
-            icon: LucideIcons.armchair,
-            bgColor: AppColors.tintOrangeBg,
-            iconColor: AppColors.tintOrange,
-            onTap: onAsetTap,
-          ),
-          _QuickActionItem(
-            title: 'Amprah Ruangan',
-            subtitle: 'Distribusi & SPPB',
-            icon: LucideIcons.boxes,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onAmprahTap ?? onRakGudangTap,
-          ),
-          _QuickActionItem(
-            title: 'Inbound PO',
-            subtitle: 'Status Vendor',
-            icon: LucideIcons.truck,
-            bgColor: AppColors.tintBlueBg,
-            iconColor: AppColors.tintBlue,
-            onTap: onInboundTap ?? onAsetTap,
-          ),
-        ],
-      );
-    }
-
     return (
       'Aksi Cepat Operasional',
       [
@@ -267,50 +91,30 @@ class QuickActionGrid extends StatelessWidget {
           onTap: onPengadaanTap ?? onApprovalTap,
         ),
         _QuickActionItem(
-          title: (isAdminLogistik || isKepalaGudang)
-              ? 'Sirkulasi Aset'
-              : (isPetugasGudang
-                  ? 'Stock Opname'
-                  : (isGudangUser ? 'Daftar Rak Gudang' : 'Amprah Ruangan')),
+          title: 'Amprah Ruangan',
+          subtitle: isGudangUser ? 'Penyaluran Stok SPPB' : 'Distribusi & SPPB',
+          icon: LucideIcons.boxes,
+          bgColor: AppColors.tintBlueBg,
+          iconColor: AppColors.tintBlue,
+          onTap: onAmprahTap ?? onRakGudangTap,
+        ),
+        _QuickActionItem(
+          title: 'Sirkulasi Aset',
           subtitle: (isAdminLogistik || isKepalaGudang)
               ? 'Peminjaman & Gudang'
-              : (isPetugasGudang
-                  ? 'Hitung Fisik di Rak'
-                  : (isGudangUser ? 'Stok & Aset per Rak' : 'Distribusi & SPPB')),
-          icon: (isAdminLogistik || isKepalaGudang)
-              ? LucideIcons.armchair
-              : (isPetugasGudang
-                  ? LucideIcons.clipboardCheck
-                  : (isGudangUser ? LucideIcons.archive : LucideIcons.boxes)),
-          bgColor: (isAdminLogistik || isKepalaGudang)
-              ? AppColors.tintOrangeBg
-              : (isPetugasGudang ? AppColors.tintVioletBg : AppColors.tintBlueBg),
-          iconColor: (isAdminLogistik || isKepalaGudang)
-              ? AppColors.tintOrange
-              : (isPetugasGudang ? AppColors.primaryPurple : AppColors.tintBlue),
-          onTap: (isAdminLogistik || isKepalaGudang)
-              ? onAsetTap
-              : (isPetugasGudang
-                  ? (onStockOpnameTap ?? onRakGudangTap)
-                  : (isGudangUser ? onRakGudangTap : (onAmprahTap ?? onRakGudangTap))),
+              : 'Peminjaman & Cek',
+          icon: LucideIcons.armchair,
+          bgColor: AppColors.tintOrangeBg,
+          iconColor: AppColors.tintOrange,
+          onTap: onAsetTap,
         ),
         _QuickActionItem(
-          title: isGudangUser ? 'Penerimaan PO' : 'Sirkulasi Aset',
-          subtitle: isGudangUser ? 'Inbound Vendor' : 'Peminjaman & Cek',
-          icon: isGudangUser ? LucideIcons.truck : LucideIcons.armchair,
-          bgColor: isGudangUser ? AppColors.tintBlueBg : AppColors.tintOrangeBg,
-          iconColor: isGudangUser ? AppColors.tintBlue : AppColors.tintOrange,
-          onTap: isGudangUser ? (onInboundTap ?? onAsetTap) : onAsetTap,
-        ),
-        _QuickActionItem(
-          title: isGudangUser ? 'Picking FEFO' : 'Lapor Rusak',
-          subtitle: isGudangUser ? 'Alokasi Kirim SPPB' : 'IPSRS Fieldwork',
-          icon: isGudangUser ? LucideIcons.arrowRightCircle : LucideIcons.wrench,
-          bgColor: isGudangUser ? AppColors.tintVioletBg : AppColors.tintTealBg,
-          iconColor: isGudangUser ? AppColors.primaryPurple : AppColors.tintTeal,
-          onTap: isGudangUser
-              ? (onPickingTap ?? onLaporRusakTap)
-              : onLaporRusakTap,
+          title: 'Lapor Rusak',
+          subtitle: 'Tiket & Lapor Cepat',
+          icon: LucideIcons.wrench,
+          bgColor: AppColors.tintTealBg,
+          iconColor: AppColors.tintTeal,
+          onTap: onLaporRusakTap,
         ),
       ],
     );

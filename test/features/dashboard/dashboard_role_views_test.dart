@@ -24,6 +24,7 @@ import 'package:simlog_mobile/features/maintenance/presentation/providers/mainte
 import 'package:simlog_mobile/features/maintenance/presentation/providers/tiket_maintenance_provider.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/tiket_maintenance_model.dart';
 import 'package:simlog_mobile/features/maintenance/data/models/spk_header_model.dart';
+import 'package:simlog_mobile/features/dashboard/presentation/widgets/ipsrs_shortcut_grid.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/providers/pengadaan_provider.dart';
 import 'package:simlog_mobile/features/pengadaan/data/models/pr_model.dart';
@@ -186,9 +187,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardIpsrsView), findsOneWidget);
-    expect(find.text('Aksi Cepat Teknisi IPSRS'), findsOneWidget);
-    expect(find.text('Pengadaan'), findsNothing);
-    expect(find.byType(DashboardRuanganView), findsNothing);
+    expect(find.byType(IpsrsShortcutGrid), findsOneWidget);
+    expect(find.text('Tugas Lapangan Teknisi'), findsOneWidget);
+    expect(find.text('Pengadaan'), findsOneWidget);
     expect(find.byType(DashboardGudangView), findsNothing);
     expect(find.byType(DashboardEksekutifView), findsNothing);
   });
@@ -222,12 +223,11 @@ void main() {
     // Go back
     Navigator.pop(tester.element(find.byType(AmprahHubScreen)));
     await tester.pumpAndSettle();
-
-    // Tap Pantau SPK button in executive dashboard
-    final spkBtn = find.text('Pantau SPK');
-    await tester.ensureVisible(spkBtn);
-    await tester.tap(spkBtn);
+    // Tap Lapor Rusak button in executive dashboard
+    final laporBtn = find.text('Lapor Rusak');
+    await tester.ensureVisible(laporBtn);
+    await tester.tap(laporBtn);
     await tester.pumpAndSettle();
-    expect(find.byType(SpkListScreen), findsOneWidget);
+    expect(find.byType(LaporRusakHubScreen), findsOneWidget);
   });
 }

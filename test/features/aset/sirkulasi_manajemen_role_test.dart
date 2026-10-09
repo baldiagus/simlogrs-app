@@ -23,12 +23,43 @@ void main() {
     unit: UnitModel(id: 8, nama: 'Direktorat & Manajemen Eksekutif', kode: 'DIREKSI'),
     gudang: GudangModel(id: 1, nama: 'Gudang Sentral Logistik Non-Medis', kode: 'GUD_SENTRAL'),
   );
+  const karuUser = UserModel(
+    id: 1,
+    name: 'Karu Melati',
+    email: 'karu@simlogrs.local',
+    roles: ['kepala_unit'],
+    permissions: [],
+    unit: UnitModel(id: 3, nama: 'Ruang Melati', kode: 'MELATI'),
+  );
 
-  testWidgets('Role Manajemen has access to Otorisasi tab and Pinjaman Saya tab', (tester) async {
+  testWidgets('Role Manajemen has 2 tabs (Pinjaman Saya & Siap Kembali) without Otorisasi tab', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(manajemenUser)),
+          daftarPeminjamanSayaProvider.overrideWith((ref) => Future.value([])),
+          daftarApprovalPeminjamanProvider.overrideWith((ref) => Future.value([])),
+          daftarPeminjamanAktifDipinjamProvider.overrideWith((ref) => Future.value([])),
+          daftarPeminjamanAktifDipinjamkanProvider.overrideWith((ref) => Future.value([])),
+        ],
+        child: const MaterialApp(
+          home: SirkulasiAsetHubScreen(),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pinjaman Saya'), findsOneWidget);
+    expect(find.text('Otorisasi'), findsNothing);
+    expect(find.text('Siap Kembali'), findsOneWidget);
+  });
+
+  testWidgets('Role Karu has access to Otorisasi tab in SirkulasiAsetHubScreen', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(karuUser)),
           daftarPeminjamanSayaProvider.overrideWith((ref) => Future.value([])),
           daftarApprovalPeminjamanProvider.overrideWith((ref) => Future.value([])),
           daftarPeminjamanAktifDipinjamProvider.overrideWith((ref) => Future.value([])),

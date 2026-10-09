@@ -41,13 +41,13 @@ final daftarPeminjamanAktifDipinjamkanProvider =
 final daftarApprovalPeminjamanProvider =
     FutureProvider.autoDispose<List<ApprovalPeminjamanModel>>((ref) async {
   final user = ref.watch(authStateProvider).user;
-  final canApprove = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
-      (user?.can('view_any_layanan_unit::approval::peminjaman') ?? false) ||
+  final canApprove = (user?.can('update_layanan_unit::approval::peminjaman') ?? false) ||
+      (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
       (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
       (user?.hasRole('kepala_unit') ?? false) ||
       (user?.hasRole('kepala_gudang') ?? false) ||
+      (user?.hasRole('kepala_teknisi') ?? false) ||
       (user?.hasRole('admin_logistik') ?? false) ||
-      (user?.hasRole('manajemen') ?? false) ||
       (user?.hasRole('super_admin') ?? false);
 
   if (!canApprove) {

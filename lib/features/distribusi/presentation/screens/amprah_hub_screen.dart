@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
@@ -258,14 +259,25 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                     return SppbCardItem(
                       item: sppb,
                       onTerimaTap: () async {
+                        final confirmed = await AppConfirmDialog.show(
+                          context,
+                          title: 'Konfirmasi Terima Barang SPPB',
+                          message:
+                              'Konfirmasi bahwa komoditas pada dokumen ${sppb.kode} telah diterima secara fisik di ruangan?',
+                          confirmLabel: 'Ya, Terima Barang',
+                          confirmColor: AppColors.success,
+                          icon: LucideIcons.checkCheck,
+                        );
+                        if (!confirmed || !context.mounted) return;
+
                         final notifier = ref.read(amprahActionProvider.notifier);
                         final ok = await notifier.konfirmasiTerimaSppb(sppb.id);
                         if (!context.mounted) return;
                         final s = ref.read(amprahActionProvider);
                         if (ok) {
-                          AppToast.success(context, s.successMessage ?? 'Diterima');
+                          AppToast.success(context, s.successMessage ?? 'Barang berhasil diterima di ruangan.');
                         } else {
-                          AppToast.error(context, s.errorMessage ?? 'Gagal');
+                          AppToast.error(context, s.errorMessage ?? 'Gagal memproses penerimaan.');
                         }
                       },
                     );

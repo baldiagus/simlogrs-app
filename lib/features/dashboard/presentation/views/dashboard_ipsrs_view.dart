@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
-import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
-import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
+import '../widgets/ipsrs_shortcut_grid.dart';
 import '../widgets/live_activity_feed.dart';
 import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
@@ -60,10 +60,22 @@ class DashboardIpsrsView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
             );
           },
+          onPengadaanTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
+            );
+          },
           onAmprahTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
+            );
+          },
+          onAsetTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
             );
           },
           onLaporRusakTap: () {
@@ -72,44 +84,12 @@ class DashboardIpsrsView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
             );
           },
-          onSpkTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SpkListScreen(
-                  allowedStatuses: ['DITUGASKAN'],
-                  customTitle: 'Surat Perintah Kerja (SPK)',
-                ),
-              ),
-            );
-          },
-          onLembarKerjaTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SpkListScreen(
-                  allowedStatuses: ['DITERIMA', 'SELESAI'],
-                  initialStatus: 'DITERIMA',
-                  customTitle: 'Lembar Kerja (SPK Aktif)',
-                ),
-              ),
-            );
-          },
-          onRekamMedisTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RekamMedisKatalogScreen()),
-            );
-          },
-          onPreventifTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const JadwalPreventifScreen()),
-            );
-          },
           onRakGudangTap: () {},
-          onAsetTap: () {},
         ),
+        const SizedBox(height: 16),
+
+        // 4. Modul Khusus Pengerjaan Teknisi IPSRS
+        const IpsrsShortcutGrid(),
         const SizedBox(height: 24),
 
         // 4. Live Activity Feed (Panggilan Darurat & Servis IPSRS)
