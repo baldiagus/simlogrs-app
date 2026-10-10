@@ -126,24 +126,24 @@ class DashboardGudangView extends ConsumerWidget {
         const GudangShortcutGrid(),
         const SizedBox(height: 16),
 
-        // 5. Layanan Khusus Admin Logistik
-        if (isAdminLogistik) ...[
-          AppActionBannerCard(
-            title: 'Pengalihan & Mutasi Aset / Barang',
-            subtitle: 'Otorisasi dan monitoring redistribusi antar fasilitas logistik',
-            icon: LucideIcons.arrowRightLeft,
-            iconColor: AppColors.primaryPurple,
-            iconBgColor: AppColors.tintVioletBg,
-            borderColor: AppColors.primaryPurple.withValues(alpha: 0.25),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const PengalihanHubScreen()),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
+        // 5. Layanan Pengalihan & Mutasi Aset / Barang (Gudang Logistik)
+        AppActionBannerCard(
+          title: 'Pengalihan & Mutasi Aset / Barang',
+          subtitle: isKepalaGudang
+              ? 'Otorisasi dan monitoring redistribusi antar fasilitas logistik'
+              : 'Pengajuan dan serah terima redistribusi fisik logistik',
+          icon: LucideIcons.arrowRightLeft,
+          iconColor: AppColors.primaryPurple,
+          iconBgColor: AppColors.tintVioletBg,
+          borderColor: AppColors.primaryPurple.withValues(alpha: 0.25),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PengalihanHubScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
 
         // 6. Live Activity Feed Pergudangan
         LiveActivityFeed(
