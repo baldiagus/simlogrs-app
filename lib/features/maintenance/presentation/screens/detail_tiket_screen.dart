@@ -55,8 +55,8 @@ class DetailTiketScreen extends ConsumerWidget {
     final actionState = ref.watch(tiketActionProvider);
     final user = ref.watch(authStateProvider).user;
     final canDisposisi = (user?.isKepalaTeknisi == true) || (user?.isAdminLogistik == true) || (user?.hasRole('super_admin') == true);
+    final isTeknisi = (user?.isTeknisi == true) || (user?.isKepalaTeknisi == true);
     return Scaffold(
-      backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: Text('Tiket: $kodeTiket'),
         actions: [
@@ -405,7 +405,8 @@ class DetailTiketScreen extends ConsumerWidget {
                   ],
 
                   // Tombol Batalkan Tiket (Hanya jika DILAPORKAN dan canCancel)
-                  if (tiket.canCancel && !canDisposisi) ...[
+                  // Tombol Batalkan Tiket (Hanya jika DILAPORKAN, canCancel dan bukan role teknisi/IPSRS)
+                  if (tiket.canCancel && !canDisposisi && !isTeknisi) ...[
                     CustomButton(
                       text: 'Batalkan Tiket Kerusakan',
                       backgroundColor: const Color(0xFFFEF2F2),

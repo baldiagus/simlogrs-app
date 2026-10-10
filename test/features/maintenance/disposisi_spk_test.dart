@@ -29,6 +29,23 @@ void main() {
     unit: UnitModel(id: 2, nama: 'Instalasi Pemeliharaan Sarana Rumah Sakit', kode: 'IPSRS'),
   );
 
+  const teknisiUser = UserModel(
+    id: 8,
+    name: 'Agus Teknisi',
+    email: 'teknisi@simlogrs.local',
+    roles: ['teknisi'],
+    permissions: [],
+    unit: UnitModel(id: 2, nama: 'Instalasi Pemeliharaan Sarana Rumah Sakit', kode: 'IPSRS'),
+  );
+
+  const karuUser = UserModel(
+    id: 6,
+    name: 'Ns. Siti Rahma, S.Kep.',
+    email: 'karu@simlogrs.local',
+    roles: ['kepala_unit'],
+    permissions: [],
+    unit: UnitModel(id: 3, nama: 'Rawat Inap Bedah', kode: 'BEDAH'),
+  );
   const dummyTiket = TiketMaintenanceModel(
     id: 1,
     kode: 'MNT-202610-001',
@@ -114,5 +131,47 @@ void main() {
     expect(find.text('Disposisi & Penugasan Teknisi'), findsOneWidget);
     expect(find.text('Disposisi SPK ke Teknisi'), findsOneWidget);
     expect(find.text('Batalkan Tiket Kerusakan'), findsNothing);
+  });
+
+  testWidgets('DetailTiketScreen hides Batalkan Tiket Kerusakan button for field Teknisi', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(teknisiUser)),
+          detailTiketUnitProvider(1).overrideWith((ref) => Future.value(dummyTiketDetail)),
+        ],
+        child: const MaterialApp(
+          home: DetailTiketScreen(
+            tiketId: 1,
+            kodeTiket: 'MNT-202610-001',
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Tiket Kerusakan'), findsNothing);
+  });
+
+  testWidgets('DetailTiketScreen shows Batalkan Tiket Kerusakan button for Karu pelapor when canCancel is true', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(karuUser)),
+          detailTiketUnitProvider(1).overrideWith((ref) => Future.value(dummyTiketDetail)),
+        ],
+        child: const MaterialApp(
+          home: DetailTiketScreen(
+            tiketId: 1,
+            kodeTiket: 'MNT-202610-001',
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Tiket Kerusakan'), findsOneWidget);
   });
 }
