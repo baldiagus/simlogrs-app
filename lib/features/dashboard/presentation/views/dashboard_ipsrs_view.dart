@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/app_action_banner_card.dart';
+import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
@@ -86,6 +90,25 @@ class DashboardIpsrsView extends ConsumerWidget {
               );
             },
             onRakGudangTap: () {},
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // 3b. Layanan Pengalihan & Mutasi Aset (Khusus Pimpinan IPSRS)
+        if (isKepalaTeknisi) ...[
+          AppActionBannerCard(
+            title: 'Pengalihan & Mutasi Aset',
+            subtitle: 'Otorisasi dan mutasi fisik alat elektromedis/sarana RS',
+            icon: LucideIcons.arrowRightLeft,
+            iconColor: AppColors.primaryPurple,
+            iconBgColor: AppColors.tintVioletBg,
+            borderColor: AppColors.primaryPurple.withValues(alpha: 0.25),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PengalihanHubScreen()),
+              );
+            },
           ),
           const SizedBox(height: 16),
         ],

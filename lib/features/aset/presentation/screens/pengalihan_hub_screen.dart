@@ -29,13 +29,17 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
   void initState() {
     super.initState();
     final user = ref.read(authStateProvider).user;
-    _canApprove = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
-        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
-        (user?.hasRole('kepala_unit') ?? false) ||
+    final isApproverRole = (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
+
+    _canApprove = isApproverRole ||
+        (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
+        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
+        (user?.can('update_layanan_unit::pengalihan::aset') ?? false);
 
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
   }
@@ -71,13 +75,17 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final canApproveNow = (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
-        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
-        (user?.hasRole('kepala_unit') ?? false) ||
+    final isApproverRole = (user?.hasRole('kepala_unit') ?? false) ||
         (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('kepala_teknisi') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
         (user?.hasRole('manajemen') ?? false) ||
         (user?.hasRole('super_admin') ?? false);
+
+    final canApproveNow = isApproverRole ||
+        (user?.can('layanan_unit::approval::peminjaman') ?? false) ||
+        (user?.can('view_any_layanan_unit::approval::karu') ?? false) ||
+        (user?.can('update_layanan_unit::pengalihan::aset') ?? false);
 
     if (canApproveNow != _canApprove) {
       _canApprove = canApproveNow;
@@ -136,7 +144,13 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
         ),
       ),
       floatingActionButton: () {
-        final canCreateAset = user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true || user?.isGudangUser == true;
+        final isFieldTeknisi = (user?.hasRole('teknisi') ?? false) && !(user?.hasRole('kepala_teknisi') ?? false);
+        final canCreateAset = !isFieldTeknisi && (
+            user?.unit != null ||
+            user?.isSuperAdmin == true ||
+            user?.isAdminLogistik == true ||
+            user?.isGudangUser == true
+        );
         final canCreateBarang = user?.isGudangUser == true || user?.isKepalaGudang == true || user?.isPetugasGudang == true || user?.isAdminLogistik == true || user?.isSuperAdmin == true || user?.gudang != null;
         final canCreate = selectedKategori == 'ASET' ? canCreateAset : canCreateBarang;
 
@@ -282,10 +296,15 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                               ? 'Tidak ada dokumen pengalihan yang menunggu otorisasi Anda.'
                               : 'Belum ada riwayat mutasi yang diselesaikan.'),
                       action: () {
-                        final canCreateAset = user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true || user?.isGudangUser == true;
+                        final isFieldTeknisi = (user?.hasRole('teknisi') ?? false) && !(user?.hasRole('kepala_teknisi') ?? false);
+                        final canCreateAset = !isFieldTeknisi && (
+                            user?.unit != null ||
+                            user?.isSuperAdmin == true ||
+                            user?.isAdminLogistik == true ||
+                            user?.isGudangUser == true
+                        );
                         final canCreateBarang = user?.isGudangUser == true || user?.isKepalaGudang == true || user?.isPetugasGudang == true || user?.isAdminLogistik == true || user?.isSuperAdmin == true || user?.gudang != null;
                         final canCreate = selectedKategori == 'ASET' ? canCreateAset : canCreateBarang;
-
                         if (tab != 'aktif' || !canCreate) return null;
 
                         return ElevatedButton.icon(
@@ -387,19 +406,28 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             item.namaItem,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
           ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(LucideIcons.arrowRightLeft, size: 13, color: AppColors.textSecondary),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  '${item.asalNama} ➔ ${item.tujuanNama}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
-                  overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.canvas,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                const Icon(LucideIcons.arrowRightLeft, size: 14, color: AppColors.primaryPurple),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${item.asalNama} ➔ ${item.tujuanNama}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 4),
           Text(
