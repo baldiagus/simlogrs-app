@@ -406,6 +406,32 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             item.namaItem,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
           ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(LucideIcons.package, size: 13, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                '${item.jumlah} unit',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+              if (item.items.isNotEmpty) ...[
+                const SizedBox(width: 6),
+                const Text('•', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    item.items.length <= 3
+                        ? item.items.map((d) => d.kodeAset).join(', ')
+                        : '${item.items.take(3).map((d) => d.kodeAset).join(', ')} +${item.items.length - 3} lainnya',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryPurple),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

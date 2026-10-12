@@ -22,6 +22,7 @@ class PengalihanItemModel {
   final bool canCancel;
   final bool canApprove;
   final bool canReceive;
+  final List<PengalihanDetailItem> items;
   const PengalihanItemModel({
     required this.id,
     required this.kode,
@@ -46,6 +47,7 @@ class PengalihanItemModel {
     this.canCancel = false,
     this.canApprove = false,
     this.canReceive = false,
+    this.items = const [],
   });
 
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
@@ -81,6 +83,35 @@ class PengalihanItemModel {
       canCancel: json['can_cancel'] == true,
       canApprove: json['can_approve'] == true,
       canReceive: json['can_receive'] == true,
+      items: (json['items'] as List<dynamic>?)
+          ?.map((e) => PengalihanDetailItem.fromJson(e as Map<String, dynamic>))
+          .toList() ?? const [],
+    );
+  }
+}
+
+class PengalihanDetailItem {
+  final int id;
+  final String kodeAset;
+  final String? nomorSeri;
+  final String? namaBarang;
+  final int? jumlah;
+
+  const PengalihanDetailItem({
+    required this.id,
+    required this.kodeAset,
+    this.nomorSeri,
+    this.namaBarang,
+    this.jumlah,
+  });
+
+  factory PengalihanDetailItem.fromJson(Map<String, dynamic> json) {
+    return PengalihanDetailItem(
+      id: (json['aset_id'] as num?)?.toInt() ?? (json['id'] as num?)?.toInt() ?? 0,
+      kodeAset: json['kode_aset']?.toString() ?? json['kode']?.toString() ?? '-',
+      nomorSeri: json['nomor_seri']?.toString(),
+      namaBarang: json['nama_barang']?.toString(),
+      jumlah: (json['jumlah'] as num?)?.toInt(),
     );
   }
 }

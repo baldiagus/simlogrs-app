@@ -36,10 +36,14 @@ void main() {
       status: 'DIAJUKAN',
       tanggalPengalihan: '2026-10-07',
       namaItem: 'Ventilator Hamilton C1',
-      jumlah: 1,
+      jumlah: 2,
       alasan: 'Alat dialihkan darurat ke ICU',
       canCancel: true,
       canApprove: true,
+      items: [
+        PengalihanDetailItem(id: 101, kodeAset: 'AST-VENT-001'),
+        PengalihanDetailItem(id: 102, kodeAset: 'AST-VENT-002'),
+      ],
     ),
   ];
 
@@ -76,6 +80,11 @@ void main() {
     expect(find.text('TRF-202610-050'), findsOneWidget);
     expect(find.text('Ventilator Hamilton C1'), findsOneWidget);
     expect(find.textContaining('IGD ➔ ICU'), findsOneWidget);
+
+    // Verify asset detail info (jumlah + kode aset)
+    expect(find.text('2 unit'), findsOneWidget);
+    expect(find.textContaining('AST-VENT-001'), findsOneWidget);
+    expect(find.textContaining('AST-VENT-002'), findsOneWidget);
 
     // Verify dynamic FAB for ASET category
     expect(find.text('Ajukan Pengalihan Aset'), findsOneWidget);
