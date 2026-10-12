@@ -21,7 +21,7 @@ class PengalihanHubScreen extends ConsumerStatefulWidget {
 }
 
 class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   bool _canApprove = false;
 
