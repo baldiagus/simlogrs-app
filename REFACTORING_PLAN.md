@@ -6,7 +6,7 @@ Status inventaris per 2026-10-12:
 - **Memenuhi target (≤300 baris)**: 167 file (80.7%)
 - **Mendekati batas (250–300 baris)**: 19 file `lib/` + 2 file `test/`
 - **Wajib dievaluasi (301–500 baris)**: 34 file `lib/` + 1 file `test/`
-- **Wajib direfaktor (>500 baris)**: 6 file `lib/`
+- **Wajib direfaktor (>500 baris)**: 0 file (6 file Tier 1 selesai direfaktor; semua kini <=300 baris)
 - **Method `build()` melebihi batas 80–100 baris**: 94 file
 
 ---
@@ -15,27 +15,27 @@ Status inventaris per 2026-10-12:
 
 File-file ini menggabungkan beberapa tanggung jawab UI/tab/section besar dalam satu file dan menjadi prioritas utama:
 
-- [ ] **1. `lib/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart` (695 baris)**
+- [x] **1. `lib/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart` (695 baris)** -> **SELESAI, kini 231 baris**
   - *Masalah*: Menumpuk 3 tab utama (Aktif, Riwayat, Penerimaan Inbound), dialog otorisasi, dan filter status.
   - *Tindakan*: Ekstrak masing-masing tab ke file terpisah: `pengadaan_aktif_tab.dart`, `pengadaan_riwayat_tab.dart`, `pengadaan_inbound_tab.dart`.
 
-- [ ] **2. `lib/features/aset/presentation/screens/sirkulasi_aset_hub_screen.dart` (610 baris)**
+- [x] **2. `lib/features/aset/presentation/screens/sirkulasi_aset_hub_screen.dart` (610 baris)** -> **SELESAI, kini 243 baris**
   - *Masalah*: Menumpuk tab Pinjaman Aktif, Riwayat, dan Otorisasi beserta kartu render dan action modal.
   - *Tindakan*: Ekstrak `_buildPeminjamanCard` dan `_buildOtorisasiCard` ke folder `widgets/`, satukan kalkulasi izin role.
 
-- [ ] **3. `lib/features/aset/presentation/screens/aset_detail_screen.dart` (598 baris)**
+- [x] **3. `lib/features/aset/presentation/screens/aset_detail_screen.dart` (598 baris)** -> **SELESAI, kini 299 baris**
   - *Masalah*: `build()` method mencapai 484 baris, menumpuk info spesifikasi, status operasional, histori peminjaman, dan QR dialog.
   - *Tindakan*: Pindahkan section riwayat dan section tombol aksi ke widget terpisah di `aset_detail_sections.dart`.
 
-- [ ] **4. `lib/features/aset/presentation/widgets/modal_pengalihan_aset_sheet.dart` (554 baris)**
+- [x] **4. `lib/features/aset/presentation/widgets/modal_pengalihan_aset_sheet.dart` (554 baris)** -> **SELESAI, kini 244 baris**
   - *Masalah*: `build()` method mencapai 427 baris, menggabungkan Form Tahap 1 (pemilihan aset & penyedia) dan Tahap 2 (jumlah, tanggal, alasan).
   - *Tindakan*: Ekstrak Tahap 1 dan Tahap 2 ke sub-widget `_PengalihanTahap1Section` dan `_PengalihanTahap2Section`.
 
-- [ ] **5. `lib/features/audit/presentation/widgets/sheets/form_terbitkan_temuan_sheet.dart` (548 baris)**
+- [x] **5. `lib/features/audit/presentation/widgets/sheets/form_terbitkan_temuan_sheet.dart` (548 baris)** -> **SELESAI, kini 288 baris**
   - *Masalah*: `build()` method mencapai 433 baris berisi form audit kompleks dengan banyak controller dan dropdown kriteria.
   - *Tindakan*: Pisahkan section data temuan, kriteria kepatuhan, dan section penugasan PIC ke komponen terpisah.
 
-- [ ] **6. `lib/features/aset/presentation/screens/pengalihan_hub_screen.dart` (535 baris)**
+- [x] **6. `lib/features/aset/presentation/screens/pengalihan_hub_screen.dart` (535 baris)** -> **SELESAI, kini 283 baris**
   - *Masalah*: Menggabungkan konfigurasi TabBar, filter kategori ASET/BARANG, Empty State, dan kartu pengalihan (`_buildPengalihanCard`).
   - *Tindakan*: Pindahkan `_buildPengalihanCard` ke file tersendiri `pengalihan_card_item.dart`, satukan duplikasi kalkulasi role approver.
 
