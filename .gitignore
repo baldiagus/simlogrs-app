@@ -20,6 +20,10 @@ migrate_working_dir/
 dart_defines/*.json
 !dart_defines/*.example.json
 
+# Firebase credentials lokal (jangan commit credential produksi)
+android/app/google-services.json
+!android/app/google-services.json.example
+
 # IntelliJ related
 *.iml
 *.ipr

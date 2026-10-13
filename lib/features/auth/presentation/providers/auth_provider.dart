@@ -1,4 +1,8 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simlog_mobile/core/notifications/fcm_token_repository.dart'
+    hide fcmTokenRepositoryProvider;
+import 'package:simlog_mobile/core/notifications/push_notification_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../core/providers/core_providers.dart';
@@ -87,6 +91,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         deviceName: deviceName,
       );
       state = AuthState.authenticated(user);
+      _syncFcmTokenInBackground();
     } on ApiException catch (e) {
       state = AuthState.unauthenticated(e.message);
     } catch (e) {
@@ -122,8 +127,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Logout: ubah state ke unauthenticated, hapus sesi lokal, dan reset cache data user.
   Future<void> logout() async {
     state = AuthState.unauthenticated();
+    try {
+      await _ref.read(fcmTokenRepositoryProvider).deleteToken();
+    } catch (_) {
+      // Abaikan error saat menghapus token FCM di backend
+    }
     await _repository.logout();
     _clearUserCaches();
+  }
+
+  /// Mengambil token FCM dan menyinkronkannya ke backend di latar belakang tanpa memblokir login.
+  void _syncFcmTokenInBackground() {
+    unawaited(() async {
+      try {
+        final token = await PushNotificationService.instance.getToken();
+        if (token != null && token.isNotEmpty) {
+          await _ref.read(fcmTokenRepositoryProvider).syncToken(token);
+        }
+      } catch (_) {
+        // Jangan biarkan kegagalan FCM memblokir login
+      }
+    }());
   }
 
   /// Dipanggil saat server menolak token (401); bersihkan cache dan arahkan ke login.
@@ -164,3 +188,7 @@ final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final dioClient = ref.watch(dioClientProvider);
   return AuthNotifier(repository, dioClient, ref);
 });
+
+/// Provider repositori sinkronisasi token FCM perangkat ke server.
+final fcmTokenRepositoryProvider =
+    Provider((ref) => FcmTokenRepository(ref.watch(dioClientProvider)));

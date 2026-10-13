@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/notifications/push_notification_service.dart';
 import 'features/auth/presentation/screens/auth_gate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_colors.dart';
@@ -7,10 +8,10 @@ import 'shared/widgets/custom_button.dart';
 import 'shared/widgets/empty_state_view.dart';
 import 'shared/widgets/status_badge.dart';
 
-/// Titik masuk aplikasi web: inisialisasi binding lalu jalankan SimlogApp dalam ProviderScope.
+/// Titik masuk aplikasi: inisialisasi binding, layanan notifikasi, lalu jalankan SimlogApp dalam ProviderScope.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await PushNotificationService.instance.initialize();
   runApp(
     const ProviderScope(
       child: SimlogApp(),
