@@ -150,7 +150,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                       po: widget.po,
                       nomorSuratJalanAwal: _suratJalanController.text.trim(),
                     );
-                    if (rejected == true && mounted) {
+                    if (rejected == true && context.mounted) {
                       Navigator.pop(context, true);
                     }
                   },

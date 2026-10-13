@@ -313,7 +313,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                       Row(
                                         children: [
                                           Icon(isAset ? LucideIcons.qrCode : LucideIcons.building2, size: 12, color: Colors.white70),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
                                               isAset ? 'Total Aset' : 'Di Ruangan',

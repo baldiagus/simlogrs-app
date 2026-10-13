@@ -6,7 +6,6 @@ import 'package:simlog_mobile/features/aset/presentation/providers/pengalihan_pr
 import 'package:simlog_mobile/features/aset/presentation/widgets/modal_pengalihan_aset_sheet.dart';
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:simlog_mobile/features/master/presentation/providers/master_barang_provider.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/peminjaman_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
@@ -58,11 +57,6 @@ void main() {
     lokasiLengkap: 'Ruang Resusitasi IGD',
   );
 
-  final dummyUnits = [
-    const UnitModel(id: 3, nama: 'Instalasi Gawat Darurat (IGD)', kode: 'IGD'),
-    const UnitModel(id: 4, nama: 'Intensive Care Unit (ICU)', kode: 'ICU'),
-    const UnitModel(id: 5, nama: 'Rawat Inap Bedah', kode: 'BEDAH'),
-  ];
 
   testWidgets('ModalPengalihanAsetSheet renders Tahap 1 & Tahap 2 cards, locks origin, and submits', (tester) async {
     final fakeNotifier = FakePengalihanActionNotifier();
