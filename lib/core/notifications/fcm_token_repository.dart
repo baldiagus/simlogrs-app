@@ -21,7 +21,8 @@ class FcmTokenRepository {
   DioClient get client => _client;
 
   /// Mengirimkan token FCM perangkat ke backend SIMLOG RS.
-  Future<void> syncToken(String token) async {
+  /// Mengembalikan true bila server menerima token, false bila gagal (error dicatat, tidak dilempar).
+  Future<bool> syncToken(String token) async {
     try {
       await _client.dio.post(
         '/auth/fcm-token',
@@ -30,6 +31,7 @@ class FcmTokenRepository {
           'device_type': 'android',
         },
       );
+      return true;
     } on DioException catch (e) {
       debugPrint(
         'Gagal sinkronisasi token FCM (${e.response?.statusCode}): ${e.message}',
@@ -37,6 +39,7 @@ class FcmTokenRepository {
     } catch (e) {
       debugPrint('Gagal sinkronisasi token FCM tak terduga: $e');
     }
+    return false;
   }
 
   /// Menghapus token FCM aktif dari backend SIMLOG RS saat sesi pengguna berakhir.

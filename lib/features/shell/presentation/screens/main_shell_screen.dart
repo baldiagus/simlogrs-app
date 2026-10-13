@@ -25,6 +25,22 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../distribusi/presentation/providers/distribusi_provider.dart';
+import '../../../distribusi/presentation/screens/detail_amprah_screen.dart';
+import '../../../gudang/presentation/providers/inbound_provider.dart';
+import '../../../gudang/presentation/providers/persediaan_providers.dart';
+import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
+import '../../../aset/presentation/providers/peminjaman_provider.dart';
+import '../../../aset/presentation/providers/pengalihan_provider.dart';
+import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
+import '../../../maintenance/presentation/screens/detail_tiket_screen.dart';
+import '../../../maintenance/presentation/screens/spk_detail_screen.dart';
+import '../../../notifikasi/data/models/notifikasi_model.dart';
+import '../../../notifikasi/presentation/screens/notifikasi_screen.dart';
+import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../../../../core/notifications/notification_payload.dart';
+import '../../../../core/notifications/notification_router.dart';
+import '../../../../core/notifications/push_notification_service.dart';
 /// Kerangka utama aplikasi pasca-login: tab navigasi bawah menurut role, pemantauan sesi idle, dan refresh data saat kembali ke aplikasi.
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key});
@@ -37,6 +53,7 @@ class MainShellScreen extends ConsumerStatefulWidget {
 class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
   Timer? _inactivityTimer;
+  StreamSubscription<NotificationPayload?>? _tapSub;
   DateTime? _lastResumeTime;
   static const Duration _idleTimeout = Duration(minutes: 30);
   static const Duration _resumeThrottle = Duration(seconds: 15);
@@ -48,6 +65,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     WidgetsBinding.instance.addObserver(this);
     _resetInactivityTimer();
     _sinkronkanAntrean();
+    _pasangListenerNotifikasi();
   }
 
   /// Mengirim antrean mutasi offline ke server; memberi tahu pengguna bila ada yang ditolak server.
@@ -117,12 +135,156 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     }
   }
 
-  /// Melepas observer lifecycle dan membatalkan timer inaktivitas.
+  /// Melepas observer lifecycle, langganan notifikasi, dan timer inaktivitas.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _inactivityTimer?.cancel();
+    _tapSub?.cancel();
+    PushNotificationService.instance.onForegroundMessage = null;
     super.dispose();
+  }
+
+  /// Memasang listener ketuk notifikasi dan callback foreground, lalu mengonsumsi payload yang sudah terbit sebelum shell siap.
+  void _pasangListenerNotifikasi() {
+    final service = PushNotificationService.instance;
+    _tapSub = service.onNotificationTappedStream.listen((_) => _konsumsiPayloadTertunda());
+    service.onForegroundMessage = _segarkanDataUntuk;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _konsumsiPayloadTertunda());
+  }
+
+  /// Mengambil payload tersimpan sekali pakai (lalu mengosongkannya) dan membukanya bila shell masih terpasang.
+  void _konsumsiPayloadTertunda() {
+    if (!mounted) return;
+    final payload = PushNotificationService.instance.onNotificationTapped.consume();
+    if (payload != null) _bukaTujuan(payload);
+  }
+
+  /// Meng-invalidate provider global dan provider daftar yang relevan dengan tipe [payload] setelah pesan foreground masuk.
+  void _segarkanDataUntuk(NotificationPayload payload) {
+    if (!mounted) return;
+    ref.invalidate(approvalPendingProvider);
+    ref.invalidate(dashboardSummaryProvider);
+    switch (resolveTarget(payload)) {
+      case NotificationTarget.approvalPr:
+      case NotificationTarget.riwayatPr:
+        ref.invalidate(daftarPrProvider);
+        ref.invalidate(poListProvider);
+        break;
+      case NotificationTarget.inboundPo:
+        ref.invalidate(daftarPoInboundProvider);
+        ref.invalidate(poListProvider);
+        break;
+      case NotificationTarget.approvalAmprah:
+      case NotificationTarget.detailAmprah:
+        ref.invalidate(daftarAmprahProvider);
+        break;
+      case NotificationTarget.antreanPicking:
+        ref.invalidate(antreanPickingProvider);
+        ref.invalidate(daftarAmprahProvider);
+        break;
+      case NotificationTarget.sppbInbound:
+        ref.invalidate(sppbInboundProvider);
+        ref.invalidate(daftarAmprahProvider);
+        break;
+      case NotificationTarget.hubIpsrs:
+      case NotificationTarget.detailTiket:
+        ref.invalidate(daftarTiketUnitProvider);
+        break;
+      case NotificationTarget.detailSpk:
+        ref.invalidate(spkListProvider);
+        ref.invalidate(daftarTiketUnitProvider);
+        break;
+      case NotificationTarget.otorisasiSirkulasi:
+      case NotificationTarget.peminjamanSaya:
+        ref.invalidate(daftarApprovalPeminjamanProvider);
+        ref.invalidate(daftarPeminjamanSayaProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamProvider);
+        ref.invalidate(daftarPeminjamanAktifDipinjamkanProvider);
+        break;
+      case NotificationTarget.hubPengalihan:
+        ref.invalidate(daftarPengalihanProvider);
+        ref.invalidate(countOtorisasiPengalihanProvider);
+        break;
+      case NotificationTarget.otorisasiPenyesuaian:
+        ref.invalidate(otorisasiPenyesuaianListProvider);
+        break;
+      case NotificationTarget.inbox:
+      case NotificationTarget.tidakDikenal:
+        break;
+    }
+  }
+
+  /// Membuka layar tujuan notifikasi lewat MaterialPageRoute; tipe tidak dikenal membuka inbox, ID tak valid jatuh ke layar daftar.
+  void _bukaTujuan(NotificationPayload payload) {
+    if (!mounted) return;
+    final id = int.tryParse(payload.referensiId ?? '');
+    final Widget layar;
+    switch (resolveTarget(payload)) {
+      case NotificationTarget.approvalPr:
+      case NotificationTarget.approvalAmprah:
+        layar = const ApprovalCenterScreen();
+        break;
+      case NotificationTarget.antreanPicking:
+        layar = const PickingDistribusiScreen();
+        break;
+      case NotificationTarget.inboundPo:
+        layar = const InboundPoListScreen();
+        break;
+      case NotificationTarget.riwayatPr:
+        layar = const RiwayatPrScreen();
+        break;
+      case NotificationTarget.detailAmprah:
+        layar = id == null
+            ? const AmprahHubScreen()
+            : DetailAmprahScreen(amprahId: id, kodeAmprah: '#$id');
+        break;
+      case NotificationTarget.sppbInbound:
+        layar = const AmprahHubScreen();
+        break;
+      case NotificationTarget.hubIpsrs:
+        layar = const IpsrsHubScreen();
+        break;
+      case NotificationTarget.detailSpk:
+        layar = id == null
+            ? const SpkListScreen()
+            : SpkDetailScreen(spkId: id, kodeSpk: '#$id');
+        break;
+      case NotificationTarget.detailTiket:
+        layar = id == null
+            ? const IpsrsHubScreen()
+            : DetailTiketScreen(tiketId: id, kodeTiket: '#$id');
+        break;
+      case NotificationTarget.otorisasiSirkulasi:
+      case NotificationTarget.peminjamanSaya:
+        layar = const SirkulasiAsetHubScreen();
+        break;
+      case NotificationTarget.hubPengalihan:
+        layar = const PengalihanHubScreen();
+        break;
+      case NotificationTarget.otorisasiPenyesuaian:
+        layar = const OtorisasiPenyesuaianScreen();
+        break;
+      case NotificationTarget.inbox:
+      case NotificationTarget.tidakDikenal:
+        layar = NotifikasiScreen(onBuka: _bukaDariInbox);
+        break;
+    }
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => layar));
+  }
+
+  /// Membuka tujuan dokumen dari item inbox; item bertipe umum/asing diabaikan karena sudah berada di inbox.
+  void _bukaDariInbox(NotifikasiModel item) {
+    final payload = NotificationPayload(
+      tipe: item.tipe,
+      referensiId: item.referensiId,
+      judul: item.judul,
+      pesan: item.pesan,
+      timestamp: item.dibuatPada,
+    );
+    final target = resolveTarget(payload);
+    if (target == NotificationTarget.inbox || target == NotificationTarget.tidakDikenal) return;
+    _bukaTujuan(payload);
   }
 
   /// Membuka layar pemindai QR aset dari tombol scan di tengah nav bar.

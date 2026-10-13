@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
-import '../../features/approval/presentation/providers/approval_provider.dart';
+import '../../core/notifications/push_notification_service.dart';
+import '../../features/notifikasi/presentation/providers/notifikasi_provider.dart';
+import '../../features/notifikasi/presentation/screens/notifikasi_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
 /// Baris atas pengguna berisi avatar inisial, identitas sesi, dan lonceng notifikasi dengan badge status.
@@ -23,7 +25,9 @@ class UserTopBar extends ConsumerWidget {
         user?.gudang?.nama ??
         'Sentral RS';
 
-    final pendingApprovals = ref.watch(approvalPendingProvider).valueOrNull?.total ?? 0;
+    // Badge lonceng: sinkron dari server sekali saat bar dibangun, lalu dijaga oleh inbox.
+    ref.watch(belumDibacaSinkronProvider);
+    final belumDibaca = ref.watch(belumDibacaProvider);
 
     return Row(
       children: [
@@ -61,13 +65,24 @@ class UserTopBar extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Selamat Bertugas,',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
+              Row(
+                children: [
+                  const Text(
+                    'Selamat Bertugas,',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: ValueListenableBuilder<FcmStatus>(
+                      valueListenable: PushNotificationService.instance.fcmStatus,
+                      builder: (context, status, _) => _FcmStatusLabel(status: status),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Row(
@@ -115,7 +130,9 @@ class UserTopBar extends ConsumerWidget {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              onPressed: () => _tampilkanRingkasanNotifikasi(context, ref, pendingApprovals),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const NotifikasiScreen()),
+              ),
               icon: const Icon(
                 LucideIcons.bell,
                 size: 20,
@@ -123,7 +140,7 @@ class UserTopBar extends ConsumerWidget {
               ),
               tooltip: 'Notifikasi',
             ),
-            if (pendingApprovals > 0)
+            if (belumDibaca > 0)
               Positioned(
                 right: 8,
                 top: 8,
@@ -137,7 +154,7 @@ class UserTopBar extends ConsumerWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    pendingApprovals > 99 ? '99+' : '$pendingApprovals',
+                    belumDibaca > 99 ? '99+' : '$belumDibaca',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 9,
@@ -165,137 +182,47 @@ class UserTopBar extends ConsumerWidget {
       ],
     );
   }
+}
 
-  /// Menampilkan lembar modal ringkasan status notifikasi aktif dan persetujuan tertunda.
-  void _tampilkanRingkasanNotifikasi(BuildContext context, WidgetRef ref, int pendingCount) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    const Icon(LucideIcons.bell, size: 20, color: AppColors.primaryPurple),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Status Notifikasi Aktif',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.green.shade300),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade600,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'FCM Aktif',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green.shade800,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceSecondary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(LucideIcons.fileCheck, size: 24, color: AppColors.primaryPurple),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Persetujuan Tertunda',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              pendingCount > 0
-                                  ? '$pendingCount dokumen membutuhkan tindakan persetujuan Anda.'
-                                  : 'Tidak ada dokumen yang menunggu persetujuan saat ini.',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryPurple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text('Tutup'),
-                  ),
-                ),
-              ],
+/// Label status FCM berwarna: hijau bila aktif, kuning untuk izin ditolak/token belum terdaftar, abu untuk lainnya.
+class _FcmStatusLabel extends StatelessWidget {
+  final FcmStatus status;
+
+  /// Membuat label status FCM untuk [status].
+  const _FcmStatusLabel({required this.status});
+
+  /// Membangun titik warna dan teks Indonesia singkat sesuai [status].
+  @override
+  Widget build(BuildContext context) {
+    final (String label, MaterialColor warna) = switch (status) {
+      FcmStatus.aktif => ('FCM Aktif', Colors.green),
+      FcmStatus.tokenBelumTerdaftar => ('Token Belum Terdaftar', Colors.amber),
+      FcmStatus.izinDitolak => ('Izin Ditolak', Colors.amber),
+      FcmStatus.tidakTersedia => ('FCM Tidak Tersedia', Colors.grey),
+      FcmStatus.belumDiinisialisasi => ('FCM Belum Siap', Colors.grey),
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(color: warna.shade600, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: warna.shade800,
             ),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }

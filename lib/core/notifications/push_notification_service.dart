@@ -12,6 +12,24 @@ final pushNotificationServiceProvider =
   return PushNotificationService.instance;
 });
 
+/// Status kesiapan push notification FCM pada perangkat ini.
+enum FcmStatus {
+  /// Layanan belum dijalankan.
+  belumDiinisialisasi,
+
+  /// Firebase tidak tersedia (web atau konfigurasi belum ada).
+  tidakTersedia,
+
+  /// Pengguna menolak izin notifikasi.
+  izinDitolak,
+
+  /// Firebase siap tetapi token belum terdaftar di backend.
+  tokenBelumTerdaftar,
+
+  /// Token terdaftar di backend; notifikasi push aktif.
+  aktif,
+}
+
 /// Penangan pesan FCM tingkat teratas ketika aplikasi berada di latar belakang atau dihentikan.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -53,6 +71,14 @@ class NotificationTapNotifier extends ValueNotifier<NotificationPayload?> {
 
   /// Menghasilkan [Stream] dari event notifikasi yang diterima.
   Stream<NotificationPayload?> get stream => _controller.stream;
+
+  /// Mengambil payload tersimpan lalu mengosongkannya tanpa memancarkan event stream.
+  /// Mengembalikan null bila tidak ada payload tertunda.
+  NotificationPayload? consume() {
+    final tersimpan = value;
+    if (tersimpan != null) super.value = null;
+    return tersimpan;
+  }
 
   /// Menutup controller stream dan membersihkan resource notifier.
   @override
@@ -102,8 +128,16 @@ class PushNotificationService {
   bool _isFirebaseInitialized = false;
 
   /// Notifier payload notifikasi yang ditekan pengguna untuk respons UI/navigasi.
+  /// Nilai terakhir disimpan sampai dikonsumsi lewat [NotificationTapNotifier.consume].
   final NotificationTapNotifier onNotificationTapped =
       NotificationTapNotifier(null);
+
+  /// Status kesiapan FCM perangkat untuk ditampilkan di UI.
+  final ValueNotifier<FcmStatus> fcmStatus =
+      ValueNotifier<FcmStatus>(FcmStatus.belumDiinisialisasi);
+
+  /// Callback yang dipanggil setelah pesan FCM foreground ditampilkan; dipasang oleh shell.
+  void Function(NotificationPayload payload)? onForegroundMessage;
 
   /// Stream payload notifikasi yang ditekan pengguna untuk pemantauan reaktif.
   Stream<NotificationPayload?> get onNotificationTappedStream =>
@@ -116,20 +150,23 @@ class PushNotificationService {
   }
 
   /// Melakukan inisialisasi Firebase, notifikasi lokal, dan listener pesan masuk.
+  /// Izin notifikasi TIDAK diminta di sini; diminta setelah login lewat [requestPermission].
   Future<void> initialize() async {
-    if (kIsWeb) return;
+    if (kIsWeb) {
+      fcmStatus.value = FcmStatus.tidakTersedia;
+      return;
+    }
 
     try {
       await Firebase.initializeApp();
       _isFirebaseInitialized = true;
+      fcmStatus.value = FcmStatus.tokenBelumTerdaftar;
     } catch (e) {
       // Fallback anggun bila Firebase project belum dibuat / kredensial dummy
       debugPrint('Fallback inisialisasi Firebase dilewati: $e');
+      fcmStatus.value = FcmStatus.tidakTersedia;
       return;
     }
-
-    // Request permission notifikasi Android 13+ (POST_NOTIFICATIONS)
-    await requestPermission();
 
     // Setup AndroidNotificationChannel ('simlog_approval_channel', 'Persetujuan Logistik RS', importance: Importance.high)
     await _localNotifications
@@ -188,25 +225,56 @@ class PushNotificationService {
     }
   }
 
-  /// Meminta izin notifikasi Android 13+ dan iOS.
+  /// Meminta izin notifikasi Android 13+ dan iOS, lalu memperbarui [fcmStatus].
+  /// Mengembalikan true bila izin diberikan, false bila ditolak atau Firebase tidak tersedia.
   Future<bool?> requestPermission() async {
-    if (kIsWeb) return false;
+    if (kIsWeb || !_isFirebaseInitialized) {
+      fcmStatus.value = FcmStatus.tidakTersedia;
+      return false;
+    }
     try {
-      if (_isFirebaseInitialized) {
-        await FirebaseMessaging.instance.requestPermission(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      }
-      return await _localNotifications
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      final izinLokal = await _localNotifications
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();
+      final diizinkan =
+          (settings.authorizationStatus == AuthorizationStatus.authorized ||
+                  settings.authorizationStatus ==
+                      AuthorizationStatus.provisional) &&
+              izinLokal != false;
+      if (!diizinkan) {
+        fcmStatus.value = FcmStatus.izinDitolak;
+      } else if (fcmStatus.value == FcmStatus.izinDitolak) {
+        fcmStatus.value = FcmStatus.tokenBelumTerdaftar;
+      }
+      return diizinkan;
     } catch (e) {
       debugPrint('Gagal meminta izin notifikasi: $e');
       return false;
     }
+  }
+
+  /// Memperbarui [fcmStatus] sesuai hasil sinkronisasi token ke backend.
+  /// Diabaikan bila FCM tidak tersedia atau izin ditolak agar status tidak menyesatkan.
+  void updateTokenSyncResult(bool berhasil) {
+    final saatIni = fcmStatus.value;
+    if (saatIni != FcmStatus.tokenBelumTerdaftar &&
+        saatIni != FcmStatus.aktif) {
+      return;
+    }
+    fcmStatus.value =
+        berhasil ? FcmStatus.aktif : FcmStatus.tokenBelumTerdaftar;
+  }
+
+  /// Aliran token FCM baru dari Firebase, atau null bila Firebase belum siap.
+  Stream<String>? get tokenRefreshStream {
+    if (kIsWeb || !_isFirebaseInitialized) return null;
+    return FirebaseMessaging.instance.onTokenRefresh;
   }
 
   /// Mengambil token pendaftaran FCM perangkat dalam blok try-catch.
@@ -271,9 +339,15 @@ class PushNotificationService {
   }
 
   /// Menangani pesan FCM yang masuk saat aplikasi berjalan di latar depan (foreground).
+  /// Menampilkan notifikasi lokal lalu memanggil [onForegroundMessage] agar data layar disegarkan.
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     final payload = parseRemoteMessage(message);
     await showLocalNotification(payload);
+    try {
+      onForegroundMessage?.call(payload);
+    } catch (e) {
+      debugPrint('Callback pesan foreground gagal: $e');
+    }
   }
 
   /// Meneruskan payload notifikasi yang dibuka ke notifier dan stream.

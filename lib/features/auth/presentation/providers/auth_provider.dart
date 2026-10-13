@@ -48,6 +48,7 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
   final Ref _ref;
+  StreamSubscription<String>? _tokenRefreshSub;
 
   /// Mendaftarkan handler 401 ke DioClient lalu langsung memeriksa sesi tersimpan.
   AuthNotifier(this._repository, DioClient dioClient, this._ref) : super(AuthState.initial()) {
@@ -72,6 +73,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       final user = await _repository.getMe();
       state = AuthState.authenticated(user);
+      _syncFcmTokenInBackground();
     } catch (_) {
       state = AuthState.unauthenticated();
     }
@@ -126,6 +128,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Logout: ubah state ke unauthenticated, hapus sesi lokal, dan reset cache data user.
   Future<void> logout() async {
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
     state = AuthState.unauthenticated();
     try {
       await _ref.read(fcmTokenRepositoryProvider).deleteToken();
@@ -136,28 +140,62 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _clearUserCaches();
   }
 
-  /// Mengambil token FCM dan menyinkronkannya ke backend di latar belakang tanpa memblokir login.
+  /// Meminta izin notifikasi, mengambil token FCM, menyinkronkannya ke backend, lalu memantau refresh token.
+  /// Berjalan di latar belakang; hasil sinkron dicatat ke [PushNotificationService.fcmStatus].
   void _syncFcmTokenInBackground() {
     unawaited(() async {
       try {
-        final token = await PushNotificationService.instance.getToken();
+        final service = PushNotificationService.instance;
+        await service.requestPermission();
+        final token = await service.getToken();
         if (token != null && token.isNotEmpty) {
-          await _ref.read(fcmTokenRepositoryProvider).syncToken(token);
+          await _kirimToken(token);
         }
+        _pasangTokenRefresh();
       } catch (_) {
         // Jangan biarkan kegagalan FCM memblokir login
       }
     }());
   }
 
+  /// Mengirim [token] ke backend dan menyimpan hasilnya ke status FCM layanan push.
+  Future<void> _kirimToken(String token) async {
+    final berhasil = await _ref.read(fcmTokenRepositoryProvider).syncToken(token);
+    PushNotificationService.instance.updateTokenSyncResult(berhasil);
+  }
+
+  /// Memasang listener onTokenRefresh agar token baru dikirim ulang selama pengguna masih login.
+  void _pasangTokenRefresh() {
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = PushNotificationService.instance.tokenRefreshStream?.listen(
+      (token) {
+        if (state.isAuthenticated && token.isNotEmpty) {
+          unawaited(_kirimToken(token));
+        }
+      },
+      onError: (Object _) {},
+    );
+  }
+
   /// Dipanggil saat server menolak token (401); bersihkan cache dan arahkan ke login.
   void handleUnauthorized() {
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
     _clearUserCaches();
     state = AuthState.unauthenticated('Sesi Anda telah berakhir. Silakan login kembali.');
   }
 
+  /// Membatalkan langganan refresh token FCM saat notifier dibuang.
+  @override
+  void dispose() {
+    _tokenRefreshSub?.cancel();
+    super.dispose();
+  }
+
   /// Logout otomatis karena tidak aktif demi keamanan perangkat bersama.
   Future<void> handleSessionTimeout() async {
+    _tokenRefreshSub?.cancel();
+    _tokenRefreshSub = null;
     await _repository.logout();
     _clearUserCaches();
     state = AuthState.unauthenticated('Sesi berakhir otomatis demi keamanan gawai bersama (inaktivitas 30 menit).');
