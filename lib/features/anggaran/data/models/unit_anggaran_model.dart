@@ -1,3 +1,4 @@
+/// Anggaran satu unit: pagu, realisasi, sisa, serapan, status, dan rincian beban distribusi/sparepart.
 class UnitAnggaranModel {
   final int id;
   final String kode;
@@ -29,6 +30,7 @@ class UnitAnggaranModel {
     required this.bebanSparepart,
   });
 
+  /// Membuat [UnitAnggaranModel] dari JSON API; field kosong diberi nilai default (status 'Normal').
   factory UnitAnggaranModel.fromJson(Map<String, dynamic> json) {
     return UnitAnggaranModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

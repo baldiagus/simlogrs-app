@@ -5,11 +5,14 @@ import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/aset_detail_model.dart';
 
+/// Bottom sheet berisi stiker QR code inventaris aset untuk dipindai di lapangan.
 class QrStickerSheet extends StatelessWidget {
   final AsetDetailModel aset;
 
+  /// Membuat sheet stiker QR dari data [aset].
   const QrStickerSheet({super.key, required this.aset});
 
+  /// Menampilkan sheet stiker QR untuk [aset] sebagai modal bottom sheet.
   static Future<void> show(BuildContext context, AsetDetailModel aset) {
     return showModalBottomSheet(
       context: context,
@@ -19,6 +22,7 @@ class QrStickerSheet extends StatelessWidget {
     );
   }
 
+  /// Membangun sheet berisi QR code kode aset, nama, nomor seri, dan tombol tutup.
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(

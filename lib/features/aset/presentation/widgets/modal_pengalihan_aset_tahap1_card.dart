@@ -12,6 +12,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
   final AsyncValue<List<AsetTersediaModel>> katalogAsync;
   final void Function(List<AsetTersediaModel> asets, int? id) onAsetChanged;
 
+  /// Membuat kartu tahap 1 dengan data lokasi tujuan, aset terpilih, katalog, dan callback pilihan aset.
   const ModalPengalihanAsetTahap1Card({
     super.key,
     required this.lokasiTujuanUser,
@@ -21,6 +22,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
     required this.onAsetChanged,
   });
 
+  /// Membangun kartu tahap 1: lokasi tujuan terkunci milik user dan dropdown/info aset sumber dari katalog.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -122,17 +124,20 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
   }
 }
 
+/// Dropdown pemilih aset fisik asal (sumber) pada tahap 1.
 class _AsetAsalDropdown extends StatelessWidget {
   final List<AsetTersediaModel> asets;
   final AsetTersediaModel? chosenAset;
   final ValueChanged<int?> onChanged;
 
+  /// Membuat dropdown aset asal dengan daftar aset dan callback perubahan pilihan.
   const _AsetAsalDropdown({
     required this.asets,
     required this.chosenAset,
     required this.onChanged,
   });
 
+  /// Membangun dropdown pemilihan aset fisik asal dari katalog fasilitas lain.
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<int>(
@@ -210,17 +215,20 @@ class _AsetAsalDropdown extends StatelessWidget {
   }
 }
 
+/// Panel ringkasan informasi aset fisik yang dipilih pada tahap 1.
 class _ChosenAsetInfo extends StatelessWidget {
   final AsetTersediaModel aset;
   final double spacing;
   final String asalLabel;
 
+  /// Membuat panel info aset terpilih dengan jarak dan label asal.
   const _ChosenAsetInfo({
     required this.aset,
     required this.spacing,
     required this.asalLabel,
   });
 
+  /// Membangun ringkasan aset terpilih (nama, kode, lokasi asal) agar user bisa memverifikasi sebelum mengajukan.
   @override
   Widget build(BuildContext context) {
     return Container(

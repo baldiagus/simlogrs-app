@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../data/models/rak_model.dart';
 
+/// Kartu ringkas satu rak: kode, status, nama, lokasi gudang, serta total barang dan aset.
 class RakCardItem extends StatelessWidget {
   final RakModel rak;
   final VoidCallback onTap;
@@ -14,6 +15,7 @@ class RakCardItem extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Membangun kartu rak yang bisa diketuk untuk membuka detail rak.
   @override
   Widget build(BuildContext context) {
     return Container(

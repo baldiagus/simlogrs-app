@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_shadows.dart';
 
+/// Data satu item navigasi bawah: ikon dan label.
 class BottomNavItem {
   final IconData icon;
   final String label;
@@ -13,6 +14,7 @@ class BottomNavItem {
   });
 }
 
+/// Bar navigasi bawah melayang dengan tombol scan QR di tengah dan empat tab.
 class FloatingBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final bool isTeknisi;
@@ -30,6 +32,7 @@ class FloatingBottomNavBar extends StatelessWidget {
     required this.onScanPressed,
     this.items,
   });
+  /// Membangun bar dengan dua tab, tombol scan QR menonjol di tengah, lalu dua tab lagi; label/ikon default dipakai bila items tidak diberikan.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -94,6 +97,7 @@ class FloatingBottomNavBar extends StatelessWidget {
     );
   }
 
+  /// Membangun satu tab dengan ikon dan label yang disorot beserta titik penanda saat terpilih.
   Widget _buildNavItem({
     required int index,
     required IconData icon,

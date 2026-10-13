@@ -10,18 +10,22 @@ import '../../data/models/aset_tersedia_model.dart';
 import '../providers/peminjaman_provider.dart';
 import '../widgets/aset_picker_bottom_sheet.dart';
 
+/// Halaman form pengajuan peminjaman aset oleh unit peminjam.
 class FormPeminjamanAsetScreen extends ConsumerStatefulWidget {
   final AsetTersediaModel? preselectedAset;
 
+  /// Membuat layar form; `preselectedAset` opsional untuk mengisi aset di awal.
   const FormPeminjamanAsetScreen({
     super.key,
     this.preselectedAset,
   });
 
+  /// Membuat state form peminjaman aset.
   @override
   ConsumerState<FormPeminjamanAsetScreen> createState() => _FormPeminjamanAsetScreenState();
 }
 
+/// State form pengajuan pinjam aset: input, pemilihan tanggal, dan pengiriman.
 class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScreen> {
   final _formKey = GlobalKey<FormState>();
   AsetTersediaModel? _selectedAset;
@@ -34,12 +38,14 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
 
   final _dateFormat = DateFormat('yyyy-MM-dd');
 
+  /// Mengisi aset terpilih dari `preselectedAset` bila ada.
   @override
   void initState() {
     super.initState();
     _selectedAset = widget.preselectedAset;
   }
 
+  /// Membuang controller teks agar tidak bocor memori.
   @override
   void dispose() {
     _keperluanController.dispose();
@@ -47,6 +53,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
     super.dispose();
   }
 
+  /// Membuka bottom sheet pemilih aset yang tersedia untuk dipinjam.
   void _openAsetPicker() {
     showModalBottomSheet(
       context: context,
@@ -62,6 +69,8 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
     );
   }
 
+  /// Menampilkan date picker untuk tanggal pinjam atau rencana kembali dan
+  /// menjaga tanggal kembali tidak lebih awal dari tanggal pinjam.
   Future<void> _pickDate({required bool isTanggalPinjam}) async {
     final initialDate = isTanggalPinjam ? _tanggalPinjam : _tanggalKembaliRencana;
     final firstDate = isTanggalPinjam ? DateTime.now().subtract(const Duration(days: 1)) : _tanggalPinjam;
@@ -87,6 +96,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
     }
   }
 
+  /// Memvalidasi form lalu mengirim pengajuan peminjaman; tutup layar bila berhasil.
   Future<void> _submit() async {
     if (_selectedAset == null) {
       AppToast.error(context, 'Pilih sarana / aset yang ingin dipinjam terlebih dahulu.');
@@ -124,6 +134,8 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
     }
   }
 
+  /// Membangun form pengajuan pinjam aset: unit peminjam, pemilih aset, tanggal,
+  /// keperluan, catatan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final actionState = ref.watch(peminjamanActionProvider);

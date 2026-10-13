@@ -1,3 +1,4 @@
+/// Satu aset fisik di dalam sebuah peminjaman beserta kondisinya saat dipinjam.
 class PeminjamanItemAset {
   final int id;
   final int asetId;
@@ -5,6 +6,7 @@ class PeminjamanItemAset {
   final String namaKomoditas;
   final String kondisiSaatPinjam;
 
+  /// Membuat item aset peminjaman dengan semua field wajib terisi.
   const PeminjamanItemAset({
     required this.id,
     required this.asetId,
@@ -13,6 +15,7 @@ class PeminjamanItemAset {
     required this.kondisiSaatPinjam,
   });
 
+  /// Membuat [PeminjamanItemAset] dari JSON API dengan default bila field kosong.
   factory PeminjamanItemAset.fromJson(Map<String, dynamic> json) {
     return PeminjamanItemAset(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -26,6 +29,7 @@ class PeminjamanItemAset {
   }
 }
 
+/// Data peminjaman aset (daftar peminjam/penyedia): jadwal, status, jumlah aset, dan item-itemnya.
 class PeminjamanAsetModel {
   final int id;
   final String kode;
@@ -43,6 +47,7 @@ class PeminjamanAsetModel {
   final Map<String, dynamic>? asetPreview;
   final List<PeminjamanItemAset> items;
 
+  /// Membuat model peminjaman aset; [catatan] dan [asetPreview] opsional.
   const PeminjamanAsetModel({
     required this.id,
     required this.kode,
@@ -61,13 +66,20 @@ class PeminjamanAsetModel {
     required this.items,
   });
 
+  /// True bila status peminjaman DIAJUKAN (menunggu persetujuan).
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+  /// True bila status peminjaman DISETUJUI (menunggu serah terima).
   bool get isDisetujui => status.toUpperCase() == 'DISETUJUI';
+  /// True bila status peminjaman DIPINJAM (aset sedang dipinjam).
   bool get isDipinjam => status.toUpperCase() == 'DIPINJAM';
+  /// True bila status peminjaman SELESAI (aset sudah dikembalikan).
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
+  /// True bila status peminjaman DITOLAK.
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  /// True bila status peminjaman DIBATALKAN.
   bool get isDibatalkan => status.toUpperCase() == 'DIBATALKAN';
 
+  /// Membuat [PeminjamanAsetModel] dari JSON API dengan default bila field kosong, termasuk daftar item.
   factory PeminjamanAsetModel.fromJson(Map<String, dynamic> json) {
     return PeminjamanAsetModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -96,6 +108,7 @@ class PeminjamanAsetModel {
   }
 }
 
+/// Data peminjaman yang perlu diproses penyetuju (antrean approval), dengan ringkasan aset yang diminta.
 class ApprovalPeminjamanModel {
   final int id;
   final String kode;
@@ -110,6 +123,7 @@ class ApprovalPeminjamanModel {
   final String namaAset;
   final String kodeAset;
 
+  /// Membuat model approval peminjaman; [catatan] opsional.
   const ApprovalPeminjamanModel({
     required this.id,
     required this.kode,
@@ -125,9 +139,12 @@ class ApprovalPeminjamanModel {
     required this.kodeAset,
   });
 
+  /// True bila status DIAJUKAN (perlu disetujui/ditolak).
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+  /// True bila status DISETUJUI (siap diserahterimakan).
   bool get isDisetujui => status.toUpperCase() == 'DISETUJUI';
 
+  /// Membuat [ApprovalPeminjamanModel] dari JSON API dengan default bila field kosong.
   factory ApprovalPeminjamanModel.fromJson(Map<String, dynamic> json) {
     return ApprovalPeminjamanModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

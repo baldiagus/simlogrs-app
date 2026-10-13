@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'features/auth/presentation/screens/auth_gate.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'features/auth/presentation/screens/auth_gate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
@@ -9,15 +7,9 @@ import 'shared/widgets/custom_button.dart';
 import 'shared/widgets/empty_state_view.dart';
 import 'shared/widgets/status_badge.dart';
 
+/// Titik masuk aplikasi web: inisialisasi binding lalu jalankan SimlogApp dalam ProviderScope.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!kIsWeb) {
-    try {
-      await dotenv.load(fileName: '.env');
-    } catch (_) {
-      // Abaikan jika .env belum dimuat pada initial runtime
-    }
-  }
 
   runApp(
     const ProviderScope(
@@ -26,9 +18,12 @@ Future<void> main() async {
   );
 }
 
+/// Widget root aplikasi: MaterialApp dengan tema SIMLOG dan AuthGate sebagai halaman awal.
 class SimlogApp extends StatelessWidget {
+  /// Membuat SimlogApp.
   const SimlogApp({super.key});
 
+  /// Membangun MaterialApp utama aplikasi.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,9 +35,12 @@ class SimlogApp extends StatelessWidget {
   }
 }
 
+/// Layar smoke test untuk memeriksa komponen dasar (tema, tombol, badge, empty state).
 class CoreFoundationSmokeScreen extends StatelessWidget {
+  /// Membuat CoreFoundationSmokeScreen.
   const CoreFoundationSmokeScreen({super.key});
 
+  /// Membangun halaman contoh komponen foundation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

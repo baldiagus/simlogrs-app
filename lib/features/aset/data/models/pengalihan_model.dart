@@ -1,3 +1,4 @@
+/// Data satu pengalihan aset/barang: asal, tujuan, status, jumlah, pihak terkait, dan hak aksi user.
 class PengalihanItemModel {
   final int id;
   final String kode;
@@ -23,6 +24,7 @@ class PengalihanItemModel {
   final bool canApprove;
   final bool canReceive;
   final List<PengalihanDetailItem> items;
+  /// Membuat model pengalihan; flag [canCancel], [canApprove], [canReceive] menentukan aksi yang tersedia bagi user.
   const PengalihanItemModel({
     required this.id,
     required this.kode,
@@ -50,12 +52,18 @@ class PengalihanItemModel {
     this.items = const [],
   });
 
+  /// True bila status pengalihan DIAJUKAN (menunggu otorisasi).
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+  /// True bila status pengalihan DISETUJUI (menunggu serah terima).
   bool get isDisetujui => status.toUpperCase() == 'DISETUJUI';
+  /// True bila status pengalihan SELESAI.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
+  /// True bila status pengalihan DITOLAK.
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  /// True bila status pengalihan DIBATALKAN.
   bool get isDibatalkan => status.toUpperCase() == 'DIBATALKAN';
 
+  /// Membuat [PengalihanItemModel] dari JSON API; nama asal/tujuan/item diambil dari beberapa kemungkinan key dengan fallback.
   factory PengalihanItemModel.fromJson(Map<String, dynamic> json) {
     return PengalihanItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -90,6 +98,7 @@ class PengalihanItemModel {
   }
 }
 
+/// Rincian satu aset atau barang di dalam sebuah pengalihan.
 class PengalihanDetailItem {
   final int id;
   final String kodeAset;
@@ -97,6 +106,7 @@ class PengalihanDetailItem {
   final String? namaBarang;
   final int? jumlah;
 
+  /// Membuat detail item pengalihan; nomor seri, nama barang, dan jumlah opsional.
   const PengalihanDetailItem({
     required this.id,
     required this.kodeAset,
@@ -105,6 +115,7 @@ class PengalihanDetailItem {
     this.jumlah,
   });
 
+  /// Membuat [PengalihanDetailItem] dari JSON API dengan fallback antar key id/kode.
   factory PengalihanDetailItem.fromJson(Map<String, dynamic> json) {
     return PengalihanDetailItem(
       id: (json['aset_id'] as num?)?.toInt() ?? (json['id'] as num?)?.toInt() ?? 0,

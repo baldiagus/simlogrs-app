@@ -7,11 +7,13 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../../aset/presentation/screens/aset_detail_screen.dart';
 import '../../data/models/master_barang_item_model.dart';
 
+/// Kartu ringkasan parameter master barang pada halaman detail barang.
 class DetailBarangParamCard extends StatelessWidget {
   final MasterBarangItemModel b;
 
   const DetailBarangParamCard({super.key, required this.b});
 
+  /// Membangun satu baris label-nilai pada kartu parameter.
   Widget _buildRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -38,6 +40,7 @@ class DetailBarangParamCard extends StatelessWidget {
     );
   }
 
+  /// Membangun kartu parameter barang (kode, kategori, satuan, merek, dst).
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -101,11 +104,13 @@ class DetailBarangParamCard extends StatelessWidget {
   }
 }
 
+/// Daftar aset fisik (nomor registrasi/serial) milik barang pada halaman detail barang.
 class DetailBarangAsetList extends StatelessWidget {
   final List<DaftarAsetFisikItem> daftarAset;
 
   const DetailBarangAsetList({super.key, required this.daftarAset});
 
+  /// Membangun daftar aset fisik yang terdaftar untuk barang ini; tap membuka detail aset.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -218,6 +223,7 @@ class DetailBarangAsetList extends StatelessWidget {
   }
 }
 
+/// Daftar batch barang (nomor batch, kedaluwarsa, stok) pada halaman detail barang.
 class DetailBarangBatchList extends StatelessWidget {
   final List<DaftarBatchItem> daftarBatch;
   final String simbolSatuan;
@@ -228,6 +234,7 @@ class DetailBarangBatchList extends StatelessWidget {
     required this.simbolSatuan,
   });
 
+  /// Membangun daftar batch beserta kedaluwarsa dan stok per batch.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -327,6 +334,7 @@ class DetailBarangBatchList extends StatelessWidget {
   }
 }
 
+/// Daftar stok barang per ruangan pada halaman detail barang.
 class DetailBarangRuanganList extends StatelessWidget {
   final List<DaftarRuanganItem> daftarRuangan;
   final String simbolSatuan;
@@ -337,6 +345,7 @@ class DetailBarangRuanganList extends StatelessWidget {
     required this.simbolSatuan,
   });
 
+  /// Membangun daftar ruangan penyimpan barang beserta stok per ruangan.
   @override
   Widget build(BuildContext context) {
     return Column(

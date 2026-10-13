@@ -9,6 +9,7 @@ class ApiMeta {
     this.waktuEksekusiMs,
   });
 
+  /// Membangun metadata respons API dari JSON, dengan nilai bawaan jika field kosong.
   factory ApiMeta.fromJson(Map<String, dynamic> json) {
     return ApiMeta(
       versiApi: json['versi_api']?.toString() ?? 'v1.0',
@@ -35,6 +36,7 @@ class ApiResponse<T> {
     this.errors,
   });
 
+  /// Membangun respons API standar dari JSON; `fromJsonT` mengonversi field `data` ke tipe T.
   factory ApiResponse.fromJson(
     Map<String, dynamic> json,
     T Function(dynamic rawJson)? fromJsonT,
@@ -66,6 +68,7 @@ class ApiException implements Exception {
     this.errors,
   });
 
+  /// Representasi teks pengecualian untuk keperluan log dan debugging.
   @override
   String toString() => 'ApiException(statusCode: $statusCode, message: $message)';
 }

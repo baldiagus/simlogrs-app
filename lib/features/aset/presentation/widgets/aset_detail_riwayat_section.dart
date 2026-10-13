@@ -9,8 +9,11 @@ import 'aset_riwayat_peminjaman_card.dart';
 class AsetDetailRiwayatSection extends StatelessWidget {
   final AsetDetailModel aset;
 
+  /// Membuat section riwayat dengan data [aset].
   const AsetDetailRiwayatSection({super.key, required this.aset});
 
+  /// Membangun kartu riwayat peminjaman dan pengalihan yang masing-masing
+  /// membuka layar histori lengkap saat diketuk.
   @override
   Widget build(BuildContext context) {
     return Column(

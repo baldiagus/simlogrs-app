@@ -23,6 +23,8 @@ class BarangAmprahKatalogModel {
     required this.stokTersedia,
   });
 
+  /// Membangun model katalog barang dari respons JSON API, dengan nilai default aman
+  /// agar field yang hilang atau bertipe tidak sesuai tidak membuat parsing gagal.
   factory BarangAmprahKatalogModel.fromJson(Map<String, dynamic> json) {
     return BarangAmprahKatalogModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -64,8 +66,11 @@ class AmprahDetailItemModel {
     this.catatan,
   });
 
+  /// Sisa jumlah disetujui yang belum dikirim (backorder), dibatasi minimal 0
+  /// supaya pengiriman berlebih tidak menghasilkan angka negatif.
   int get sisaBackorder => (jumlahDisetujui - jumlahDikirim).clamp(0, jumlahDisetujui);
 
+  /// Membangun item detail amprah dari JSON API, menoleransi angka berupa string atau int.
   factory AmprahDetailItemModel.fromJson(Map<String, dynamic> json) {
     return AmprahDetailItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -124,14 +129,23 @@ class AmprahHeaderModel {
     required this.items,
   });
 
+  /// True bila permintaan berurgensi CITO (darurat) sehingga perlu diprioritaskan di UI.
   bool get isCito => urgensi.toUpperCase() == 'CITO';
+  /// True bila amprah baru diajukan dan menunggu persetujuan Karu.
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+  /// True bila amprah sudah disetujui Kepala Ruangan dan menunggu gudang.
   bool get isDisetujuiKaru => status.toUpperCase() == 'DISETUJUI_KARU';
+  /// True bila amprah sudah disetujui gudang dan siap diproses picking.
   bool get isDisetujuiGudang => status.toUpperCase() == 'DISETUJUI_GUDANG';
+  /// True bila seluruh barang amprah sudah dikirim dan diterima (proses selesai).
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
+  /// True bila amprah ditolak sehingga tidak akan diproses lebih lanjut.
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  /// True bila barang baru dikirim sebagian dan masih ada sisa backorder.
   bool get isDikirimSebagian => status.toUpperCase() == 'DIKIRIM_SEBAGIAN';
 
+  /// Membangun header amprah beserta daftar item dari JSON API, mengisi default
+  /// untuk field kosong agar tampilan daftar tetap konsisten.
   factory AmprahHeaderModel.fromJson(Map<String, dynamic> json) {
     return AmprahHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -166,6 +180,8 @@ class AmprahCartDraftItem {
     this.catatan,
   });
 
+  /// Mengubah draft keranjang menjadi payload JSON untuk pengiriman amprah ke server;
+  /// catatan hanya disertakan bila terisi.
   Map<String, dynamic> toSubmissionJson() => {
         'barang_id': barang.id,
         'jumlah': jumlah,

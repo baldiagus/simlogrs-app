@@ -1,3 +1,4 @@
+/// Item baris pada PO inbound: jumlah dipesan, sudah diterima, dan sisa kebutuhan.
 class PoInboundItemModel {
   final int id;
   final int barangId;
@@ -21,6 +22,7 @@ class PoInboundItemModel {
     required this.hargaSatuan,
   });
 
+  /// Membangun [PoInboundItemModel] dari JSON API dengan konversi tipe aman.
   factory PoInboundItemModel.fromJson(Map<String, dynamic> json) {
     return PoInboundItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -46,6 +48,7 @@ class PoInboundItemModel {
   }
 }
 
+/// Header PO inbound (pemasok, tanggal, status) beserta daftar itemnya.
 class PoInboundHeaderModel {
   final int id;
   final String kodePo;
@@ -67,9 +70,12 @@ class PoInboundHeaderModel {
     required this.items,
   });
 
+  /// True bila PO boleh menerima barang (sudah dikirim vendor atau diterima sebagian).
   bool get canReceive => status == 'DIKIRIM_VENDOR' || status == 'DITERIMA_SEBAGIAN';
+  /// True bila PO baru diterbitkan dan belum dikirim vendor.
   bool get isDiterbitkan => status == 'DITERBITKAN';
 
+  /// Membangun [PoInboundHeaderModel] dari JSON API, termasuk item bersarang.
   factory PoInboundHeaderModel.fromJson(Map<String, dynamic> json) {
     return PoInboundHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -89,6 +95,7 @@ class PoInboundHeaderModel {
   }
 }
 
+/// Draft input penerimaan barang per item PO sebelum dikirim ke server.
 class InboundItemDraft {
   final PoInboundItemModel poItem;
   int jumlahDiterima;
@@ -97,6 +104,7 @@ class InboundItemDraft {
   String? tanggalKedaluwarsa;
   int? lokasiGudangId;
 
+  /// Membuat draft penerimaan satu item PO (jumlah, batch, kedaluwarsa, lokasi) sebelum dikirim.
   InboundItemDraft({
     required this.poItem,
     required this.jumlahDiterima,
@@ -106,6 +114,7 @@ class InboundItemDraft {
     this.lokasiGudangId,
   });
 
+  /// Serialisasi draft ke payload JSON penerimaan; tanggal kedaluwarsa hanya disertakan bila terisi.
   Map<String, dynamic> toJson() => {
         'barang_id': poItem.barangId,
         'lokasi_gudang_id': lokasiGudangId,

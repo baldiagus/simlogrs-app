@@ -19,6 +19,7 @@ class FormPengajuanAmprahScreen extends ConsumerStatefulWidget {
     this.initialBarang,
   });
 
+  /// Membuat state form pengajuan amprah.
   @override
   ConsumerState<FormPengajuanAmprahScreen> createState() => _FormPengajuanAmprahScreenState();
 }
@@ -28,6 +29,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
   final List<AmprahCartDraftItem> _cartItems = [];
   final _catatanController = TextEditingController();
 
+  /// Mengisi keranjang dengan barang awal (bila ada) agar pengguna tidak perlu memilih ulang.
   @override
   void initState() {
     super.initState();
@@ -41,12 +43,14 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     }
   }
 
+  /// Membuang controller catatan agar tidak bocor memori saat form ditutup.
   @override
   void dispose() {
     _catatanController.dispose();
     super.dispose();
   }
 
+  /// Membuka bottom sheet katalog barang; barang yang dipilih ditambahkan ke keranjang atau jumlahnya bertambah bila sudah ada.
   void _openBarangPicker() {
     showModalBottomSheet(
       context: context,
@@ -67,6 +71,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     );
   }
 
+  /// Memvalidasi form lalu mengirim pengajuan amprah; menutup layar dengan hasil true bila berhasil.
   Future<void> _submit() async {
     if (_cartItems.isEmpty) {
       AppToast.error(context, 'Pilih minimal 1 komoditas barang dari katalog amprah.');
@@ -92,6 +97,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     }
   }
 
+  /// Membangun form pengajuan amprah: urgensi, keranjang barang, catatan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;

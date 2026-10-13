@@ -13,16 +13,20 @@ import '../../data/models/po_inbound_model.dart';
 import '../providers/inbound_provider.dart';
 import 'form_penerimaan_po_screen.dart';
 
+/// Layar daftar PO inbound yang menunggu atau sudah diterima gudang, dengan pencarian.
 class InboundPoListScreen extends ConsumerStatefulWidget {
   const InboundPoListScreen({super.key});
 
+  /// Membuat state layar daftar PO inbound.
   @override
   ConsumerState<InboundPoListScreen> createState() => _InboundPoListScreenState();
 }
 
+/// State layar daftar PO inbound; menyimpan kata kunci pencarian dan memantau daftar PO dari provider.
 class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
   String _query = '';
 
+  /// Menyusun UI daftar PO inbound: bar pencarian dan kartu PO dengan status loading/error/kosong.
   @override
   Widget build(BuildContext context) {
     final poListAsync = ref.watch(daftarPoInboundProvider);
@@ -105,6 +109,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
     );
   }
 
+  /// Membangun kartu satu PO; tombol terima hanya muncul bagi pengguna yang berwenang memproses inbound.
   Widget _buildPoCard(BuildContext context, PoInboundHeaderModel po) {
     final user = ref.watch(authStateProvider).user;
     final canProcessInbound = (user?.isGudangUser == true) ||

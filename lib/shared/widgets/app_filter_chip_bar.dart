@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Pasangan label tampilan dan nilai untuk satu pilihan pada AppFilterChipBar.
 class AppFilterOption<T> {
   final String label;
   final T value;
@@ -11,6 +12,7 @@ class AppFilterOption<T> {
   });
 }
 
+/// Baris chip filter yang dapat digulir horizontal; satu chip aktif sesuai nilai selected.
 class AppFilterChipBar<T> extends StatelessWidget {
   final List<AppFilterOption<T>> options;
   final T selected;
@@ -25,6 +27,7 @@ class AppFilterChipBar<T> extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
   });
 
+  /// Membangun daftar chip dengan gaya berbeda untuk chip terpilih dan memanggil onSelected saat chip diketuk.
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

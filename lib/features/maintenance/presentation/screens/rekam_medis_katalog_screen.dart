@@ -12,8 +12,10 @@ import '../providers/ipsrs_providers.dart';
 import 'rekam_medis_detail_screen.dart';
 
 class RekamMedisKatalogScreen extends ConsumerStatefulWidget {
+  /// Membuat RekamMedisKatalogScreen.
   const RekamMedisKatalogScreen({super.key});
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<RekamMedisKatalogScreen> createState() => _RekamMedisKatalogScreenState();
 }
@@ -21,6 +23,7 @@ class RekamMedisKatalogScreen extends ConsumerStatefulWidget {
 class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScreen> {
 
 
+  /// Membangun tampilan _RekamMedisKatalogScreenState.
   @override
   Widget build(BuildContext context) {
     final katalogAsync = ref.watch(rekamMedisKatalogProvider);

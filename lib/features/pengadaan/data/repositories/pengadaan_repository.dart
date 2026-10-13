@@ -8,8 +8,10 @@ import '../models/po_model.dart';
 class PengadaanRepository {
   final DioClient _client;
 
+  /// Membuat repository dengan [DioClient] untuk memanggil API pengadaan.
   PengadaanRepository(this._client);
 
+  /// Mengambil katalog barang dari server, dapat difilter kata kunci [cari] dan jenis barang [tipe].
   Future<List<MasterBarangModel>> getKatalogBarang({String? cari, String? tipe}) async {
     try {
       final response = await _client.dio.get(
@@ -35,6 +37,7 @@ class PengadaanRepository {
     }
   }
 
+  /// Mengambil daftar permintaan pengadaan (PR) milik pengguna dari server.
   Future<List<PrHeaderModel>> getDaftarPr() async {
     try {
       final response = await _client.dio.get('/pengadaan/pr');
@@ -53,6 +56,7 @@ class PengadaanRepository {
     }
   }
 
+  /// Mengirim PR baru ke server; bila [isKaru] true, PR langsung disetujui otomatis.
   Future<Map<String, dynamic>> submitPr({
     int? unitId,
     int? gudangId,

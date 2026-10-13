@@ -11,8 +11,10 @@ import '../../data/repositories/ipsrs_repository.dart';
 import '../providers/ipsrs_providers.dart';
 
 class FormTambahJadwalSheet extends ConsumerStatefulWidget {
+  /// Membuat FormTambahJadwalSheet.
   const FormTambahJadwalSheet({super.key});
 
+  /// Tampilkan sheet sebagai bottom sheet; hasilnya true jika data tersimpan.
   static Future<bool?> show(BuildContext context) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -22,6 +24,7 @@ class FormTambahJadwalSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<FormTambahJadwalSheet> createState() => _FormTambahJadwalSheetState();
 }
@@ -37,6 +40,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
   DateTime _tanggalBerikutnya = DateTime.now().add(const Duration(days: 30));
   bool _isLoading = false;
 
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _jenisCtrl.dispose();
@@ -45,6 +49,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
     super.dispose();
   }
 
+  /// Tampilkan date picker dan simpan tanggal terpilih ke form.
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -68,6 +73,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
     }
   }
 
+  /// Validasi form lalu kirim data ke server dan tampilkan hasilnya.
   Future<void> _submit() async {
     if (_selectedAsetId == null) {
       AppToast.error(context, 'Pilih sarana / aset yang akan dijadwalkan servis.');
@@ -117,6 +123,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
     }
   }
 
+  /// Membangun tampilan _FormTambahJadwalSheetState.
   @override
   Widget build(BuildContext context) {
     final katalogAsetAsync = ref.watch(rekamMedisKatalogProvider);

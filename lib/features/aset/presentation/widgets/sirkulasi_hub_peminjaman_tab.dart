@@ -13,6 +13,7 @@ import 'sirkulasi_hub_common_widgets.dart';
 
 /// Tab 1 hub sirkulasi: daftar Peminjaman Saya / Peminjaman Gudang.
 class SirkulasiHubPeminjamanTab extends ConsumerWidget {
+  /// Membuat tab peminjaman dengan data, callback ajukan, dan callback perpanjang.
   const SirkulasiHubPeminjamanTab({
     super.key,
     required this.peminjamanAsync,
@@ -24,6 +25,7 @@ class SirkulasiHubPeminjamanTab extends ConsumerWidget {
   final VoidCallback onAjukan;
   final void Function(BuildContext context, PeminjamanAsetModel item) onExtend;
 
+  /// Membatalkan peminjaman via provider aksi lalu menampilkan toast hasilnya.
   Future<void> _batalkan(
       BuildContext context, WidgetRef ref, PeminjamanAsetModel item) async {
     final notifier = ref.read(peminjamanActionProvider.notifier);
@@ -37,6 +39,7 @@ class SirkulasiHubPeminjamanTab extends ConsumerWidget {
     }
   }
 
+  /// Membangun daftar peminjaman dari [peminjamanAsync] (loading/error/kosong/data).
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

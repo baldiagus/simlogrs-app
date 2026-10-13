@@ -6,6 +6,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/barang_rak_model.dart';
 
+/// Tab daftar barang (stok per batch) di dalam rak, dengan kolom pencarian lokal.
 class BarangRakListTab extends StatefulWidget {
   final List<BarangRakModel> items;
 
@@ -14,13 +15,16 @@ class BarangRakListTab extends StatefulWidget {
     required this.items,
   });
 
+  /// Membuat state pencarian untuk tab barang rak.
   @override
   State<BarangRakListTab> createState() => _BarangRakListTabState();
 }
 
+/// State tab barang rak; menyimpan kata kunci pencarian dan memfilter daftar barang.
 class _BarangRakListTabState extends State<BarangRakListTab> {
   String _searchQuery = '';
 
+  /// Membangun kolom pencarian dan daftar barang yang sudah difilter, atau tampilan kosong bila tidak ada hasil.
   @override
   Widget build(BuildContext context) {
     final filtered = widget.items.where((b) {
@@ -68,6 +72,7 @@ class _BarangRakListTabState extends State<BarangRakListTab> {
     );
   }
 
+  /// Membangun kartu satu barang/batch dengan penanda status kedaluwarsa (aman, mendekati, kadaluwarsa).
   Widget _buildBarangCard(BarangRakModel item) {
     Color expColor = AppColors.success;
     String expLabel = 'Aman';

@@ -20,6 +20,8 @@ class PengadaanHubActions {
 
   const PengadaanHubActions(this.ref);
 
+  /// Meminta konfirmasi lalu menyetujui PR oleh Karu agar statusnya menjadi DISETUJUI
+  /// dan dapat diproses Bagian Pengadaan.
   Future<void> setujuiPr(BuildContext context, PrHeaderModel pr) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -49,6 +51,8 @@ class PengadaanHubActions {
     }
   }
 
+  /// Meminta konfirmasi lalu meneruskan PR yang sudah disetujui ke Bagian Pengadaan
+  /// agar dapat dibuatkan PO.
   Future<void> teruskanPr(BuildContext context, PrHeaderModel pr) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -78,11 +82,14 @@ class PengadaanHubActions {
     }
   }
 
+  /// Menampilkan dialog penolakan PR dengan isian catatan alasan, lalu mengirim
+  /// penolakan sesuai peran (Karu atau Pengadaan).
   void tolakPr(BuildContext context, PrHeaderModel pr,
       {bool isPengadaan = false}) {
     final catatanCtrl = TextEditingController();
     showDialog(
       context: context,
+      // Membangun dialog input catatan penolakan PR.
       builder: (ctx) => AlertDialog(
         title: Text(
             isPengadaan ? 'Tolak oleh Tim Pengadaan' : 'Tolak Permohonan PR'),
@@ -114,6 +121,7 @@ class PengadaanHubActions {
             child: const Text('Batal'),
           ),
           ElevatedButton(
+            // Memvalidasi catatan, mengirim penolakan PR, lalu menyegarkan data terkait.
             onPressed: () async {
               final catatan = catatanCtrl.text.trim();
               if (catatan.isEmpty) {
@@ -149,6 +157,8 @@ class PengadaanHubActions {
     );
   }
 
+  /// Meminta konfirmasi lalu menandai PO sebagai sudah dikirim ke pemasok
+  /// agar proses penerimaan barang bisa dimulai.
   Future<void> confirmUpdateKirimPo(
       BuildContext context, PesananPembelianModel po) async {
     final confirmed = await AppConfirmDialog.show(
@@ -181,6 +191,8 @@ class PengadaanHubActions {
     }
   }
 
+  /// Membuka form penerimaan PO di gudang dan menyegarkan data inbound
+  /// bila penerimaan berhasil disimpan.
   Future<void> terimaInbound(
       BuildContext context, PoInboundHeaderModel item) async {
     final ok = await Navigator.push<bool>(

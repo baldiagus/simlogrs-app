@@ -7,6 +7,7 @@ import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/aset_provider.dart';
 
+/// Bottom sheet inspeksi fisik saat aset dikembalikan peminjam.
 class ModalPengembalianAsetSheet extends ConsumerStatefulWidget {
   final int peminjamanId;
   final int detailId;
@@ -15,6 +16,7 @@ class ModalPengembalianAsetSheet extends ConsumerStatefulWidget {
   final String namaBarang;
   final VoidCallback? onSuccess;
 
+  /// Membuat sheet pengembalian untuk satu detail peminjaman aset.
   const ModalPengembalianAsetSheet({
     super.key,
     required this.peminjamanId,
@@ -25,6 +27,7 @@ class ModalPengembalianAsetSheet extends ConsumerStatefulWidget {
     this.onSuccess,
   });
 
+  /// Menampilkan sheet pengembalian aset sebagai modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
     required int peminjamanId,
@@ -49,23 +52,27 @@ class ModalPengembalianAsetSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet pengembalian.
   @override
   ConsumerState<ModalPengembalianAsetSheet> createState() =>
       _ModalPengembalianAsetSheetState();
 }
 
+/// State sheet pengembalian: menyimpan kondisi terpilih, catatan, dan status kirim.
 class _ModalPengembalianAsetSheetState
     extends ConsumerState<ModalPengembalianAsetSheet> {
   String _kondisi = 'BAIK';
   final TextEditingController _catatanController = TextEditingController();
   bool _isSubmitting = false;
 
+  /// Membebaskan controller catatan saat widget dibuang.
   @override
   void dispose() {
     _catatanController.dispose();
     super.dispose();
   }
 
+  /// Membangun chip pilihan kondisi aset dengan warna sesuai tingkat kerusakan.
   Widget _buildKondisiChip(String val, String label) {
     final isSelected = _kondisi == val;
     Color color = AppColors.success;
@@ -101,6 +108,7 @@ class _ModalPengembalianAsetSheetState
     );
   }
 
+  /// Mengirim hasil inspeksi pengembalian ke provider lalu menutup sheet dan menampilkan toast.
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     final navigator = Navigator.of(context);
@@ -133,6 +141,7 @@ class _ModalPengembalianAsetSheetState
     }
   }
 
+  /// Membangun form inspeksi fisik: pilihan kondisi, catatan, dan tombol konfirmasi.
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(

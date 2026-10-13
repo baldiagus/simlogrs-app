@@ -12,6 +12,7 @@ import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/shared/widgets/app_date_picker_field.dart';
 import 'package:simlog_mobile/shared/widgets/custom_button.dart';
 
+/// Bottom sheet untuk memulai sesi stock opname: pilih gudang, tanggal, dan catatan.
 class InisiasiOpnameSheet extends ConsumerStatefulWidget {
   final int? initialGudangId;
   final VoidCallback? onSuccess;
@@ -22,6 +23,7 @@ class InisiasiOpnameSheet extends ConsumerStatefulWidget {
     this.onSuccess,
   });
 
+  /// Menampilkan sheet inisiasi opname sebagai modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
     int? initialGudangId,
@@ -38,28 +40,33 @@ class InisiasiOpnameSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state form inisiasi opname.
   @override
   ConsumerState<InisiasiOpnameSheet> createState() => _InisiasiOpnameSheetState();
 }
 
+/// State form inisiasi opname; menyimpan gudang terpilih, tanggal, catatan, dan status kirim.
 class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
   int? _selectedGudangId;
   DateTime _tanggalOpname = DateTime.now();
   final TextEditingController _catatanController = TextEditingController();
   bool _isSubmitting = false;
 
+  /// Mengisi gudang terpilih awal dari [InisiasiOpnameSheet.initialGudangId].
   @override
   void initState() {
     super.initState();
     _selectedGudangId = widget.initialGudangId;
   }
 
+  /// Membersihkan controller catatan agar tidak bocor memori.
   @override
   void dispose() {
     _catatanController.dispose();
     super.dispose();
   }
 
+  /// Validasi gudang (harus punya batch aktif) lalu kirim inisiasi opname ke API; segarkan daftar opname dan dashboard bila sukses.
   Future<void> _submit(List<GudangModel> gudangs) async {
     if (_selectedGudangId == null) {
       AppToast.error(context, 'Fasilitas gudang wajib dipilih terlebih dahulu.');
@@ -97,6 +104,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
     }
   }
 
+  /// Membangun form pilih gudang, tanggal opname, catatan, dan tombol mulai sesi.
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(

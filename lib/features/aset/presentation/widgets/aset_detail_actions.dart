@@ -22,6 +22,7 @@ class AsetDetailActionSection extends StatelessWidget {
   final VoidCallback onPerpanjang;
   final VoidCallback onPengembalian;
 
+  /// Membuat section aksi dengan data aset, hak akses, dan callback aksi.
   const AsetDetailActionSection({
     super.key,
     required this.aset,
@@ -35,6 +36,8 @@ class AsetDetailActionSection extends StatelessWidget {
     required this.onPengembalian,
   });
 
+  /// Membuka form peminjaman dengan aset ini sudah terisi, supaya
+  /// pengguna tidak perlu mencari aset lagi di katalog.
   void _ajukanPeminjaman(BuildContext context) {
     // Buat AsetTersediaModel dari aset untuk prefill form peminjaman
     final asetTersedia = AsetTersediaModel(
@@ -63,6 +66,8 @@ class AsetDetailActionSection extends StatelessWidget {
     );
   }
 
+  /// Membuka modal pengalihan/mutasi aset dengan data aset ini sebagai
+  /// aset terpilih, agar unit pemohon tidak perlu memilih ulang.
   void _ajukanPengalihan(BuildContext context) {
     final asetTersedia = AsetTersediaModel(
       id: aset.id,
@@ -83,6 +88,8 @@ class AsetDetailActionSection extends StatelessWidget {
     ModalPengalihanAsetSheet.show(context, aset: asetTersedia);
   }
 
+  /// Menyusun tombol aksi sesuai status aset: pinjam, perpanjang/kembali,
+  /// pengalihan, dan lapor kerusakan berdasarkan hak akses pengguna.
   @override
   Widget build(BuildContext context) {
     return Column(

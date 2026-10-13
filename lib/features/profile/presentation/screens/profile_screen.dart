@@ -8,16 +8,20 @@ import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
+/// Layar profil pengguna: identitas, unit/gudang, daftar wewenang, info aplikasi, dan tombol keluar.
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
+  /// Membuat state layar profil.
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+/// State layar profil yang menyimpan toggle tampilan seluruh wewenang.
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _showAllPermissions = false;
 
+  /// Mengubah kode role dari backend menjadi nama jabatan yang mudah dibaca; role tak dikenal diformat generik.
   String _formatRoleName(String raw) {
     switch (raw.toLowerCase()) {
       case 'super_admin':
@@ -47,6 +51,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  /// Meminta konfirmasi sebelum keluar, lalu menjalankan logout lewat authStateProvider bila disetujui.
   Future<void> _showLogoutConfirmation(BuildContext context) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -61,6 +66,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  /// Membangun halaman profil; menampilkan pesan bila data pengguna tidak tersedia.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -383,6 +389,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  /// Membangun satu baris info berikon (label dan nilai), dengan sorotan warna bila nilainya terisi.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,

@@ -9,6 +9,7 @@ class SubMetricModel {
     this.warna = 'text',
   });
 
+  /// Membuat sub-metrik dari JSON server dengan nilai default bila field kosong.
   factory SubMetricModel.fromJson(Map<String, dynamic> json) {
     return SubMetricModel(
       label: json['label']?.toString() ?? '',
@@ -35,6 +36,7 @@ class HeroMetricModel {
     required this.subMetrik,
   });
 
+  /// Membuat metrik utama dari JSON server; total dinormalisasi ke int dan field kosong diberi default.
   factory HeroMetricModel.fromJson(Map<String, dynamic> json) {
     return HeroMetricModel(
       judul: json['judul']?.toString() ?? 'Total Antrean Kerja',
@@ -51,6 +53,7 @@ class HeroMetricModel {
     );
   }
 
+  /// Membuat metrik utama cadangan dari hitungan lokal saat endpoint ringkasan tidak tersedia.
   factory HeroMetricModel.fallback({
     required int prCount,
     required int amprahCount,
@@ -93,6 +96,7 @@ class ActivityItemModel {
     this.kode,
   });
 
+  /// Membuat item aktivitas dari JSON ringkasan dashboard terpadu.
   factory ActivityItemModel.fromJson(Map<String, dynamic> json) {
     final tipe = json['tipe']?.toString().toLowerCase() ?? 'dokumen';
     return ActivityItemModel(
@@ -107,6 +111,7 @@ class ActivityItemModel {
     );
   }
 
+  /// Memetakan data Purchase Request pending ke item aktivitas bertipe 'pr'.
   factory ActivityItemModel.fromPr(Map<String, dynamic> json) {
     return ActivityItemModel(
       id: json['id']?.toString() ?? '',
@@ -120,6 +125,7 @@ class ActivityItemModel {
     );
   }
 
+  /// Memetakan data permintaan amprah pending ke item aktivitas bertipe 'amprah'.
   factory ActivityItemModel.fromAmprah(Map<String, dynamic> json) {
     return ActivityItemModel(
       id: json['id']?.toString() ?? '',
@@ -138,6 +144,7 @@ class DashboardSummaryModel {
   final HeroMetricModel hero;
   final List<ActivityItemModel> recentActivities;
 
+  /// Total antrean approval; untuk hero 'pengajuan' dihitung dari PR + amprah, selain itu pakai total hero.
   int get totalPendingApproval {
     if (hero.judul.toLowerCase().contains('pengajuan')) {
       return prCount + amprahCount;
@@ -145,6 +152,7 @@ class DashboardSummaryModel {
     return hero.total;
   }
 
+  /// Jumlah PR menunggu, dibaca dari sub-metrik yang labelnya memuat 'pr'.
   int get prCount {
     for (final s in hero.subMetrik) {
       if (s.label.toLowerCase().contains('pr')) {
@@ -154,6 +162,7 @@ class DashboardSummaryModel {
     return 0;
   }
 
+  /// Jumlah amprah menunggu, dibaca dari sub-metrik yang labelnya memuat 'amprah'.
   int get amprahCount {
     for (final s in hero.subMetrik) {
       if (s.label.toLowerCase().contains('amprah')) {
@@ -163,6 +172,7 @@ class DashboardSummaryModel {
     return 0;
   }
 
+  /// Jumlah SPK/tugas aktif, dibaca dari sub-metrik yang labelnya memuat 'spk' atau 'tugas'.
   int get activeSpkCount {
     for (final s in hero.subMetrik) {
       if (s.label.toLowerCase().contains('spk') || s.label.toLowerCase().contains('tugas')) {
@@ -177,6 +187,7 @@ class DashboardSummaryModel {
     required this.recentActivities,
   });
 
+  /// Membuat ringkasan kosong (semua hitungan nol) sebagai nilai awal/aman.
   factory DashboardSummaryModel.empty() {
     return DashboardSummaryModel(
       hero: HeroMetricModel.fallback(prCount: 0, amprahCount: 0, spkCount: 0),
@@ -184,6 +195,7 @@ class DashboardSummaryModel {
     );
   }
 
+  /// Membuat ringkasan dari JSON server; hero jatuh ke fallback bila tidak ada.
   factory DashboardSummaryModel.fromJson(Map<String, dynamic> json) {
     final hero = json['hero'] is Map<String, dynamic>
         ? HeroMetricModel.fromJson(json['hero'] as Map<String, dynamic>)

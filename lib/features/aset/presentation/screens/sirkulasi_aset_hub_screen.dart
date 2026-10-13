@@ -18,14 +18,18 @@ import '../widgets/sirkulasi_hub_siap_kembali_tab.dart';
 import 'form_peminjaman_aset_screen.dart';
 import 'qr_scanner_screen.dart';
 
+/// Halaman hub sirkulasi aset RS (peminjaman, otorisasi, dan pengembalian).
 class SirkulasiAsetHubScreen extends ConsumerStatefulWidget {
+  /// Membuat layar hub sirkulasi aset.
   const SirkulasiAsetHubScreen({super.key});
 
+  /// Membuat state layar hub sirkulasi aset.
   @override
   ConsumerState<SirkulasiAsetHubScreen> createState() =>
       _SirkulasiAsetHubScreenState();
 }
 
+/// State hub sirkulasi: mengelola tab, hak otorisasi, dan aksi modal peminjaman.
 class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
@@ -33,6 +37,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
   String _subPerspektifSiapKembali =
       'dipinjam'; // 'dipinjam' (peminjam) atau 'dipinjamkan' (penyedia)
 
+  /// Menentukan hak otorisasi awal dan membuat [TabController] sesuai jumlah tab.
   @override
   void initState() {
     super.initState();
@@ -40,6 +45,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
   }
 
+  /// Membuang [TabController] saat state dilepas agar tidak bocor memori.
   @override
   void dispose() {
     _tabController.dispose();
@@ -57,6 +63,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         (user?.hasRole('super_admin') ?? false);
   }
 
+  /// Membuka form peminjaman baru dan menyegarkan daftar bila peminjaman berhasil dibuat.
   Future<void> _bukaFormPeminjaman(BuildContext context) async {
     final created = await Navigator.push<bool>(
       context,
@@ -69,6 +76,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     }
   }
 
+  /// Membuka modal pengembalian untuk item pertama peminjaman lalu menyegarkan daftar terkait.
   void _showReturnModal(BuildContext context, PeminjamanAsetModel item) {
     if (item.items.isEmpty) return;
     final firstItem = item.items.first;
@@ -89,6 +97,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     );
   }
 
+  /// Membuka modal otorisasi (setuju/tolak) peminjaman lalu menyegarkan daftar terkait.
   void _showOtorisasiModal(
       BuildContext context, ApprovalPeminjamanModel item, String aksi) {
     ModalOtorisasiPeminjamanSheet.show(
@@ -106,6 +115,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     );
   }
 
+  /// Membuka modal perpanjangan peminjaman lalu menyegarkan daftar terkait.
   void _showPerpanjangModal(BuildContext context, PeminjamanAsetModel item) {
     ModalPerpanjangPeminjamanSheet.show(
       context,
@@ -121,6 +131,8 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
     );
   }
 
+  /// Membangun hub sirkulasi aset: tab pinjaman saya, otorisasi (jika berhak),
+  /// dan siap kembali, plus tombol pinjam aset baru.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;

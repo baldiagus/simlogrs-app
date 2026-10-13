@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_shadows.dart';
 
+/// Kartu banner aksi bertap berisi ikon, judul, dan subjudul; dipakai sebagai pintasan menu/aksi di halaman.
 class AppActionBannerCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -23,6 +24,7 @@ class AppActionBannerCard extends StatelessWidget {
     this.borderColor,
   });
 
+  /// Membangun kartu dengan ikon berlatar, teks judul/subjudul, dan panah chevron penanda bisa diketuk.
   @override
   Widget build(BuildContext context) {
     return InkWell(

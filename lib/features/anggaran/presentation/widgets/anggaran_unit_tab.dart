@@ -8,6 +8,7 @@ import 'package:simlog_mobile/features/anggaran/data/models/anggaran_models.dart
 import 'package:simlog_mobile/features/anggaran/presentation/providers/anggaran_provider.dart';
 import 'package:simlog_mobile/shared/widgets/app_search_bar.dart';
 
+/// Tab daftar anggaran per unit/ruangan dengan pencarian; ketuk kartu untuk membuka detail.
 class AnggaranUnitTab extends ConsumerStatefulWidget {
   final List<UnitAnggaranModel> units;
   final String tahun;
@@ -20,13 +21,16 @@ class AnggaranUnitTab extends ConsumerStatefulWidget {
     required this.onUnitTap,
   });
 
+  /// Membuat state tab anggaran unit.
   @override
   ConsumerState<AnggaranUnitTab> createState() => _AnggaranUnitTabState();
 }
 
+/// State tab; menyimpan kata kunci pencarian untuk menyaring daftar unit.
 class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
   String _searchQuery = '';
 
+  /// Membangun kolom pencarian dan daftar kartu unit yang sudah disaring.
   @override
   Widget build(BuildContext context) {
     final filteredUnits = widget.units.where((u) {
@@ -75,6 +79,7 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
     );
   }
 
+  /// Membangun kartu satu unit: pagu, realisasi, sisa, serapan, dan status anggaran.
   Widget _buildUnitCard(UnitAnggaranModel item, String tahun) {
     return Container(
       padding: const EdgeInsets.all(14),

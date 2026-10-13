@@ -19,6 +19,7 @@ class JadwalPreventifItemModel {
   final String teknisiNama;
   final String catatan;
 
+  /// Membuat JadwalPreventifItemModel.
   const JadwalPreventifItemModel({
     required this.id,
     required this.kode,
@@ -41,9 +42,12 @@ class JadwalPreventifItemModel {
     required this.catatan,
   });
 
+  /// True jika jadwal sudah lewat tenggat.
   bool get isOverdue => statusJadwal == 'OVERDUE';
+  /// True jika jadwal jatuh tempo hari ini.
   bool get isHariIni => statusJadwal == 'HARI_INI';
 
+  /// Membuat JadwalPreventifItemModel dari JSON respons API.
   factory JadwalPreventifItemModel.fromJson(Map<String, dynamic> json) {
     return JadwalPreventifItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

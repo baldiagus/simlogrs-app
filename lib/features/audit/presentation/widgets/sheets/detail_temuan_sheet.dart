@@ -7,16 +7,19 @@ import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
 
+/// Bottom sheet detail temuan CAPA; auditee mengisi tindak lanjut, auditor mengevaluasi closing.
 class DetailTemuanSheet extends ConsumerStatefulWidget {
   final TemuanCapaModel temuan;
   final bool isAuditor;
 
   const DetailTemuanSheet({super.key, required this.temuan, required this.isAuditor});
 
+  /// Membuat state sheet detail temuan.
   @override
   ConsumerState<DetailTemuanSheet> createState() => _DetailTemuanSheetState();
 }
 
+/// State sheet detail temuan: mengelola input tindak lanjut/evaluasi dan status loading.
 class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
   final TextEditingController _analisisCtrl = TextEditingController();
   final TextEditingController _tindakanCtrl = TextEditingController();
@@ -24,6 +27,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
   String _hasilEvaluasi = 'Closed';
   bool _isLoading = false;
 
+  /// Mengisi controller dengan data tindak lanjut/evaluasi yang sudah ada pada temuan.
   @override
   void initState() {
     super.initState();
@@ -32,6 +36,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     _evaluasiCtrl.text = widget.temuan.catatanEvaluasi ?? '';
   }
 
+  /// Membuang semua [TextEditingController] agar tidak bocor memori.
   @override
   void dispose() {
     _analisisCtrl.dispose();
@@ -40,6 +45,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     super.dispose();
   }
 
+  /// Auditee mengirim analisis penyebab dan tindakan perbaikan (min. 10 karakter) ke auditor lalu menyegarkan data.
   Future<void> _submitTindakLanjut() async {
     if (_analisisCtrl.text.trim().length < 10 || _tindakanCtrl.text.trim().length < 10) {
       AppToast.error(context, 'Analisis dan tindakan perbaikan minimal 10 karakter.');
@@ -70,6 +76,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     }
   }
 
+  /// Auditor menyimpan hasil evaluasi closing (validasi catatan min. 5 karakter) lalu menyegarkan register dan ringkasan.
   Future<void> _submitEvaluasi() async {
     if (_evaluasiCtrl.text.trim().length < 5) {
       AppToast.error(context, 'Catatan evaluasi minimal 5 karakter.');
@@ -100,6 +107,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     }
   }
 
+  /// Membangun sheet detail temuan: info temuan, form tindak lanjut auditee, atau form evaluasi auditor.
   @override
   Widget build(BuildContext context) {
     final t = widget.temuan;

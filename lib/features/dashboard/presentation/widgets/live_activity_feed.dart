@@ -23,6 +23,7 @@ class LiveActivityFeed extends StatelessWidget {
     required this.activities,
   });
 
+  /// Membangun daftar aktivitas terbaru (maks. 5 item) dengan tautan ke semua aktivitas bila lebih banyak.
   @override
   Widget build(BuildContext context) {
     final hasMore = activities.length > 5;
@@ -227,6 +228,7 @@ class LiveActivityFeed extends StatelessWidget {
     );
   }
 
+  /// Menentukan ikon serta warna latar/aksen berdasarkan tipe aktivitas agar mudah dibedakan.
   (IconData, Color, Color) _resolveTypeStyle(String type) {
     switch (type.toLowerCase()) {
       case 'spk':
@@ -248,6 +250,7 @@ class LiveActivityFeed extends StatelessWidget {
     }
   }
 
+  /// Menangani ketukan item aktivitas dengan membuka halaman detail sesuai tipe dan ID-nya.
   void _handleItemTap(BuildContext context, ActivityItemModel item) {
     final type = item.type.toLowerCase();
     final itemId = int.tryParse(item.id);

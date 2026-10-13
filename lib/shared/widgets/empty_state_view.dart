@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Tampilan kosong seragam di tengah layar saat tidak ada data, dengan aksi opsional.
 class EmptyStateView extends StatelessWidget {
   final String title;
   final String message;
@@ -16,6 +17,7 @@ class EmptyStateView extends StatelessWidget {
     this.action,
   });
 
+  /// Membangun ikon, judul, pesan penjelas, dan widget aksi opsional.
   @override
   Widget build(BuildContext context) {
     return Center(

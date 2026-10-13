@@ -3,11 +3,13 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/approval_item_model.dart';
 
+/// Akses API approval: ambil antrean pending dan eksekusi persetujuan PR/Amprah.
 class ApprovalRepository {
   final DioClient _client;
 
   ApprovalRepository(this._client);
 
+  /// Mengambil antrean PR dan Amprah yang menunggu persetujuan user.
   Future<ApprovalPendingResponse> getPending() async {
     try {
       final response = await _client.dio.get('/approval/pending');
@@ -24,6 +26,7 @@ class ApprovalRepository {
     }
   }
 
+  /// Mengirim keputusan (setujui/tolak) untuk satu PR beserta catatan opsional.
   Future<void> executeApprovalPr({
     required int id,
     required String aksi,
@@ -50,6 +53,7 @@ class ApprovalRepository {
     }
   }
 
+  /// Mengirim keputusan setujui/tolak untuk satu Amprah beserta catatan opsional.
   Future<void> executeApprovalAmprah({
     required int id,
     required bool isSetujui,

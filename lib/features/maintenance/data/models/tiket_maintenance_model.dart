@@ -7,6 +7,7 @@ class AsetUnitModel {
   final String kondisi;
   final String status;
 
+  /// Membuat AsetUnitModel.
   const AsetUnitModel({
     required this.id,
     required this.kodeAset,
@@ -17,6 +18,7 @@ class AsetUnitModel {
     required this.status,
   });
 
+  /// Membuat AsetUnitModel dari JSON respons API.
   factory AsetUnitModel.fromJson(Map<String, dynamic> json) {
     return AsetUnitModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -35,12 +37,14 @@ class PenugasanAktifInfo {
   final String namaTeknisi;
   final String? statusSpk;
 
+  /// Membuat PenugasanAktifInfo.
   const PenugasanAktifInfo({
     required this.kodeSpk,
     required this.namaTeknisi,
     this.statusSpk,
   });
 
+  /// Membuat PenugasanAktifInfo dari JSON respons API.
   factory PenugasanAktifInfo.fromJson(Map<String, dynamic> json) {
     return PenugasanAktifInfo(
       kodeSpk: json['kode_spk']?.toString() ?? '',
@@ -64,6 +68,7 @@ class TiketMaintenanceModel {
   final Map<String, dynamic> aset;
   final PenugasanAktifInfo? penugasanAktif;
 
+  /// Membuat TiketMaintenanceModel.
   const TiketMaintenanceModel({
     required this.id,
     required this.kode,
@@ -79,15 +84,23 @@ class TiketMaintenanceModel {
     this.penugasanAktif,
   });
 
+  /// True jika prioritas CITO (paling mendesak).
   bool get isCito => prioritas.toUpperCase() == 'CITO';
+  /// True jika prioritas TINGGI.
   bool get isTinggi => prioritas.toUpperCase() == 'TINGGI';
+  /// True jika tiket masih berstatus DILAPORKAN (belum ditugaskan).
   bool get isDilaporkan => status.toUpperCase() == 'DILAPORKAN';
+  /// True jika status sudah SELESAI.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
+  /// Nama aset dari data aset, fallback "Aset Fisik" bila kosong.
   String get namaAset => aset['nama']?.toString() ?? 'Aset Fisik';
+  /// Kode aset dari data aset, fallback "-" bila kosong.
   String get kodeAset => aset['kode_aset']?.toString() ?? '-';
+  /// Nomor seri aset, fallback "-" bila kosong.
   String get nomorSeri => aset['nomor_seri']?.toString() ?? '-';
 
+  /// Membuat TiketMaintenanceModel dari JSON respons API.
   factory TiketMaintenanceModel.fromJson(Map<String, dynamic> json) {
     return TiketMaintenanceModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -125,6 +138,7 @@ class TiketDetailModel {
   final List<Map<String, dynamic>> penugasan;
   final List<Map<String, dynamic>> riwayatLog;
 
+  /// Membuat TiketDetailModel.
   const TiketDetailModel({
     required this.id,
     required this.kode,
@@ -141,12 +155,18 @@ class TiketDetailModel {
     required this.riwayatLog,
   });
 
+  /// True jika prioritas CITO (paling mendesak).
   bool get isCito => prioritas.toUpperCase() == 'CITO';
+  /// True jika tiket masih berstatus DILAPORKAN (belum ditugaskan).
   bool get isDilaporkan => status.toUpperCase() == 'DILAPORKAN';
+  /// Nama aset dari data aset, fallback "Aset Fisik" bila kosong.
   String get namaAset => aset['nama']?.toString() ?? 'Aset Fisik';
+  /// Kode aset dari data aset, fallback "-" bila kosong.
   String get kodeAset => aset['kode_aset']?.toString() ?? '-';
+  /// Nomor seri aset, fallback "-" bila kosong.
   String get nomorSeri => aset['nomor_seri']?.toString() ?? '-';
 
+  /// Membuat TiketDetailModel dari JSON respons API.
   factory TiketDetailModel.fromJson(Map<String, dynamic> json) {
     return TiketDetailModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

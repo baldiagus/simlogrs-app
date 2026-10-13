@@ -8,17 +8,20 @@ import 'tiket_maintenance_provider.dart';
 import '../../data/models/spk_model.dart';
 import '../../data/repositories/maintenance_repository.dart';
 
+/// Provider repository maintenance (tiket dan SPK).
 final maintenanceRepositoryProvider = Provider<MaintenanceRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return MaintenanceRepository(client);
 });
 
+/// Provider daftar SPK per status.
 final spkListProvider =
     FutureProvider.autoDispose.family<List<SpkHeaderModel>, String>((ref, status) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
   return await repository.getSpkList(status: status == 'SEMUA' ? null : status);
 });
 
+/// Provider detail SPK per ID.
 final spkDetailProvider =
     FutureProvider.autoDispose.family<SpkDetailModel, int>((ref, id) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
@@ -30,6 +33,7 @@ class LaporCepatState {
   final String? errorMessage;
   final String? successMessage;
 
+  /// Membuat LaporCepatState.
   const LaporCepatState({
     this.isLoading = false,
     this.errorMessage,
@@ -41,8 +45,10 @@ class LaporCepatNotifier extends StateNotifier<LaporCepatState> {
   final MaintenanceRepository _repository;
   final Ref _ref;
 
+  /// Membuat LaporCepatNotifier.
   LaporCepatNotifier(this._repository, this._ref) : super(const LaporCepatState());
 
+  /// Kirim laporan ke server dan perbarui state; true jika berhasil.
   Future<bool> submit({
     int? asetId,
     String? kodeAset,
@@ -78,6 +84,7 @@ class LaporCepatNotifier extends StateNotifier<LaporCepatState> {
   }
 }
 
+/// Provider notifier laporan cepat kerusakan.
 final laporCepatProvider =
     StateNotifierProvider<LaporCepatNotifier, LaporCepatState>((ref) {
   final repository = ref.watch(maintenanceRepositoryProvider);
@@ -89,6 +96,7 @@ class LembarKerjaState {
   final String? errorMessage;
   final String? successMessage;
 
+  /// Membuat LembarKerjaState.
   const LembarKerjaState({
     this.isLoading = false,
     this.errorMessage,
@@ -100,8 +108,10 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
   final MaintenanceRepository _repository;
   final Ref _ref;
 
+  /// Membuat LembarKerjaNotifier.
   LembarKerjaNotifier(this._repository, this._ref) : super(const LembarKerjaState());
 
+  /// Kirim log pengerjaan SPK ke server dan perbarui state; true jika berhasil.
   Future<bool> submitLog({
     required int spkId,
     required String diagnosa,
@@ -149,6 +159,7 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
   }
 }
 
+/// Provider notifier lembar kerja SPK.
 final lembarKerjaProvider =
     StateNotifierProvider<LembarKerjaNotifier, LembarKerjaState>((ref) {
   final repository = ref.watch(maintenanceRepositoryProvider);

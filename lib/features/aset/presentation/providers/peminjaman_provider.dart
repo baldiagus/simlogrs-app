@@ -6,24 +6,28 @@ import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'aset_provider.dart';
+/// Katalog aset yang tersedia untuk dipinjam, difilter dengan kata kunci pencarian.
 final katalogAsetTersediaProvider =
     FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
   final repository = ref.watch(asetRepositoryProvider);
   return await repository.getKatalogTersedia(cari: query);
 });
 
+/// Katalog aset yang tersedia untuk dialihkan (tujuan pengalihan), difilter dengan kata kunci.
 final katalogAsetPengalihanProvider =
     FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
   final repository = ref.watch(asetRepositoryProvider);
   return await repository.getKatalogTersedia(cari: query, tujuan: 'pengalihan');
 });
 
+/// Daftar peminjaman milik user sendiri (sebagai peminjam).
 final daftarPeminjamanSayaProvider =
     FutureProvider.autoDispose<List<PeminjamanAsetModel>>((ref) async {
   final repository = ref.watch(asetRepositoryProvider);
   return await repository.getDaftarPeminjaman(perspektif: 'peminjam');
 });
 
+/// Daftar peminjaman milik user yang berstatus DIPINJAM (aset sedang dipegang user).
 final daftarPeminjamanAktifDipinjamProvider =
     FutureProvider.autoDispose<List<PeminjamanAsetModel>>((ref) async {
   final repository = ref.watch(asetRepositoryProvider);
@@ -31,6 +35,7 @@ final daftarPeminjamanAktifDipinjamProvider =
   return all.where((item) => item.status == 'DIPINJAM').toList();
 });
 
+/// Daftar peminjaman aset milik penyedia yang berstatus DIPINJAM (aset sedang dipinjam pihak lain).
 final daftarPeminjamanAktifDipinjamkanProvider =
     FutureProvider.autoDispose<List<PeminjamanAsetModel>>((ref) async {
   final repository = ref.watch(asetRepositoryProvider);
@@ -38,6 +43,7 @@ final daftarPeminjamanAktifDipinjamkanProvider =
   return all.where((item) => item.status == 'DIPINJAM').toList();
 });
 
+/// Daftar approval peminjaman; kosong bila user tidak punya izin/peran penyetuju.
 final daftarApprovalPeminjamanProvider =
     FutureProvider.autoDispose<List<ApprovalPeminjamanModel>>((ref) async {
   final user = ref.watch(authStateProvider).user;
@@ -57,11 +63,13 @@ final daftarApprovalPeminjamanProvider =
   return await repository.getDaftarApprovalPeminjaman();
 });
 
+/// State aksi peminjaman: status loading serta pesan error/sukses.
 class PeminjamanActionState {
   final bool isLoading;
   final String? errorMessage;
   final String? successMessage;
 
+  /// Membuat state aksi peminjaman; default idle tanpa pesan.
   const PeminjamanActionState({
     this.isLoading = false,
     this.errorMessage,
@@ -69,13 +77,16 @@ class PeminjamanActionState {
   });
 }
 
+/// Notifier aksi peminjaman: ajukan, batal, perpanjang, dan otorisasi.
 class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
   final AsetRepository _repository;
   final Ref _ref;
 
+  /// Membuat notifier dengan repository aset dan [Ref] untuk invalidasi provider terkait.
   PeminjamanActionNotifier(this._repository, this._ref)
       : super(const PeminjamanActionState());
 
+  /// Mengajukan permintaan peminjaman aset; sukses menyegarkan daftar peminjaman, approval, dan dashboard.
   Future<bool> ajukanPeminjaman({
     required int asetId,
     required String tanggalPinjam,
@@ -110,6 +121,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     }
   }
 
+  /// Membatalkan permintaan peminjaman [id]; sukses menyegarkan daftar peminjaman, approval, dan dashboard.
   Future<bool> batalkanPeminjaman(int id) async {
     state = const PeminjamanActionState(isLoading: true);
     try {
@@ -131,6 +143,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     }
   }
 
+  /// Memperpanjang masa peminjaman [id] ke tanggal baru dengan [alasan]; sukses menyegarkan daftar peminjaman.
   Future<bool> perpanjangPeminjaman({
     required int id,
     required String tanggalKembaliBaru,
@@ -160,6 +173,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     }
   }
 
+  /// Memproses otorisasi peminjaman [id] (setujui/tolak/serah terima) dan menyegarkan semua daftar terkait.
   Future<bool> otorisasi({
     required int id,
     required String aksi, // 'setujui', 'tolak', 'serah_terima'
@@ -202,6 +216,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
   }
 }
 
+/// Provider [PeminjamanActionNotifier] untuk aksi peminjaman aset.
 final peminjamanActionProvider =
     StateNotifierProvider<PeminjamanActionNotifier, PeminjamanActionState>((ref) {
   final repository = ref.watch(asetRepositoryProvider);

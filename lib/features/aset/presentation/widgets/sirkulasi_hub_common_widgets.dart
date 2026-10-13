@@ -3,10 +3,12 @@ import '../../../../core/theme/app_colors.dart';
 
 /// Badge jumlah kecil pada label tab hub sirkulasi.
 class SirkulasiHubTabBadge extends StatelessWidget {
+  /// Membuat badge dengan jumlah [count].
   const SirkulasiHubTabBadge({super.key, required this.count});
 
   final int count;
 
+  /// Membangun badge jumlah; disembunyikan saat jumlah 0.
   @override
   Widget build(BuildContext context) {
     if (count == 0) return const SizedBox.shrink();
@@ -29,12 +31,14 @@ class SirkulasiHubTabBadge extends StatelessWidget {
 
 /// Tab berisi teks dan [SirkulasiHubTabBadge] pada TabBar hub sirkulasi.
 class SirkulasiHubBadgeTab extends StatelessWidget {
+  /// Membuat tab berlabel dengan badge jumlah.
   const SirkulasiHubBadgeTab(
       {super.key, required this.label, required this.count});
 
   final String label;
   final int count;
 
+  /// Membangun Tab berisi label dan badge jumlah.
   @override
   Widget build(BuildContext context) {
     return Tab(
@@ -58,6 +62,7 @@ class SirkulasiHubBadgeTab extends StatelessWidget {
 
 /// Empty state yang tetap dapat di-refresh (pull-to-refresh).
 class SirkulasiHubEmptyRefreshView extends StatelessWidget {
+  /// Membuat empty state dengan callback refresh dan faktor tinggi layar.
   const SirkulasiHubEmptyRefreshView({
     super.key,
     required this.onRefresh,
@@ -69,6 +74,7 @@ class SirkulasiHubEmptyRefreshView extends StatelessWidget {
   final double heightFactor;
   final Widget child;
 
+  /// Membangun area scroll yang bisa ditarik untuk refresh dengan tinggi sebagian layar.
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -86,6 +92,7 @@ class SirkulasiHubEmptyRefreshView extends StatelessWidget {
 
 /// Pill sub-tab perspektif pada tab Siap Kembali.
 class SirkulasiHubSubTabPill extends StatelessWidget {
+  /// Membuat pill sub-tab dengan judul, jumlah, status aktif, dan callback tap.
   const SirkulasiHubSubTabPill({
     super.key,
     required this.title,
@@ -99,6 +106,7 @@ class SirkulasiHubSubTabPill extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
+  /// Membangun pill sub-tab dengan highlight saat aktif dan badge jumlah bila > 0.
   @override
   Widget build(BuildContext context) {
     return InkWell(

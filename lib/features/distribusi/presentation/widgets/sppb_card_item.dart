@@ -15,6 +15,8 @@ class SppbCardItem extends StatelessWidget {
     this.onTerimaTap,
   });
 
+  /// Membangun kartu SPPB (surat pengiriman barang) berisi asal, tujuan, daftar barang
+  /// dikirim, serta tombol konfirmasi terima saat status masih dikirim.
   @override
   Widget build(BuildContext context) {
     return Container(

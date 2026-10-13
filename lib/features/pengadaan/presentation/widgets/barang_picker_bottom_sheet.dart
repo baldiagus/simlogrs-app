@@ -19,6 +19,7 @@ class BarangPickerBottomSheet extends ConsumerStatefulWidget {
     required this.onBarangSelected,
     this.filterTipe,
   });
+  /// Membuat state untuk bottom sheet pemilih barang dari katalog.
   @override
   ConsumerState<BarangPickerBottomSheet> createState() => _BarangPickerBottomSheetState();
 }
@@ -26,6 +27,8 @@ class BarangPickerBottomSheet extends ConsumerStatefulWidget {
 class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomSheet> {
   String _query = '';
 
+  /// Membangun bottom sheet katalog: kolom pencarian dan daftar barang yang bisa dipilih,
+  /// lengkap dengan status memuat, error, dan kosong.
   @override
   Widget build(BuildContext context) {
     final katalogAsync = ref.watch(
@@ -92,6 +95,7 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
           // Catalog List
           Expanded(
             child: katalogAsync.when(
+              // Menyaring daftar katalog sesuai tipe barang lalu menampilkannya.
               data: (list) {
                 final effectiveList = widget.filterTipe != null
                     ? list.where((b) => b.tipe.toUpperCase() == widget.filterTipe!.toUpperCase()).toList()
@@ -117,6 +121,7 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                     color: AppColors.border,
                     indent: 48,
                   ),
+                  // Membangun satu baris barang katalog yang dapat dipilih.
                   itemBuilder: (context, index) {
                     final b = effectiveList[index];
                     final isSparepart = widget.filterTipe == 'SPAREPART';
@@ -125,6 +130,7 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                     return Opacity(
                       opacity: (isSparepart && isOutOfStock) ? 0.6 : 1.0,
                       child: InkWell(
+                        // Memilih barang; ditolak bila sparepart stok habis.
                         onTap: () {
                           if (isSparepart && isOutOfStock) {
                             AppToast.error(context, 'Stok suku cadang ${b.nama} di gudang habis (0 ${b.satuan}).');

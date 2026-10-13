@@ -5,11 +5,13 @@ import '../models/rak_model.dart';
 import '../models/aset_rak_model.dart';
 import '../models/po_inbound_model.dart';
 
+/// Repository data gudang: rak, detail rak, dan penerimaan PO inbound via API.
 class GudangRepository {
   final DioClient _client;
 
   GudangRepository(this._client);
 
+  /// Mengambil daftar rak, opsional difilter kata kunci [cari] dan [gudangId].
   Future<List<RakModel>> getDaftarRak({String? cari, int? gudangId}) async {
     try {
       final response = await _client.dio.get(
@@ -34,6 +36,7 @@ class GudangRepository {
     }
   }
 
+  /// Mengambil detail satu rak (barang dan aset di dalamnya) berdasarkan [id].
   Future<RakDetailModel> getDetailRak(int id) async {
     try {
       final response = await _client.dio.get('/gudang/rak/$id');
@@ -50,6 +53,7 @@ class GudangRepository {
     }
   }
 
+  /// Mengambil daftar PO inbound yang perlu diproses gudang.
   Future<List<PoInboundHeaderModel>> getPoInboundList() async {
     try {
       final response = await _client.dio.get('/gudang/po-inbound');
@@ -71,6 +75,7 @@ class GudangRepository {
     }
   }
 
+  /// Mengirim penerimaan barang untuk PO [poId] berdasarkan surat jalan dan item yang diterima.
   Future<Map<String, dynamic>> submitPenerimaanPo({
     required int poId,
     required String nomorSuratJalan,
@@ -100,6 +105,7 @@ class GudangRepository {
       throw ApiException(message: e.message ?? 'Gagal menyimpan penerimaan barang');
     }
   }
+  /// Mengirim penolakan penerimaan PO [poId] beserta [alasanPenolakan] dan item terkait.
   Future<Map<String, dynamic>> tolakPenerimaanPo({
     required int poId,
     required String nomorSuratJalan,

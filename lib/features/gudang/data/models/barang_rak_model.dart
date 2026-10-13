@@ -1,3 +1,4 @@
+/// Barang/batch stok yang tersimpan pada sebuah rak, lengkap dengan status kedaluwarsa.
 class BarangRakModel {
   final int id;
   final int? barangId;
@@ -28,13 +29,18 @@ class BarangRakModel {
     required this.statusKedaluwarsa,
     required this.kuantitasStok,
   });
+  /// True bila barang bertipe aset inventaris.
   bool get isAset => tipe.toUpperCase() == 'ASET';
+  /// True bila barang bertipe suku cadang (sparepart).
   bool get isSparepart => tipe.toUpperCase() == 'SPAREPART';
 
+  /// True bila batch sudah melewati tanggal kedaluwarsa.
   bool get isKadaluwarsa => statusKedaluwarsa.toUpperCase() == 'KADALUWARSA';
+  /// True bila batch mendekati kedaluwarsa (perlu diprioritaskan keluar lebih dulu).
   bool get isMendekatiKadaluwarsa =>
       statusKedaluwarsa.toUpperCase() == 'MENDEKATI_KADALUWARSA';
 
+  /// Membangun [BarangRakModel] dari JSON API dengan konversi tipe aman dan nilai default.
   factory BarangRakModel.fromJson(Map<String, dynamic> json) {
     return BarangRakModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

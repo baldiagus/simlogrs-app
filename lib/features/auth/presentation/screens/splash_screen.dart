@@ -15,6 +15,7 @@ class SplashScreen extends StatefulWidget {
     this.duration,
   });
 
+  /// Membuat state splash yang mengelola animasi fade dan scale logo.
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -25,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
 
+  /// Menyiapkan animasi masuk logo dan, jika ada `nextScreen`, berpindah ke layar itu setelah jeda.
   @override
   void initState() {
     super.initState();
@@ -63,12 +65,14 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
+  /// Melepas AnimationController agar tidak bocor setelah splash dilepas.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Membangun tampilan splash: logo, nama aplikasi, indikator loading, teks status, dan versi.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

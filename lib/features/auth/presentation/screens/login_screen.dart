@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -7,22 +6,25 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../providers/auth_provider.dart';
-import '../../../../core/security/security_device_service.dart';
 
+/// Layar login: form kredensial dan akun percobaan cepat.
 class LoginScreen extends ConsumerStatefulWidget {
+  /// Membuat LoginScreen.
   const LoginScreen({super.key});
 
+  /// Membuat state layar login.
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
+/// State layar login: menyimpan controller input dan status sembunyikan kata sandi.
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _dismissRootWarning = false;
 
+  /// Membersihkan controller email dan kata sandi saat widget dibuang.
   @override
   void dispose() {
     _emailController.dispose();
@@ -30,6 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  /// Memvalidasi form lalu memanggil login lewat authStateProvider.
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       ref.read(authStateProvider.notifier).login(
@@ -39,10 +42,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
     }
   }
+
+  /// Membangun halaman login: form email/kata sandi, pesan error, dan chip akun percobaan cepat.
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
-    final isRootedAsync = ref.watch(isDeviceRootedProvider);
     ref.listen<AuthState>(authStateProvider, (prev, next) {
       if (next.errorMessage != null && next.errorMessage != prev?.errorMessage) {
         AppToast.error(context, next.errorMessage!);
@@ -61,77 +65,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Banner Peringatan Keamanan Perangkat Root (Non-blocking dengan Opsi Keluar / Pahami)
-                  if (isRootedAsync.value == true && !_dismissRootWarning) ...[
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 20),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFEF2F2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(LucideIcons.shieldAlert, size: 20, color: AppColors.danger),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Peringatan Integritas Perangkat',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.danger,
-                                      ),
-                                    ),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      'Perangkat terdeteksi dalam status root atau memakai OS developer test-keys. Hindari menyimpan data kredensial sensitif di perangkat ini.',
-                                      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => SystemNavigator.pop(),
-                                style: TextButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                  foregroundColor: AppColors.danger,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                ),
-                                child: const Text('Keluar Aplikasi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                              ),
-                              const SizedBox(width: 6),
-                              ElevatedButton(
-                                onPressed: () => setState(() => _dismissRootWarning = true),
-                                style: ElevatedButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                  backgroundColor: AppColors.danger,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                ),
-                                child: const Text('Pahami Risiko', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
                   // App Icon / Branding
                   Center(
                     child: Container(
@@ -342,6 +275,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  /// Chip peran: mengisi email akun percobaan dan kata sandi default saat diketuk.
   Widget _buildRoleChip(String label, String email) {
     return InkWell(
       onTap: () {

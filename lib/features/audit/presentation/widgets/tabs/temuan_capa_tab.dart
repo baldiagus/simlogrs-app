@@ -10,26 +10,31 @@ import 'package:simlog_mobile/shared/widgets/app_error_view.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 import 'package:simlog_mobile/shared/widgets/empty_state_view.dart';
 
+/// Tab register temuan audit & CAPA; [onOpenDetail] dipanggil dengan temuan yang diketuk.
 class TemuanCapaTab extends ConsumerStatefulWidget {
   final ValueChanged<TemuanCapaModel> onOpenDetail;
 
   const TemuanCapaTab({super.key, required this.onOpenDetail});
 
+  /// Membuat state tab temuan CAPA.
   @override
   ConsumerState<TemuanCapaTab> createState() => _TemuanCapaTabState();
 }
 
+/// State tab temuan CAPA: menyimpan filter status, risiko, dan teks pencarian.
 class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
   String? _capaStatus;
   String? _capaRisiko;
   final TextEditingController _capaSearchCtrl = TextEditingController();
 
+  /// Membuang controller pencarian agar tidak bocor memori.
   @override
   void dispose() {
     _capaSearchCtrl.dispose();
     super.dispose();
   }
 
+  /// Membangun tab register temuan & CAPA: filter status/risiko, pencarian, dan daftar dari [registerTemuanProvider].
   @override
   Widget build(BuildContext context) {
     ref.watch(temuanFilterProvider);
@@ -159,6 +164,7 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
     );
   }
 
+  /// Membangun kartu temuan dengan warna sesuai risiko dan status CAPA; ketuk membuka detail temuan.
   Widget _buildTemuanCard(TemuanCapaModel temuan, bool isAuditor) {
     Color riskColor;
     switch (temuan.tingkatRisiko) {

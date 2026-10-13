@@ -9,25 +9,30 @@ import 'package:simlog_mobile/shared/widgets/app_error_view.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 import 'package:simlog_mobile/shared/widgets/empty_state_view.dart';
 
+/// Tab daftar jejak audit (siapa mengubah apa); [onOpenDetail] dipanggil dengan ID log yang diketuk.
 class AuditTrailTab extends ConsumerStatefulWidget {
   final ValueChanged<int> onOpenDetail;
 
   const AuditTrailTab({super.key, required this.onOpenDetail});
 
+  /// Membuat state tab jejak audit.
   @override
   ConsumerState<AuditTrailTab> createState() => _AuditTrailTabState();
 }
 
+/// State tab jejak audit: menyimpan filter aksi dan teks pencarian.
 class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
   String? _trailAksi;
   final TextEditingController _trailSearchCtrl = TextEditingController();
 
+  /// Membuang controller pencarian agar tidak bocor memori.
   @override
   void dispose() {
     _trailSearchCtrl.dispose();
     super.dispose();
   }
 
+  /// Membangun tab jejak audit: filter aksi, kolom pencarian, dan daftar log dari [auditTrailProvider].
   @override
   Widget build(BuildContext context) {
     final filter = AuditTrailFilter(
@@ -115,6 +120,7 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
     );
   }
 
+  /// Membangun kartu satu log audit dengan badge aksi berwarna; ketuk membuka detail forensik.
   Widget _buildTrailCard(AuditTrailItemModel item) {
     Color badgeColor;
     Color badgeBg;

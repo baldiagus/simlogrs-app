@@ -1,3 +1,4 @@
+/// Satu item barang pada penyesuaian stok (jumlah, jenis LEBIH/KURANG, subtotal nilai).
 class PenyesuaianStokItemAuditModel {
   final String namaBarang;
   final String satuan;
@@ -13,6 +14,7 @@ class PenyesuaianStokItemAuditModel {
     required this.subtotal,
   });
 
+  /// Membangun item penyesuaian stok dari JSON; jenis default KURANG.
   factory PenyesuaianStokItemAuditModel.fromJson(Map<String, dynamic> json) {
     return PenyesuaianStokItemAuditModel(
       namaBarang: json['nama_barang']?.toString() ?? 'Barang',
@@ -24,6 +26,7 @@ class PenyesuaianStokItemAuditModel {
   }
 }
 
+/// Pengajuan penyesuaian stok yang ditinjau auditor (gudang, pengaju, penyetuju, total nilai).
 class PenyesuaianStokAuditModel {
   final int id;
   final String kode;
@@ -51,6 +54,7 @@ class PenyesuaianStokAuditModel {
     required this.items,
   });
 
+  /// Membangun pengajuan penyesuaian stok beserta itemnya dari JSON.
   factory PenyesuaianStokAuditModel.fromJson(Map<String, dynamic> json) {
     return PenyesuaianStokAuditModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

@@ -8,12 +8,14 @@ import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../providers/peminjaman_provider.dart';
 
+/// Bottom sheet pengajuan perpanjangan masa pinjam.
 class ModalPerpanjangPeminjamanSheet extends ConsumerStatefulWidget {
   final int peminjamanId;
   final String kodeDokumen;
   final String? tanggalKembaliSaatIni;
   final VoidCallback? onSuccess;
 
+  /// Membuat sheet perpanjangan untuk satu peminjaman.
   const ModalPerpanjangPeminjamanSheet({
     super.key,
     required this.peminjamanId,
@@ -22,6 +24,7 @@ class ModalPerpanjangPeminjamanSheet extends ConsumerStatefulWidget {
     this.onSuccess,
   });
 
+  /// Menampilkan sheet perpanjangan sebagai modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
     required int peminjamanId,
@@ -42,17 +45,20 @@ class ModalPerpanjangPeminjamanSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet perpanjangan.
   @override
   ConsumerState<ModalPerpanjangPeminjamanSheet> createState() =>
       _ModalPerpanjangPeminjamanSheetState();
 }
 
+/// State sheet perpanjangan: menyimpan tanggal terpilih, alasan, dan status kirim.
 class _ModalPerpanjangPeminjamanSheetState
     extends ConsumerState<ModalPerpanjangPeminjamanSheet> {
   late DateTime _selectedDate;
   final TextEditingController _alasanController = TextEditingController();
   bool _isSubmitting = false;
 
+  /// Menentukan tanggal awal dari rencana kembali saat ini (fallback ke default bila gagal parse).
   @override
   void initState() {
     super.initState();
@@ -68,12 +74,14 @@ class _ModalPerpanjangPeminjamanSheetState
     }
   }
 
+  /// Membebaskan controller alasan saat widget dibuang.
   @override
   void dispose() {
     _alasanController.dispose();
     super.dispose();
   }
 
+  /// Memvalidasi alasan lalu mengajukan perpanjangan ke provider, menutup sheet, dan menampilkan toast.
   Future<void> _submit() async {
     final alasan = _alasanController.text.trim();
     if (alasan.isEmpty) {
@@ -105,6 +113,7 @@ class _ModalPerpanjangPeminjamanSheetState
     }
   }
 
+  /// Membangun form perpanjangan: pilih tanggal kembali baru dan isi alasan.
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(

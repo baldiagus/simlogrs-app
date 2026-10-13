@@ -18,6 +18,7 @@ typedef SirkulasiHubItemAction = void Function(
 ///
 /// State perspektif disimpan di parent agar tidak hilang saat berpindah tab.
 class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
+  /// Membuat tab siap kembali dengan data kedua perspektif dan callback aksi.
   const SirkulasiHubSiapKembaliTab({
     super.key,
     required this.dipinjamAsync,
@@ -37,6 +38,7 @@ class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
   final SirkulasiHubItemAction onExtend;
   final SirkulasiHubItemAction onReturn;
 
+  /// Membangun pill pemilih perspektif dan daftar sesuai [subPerspektif].
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -76,6 +78,7 @@ class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
     );
   }
 
+  /// Membangun daftar aset yang sedang dipinjam (perspektif peminjam) dengan aksi perpanjang.
   Widget _buildListDipinjam(WidgetRef ref) {
     return dipinjamAsync.when(
       data: (list) {
@@ -118,6 +121,7 @@ class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
     );
   }
 
+  /// Membangun daftar aset yang dipinjamkan (perspektif penyedia) dengan aksi pengembalian.
   Widget _buildListDipinjamkan(WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
     final isGudang = user?.isKepalaGudang == true ||

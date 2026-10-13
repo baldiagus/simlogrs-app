@@ -5,10 +5,12 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../models/anggaran_models.dart';
 
+/// Provider singleton [AnggaranRepository] dengan [DioClient] bersama.
 final anggaranRepositoryProvider = Provider<AnggaranRepository>((ref) {
   return AnggaranRepository(ref.watch(dioClientProvider));
 });
 
+/// Repository akses API anggaran: screening pagu/realisasi dan drilldown per unit.
 class AnggaranRepository {
   final DioClient _client;
 

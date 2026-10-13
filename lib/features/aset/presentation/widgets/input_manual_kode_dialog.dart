@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
 
+/// Dialog untuk memasukkan kode aset atau nomor seri secara manual.
 class InputManualKodeDialog extends StatelessWidget {
+  /// Membuat dialog input kode manual.
   const InputManualKodeDialog({super.key});
 
+  /// Menampilkan dialog input kode aset/nomor seri manual. Mengembalikan
+  /// teks yang diketik, atau null bila dibatalkan.
   static Future<String?> show(BuildContext context) {
     final inputController = TextEditingController();
 
@@ -61,6 +65,7 @@ class InputManualKodeDialog extends StatelessWidget {
     );
   }
 
+  /// Widget placeholder kosong; dialog sebenarnya ditampilkan lewat [show].
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();

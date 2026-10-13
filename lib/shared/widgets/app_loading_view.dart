@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Indikator loading seragam di tengah layar dengan pesan opsional.
 class AppLoadingView extends StatelessWidget {
   final double size;
   final double strokeWidth;
@@ -15,6 +16,7 @@ class AppLoadingView extends StatelessWidget {
     this.message,
   });
 
+  /// Membangun spinner berukuran/berwarna sesuai parameter dan teks pesan bila diberikan.
   @override
   Widget build(BuildContext context) {
     final effectiveColor = color ?? AppColors.primaryPurple;

@@ -4,13 +4,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 
+/// Kartu utama di bagian atas detail aset (nama, kode, status, tombol QR).
 class AsetDetailHeroCard extends StatelessWidget {
   final AsetDetailModel aset;
   final VoidCallback onShowQr;
 
+  /// Membuat kartu hero dengan data [aset] dan callback [onShowQr].
   const AsetDetailHeroCard(
       {super.key, required this.aset, required this.onShowQr});
 
+  /// Membangun kartu utama bergradien berisi identitas aset, status, dan
+  /// tombol untuk menampilkan QR.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -100,11 +104,14 @@ class AsetDetailHeroCard extends StatelessWidget {
   }
 }
 
+/// Banner peringatan bahwa aset melewati batas rencana pengembalian.
 class AsetDetailOverdueBanner extends StatelessWidget {
   final PeminjamanAktifInfo loan;
 
+  /// Membuat banner keterlambatan dari data peminjaman aktif [loan].
   const AsetDetailOverdueBanner({super.key, required this.loan});
 
+  /// Membangun banner merah peringatan keterlambatan pengembalian aset.
   @override
   Widget build(BuildContext context) {
     return Container(

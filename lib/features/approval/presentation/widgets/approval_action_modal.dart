@@ -8,6 +8,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/approval_item_model.dart';
 import '../providers/approval_provider.dart';
 
+/// Bottom sheet konfirmasi aksi approval (setujui/tolak/serahkan) dengan input catatan.
 class ApprovalActionModal extends ConsumerStatefulWidget {
   final ApprovalItemModel item;
   final String aksi; // 'setujui', 'tolak', 'serahkan'
@@ -18,6 +19,7 @@ class ApprovalActionModal extends ConsumerStatefulWidget {
     required this.aksi,
   });
 
+  /// Menampilkan modal aksi approval untuk [item]; selesai dengan true bila aksi berhasil.
   static Future<void> show(
     BuildContext context, {
     required ApprovalItemModel item,
@@ -31,19 +33,23 @@ class ApprovalActionModal extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state modal aksi approval.
   @override
   ConsumerState<ApprovalActionModal> createState() => _ApprovalActionModalState();
 }
 
+/// State modal: menyimpan controller catatan dan menjalankan eksekusi approval.
 class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
   final TextEditingController _noteController = TextEditingController();
 
+  /// Membersihkan controller catatan agar tidak bocor memori.
   @override
   void dispose() {
     _noteController.dispose();
     super.dispose();
   }
 
+  /// Menyusun UI modal: judul, warna, dan label tombol menyesuaikan jenis aksi, plus input catatan dan tombol eksekusi.
   @override
   Widget build(BuildContext context) {
     final isSetujui = widget.aksi == 'setujui';

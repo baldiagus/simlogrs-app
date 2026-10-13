@@ -5,6 +5,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 
+/// Kartu ringkasan satu peminjaman aset di daftar sirkulasi.
 class PeminjamanCardItem extends StatelessWidget {
   final PeminjamanAsetModel item;
   final VoidCallback? onCancelTap;
@@ -13,6 +14,7 @@ class PeminjamanCardItem extends StatelessWidget {
   final VoidCallback? onDetailTap;
   final bool isPenyediaPerspective;
 
+  /// Membuat kartu peminjaman; callback aksi opsional ditampilkan bila diberikan.
   const PeminjamanCardItem({
     super.key,
     required this.item,
@@ -23,6 +25,7 @@ class PeminjamanCardItem extends StatelessWidget {
     this.isPenyediaPerspective = false,
   });
 
+  /// Membangun kartu peminjaman: info aset, periode, status, dan tombol aksi sesuai perspektif.
   @override
   Widget build(BuildContext context) {
     final firstItem = item.items.isNotEmpty ? item.items.first : null;

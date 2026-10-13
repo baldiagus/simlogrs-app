@@ -11,15 +11,19 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/master_barang_provider.dart';
 import 'detail_barang_screen.dart';
 
+/// Layar katalog master barang: pencarian, filter tipe, dan daftar komoditas menuju detail.
 class MasterBarangScreen extends ConsumerStatefulWidget {
   const MasterBarangScreen({super.key});
 
+  /// Membuat state layar katalog master barang.
   @override
   ConsumerState<MasterBarangScreen> createState() => _MasterBarangScreenState();
 }
 
+/// State layar katalog; memantau provider daftar barang dan filter tipe.
 class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
 
+  /// Membangun scaffold katalog dengan header pencarian/filter dan daftar barang (loading, error, kosong, data).
   @override
   Widget build(BuildContext context) {
     final barangAsync = ref.watch(masterBarangListProvider);
@@ -33,6 +37,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            // Muat ulang daftar barang dari server.
             onPressed: () => ref.refresh(masterBarangListProvider),
           ),
         ],
@@ -50,6 +55,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                   AppSearchBar(
                     hint: 'Cari nama barang, kode SKU, spesifikasi...',
                     onChanged: (val) {
+                      // Simpan kata kunci ke provider pencarian agar daftar difilter ulang.
                       ref.read(masterBarangSearchQueryProvider.notifier).state = val;
                     },
                   ),
@@ -58,6 +64,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                     padding: EdgeInsets.zero,
                     selected: selectedTipe,
                     onSelected: (val) {
+                      // Simpan tipe terpilih ke provider filter agar daftar difilter ulang.
                       ref.read(masterBarangFilterTipeProvider.notifier).state = val;
                     },
                     options: const [
@@ -78,8 +85,10 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
                   error: err,
+                  // Coba lagi dengan memuat ulang daftar barang.
                   onRetry: () => ref.refresh(masterBarangListProvider),
                 ),
+                // Tampilkan empty state bila kosong, selain itu daftar kartu barang berwarna sesuai tipe.
                 data: (items) {
                   if (items.isEmpty) {
                     return const EmptyStateView(
@@ -93,6 +102,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    // Bangun kartu satu barang: ikon/warna per tipe, harga estimasi, dan ringkasan stok.
                     itemBuilder: (ctx, idx) {
                       final item = items[idx];
                       final isAset = item.tipe == 'ASET';

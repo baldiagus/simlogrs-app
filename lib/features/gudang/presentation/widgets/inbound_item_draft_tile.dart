@@ -6,6 +6,7 @@ import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../../data/models/rak_model.dart';
 
+/// Tile input satu item penerimaan PO: jumlah diterima, nomor batch, tanggal kedaluwarsa, dan rak tujuan.
 class InboundItemDraftTile extends StatelessWidget {
   final InboundItemDraft draft;
   final AsyncValue<List<RakModel>> rakListAsync;
@@ -24,6 +25,7 @@ class InboundItemDraftTile extends StatelessWidget {
     this.onBatchChanged,
   });
 
+  /// Membangun form draft item penerimaan; pilihan rak diambil dari [rakListAsync].
   @override
   Widget build(BuildContext context) {
     return Container(

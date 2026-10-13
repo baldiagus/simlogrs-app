@@ -29,6 +29,7 @@ class DashboardIpsrsView extends ConsumerWidget {
     required this.onHeroInspect,
   });
 
+  /// Membangun dashboard IPSRS untuk teknisi/kepala teknisi; menu aksi cepat dan pengalihan aset ditampilkan sesuai peran.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

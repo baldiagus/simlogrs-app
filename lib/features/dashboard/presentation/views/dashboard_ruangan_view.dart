@@ -29,6 +29,7 @@ class DashboardRuanganView extends ConsumerWidget {
     required this.onHeroInspect,
   });
 
+  /// Membangun dashboard ruangan pelayanan dengan aksi cepat, pengalihan aset, dan feed aktivitas; fitur approval menyesuaikan peran Karu.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

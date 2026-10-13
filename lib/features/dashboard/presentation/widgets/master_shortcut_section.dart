@@ -7,6 +7,7 @@ import '../../../master/presentation/screens/register_aset_screen.dart';
 class MasterShortcutSection extends StatelessWidget {
   const MasterShortcutSection({super.key});
 
+  /// Membangun bagian pintasan menu data master dalam satu baris.
   @override
   Widget build(BuildContext context) {
     return Row(

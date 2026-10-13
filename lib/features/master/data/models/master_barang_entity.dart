@@ -1,3 +1,4 @@
+/// Data master satu komoditas barang beserta informasi stok dan harga.
 class MasterBarangItemModel {
   final int id;
   final String kode;
@@ -43,11 +44,15 @@ class MasterBarangItemModel {
     required this.totalAset,
   });
 
+  /// Total stok fisik: aset dihitung dari unit aset + gudang, selain itu gudang + ruangan.
   int get totalStokFisik => tipe == 'ASET' ? (totalAset + stokGudang) : (stokGudang + stokRuangan);
 
+  /// True bila stok fisik sudah mencapai atau di bawah titik pesan ulang.
   bool get isPerluPesan => titikPesan > 0 && totalStokFisik <= titikPesan;
+  /// True bila tidak ada stok fisik tersisa.
   bool get isHabis => totalStokFisik <= 0;
 
+  /// Membangun [MasterBarangItemModel] dari JSON API dengan nilai default aman.
   factory MasterBarangItemModel.fromJson(Map<String, dynamic> json) {
     return MasterBarangItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

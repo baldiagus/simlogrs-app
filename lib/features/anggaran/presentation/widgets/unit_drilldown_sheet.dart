@@ -7,6 +7,7 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../providers/anggaran_provider.dart';
 
+/// Bottom sheet rincian pengeluaran satu unit: beban distribusi, sparepart, serta riwayat SPPB dan servis.
 class UnitDrilldownSheet extends ConsumerWidget {
   final int unitId;
   final String tahun;
@@ -19,6 +20,7 @@ class UnitDrilldownSheet extends ConsumerWidget {
     required this.unitNama,
   });
 
+  /// Membangun sheet drilldown dari [unitDrilldownProvider] dengan state loading, error (retry), dan data.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(unitDrilldownProvider((unitId: unitId, tahun: tahun)));

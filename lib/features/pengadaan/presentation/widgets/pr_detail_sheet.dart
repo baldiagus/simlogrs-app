@@ -27,6 +27,7 @@ class PrDetailSheet extends StatelessWidget {
     required this.onTerbitkanPo,
   });
 
+  /// Menampilkan bottom sheet detail PR beserta aksi yang tersedia sesuai status dan hak akses.
   static Future<void> show(
     BuildContext context, {
     required PrHeaderModel pr,
@@ -53,12 +54,15 @@ class PrDetailSheet extends StatelessWidget {
     );
   }
 
+  /// Menentukan apakah ada aksi (setujui, tolak, teruskan, terbitkan PO) yang bisa dilakukan
+  /// pengguna pada PR ini berdasarkan status dan hak aksesnya.
   bool get hasActionAvailable {
     if (pr.status == PrStatus.diajukan && canApproveKaru) return true;
     if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) return true;
     return false;
   }
 
+  /// Membangun isi sheet detail PR: info dokumen, daftar item, realisasi PO, dan tombol aksi.
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(
@@ -116,6 +120,7 @@ class PrDetailSheet extends StatelessWidget {
               shrinkWrap: true,
               itemCount: pr.items.length,
               separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border),
+              // Membangun baris detail satu barang dalam PR.
               itemBuilder: (ctx, i) {
                 final item = pr.items[i];
                 return Padding(
@@ -181,6 +186,7 @@ class PrDetailSheet extends StatelessWidget {
     );
   }
 
+  /// Membangun baris tombol aksi sesuai status PR dan peran pengguna.
   Widget _buildActionRow(BuildContext context) {
     if (pr.status == PrStatus.diajukan && canApproveKaru) {
       return Row(
@@ -193,6 +199,7 @@ class PrDetailSheet extends StatelessWidget {
               backgroundColor: AppColors.danger,
               textColor: AppColors.danger,
               icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
+              // Menutup sheet lalu memicu aksi tolak PR.
               onPressed: () {
                 Navigator.pop(context);
                 onTolak();
@@ -206,6 +213,7 @@ class PrDetailSheet extends StatelessWidget {
               height: 40,
               backgroundColor: AppColors.success,
               icon: const Icon(LucideIcons.check, size: 16, color: Colors.white),
+              // Menutup sheet lalu memicu aksi setujui PR.
               onPressed: () {
                 Navigator.pop(context);
                 onSetujui();
@@ -227,6 +235,7 @@ class PrDetailSheet extends StatelessWidget {
               backgroundColor: AppColors.danger,
               textColor: AppColors.danger,
               icon: const Icon(LucideIcons.x, size: 16, color: AppColors.danger),
+              // Menutup sheet lalu memicu aksi tolak PR.
               onPressed: () {
                 Navigator.pop(context);
                 onTolak();
@@ -240,6 +249,7 @@ class PrDetailSheet extends StatelessWidget {
               height: 40,
               backgroundColor: AppColors.primaryPurple,
               icon: const Icon(LucideIcons.fileSpreadsheet, size: 16, color: Colors.white),
+              // Menutup sheet lalu memicu penerbitan PO.
               onPressed: () {
                 Navigator.pop(context);
                 onTerbitkanPo();

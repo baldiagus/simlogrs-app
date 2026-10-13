@@ -5,10 +5,12 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../models/audit_models.dart';
 
+/// Menyediakan [AuditRepository] dengan klien Dio bersama.
 final auditRepositoryProvider = Provider<AuditRepository>((ref) {
   return AuditRepository(ref.watch(dioClientProvider));
 });
 
+/// Akses API modul Audit SPI: ringkasan, jejak audit, kepatuhan PO, selisih opname, dan temuan CAPA.
 class AuditRepository {
   final DioClient _client;
 

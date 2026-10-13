@@ -1,3 +1,4 @@
+/// Ringkasan global anggaran: total pagu, total realisasi, sisa, dan persen serapan.
 class AnggaranRingkasanModel {
   final double totalPagu;
   final double totalRealisasiDistribusi;
@@ -15,6 +16,7 @@ class AnggaranRingkasanModel {
     required this.serapanGlobalPersen,
   });
 
+  /// Membuat [AnggaranRingkasanModel] dari JSON API; field kosong diberi nilai 0.
   factory AnggaranRingkasanModel.fromJson(Map<String, dynamic> json) {
     return AnggaranRingkasanModel(
       totalPagu: (json['total_pagu'] as num?)?.toDouble() ?? 0.0,

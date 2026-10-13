@@ -10,6 +10,7 @@ class TiketCardItem extends StatelessWidget {
   final VoidCallback? onCancelTap;
   final VoidCallback? onDisposisiTap;
 
+  /// Membuat TiketCardItem.
   const TiketCardItem({
     super.key,
     required this.item,
@@ -17,6 +18,7 @@ class TiketCardItem extends StatelessWidget {
     this.onDisposisiTap,
   });
 
+  /// Warna teks/ikon badge sesuai prioritas tiket.
   Color _getPrioritasColor(String p) {
     switch (p.toUpperCase()) {
       case 'CITO':
@@ -30,6 +32,7 @@ class TiketCardItem extends StatelessWidget {
     }
   }
 
+  /// Warna latar badge sesuai prioritas tiket.
   Color _getPrioritasBg(String p) {
     switch (p.toUpperCase()) {
       case 'CITO':
@@ -43,6 +46,7 @@ class TiketCardItem extends StatelessWidget {
     }
   }
 
+  /// Membangun tampilan TiketCardItem.
   @override
   Widget build(BuildContext context) {
     final pColor = _getPrioritasColor(item.prioritas);

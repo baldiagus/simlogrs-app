@@ -42,6 +42,8 @@ class PengadaanHubPrTab extends ConsumerWidget {
     required this.onTeruskan,
   });
 
+  /// Membangun tab PR: pencarian, filter status, dan daftar permintaan pengadaan,
+  /// dengan dukungan tarik-untuk-segarkan.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -96,6 +98,8 @@ class PengadaanHubPrTab extends ConsumerWidget {
     );
   }
 
+  /// Menyaring PR berdasarkan status dan kata kunci lalu membangun daftar kartunya,
+  /// atau menampilkan tampilan kosong bila tidak ada hasil.
   Widget _buildList(BuildContext context, List<PrHeaderModel> list) {
     var filtered = list;
     if (filter != 'SEMUA') {
@@ -129,6 +133,7 @@ class PengadaanHubPrTab extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       itemCount: filtered.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
+      // Membangun kartu PR untuk tiap item hasil filter.
       itemBuilder: (ctx, idx) {
         final pr = filtered[idx];
         return RiwayatPrCardItem(

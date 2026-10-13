@@ -9,16 +9,20 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/persediaan_providers.dart';
 
+/// Layar buku mutasi stok: daftar riwayat barang masuk/keluar gudang dengan pencarian dan filter jenis mutasi.
 class BukuMutasiScreen extends ConsumerStatefulWidget {
   const BukuMutasiScreen({super.key});
 
+  /// Membuat state layar buku mutasi.
   @override
   ConsumerState<BukuMutasiScreen> createState() => _BukuMutasiScreenState();
 }
 
+/// State layar buku mutasi; memantau daftar mutasi serta filter pencarian dan jenis dari provider.
 class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
 
 
+  /// Menyusun UI buku mutasi: bar pencarian, chip filter jenis, dan daftar mutasi dengan status loading/error/kosong.
   @override
   Widget build(BuildContext context) {
     final mutasiAsync = ref.watch(bukuMutasiListProvider);

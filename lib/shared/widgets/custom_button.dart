@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Tombol utama aplikasi dengan varian terisi/outline, ikon opsional, dan status loading.
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -25,6 +26,7 @@ class CustomButton extends StatelessWidget {
     this.isOutlined = false,
   });
 
+  /// Memilih OutlinedButton atau ElevatedButton sesuai isOutlined; tombol dinonaktifkan saat isLoading agar tidak terkirim ganda.
   @override
   Widget build(BuildContext context) {
     final effectiveBgColor = backgroundColor ?? AppColors.primaryPurple;
@@ -69,6 +71,7 @@ class CustomButton extends StatelessWidget {
     );
   }
 
+  /// Membangun isi tombol: spinner saat loading, ikon + teks bila ada ikon, atau teks saja.
   Widget _buildChild(Color color) {
     if (isLoading) {
       return SizedBox(

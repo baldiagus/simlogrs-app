@@ -28,12 +28,15 @@ class RiwayatPrCardItem extends StatelessWidget {
     required this.onTerbitkanPoTap,
   });
 
+  /// Menentukan apakah ada aksi yang bisa dilakukan pengguna pada PR ini
+  /// berdasarkan status dan hak aksesnya, agar baris tombol hanya tampil bila perlu.
   bool get hasActionAvailable {
     if (pr.status == PrStatus.diajukan && canApproveKaru) return true;
     if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) return true;
     return false;
   }
 
+  /// Membangun kartu riwayat PR berisi kode, unit, pengaju, status, dan info PO terkait.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -213,6 +216,7 @@ class RiwayatPrCardItem extends StatelessWidget {
     );
   }
 
+  /// Membangun baris tombol aksi pada kartu sesuai status PR dan peran pengguna.
   Widget _buildActionRow() {
     if (pr.status == PrStatus.diajukan && canApproveKaru) {
       return Row(

@@ -1,3 +1,4 @@
+/// Info peminjaman aktif yang sedang melekat pada sebuah aset (kode, peminjam, jadwal, status terlambat).
 class PeminjamanAktifInfo {
   final int peminjamanId;
   final int? peminjamanDetailId;
@@ -6,6 +7,7 @@ class PeminjamanAktifInfo {
   final String? tanggalPinjam;
   final String? tanggalKembaliRencana;
   final bool isOverdue;
+  /// Membuat info peminjaman aktif; [peminjamanDetailId], [tanggalPinjam], dan [tanggalKembaliRencana] opsional.
   const PeminjamanAktifInfo({
     required this.peminjamanId,
     this.peminjamanDetailId,
@@ -16,6 +18,7 @@ class PeminjamanAktifInfo {
     required this.isOverdue,
   });
 
+  /// Membuat [PeminjamanAktifInfo] dari JSON API dengan nilai default aman untuk field kosong.
   factory PeminjamanAktifInfo.fromJson(Map<String, dynamic> json) {
     return PeminjamanAktifInfo(
       peminjamanId: json['peminjaman_id'] is int
@@ -33,6 +36,7 @@ class PeminjamanAktifInfo {
   }
 }
 
+/// Ringkasan servis terakhir aset (kode, status, prioritas, deskripsi, tanggal pengajuan).
 class ServisTerakhirInfo {
   final String kode;
   final String status;
@@ -40,6 +44,7 @@ class ServisTerakhirInfo {
   final String deskripsi;
   final String tanggalPengajuan;
 
+  /// Membuat info servis terakhir dengan semua field wajib terisi.
   const ServisTerakhirInfo({
     required this.kode,
     required this.status,
@@ -48,6 +53,7 @@ class ServisTerakhirInfo {
     required this.tanggalPengajuan,
   });
 
+  /// Membuat [ServisTerakhirInfo] dari JSON API dengan default bila field kosong.
   factory ServisTerakhirInfo.fromJson(Map<String, dynamic> json) {
     return ServisTerakhirInfo(
       kode: json['kode']?.toString() ?? '',
@@ -59,6 +65,7 @@ class ServisTerakhirInfo {
   }
 }
 
+/// Satu baris riwayat peminjaman suatu aset, termasuk kondisi saat dipinjam dan dikembalikan.
 class RiwayatPeminjamanAsetItemModel {
   final int id;
   final String kodePeminjaman;
@@ -74,6 +81,7 @@ class RiwayatPeminjamanAsetItemModel {
   final String? catatanPengembalian;
   final String? pemeriksaKembali;
 
+  /// Membuat item riwayat peminjaman; data pengembalian bersifat opsional karena bisa belum dikembalikan.
   const RiwayatPeminjamanAsetItemModel({
     required this.id,
     required this.kodePeminjaman,
@@ -90,6 +98,7 @@ class RiwayatPeminjamanAsetItemModel {
     this.pemeriksaKembali,
   });
 
+  /// Membuat [RiwayatPeminjamanAsetItemModel] dari JSON API dengan default bila field kosong.
   factory RiwayatPeminjamanAsetItemModel.fromJson(Map<String, dynamic> json) {
     return RiwayatPeminjamanAsetItemModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -108,6 +117,7 @@ class RiwayatPeminjamanAsetItemModel {
     );
   }
 }
+/// Satu baris riwayat pengalihan suatu aset (asal, tujuan, tanggal, kondisi, pihak terkait).
 class RiwayatPengalihanAsetItemModel {
   final int id;
   final int? pengalihanId;
@@ -124,6 +134,7 @@ class RiwayatPengalihanAsetItemModel {
   final String penerima;
   final String? catatan;
 
+  /// Membuat item riwayat pengalihan; [pengalihanId] dan [catatan] opsional.
   const RiwayatPengalihanAsetItemModel({
     required this.id,
     this.pengalihanId,
@@ -141,6 +152,7 @@ class RiwayatPengalihanAsetItemModel {
     this.catatan,
   });
 
+  /// Membuat [RiwayatPengalihanAsetItemModel] dari JSON API dengan default bila field kosong.
   factory RiwayatPengalihanAsetItemModel.fromJson(Map<String, dynamic> json) {
     return RiwayatPengalihanAsetItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -161,6 +173,7 @@ class RiwayatPengalihanAsetItemModel {
   }
 }
 
+/// Detail lengkap aset fisik hasil scan/pencarian, termasuk riwayat servis, peminjaman, dan pengalihan.
 class AsetDetailModel {
   final int id;
   final String kodeAset;
@@ -191,6 +204,7 @@ class AsetDetailModel {
   final String? statusSirkulasi;
   final Map<String, dynamic>? antreanPeminjaman;
 
+  /// Membuat detail aset; field riwayat dan status sirkulasi punya nilai default kosong.
   const AsetDetailModel({
     required this.id,
     required this.kodeAset,
@@ -222,15 +236,21 @@ class AsetDetailModel {
     this.antreanPeminjaman,
   });
 
+  /// True bila aset berstatus TERSEDIA (siap dipinjam).
   bool get isTersedia => status.toUpperCase() == 'TERSEDIA';
+  /// True bila aset sedang berstatus DIPINJAM.
   bool get isDipinjam => status.toUpperCase() == 'DIPINJAM';
+  /// True bila aset sedang DALAM_MAINTENANCE.
   bool get isMaintenance => status.toUpperCase() == 'DALAM_MAINTENANCE';
+  /// True bila status RUSAK atau kondisi mengandung kata RUSAK.
   bool get isRusak => status.toUpperCase() == 'RUSAK' || kondisi.toUpperCase().contains('RUSAK');
+  /// True bila aset sudah diajukan/disetujui untuk dipinjam atau punya antrean peminjaman, sehingga tidak bisa diajukan lagi.
   bool get isSedangDalamProsesPinjam =>
       isSedangDiajukan ||
       statusSirkulasi == 'DIAJUKAN' ||
       statusSirkulasi == 'DISETUJUI' ||
       antreanPeminjaman != null;
+  /// Membuat [AsetDetailModel] dari JSON API, termasuk parsing objek bersarang dan daftar riwayat.
   factory AsetDetailModel.fromJson(Map<String, dynamic> json) {
     return AsetDetailModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

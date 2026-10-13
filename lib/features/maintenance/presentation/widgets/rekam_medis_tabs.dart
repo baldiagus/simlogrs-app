@@ -9,8 +9,10 @@ import '../../data/models/rekam_medis_aset_model.dart';
 class RekamMedisRiwayatServisList extends StatelessWidget {
   final List<RekamMedisServisEntryModel> riwayat;
 
+  /// Membuat RekamMedisRiwayatServisList.
   const RekamMedisRiwayatServisList({super.key, required this.riwayat});
 
+  /// Baris label-nilai pada timeline riwayat servis.
   Widget _buildTimelineRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,6 +36,7 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
     );
   }
 
+  /// Membangun tampilan RekamMedisRiwayatServisList.
   @override
   Widget build(BuildContext context) {
     if (riwayat.isEmpty) {
@@ -175,6 +178,7 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
   final bool canTerbitkanSpk;
   final ValueChanged<Map<String, dynamic>> onEksekusi;
 
+  /// Membuat RekamMedisJadwalPreventifList.
   const RekamMedisJadwalPreventifList({
     super.key,
     required this.jadwalList,
@@ -182,6 +186,7 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
     required this.onEksekusi,
   });
 
+  /// Membangun tampilan RekamMedisJadwalPreventifList.
   @override
   Widget build(BuildContext context) {
     if (jadwalList.isEmpty) {

@@ -30,6 +30,7 @@ class DashboardEksekutifView extends ConsumerWidget {
     required this.onHeroInspect,
   });
 
+  /// Membangun dashboard eksekutif (super admin, auditor, manajemen, pengadaan) dengan pintasan yang disesuaikan per peran.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

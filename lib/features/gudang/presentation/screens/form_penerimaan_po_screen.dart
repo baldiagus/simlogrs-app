@@ -12,18 +12,22 @@ import '../../data/models/po_inbound_model.dart';
 import '../providers/gudang_provider.dart';
 import '../providers/inbound_provider.dart';
 
+/// Layar form penerimaan fisik barang untuk satu PO inbound ([po]) di gudang.
 class FormPenerimaanPoScreen extends ConsumerStatefulWidget {
   final PoInboundHeaderModel po;
 
+  /// Membuat form penerimaan untuk PO [po].
   const FormPenerimaanPoScreen({
     super.key,
     required this.po,
   });
 
+  /// Membuat state form penerimaan PO.
   @override
   ConsumerState<FormPenerimaanPoScreen> createState() => _FormPenerimaanPoScreenState();
 }
 
+/// State form penerimaan PO; menyimpan draft item, input surat jalan/catatan, dan proses kirim penerimaan.
 class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _suratJalanController = TextEditingController();
@@ -32,6 +36,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
   late final List<InboundItemDraft> _itemDrafts;
   final _dateFormat = DateFormat('yyyy-MM-dd');
 
+  /// Menyiapkan draft penerimaan untuk tiap item PO saat form pertama kali dibuka.
   @override
   void initState() {
     super.initState();
@@ -47,6 +52,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     }).toList();
   }
 
+  /// Membuang controller input agar tidak bocor memori.
   @override
   void dispose() {
     _suratJalanController.dispose();
@@ -54,6 +60,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     super.dispose();
   }
 
+  /// Menampilkan pemilih tanggal dan menyimpan tanggal kedaluwarsa terpilih ke [draft].
   Future<void> _pickExpiredDate(InboundItemDraft draft) async {
     final picked = await showDatePicker(
       context: context,
@@ -69,6 +76,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     }
   }
 
+  /// Memvalidasi wewenang, status PO, dan isian item lalu mengirim penerimaan ke server; sukses menutup layar dengan hasil `true`.
   Future<void> _submit() async {
     final user = ref.read(authStateProvider).user;
     if (!(user?.canReceiveInbound ?? false)) {
@@ -120,6 +128,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     }
   }
 
+  /// Menyusun UI form penerimaan: info PO, surat jalan, daftar draft item (batch, rak, kuantitas), dan tombol simpan/tolak.
   @override
   Widget build(BuildContext context) {
     final rakListAsync = ref.watch(daftarRakProvider);

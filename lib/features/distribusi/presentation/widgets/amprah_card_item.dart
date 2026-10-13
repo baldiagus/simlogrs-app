@@ -15,6 +15,8 @@ class AmprahCardItem extends StatelessWidget {
     this.onCancelTap,
   });
 
+  /// Membangun kartu ringkasan amprah (kode, urgensi CITO, status, unit, jumlah item)
+  /// yang bisa diketuk untuk membuka detail dan menampilkan tombol batal bila diizinkan.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,6 +39,7 @@ class AmprahCardItem extends StatelessWidget {
         ],
       ),
       child: InkWell(
+        // Buka layar detail amprah berdasarkan id dan kode yang dipilih.
         onTap: () {
           Navigator.push(
             context,

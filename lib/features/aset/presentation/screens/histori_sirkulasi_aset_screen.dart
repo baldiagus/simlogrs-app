@@ -7,6 +7,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../providers/aset_provider.dart';
 
+/// Halaman histori sirkulasi (peminjaman) sebuah aset.
 class HistoriSirkulasiAsetScreen extends ConsumerStatefulWidget {
   final int asetId;
   final String kodeAset;
@@ -14,6 +15,7 @@ class HistoriSirkulasiAsetScreen extends ConsumerStatefulWidget {
   final String nomorSeri;
   final List<RiwayatPeminjamanAsetItemModel> initialRiwayat;
 
+  /// Membuat layar histori; riwayat awal opsional untuk tampilan instan sebelum refresh.
   const HistoriSirkulasiAsetScreen({
     super.key,
     required this.asetId,
@@ -23,22 +25,26 @@ class HistoriSirkulasiAsetScreen extends ConsumerStatefulWidget {
     this.initialRiwayat = const [],
   });
 
+  /// Membuat state layar histori sirkulasi aset.
   @override
   ConsumerState<HistoriSirkulasiAsetScreen> createState() =>
       _HistoriSirkulasiAsetScreenState();
 }
 
+/// State histori sirkulasi: menyimpan riwayat dan memuat ulang dari server.
 class _HistoriSirkulasiAsetScreenState
     extends ConsumerState<HistoriSirkulasiAsetScreen> {
   late List<RiwayatPeminjamanAsetItemModel> _riwayat;
   bool _isLoading = false;
 
+  /// Mengisi riwayat awal dari `initialRiwayat`.
   @override
   void initState() {
     super.initState();
     _riwayat = widget.initialRiwayat;
   }
 
+  /// Mengambil ulang riwayat peminjaman terbaru dari server; gagal diabaikan agar data lama tetap tampil.
   Future<void> _fetchLatest() async {
     setState(() => _isLoading = true);
     try {
@@ -55,6 +61,7 @@ class _HistoriSirkulasiAsetScreenState
     }
   }
 
+  /// Membangun halaman histori sirkulasi aset: kartu ringkasan dan daftar riwayat peminjaman.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -390,6 +397,7 @@ class _HistoriSirkulasiAsetScreenState
     );
   }
 
+  /// Membangun satu baris info (ikon, label, nilai) pada kartu riwayat sirkulasi.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,

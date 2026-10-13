@@ -7,9 +7,12 @@ import '../../data/models/stock_opname_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 
 // FEFO Providers
+/// Filter kategori monitoring FEFO ('SEMUA' = tanpa filter).
 final fefoKategoriFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA');
+/// Kata kunci pencarian monitoring FEFO.
 final fefoSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
+/// Data monitoring FEFO (batch menurut urutan kedaluwarsa), mengikuti filter kategori dan pencarian.
 final fefoMonitoringProvider = FutureProvider.autoDispose<FefoMonitoringResponse>((ref) async {
   final repo = ref.watch(persediaanRepositoryProvider);
   final kategori = ref.watch(fefoKategoriFilterProvider);
@@ -19,9 +22,12 @@ final fefoMonitoringProvider = FutureProvider.autoDispose<FefoMonitoringResponse
 });
 
 // Buku Mutasi Providers
+/// Filter jenis mutasi pada buku mutasi (null = semua jenis).
 final mutasiJenisFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
+/// Kata kunci pencarian buku mutasi.
 final mutasiSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
+/// Daftar riwayat mutasi stok, mengikuti filter jenis dan pencarian.
 final bukuMutasiListProvider = FutureProvider.autoDispose<List<BukuMutasiItemModel>>((ref) async {
   final repo = ref.watch(persediaanRepositoryProvider);
   final jenis = ref.watch(mutasiJenisFilterProvider);
@@ -31,8 +37,10 @@ final bukuMutasiListProvider = FutureProvider.autoDispose<List<BukuMutasiItemMod
 });
 
 // Stock Opname Providers
+/// Filter status sesi stock opname (null = semua status).
 final opnameStatusFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
 
+/// Daftar sesi stock opname, mengikuti filter status.
 final stockOpnameListProvider = FutureProvider.autoDispose<List<StokOpnameSesiModel>>((ref) async {
   final repo = ref.watch(persediaanRepositoryProvider);
   final status = ref.watch(opnameStatusFilterProvider);
@@ -41,8 +49,10 @@ final stockOpnameListProvider = FutureProvider.autoDispose<List<StokOpnameSesiMo
 });
 
 // Otorisasi Penyesuaian Providers
+/// Filter status otorisasi penyesuaian stok; default 'MENUNGGU'.
 final penyesuaianStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'MENUNGGU');
 
+/// Daftar penyesuaian stok untuk diotorisasi, mengikuti filter status.
 final otorisasiPenyesuaianListProvider = FutureProvider.autoDispose<List<PenyesuaianStokHeaderModel>>((ref) async {
   final repo = ref.watch(persediaanRepositoryProvider);
   final status = ref.watch(penyesuaianStatusFilterProvider);
@@ -51,6 +61,7 @@ final otorisasiPenyesuaianListProvider = FutureProvider.autoDispose<List<Penyesu
 });
 
 // Master Gudang Provider
+/// Daftar master gudang, mis. untuk pilihan gudang saat memulai opname.
 final masterGudangListProvider = FutureProvider.autoDispose<List<GudangModel>>((ref) async {
   final repo = ref.watch(persediaanRepositoryProvider);
   return repo.getMasterGudangList();

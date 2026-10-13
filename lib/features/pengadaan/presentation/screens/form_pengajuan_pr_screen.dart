@@ -20,6 +20,7 @@ class FormPengajuanPrScreen extends ConsumerStatefulWidget {
     this.initialBarang,
   });
 
+  /// Membuat state form pengajuan PR.
   @override
   ConsumerState<FormPengajuanPrScreen> createState() => _FormPengajuanPrScreenState();
 }
@@ -28,6 +29,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
   final List<PrCartItemModel> _cartItems = [];
   final _catatanController = TextEditingController();
 
+  /// Menyiapkan keranjang awal dengan barang yang dipilih dari katalog (jika ada).
   @override
   void initState() {
     super.initState();
@@ -36,18 +38,21 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
     }
   }
 
+  /// Membersihkan controller catatan agar tidak bocor memori.
   @override
   void dispose() {
     _catatanController.dispose();
     super.dispose();
   }
 
+  /// Membuka bottom sheet katalog untuk memilih barang dan menambahkannya ke keranjang.
   void _openBarangPicker() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => BarangPickerBottomSheet(
+        // Callback saat barang dipilih: tambah ke keranjang atau naikkan jumlah bila sudah ada.
         onBarangSelected: (MasterBarangModel barang) {
           setState(() {
             final existingIndex = _cartItems.indexWhere((item) => item.barang.id == barang.id);
@@ -62,6 +67,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
     );
   }
 
+  /// Memvalidasi keranjang lalu mengirim pengajuan PR; menampilkan toast hasil dan menutup layar bila sukses.
   Future<void> _submit() async {
     if (_cartItems.isEmpty) {
       AppToast.error(context, 'Pilih minimal 1 barang dari katalog terlebih dahulu.');
@@ -92,6 +98,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
     }
   }
 
+  /// Membangun form pengajuan PR: urgensi, daftar barang di keranjang, catatan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final submissionState = ref.watch(prSubmissionProvider);
@@ -284,11 +291,13 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                       ..._cartItems.map(
                         (cartItem) => PrCartItemTile(
                           item: cartItem,
+                          /// Menyimpan jumlah baru item keranjang saat pengguna mengubah kuantitas.
                           onQuantityChanged: (qty) {
                             setState(() {
                               cartItem.jumlah = qty;
                             });
                           },
+                          /// Menghapus item dari keranjang pengajuan.
                           onRemove: () {
                             setState(() {
                               _cartItems.remove(cartItem);

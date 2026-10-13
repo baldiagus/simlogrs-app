@@ -1,3 +1,4 @@
+/// Ringkasan angka dashboard SPI: CAPA, kepatuhan PO, selisih opname, dan log audit.
 class AuditSummaryModel {
   final int totalTemuan;
   final int totalClosed;
@@ -33,6 +34,7 @@ class AuditSummaryModel {
     required this.totalLogAudit,
   });
 
+  /// Membangun ringkasan dashboard audit dari JSON; field kosong jadi 0 (closingRate default 100).
   factory AuditSummaryModel.fromJson(Map<String, dynamic> json) {
     final capa = (json['capa'] as Map<String, dynamic>?) ?? {};
     final kepatuhan = (json['kepatuhan_po'] as Map<String, dynamic>?) ?? {};

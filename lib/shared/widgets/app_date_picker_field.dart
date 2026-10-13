@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_formatters.dart';
 
+/// Field pemilih tanggal yang tampil seperti input teks dan membuka dialog kalender saat diketuk.
 class AppDatePickerField extends StatelessWidget {
   final DateTime? selectedDate;
   final ValueChanged<DateTime> onDateSelected;
@@ -23,6 +24,7 @@ class AppDatePickerField extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// Membuka dialog pemilih tanggal dengan rentang default 2020 hingga 5 tahun ke depan, lalu meneruskan hasilnya ke onDateSelected.
   Future<void> _pick(BuildContext context) async {
     if (!enabled) return;
     final now = DateTime.now();
@@ -37,6 +39,7 @@ class AppDatePickerField extends StatelessWidget {
     }
   }
 
+  /// Membangun label opsional dan kotak field yang menampilkan tanggal terpilih atau teks hint; nonaktif bila enabled=false.
   @override
   Widget build(BuildContext context) {
     return Column(

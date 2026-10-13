@@ -1,3 +1,4 @@
+/// Data rak penyimpanan gudang (posisi baris/kolom/level) beserta total barang dan aset.
 class RakModel {
   final int id;
   final String kode;
@@ -25,6 +26,7 @@ class RakModel {
     required this.totalAset,
   });
 
+  /// Membangun [RakModel] dari JSON API dengan konversi tipe aman dan nilai default.
   factory RakModel.fromJson(Map<String, dynamic> json) {
     return RakModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

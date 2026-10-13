@@ -6,6 +6,7 @@ import '../../data/models/po_inbound_model.dart';
 import '../../data/repositories/gudang_repository.dart';
 import 'gudang_provider.dart';
 
+/// Daftar PO yang siap diterima (inbound). Kosong bila user tidak punya izin/peran penerimaan gudang.
 final daftarPoInboundProvider =
     FutureProvider.autoDispose<List<PoInboundHeaderModel>>((ref) async {
   final user = ref.watch(authStateProvider).user;
@@ -25,6 +26,7 @@ final daftarPoInboundProvider =
   return await repository.getPoInboundList();
 });
 
+/// State aksi penerimaan/penolakan inbound: status loading plus pesan error/sukses untuk UI.
 class InboundActionState {
   final bool isLoading;
   final String? errorMessage;
@@ -37,13 +39,17 @@ class InboundActionState {
   });
 }
 
+/// Notifier aksi inbound: validasi, kirim penerimaan atau penolakan PO ke API, lalu segarkan data terkait.
 class InboundActionNotifier extends StateNotifier<InboundActionState> {
   final GudangRepository _repository;
   final Ref _ref;
 
+  /// Membuat notifier dengan repository gudang dan [Ref] untuk invalidasi provider lain.
   InboundActionNotifier(this._repository, this._ref)
       : super(const InboundActionState());
 
+  /// Validasi draft item lalu catat penerimaan PO ke stok gudang. Return true bila sukses,
+  /// dan meng-invalidate daftar PO, rak, PR, serta ringkasan dashboard.
   Future<bool> submitPenerimaan({
     required int poId,
     required String nomorSuratJalan,
@@ -103,6 +109,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
     }
   }
 
+  /// Tolak kiriman fisik PO beserta alasan penolakan. Return true bila sukses dan menyegarkan daftar PO.
   Future<bool> tolakPenerimaan({
     required int poId,
     required String nomorSuratJalan,
@@ -136,6 +143,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
   }
 }
 
+/// Provider notifier aksi inbound yang dipakai form penerimaan dan modal penolakan.
 final inboundActionProvider =
     StateNotifierProvider<InboundActionNotifier, InboundActionState>((ref) {
   final repository = ref.watch(gudangRepositoryProvider);

@@ -5,11 +5,13 @@ import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 
+/// Bottom sheet forensik: perbandingan nilai lama vs baru pada satu log audit.
 class TrailDetailSheet extends ConsumerWidget {
   final int logId;
 
   const TrailDetailSheet({super.key, required this.logId});
 
+  /// Memuat dan menampilkan detail log audit [logId] beserta data sebelum dan sesudah perubahan.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(auditRepositoryProvider);

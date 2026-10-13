@@ -12,6 +12,7 @@ import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 class GudangShortcutGrid extends ConsumerWidget {
   const GudangShortcutGrid({super.key});
 
+  /// Membangun grid pintasan gudang; menu yang tampil disesuaikan dengan peran petugas gudang.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
@@ -135,6 +136,7 @@ class GudangShortcutGrid extends ConsumerWidget {
     );
   }
 
+  /// Membangun satu kartu mini pintasan gudang berisi ikon, judul, dan subjudul yang dapat diketuk.
   Widget _buildGudangMiniCard({
     required BuildContext context,
     required String title,

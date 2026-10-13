@@ -10,6 +10,7 @@ class TiketFilterParams {
   final String prioritas;
   final String cari;
 
+  /// Membuat TiketFilterParams.
   const TiketFilterParams({
     this.status = 'SEMUA',
     this.prioritas = 'SEMUA',
@@ -25,10 +26,12 @@ class TiketFilterParams {
           prioritas == other.prioritas &&
           cari == other.cari;
 
+  /// Hash konsisten dengan operator == agar family provider tidak membuat instance ganda.
   @override
   int get hashCode => status.hashCode ^ prioritas.hashCode ^ cari.hashCode;
 }
 
+/// Provider daftar tiket unit per parameter filter.
 final daftarTiketUnitProvider =
     FutureProvider.autoDispose.family<List<TiketMaintenanceModel>, TiketFilterParams>((ref, params) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
@@ -39,18 +42,21 @@ final daftarTiketUnitProvider =
   );
 });
 
+/// Provider daftar aset unit yang tersedia.
 final asetUnitTersediaProvider =
     FutureProvider.autoDispose<List<AsetUnitModel>>((ref) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
   return await repository.getAsetUnitTersedia();
 });
 
+/// Provider detail tiket unit per ID.
 final detailTiketUnitProvider =
     FutureProvider.autoDispose.family<TiketDetailModel, int>((ref, id) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
   return await repository.getDetailTiketUnit(id);
 });
 
+/// Provider daftar teknisi.
 final teknisiListProvider =
     FutureProvider.autoDispose<List<TeknisiOptionModel>>((ref) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
@@ -62,6 +68,7 @@ class TiketActionState {
   final String? errorMessage;
   final String? successMessage;
 
+  /// Membuat TiketActionState.
   const TiketActionState({
     this.isLoading = false,
     this.errorMessage,
@@ -73,8 +80,10 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
   final MaintenanceRepository _repository;
   final Ref _ref;
 
+  /// Membuat TiketActionNotifier.
   TiketActionNotifier(this._repository, this._ref) : super(const TiketActionState());
 
+  /// Batalkan tiket lalu refresh daftar; true jika berhasil.
   Future<bool> batalkanTiket(int id) async {
     state = const TiketActionState(isLoading: true);
     try {
@@ -96,6 +105,7 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
     }
   }
 
+  /// Disposisikan tiket ke teknisi (terbitkan SPK) lewat API.
   Future<bool> disposisiTiket({
     required int tiketId,
     required int teknisiId,
@@ -135,6 +145,7 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
   }
 }
 
+/// Provider notifier aksi tiket (batal, disposisi).
 final tiketActionProvider =
     StateNotifierProvider<TiketActionNotifier, TiketActionState>((ref) {
   final repository = ref.watch(maintenanceRepositoryProvider);

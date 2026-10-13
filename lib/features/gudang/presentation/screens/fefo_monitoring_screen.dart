@@ -10,16 +10,20 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/persediaan_providers.dart';
 
+/// Layar monitoring FEFO: memantau batch stok berdasarkan kedekatan tanggal kedaluwarsa agar yang lebih dulu kedaluwarsa dikeluarkan lebih dulu.
 class FefoMonitoringScreen extends ConsumerStatefulWidget {
   const FefoMonitoringScreen({super.key});
 
+  /// Membuat state layar monitoring FEFO.
   @override
   ConsumerState<FefoMonitoringScreen> createState() => _FefoMonitoringScreenState();
 }
 
+/// State layar monitoring FEFO; memantau data batch serta filter kategori dan pencarian dari provider.
 class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
 
 
+  /// Menyusun UI monitoring FEFO: ringkasan metrik, pencarian, filter kategori, dan daftar batch berwarna sesuai status kedaluwarsa.
   @override
   Widget build(BuildContext context) {
     final fefoAsync = ref.watch(fefoMonitoringProvider);
@@ -259,6 +263,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
     );
   }
 
+  /// Membangun kartu ringkasan angka (metrik) dengan [label], [value], dan warna teks/latar yang diberikan.
   Widget _buildMetricCard(String label, String value, Color textColor, Color bgColor) {
     return Expanded(
       child: Container(

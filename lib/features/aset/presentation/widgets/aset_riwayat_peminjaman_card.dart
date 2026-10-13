@@ -4,16 +4,20 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 
+/// Kartu ringkasan riwayat peminjaman/sirkulasi aset antar unit.
 class AsetRiwayatPeminjamanCard extends StatelessWidget {
   final List<RiwayatPeminjamanAsetItemModel> riwayat;
   final VoidCallback onTap;
 
+  /// Membuat kartu riwayat peminjaman dengan daftar [riwayat] dan callback [onTap].
   const AsetRiwayatPeminjamanCard({
     super.key,
     required this.riwayat,
     required this.onTap,
   });
 
+  /// Membangun kartu ringkasan riwayat peminjaman aset yang bisa diketuk
+  /// untuk membuka histori sirkulasi lengkap.
   @override
   Widget build(BuildContext context) {
     return InkWell(

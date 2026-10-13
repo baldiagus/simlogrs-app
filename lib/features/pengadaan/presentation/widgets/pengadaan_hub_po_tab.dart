@@ -27,6 +27,8 @@ class PengadaanHubPoTab extends ConsumerWidget {
     required this.onUpdateKirim,
   });
 
+  /// Membangun tab PO: kolom pencarian dan daftar pesanan pembelian,
+  /// dengan dukungan tarik-untuk-segarkan.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -60,6 +62,8 @@ class PengadaanHubPoTab extends ConsumerWidget {
     );
   }
 
+  /// Menyaring PO berdasarkan kata kunci pencarian lalu membangun daftar kartunya,
+  /// atau menampilkan tampilan kosong bila tidak ada hasil.
   Widget _buildList(List<PesananPembelianModel> list) {
     var filtered = list;
     if (query.isNotEmpty) {
@@ -90,6 +94,7 @@ class PengadaanHubPoTab extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       itemCount: filtered.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
+      // Membangun kartu PO untuk tiap item hasil filter.
       itemBuilder: (ctx, idx) {
         final po = filtered[idx];
         return ApprovalPoCard(

@@ -17,12 +17,14 @@ class SpkDetailScreen extends ConsumerWidget {
   final int spkId;
   final String kodeSpk;
 
+  /// Membuat SpkDetailScreen.
   const SpkDetailScreen({
     super.key,
     required this.spkId,
     required this.kodeSpk,
   });
 
+  /// Membangun tampilan SpkDetailScreen.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(spkDetailProvider(spkId));
@@ -311,6 +313,7 @@ class SpkDetailScreen extends ConsumerWidget {
     );
   }
 
+  /// Kartu satu entri log pengerjaan SPK.
   Widget _buildLogCard(SpkLogModel log) {
     Color hasilBg = const Color(0xFFECFDF5);
     Color hasilColor = AppColors.success;

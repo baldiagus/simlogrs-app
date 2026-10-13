@@ -10,6 +10,7 @@ import 'ganti_password_wajib_screen.dart';
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
 
+  /// Memilih layar berdasarkan status sesi: splash, login, ganti password wajib, atau shell utama.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);

@@ -6,6 +6,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/approval_item_model.dart';
 import '../../../pengadaan/data/models/pr_model.dart';
 
+/// Kartu pengajuan approval (PR/Amprah) dengan rincian item yang bisa dibuka dan tombol aksi sesuai status serta hak akses.
 class ApprovalCard extends StatefulWidget {
   final ApprovalItemModel item;
   final bool canApprove;
@@ -23,13 +24,16 @@ class ApprovalCard extends StatefulWidget {
     this.onTerbitkanPoTap,
   });
 
+  /// Membuat state kartu untuk mengelola status expand rincian item.
   @override
   State<ApprovalCard> createState() => _ApprovalCardState();
 }
 
+/// State kartu: menyimpan status expand/collapse rincian item.
 class _ApprovalCardState extends State<ApprovalCard> {
   bool _isExpanded = false;
 
+  /// Menyusun kartu: header kode/status, info pemohon, daftar item, dan tombol aksi (setujui/tolak/serahkan/terbitkan PO) sesuai kondisi.
   @override
   Widget build(BuildContext context) {
     final item = widget.item;

@@ -11,14 +11,17 @@ import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:simlog_mobile/features/master/presentation/providers/master_barang_provider.dart';
 
+/// Bottom sheet auditor untuk mendaftarkan temuan audit baru ke sistem CAPA.
 class FormTerbitkanTemuanSheet extends ConsumerStatefulWidget {
   const FormTerbitkanTemuanSheet({super.key});
 
+  /// Membuat state form terbitkan temuan.
   @override
   ConsumerState<FormTerbitkanTemuanSheet> createState() =>
       _FormTerbitkanTemuanSheetState();
 }
 
+/// State form terbitkan temuan: input, tanggal, pilihan unit/gudang, dan status loading.
 class _FormTerbitkanTemuanSheetState
     extends ConsumerState<FormTerbitkanTemuanSheet> {
   final _formKey = GlobalKey<FormState>();
@@ -32,6 +35,7 @@ class _FormTerbitkanTemuanSheetState
   int? _selectedGudangId;
   bool _isLoading = false;
 
+  /// Membuang controller teks agar tidak bocor memori.
   @override
   void dispose() {
     _objekCtrl.dispose();
@@ -39,6 +43,7 @@ class _FormTerbitkanTemuanSheetState
     super.dispose();
   }
 
+  /// Memvalidasi form lalu mendaftarkan temuan baru ke sistem CAPA dan menyegarkan data terkait.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
@@ -85,9 +90,11 @@ class _FormTerbitkanTemuanSheetState
     }
   }
 
+  /// Memformat [d] menjadi string `yyyy-MM-dd` untuk dikirim ke API.
   String _formatDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+  /// Memilih tanggal audit lewat date picker dan menggeser due date bila jadi lebih awal.
   Future<void> _pickTanggalAudit() async {
     final picked = await showDatePicker(
       context: context,
@@ -105,6 +112,7 @@ class _FormTerbitkanTemuanSheetState
     }
   }
 
+  /// Memilih batas waktu CAPA lewat date picker; tidak boleh sebelum tanggal audit.
   Future<void> _pickDueDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -117,6 +125,7 @@ class _FormTerbitkanTemuanSheetState
     }
   }
 
+  /// Membangun form penerbitan temuan audit: objek, ringkasan, risiko, tanggal, unit, dan gudang.
   @override
   Widget build(BuildContext context) {
     final unitsAsync = ref.watch(masterUnitListProvider);

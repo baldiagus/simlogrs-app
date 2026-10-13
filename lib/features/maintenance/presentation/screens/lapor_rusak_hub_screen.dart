@@ -13,8 +13,10 @@ import 'detail_tiket_screen.dart';
 import 'lapor_cepat_screen.dart';
 
 class LaporRusakHubScreen extends ConsumerStatefulWidget {
+  /// Membuat LaporRusakHubScreen.
   const LaporRusakHubScreen({super.key});
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<LaporRusakHubScreen> createState() => _LaporRusakHubScreenState();
 }
@@ -25,18 +27,21 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
   String _searchKeyword = '';
   String _prioritasFilter = 'SEMUA';
 
+  /// Inisialisasi state awal layar/sheet.
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
 
+  /// Susun parameter filter tiket dari state pencarian dan prioritas.
   TiketFilterParams _resolveParams() {
     return TiketFilterParams(
       status: 'SEMUA',
@@ -45,6 +50,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
     );
   }
 
+  /// Membangun tampilan _LaporRusakHubScreenState.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,6 +152,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
     );
   }
 
+  /// Pill filter prioritas yang bisa diklik untuk memfilter daftar tiket.
   Widget _buildPrioritasPill(String val, String label, {Color? color}) {
     final isSelected = _prioritasFilter == val;
     final pillColor = color ?? AppColors.primaryPurple;
@@ -176,6 +183,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
     );
   }
 
+  /// Daftar tiket (aktif atau riwayat) dengan state loading, error, dan kosong.
   Widget _buildTiketListView({required bool isRiwayat}) {
     final params = _resolveParams();
     final tiketListAsync = ref.watch(daftarTiketUnitProvider(params));

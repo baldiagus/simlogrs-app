@@ -1,5 +1,6 @@
 import 'master_barang_entity.dart';
 
+/// Satu unit aset fisik (per nomor seri) milik sebuah komoditas barang.
 class DaftarAsetFisikItem {
   final int id;
   final String kodeAset;
@@ -17,6 +18,7 @@ class DaftarAsetFisikItem {
     required this.lokasi,
   });
 
+  /// Membangun [DaftarAsetFisikItem] dari JSON API dengan nilai default aman.
   factory DaftarAsetFisikItem.fromJson(Map<String, dynamic> json) {
     return DaftarAsetFisikItem(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -29,6 +31,7 @@ class DaftarAsetFisikItem {
   }
 }
 
+/// Satu batch stok habis pakai beserta lokasi gudang, rak, kedaluwarsa, dan harga.
 class DaftarBatchItem {
   final int id;
   final String nomorBatch;
@@ -48,6 +51,7 @@ class DaftarBatchItem {
     required this.hargaSatuan,
   });
 
+  /// Membangun [DaftarBatchItem] dari JSON API dengan parsing angka yang toleran.
   factory DaftarBatchItem.fromJson(Map<String, dynamic> json) {
     return DaftarBatchItem(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -61,6 +65,7 @@ class DaftarBatchItem {
   }
 }
 
+/// Ringkasan jumlah stok komoditas pada satu unit ruangan.
 class DaftarRuanganItem {
   final String unit;
   final int jumlah;
@@ -70,6 +75,7 @@ class DaftarRuanganItem {
     required this.jumlah,
   });
 
+  /// Membangun [DaftarRuanganItem] dari JSON API.
   factory DaftarRuanganItem.fromJson(Map<String, dynamic> json) {
     return DaftarRuanganItem(
       unit: json['unit']?.toString() ?? 'Ruangan',
@@ -78,6 +84,7 @@ class DaftarRuanganItem {
   }
 }
 
+/// Detail lengkap komoditas: data master plus daftar aset, batch, dan sebaran ruangan.
 class DetailBarangModel {
   final MasterBarangItemModel master;
   final List<DaftarAsetFisikItem> daftarAset;
@@ -91,6 +98,7 @@ class DetailBarangModel {
     required this.daftarRuangan,
   });
 
+  /// Membangun [DetailBarangModel] dari JSON, memetakan daftar aset, batch, dan ruangan (kosong bila tidak ada).
   factory DetailBarangModel.fromJson(Map<String, dynamic> json) {
     final master = MasterBarangItemModel.fromJson(json);
     final List<DaftarAsetFisikItem> da = (json['daftar_aset'] as List<dynamic>?)

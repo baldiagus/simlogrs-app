@@ -6,6 +6,7 @@ import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../pengadaan/data/models/po_model.dart';
 
+/// Kartu ringkasan Pesanan Pembelian (PO) untuk antrean approval/pengadaan.
 class ApprovalPoCard extends StatelessWidget {
   final PesananPembelianModel po;
   final bool canManagePo;
@@ -20,6 +21,7 @@ class ApprovalPoCard extends StatelessWidget {
     this.onUpdateKirim,
   });
 
+  /// Menyusun kartu PO: kode, vendor, nilai, daftar item, dan tombol tandai dikirim bila user berhak dan PO diterbitkan.
   @override
   Widget build(BuildContext context) {
     return Container(

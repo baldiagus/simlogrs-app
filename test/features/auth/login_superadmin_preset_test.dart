@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simlog_mobile/core/security/security_device_service.dart';
-import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:simlog_mobile/features/auth/presentation/screens/login_screen.dart';
 
+/// Menguji chip preset Super Admin di LoginScreen mengisi kredensial dan mereset error saat diketuk.
 void main() {
   testWidgets('LoginScreen displays Super Admin preset chip, populates credentials, and resets errors on tap', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
@@ -15,11 +14,8 @@ void main() {
     });
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          isDeviceRootedProvider.overrideWith((ref) => Future.value(false)),
-        ],
-        child: const MaterialApp(
+      const ProviderScope(
+        child: MaterialApp(
           home: LoginScreen(),
         ),
       ),

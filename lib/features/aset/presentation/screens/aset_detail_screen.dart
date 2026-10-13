@@ -17,10 +17,12 @@ import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
 
+/// Halaman profil aset fisik beserta riwayat dan aksi sirkulasi.
 class AsetDetailScreen extends ConsumerStatefulWidget {
   final AsetDetailModel? initialAset;
   final int? asetId;
 
+  /// Membuat layar detail; wajib menerima `initialAset` atau `asetId`.
   const AsetDetailScreen({
     super.key,
     this.initialAset,
@@ -28,15 +30,18 @@ class AsetDetailScreen extends ConsumerStatefulWidget {
   }) : assert(initialAset != null || asetId != null,
             'Either initialAset or asetId must be provided');
 
+  /// Membuat state layar detail aset.
   @override
   ConsumerState<AsetDetailScreen> createState() => _AsetDetailScreenState();
 }
 
+/// State untuk [AsetDetailScreen]: memuat data aset dan membuka modal aksi.
 class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
   AsetDetailModel? _aset;
   bool _isLoading = false;
   String? _errorMessage;
 
+  /// Mengisi data awal dari `initialAset` atau mengambilnya dari server.
   @override
   void initState() {
     super.initState();
@@ -47,6 +52,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     }
   }
 
+  /// Mengambil detail aset dari server berdasarkan `asetId` lalu memperbarui
+  /// state loading/error.
   Future<void> _fetchAset() async {
     if (widget.asetId == null) return;
     setState(() {
@@ -72,10 +79,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     }
   }
 
+  /// Menampilkan sheet stiker QR code aset untuk dicetak/dibagikan.
   void _showQrStickerModal(AsetDetailModel aset) {
     QrStickerSheet.show(context, aset);
   }
 
+  /// Menampilkan modal perpanjangan untuk peminjaman aktif aset.
   void _showPerpanjangModal(AsetDetailModel aset) {
     final pinjamInfo = aset.peminjamanAktif;
     if (pinjamInfo == null) return;
@@ -88,6 +97,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     );
   }
 
+  /// Menampilkan modal pengembalian aset untuk peminjaman yang sedang aktif.
   void _showPengembalianModal() {
     if (_aset == null) return;
     final currentAset = _aset!;
@@ -104,6 +114,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     );
   }
 
+  /// Memuat ulang data aset lewat pemindaian kode aset agar tampilan terbaru.
   Future<void> _refreshAset(AsetDetailModel aset) async {
     final updated =
         await ref.read(asetActionProvider.notifier).scanAset(aset.kodeAset);
@@ -114,6 +125,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     }
   }
 
+  /// Membuka layar rekam medis (riwayat perbaikan/maintenance) milik aset.
   void _openRekamMedis(AsetDetailModel aset) {
     Navigator.push(
       context,
@@ -126,6 +138,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     );
   }
 
+  /// Membangun halaman detail aset: state loading/error, lalu seluruh kartu
+  /// informasi dan tombol aksi sesuai hak akses pengguna.
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -236,6 +250,7 @@ class _AsetDetailAccess {
   final bool canPinjam;
   final bool canLaporRusak;
 
+  /// Membuat objek hak akses dengan nilai yang sudah ditentukan.
   const _AsetDetailAccess({
     required this.isOwnedByCurrentUserLocation,
     required this.isGlobalAdmin,
@@ -244,6 +259,8 @@ class _AsetDetailAccess {
     required this.canLaporRusak,
   });
 
+  /// Menghitung hak akses pengguna (pinjam, lapor rusak, pemilik) terhadap
+  /// aset berdasarkan lokasi, peran, dan status aset.
   factory _AsetDetailAccess.resolve(
       AsetDetailModel currentAset, UserModel? user) {
     final isTeknisi = user?.isTeknisi ?? false;

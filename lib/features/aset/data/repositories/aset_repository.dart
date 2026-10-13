@@ -5,11 +5,14 @@ import '../models/aset_detail_model.dart';
 import '../models/aset_tersedia_model.dart';
 import '../models/peminjaman_aset_model.dart';
 
+/// Repository API aset: scan QR, katalog, peminjaman, otorisasi, serah terima, dan pengembalian.
 class AsetRepository {
   final DioClient _client;
 
+  /// Membuat repository dengan [DioClient] untuk akses HTTP.
   AsetRepository(this._client);
 
+  /// Mencari detail aset berdasarkan kode/QR hasil scan; melempar [ApiException] bila tidak ditemukan.
   Future<AsetDetailModel> scanQr(String kodeAset) async {
     try {
       final response = await _client.dio.post(
@@ -32,6 +35,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengambil detail aset berdasarkan [id]; melempar [ApiException] bila gagal.
   Future<AsetDetailModel> getDetailAset(int id) async {
     try {
       final response = await _client.dio.get('/aset/detail/$id');
@@ -48,6 +52,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengambil katalog aset tersedia, dengan filter opsional pencarian, tipe penyedia, dan tujuan.
   Future<List<AsetTersediaModel>> getKatalogTersedia({String? cari, String? penyediaTipe, String? tujuan}) async {
     try {
       final response = await _client.dio.get(
@@ -74,6 +79,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengambil daftar peminjaman aset, difilter opsional berdasarkan status dan perspektif (peminjam/penyedia).
   Future<List<PeminjamanAsetModel>> getDaftarPeminjaman({String? status, String? perspektif}) async {
     try {
       final response = await _client.dio.get(
@@ -99,6 +105,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengajukan peminjaman aset baru dan mengembalikan data peminjaman yang dibuat server.
   Future<Map<String, dynamic>> simpanPeminjaman({
     required int asetId,
     required String tanggalPinjam,
@@ -131,6 +138,7 @@ class AsetRepository {
     }
   }
 
+  /// Membatalkan peminjaman [id]; melempar [ApiException] bila server menolak.
   Future<void> batalPeminjaman(int id) async {
     try {
       final response = await _client.dio.post('/aset/peminjaman/$id/batal');
@@ -146,6 +154,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengajukan perpanjangan masa peminjaman [id] ke tanggal baru beserta alasannya.
   Future<void> perpanjangPeminjaman({
     required int id,
     required String tanggalKembaliBaru,
@@ -171,6 +180,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengambil antrean approval peminjaman; mengembalikan daftar kosong bila user tidak berhak (403).
   Future<List<ApprovalPeminjamanModel>> getDaftarApprovalPeminjaman() async {
     try {
       final response = await _client.dio.get('/aset/approval-peminjaman');
@@ -192,6 +202,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengirim keputusan otorisasi (setujui/tolak/serah terima) untuk peminjaman [id].
   Future<Map<String, dynamic>> otorisasiPeminjaman({
     required int id,
     required String aksi,
@@ -219,6 +230,7 @@ class AsetRepository {
     }
   }
 
+  /// Mengonfirmasi serah terima fisik aset untuk peminjaman [peminjamanId].
   Future<Map<String, dynamic>> serahTerima(int peminjamanId) async {
     try {
       final response = await _client.dio.post(
@@ -241,6 +253,7 @@ class AsetRepository {
     }
   }
 
+  /// Mencatat pengembalian aset beserta hasil inspeksi kondisi; pesan error diambil dari respons server bila ada.
   Future<Map<String, dynamic>> kembalikan({
     required int peminjamanId,
     required List<Map<String, dynamic>> inspeksi,

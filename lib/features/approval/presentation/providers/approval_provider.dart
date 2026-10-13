@@ -8,11 +8,13 @@ import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../data/models/approval_item_model.dart';
 import '../../data/repositories/approval_repository.dart';
 
+/// Menyediakan [ApprovalRepository] dengan DioClient bersama.
 final approvalRepositoryProvider = Provider<ApprovalRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return ApprovalRepository(client);
 });
 
+/// Memuat antrean approval pending; gagal bila user belum terotentikasi.
 final approvalPendingProvider =
     FutureProvider.autoDispose<ApprovalPendingResponse>((ref) async {
   final authState = ref.watch(authStateProvider);
@@ -23,6 +25,7 @@ final approvalPendingProvider =
   return await repository.getPending();
 });
 
+/// State aksi approval: status loading serta pesan error/sukses.
 class ApprovalActionState {
   final bool isLoading;
   final String? errorMessage;
@@ -35,6 +38,7 @@ class ApprovalActionState {
   });
 }
 
+/// Mengelola proses eksekusi approval dan menyegarkan data terkait setelahnya.
 class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
   final ApprovalRepository _repository;
   final Ref _ref;
@@ -42,6 +46,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
   ApprovalActionNotifier(this._repository, this._ref)
       : super(const ApprovalActionState());
 
+  /// Menjalankan approval sesuai [tipe] (PR/AMPRAH) dengan mendelegasikan ke method terkait.
     Future<bool> eksekusi({
     required int id,
     required String tipe,
@@ -55,6 +60,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
     }
   }
 
+  /// Menyetujui/menolak PR lalu menyegarkan antrean dan data terkait; true bila berhasil.
   Future<bool> approvePr({
     required int id,
     required String aksi,
@@ -93,6 +99,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
     }
   }
 
+  /// Menyetujui/menolak Amprah lalu menyegarkan antrean dan data terkait; true bila berhasil.
   Future<bool> approveAmprah({
     required int id,
     required bool isSetujui,
@@ -137,6 +144,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
   }
 }
 
+/// Provider notifier aksi approval untuk dipakai UI.
 final approvalActionProvider =
     StateNotifierProvider<ApprovalActionNotifier, ApprovalActionState>((ref) {
   final repository = ref.watch(approvalRepositoryProvider);

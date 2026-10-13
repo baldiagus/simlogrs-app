@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Palet warna resmi SIMLOG RS Mobile Client berdasarkan `agents/desain.md`.
+/// Palet warna resmi SIMLOG RS Mobile Client berdasarkan `docs/desain.md`.
 class AppColors {
   AppColors._();
 

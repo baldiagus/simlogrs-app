@@ -7,6 +7,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 class UserTopBar extends ConsumerWidget {
   const UserTopBar({super.key});
 
+  /// Membangun bar atas berisi avatar inisial dan info pengguna yang sedang login.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

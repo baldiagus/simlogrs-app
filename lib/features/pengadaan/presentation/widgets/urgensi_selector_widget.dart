@@ -11,6 +11,7 @@ class UrgensiSelectorWidget extends StatelessWidget {
     required this.onChanged,
   });
 
+  /// Membangun pemilih tingkat urgensi pengadaan (Reguler, Mendesak, CITO).
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,6 +39,7 @@ class UrgensiSelectorWidget extends StatelessWidget {
     );
   }
 
+  /// Membangun satu chip pilihan urgensi dengan warna aktif bila sedang terpilih.
   Widget _buildChip(String value, String label, Color activeColor, Color activeBg) {
     final isSelected = selectedUrgensi.toUpperCase() == value;
 

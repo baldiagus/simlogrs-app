@@ -1,3 +1,4 @@
+/// Satu catatan jejak audit: siapa melakukan aksi apa, kapan, dan snapshot data sebelum/sesudah.
 class AuditTrailItemModel {
   final int id;
   final String penggunaNama;
@@ -33,6 +34,7 @@ class AuditTrailItemModel {
     this.dataSesudah,
   });
 
+  /// Membangun satu entri jejak audit dari JSON dengan nilai default aman untuk field kosong.
   factory AuditTrailItemModel.fromJson(Map<String, dynamic> json) {
     return AuditTrailItemModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

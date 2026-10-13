@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,18 +9,22 @@ import '../../../aset/presentation/screens/qr_scanner_screen.dart';
 import '../widgets/aset_unit_picker_sheet.dart';
 import '../providers/maintenance_provider.dart';
 
+/// Layar pelaporan cepat kerusakan sarana, dengan opsi kode aset awal.
 class LaporCepatScreen extends ConsumerStatefulWidget {
   final String? initialKodeAset;
 
+  /// Membuat LaporCepatScreen dengan kode aset awal opsional.
   const LaporCepatScreen({
     super.key,
     this.initialKodeAset,
   });
 
+  /// Membuat state layar lapor cepat.
   @override
   ConsumerState<LaporCepatScreen> createState() => _LaporCepatScreenState();
 }
 
+/// State layar lapor cepat: menyimpan input form, prioritas, dan foto terpilih.
 class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
   final _formKey = GlobalKey<FormState>();
   final _kodeAsetController = TextEditingController();
@@ -31,6 +33,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
   XFile? _pickedImage;
   final ImagePicker _picker = ImagePicker();
 
+  /// Mengisi kode aset awal dari parameter widget jika ada (mis. hasil scan QR).
   @override
   void initState() {
     super.initState();
@@ -39,6 +42,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     }
   }
 
+  /// Membersihkan controller input saat widget dibuang.
   @override
   void dispose() {
     _kodeAsetController.dispose();
@@ -46,6 +50,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     super.dispose();
   }
 
+  /// Mengambil foto dari kamera/galeri (ukuran dibatasi) dan menyimpannya sebagai lampiran laporan.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final photo = await _picker.pickImage(
@@ -65,6 +70,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     }
   }
 
+  /// Memvalidasi form lalu mengirim laporan kerusakan; sukses menutup layar, gagal menampilkan toast error.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
@@ -89,6 +95,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     }
   }
 
+  /// Membangun form laporan cepat kerusakan: kode aset, deskripsi, prioritas, foto, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final laporState = ref.watch(laporCepatProvider);
@@ -314,9 +321,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                       border: Border.all(color: AppColors.border),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: kIsWeb
-                        ? Image.network(_pickedImage!.path, fit: BoxFit.cover, width: double.infinity)
-                        : Image.file(File(_pickedImage!.path), fit: BoxFit.cover, width: double.infinity),
+                    child: Image.network(_pickedImage!.path, fit: BoxFit.cover, width: double.infinity),
                   ),
                 const SizedBox(height: 28),
 
@@ -336,6 +341,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     );
   }
 
+  /// Chip pilihan prioritas laporan; menandai pilihan aktif dan mengubah _prioritas saat diketuk.
   Widget _buildPrioritasChip(String value, String label, Color color, Color bg) {
     final isSelected = _prioritas == value;
 

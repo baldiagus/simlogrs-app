@@ -9,12 +9,14 @@ class AuthRepository {
   final DioClient _client;
   final SecureStorageService _storage;
 
+  /// Membuat repository dengan klien HTTP dan storage yang diperlukan.
   AuthRepository({
     required DioClient client,
     required SecureStorageService storage,
   })  : _client = client,
         _storage = storage;
 
+  /// Login ke API, simpan token, lalu kembalikan data user (dari respons atau via `/auth/me`).
   Future<UserModel> login({
     required String email,
     required String password,
@@ -64,6 +66,7 @@ class AuthRepository {
     }
   }
 
+  /// Mengambil profil user saat ini dari `/auth/me` dan memperbarui cache lokal.
   Future<UserModel> getMe() async {
     try {
       final response = await _client.dio.get('/auth/me');
@@ -86,6 +89,7 @@ class AuthRepository {
       throw ApiException(message: e.message ?? 'Gagal mengambil profil pengguna');
     }
   }
+  /// Mengganti password wajib (mis. setelah reset) dan menyimpan data user terbaru ke cache.
   Future<UserModel> gantiPasswordWajib({
     required String passwordSaatIni,
     required String passwordBaru,
@@ -123,6 +127,7 @@ class AuthRepository {
   }
 
 
+  /// Logout ke server; error jaringan diabaikan agar data sesi lokal tetap terhapus.
   Future<void> logout() async {
     try {
       await _client.dio.post('/auth/logout');
@@ -133,6 +138,7 @@ class AuthRepository {
     }
   }
 
+  /// Mengambil user dari cache lokal; null jika kosong atau JSON rusak.
   Future<UserModel?> getCachedUser() async {
     final cached = await _storage.getCachedUser();
     if (cached != null && cached.isNotEmpty) {
@@ -145,6 +151,7 @@ class AuthRepository {
     return null;
   }
 
+  /// Mengecek apakah token tersimpan, sebagai penanda ada sesi yang bisa dilanjutkan.
   Future<bool> hasValidToken() async {
     final token = await _storage.getToken();
     return token != null && token.isNotEmpty;

@@ -25,6 +25,8 @@ class MasterBarangModel {
     this.stok = 0,
   });
 
+  /// Membuat [MasterBarangModel] dari JSON katalog barang dengan nilai bawaan aman.
+  /// Label tipe diturunkan dari kode tipe bila server tidak mengirimnya.
   factory MasterBarangModel.fromJson(Map<String, dynamic> json) {
     return MasterBarangModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

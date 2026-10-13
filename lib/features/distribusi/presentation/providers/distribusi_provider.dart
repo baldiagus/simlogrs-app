@@ -10,11 +10,13 @@ import '../../data/models/amprah_model.dart';
 import '../../data/models/sppb_model.dart';
 import '../../data/repositories/distribusi_repository.dart';
 
+/// Menyediakan instance [DistribusiRepository] yang memakai [DioClient] bersama.
 final distribusiRepositoryProvider = Provider<DistribusiRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return DistribusiRepository(client);
 });
 
+/// Memuat katalog barang amprah berdasarkan kata kunci pencarian [query]; otomatis dibuang saat tidak dipakai.
 final katalogAmprahProvider =
     FutureProvider.autoDispose.family<List<BarangAmprahKatalogModel>, String>((ref, query) async {
   final repository = ref.watch(distribusiRepositoryProvider);
@@ -25,11 +27,13 @@ class AmprahFilterParams {
   final String status;
   final String urgensi;
 
+  /// Membuat parameter filter daftar amprah; default "SEMUA" berarti tanpa filter.
   const AmprahFilterParams({
     this.status = 'SEMUA',
     this.urgensi = 'SEMUA',
   });
 
+  /// Membandingkan parameter berdasarkan nilai status dan urgensi agar cache family provider tepat sasaran.
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -38,10 +42,12 @@ class AmprahFilterParams {
           status == other.status &&
           urgensi == other.urgensi;
 
+  /// Hash konsisten dengan operator `==` supaya filter yang sama memakai cache provider yang sama.
   @override
   int get hashCode => status.hashCode ^ urgensi.hashCode;
 }
 
+/// Memuat daftar amprah ruangan sesuai filter status dan urgensi pada [AmprahFilterParams].
 final daftarAmprahProvider =
     FutureProvider.autoDispose.family<List<AmprahHeaderModel>, AmprahFilterParams>((ref, params) async {
   final repository = ref.watch(distribusiRepositoryProvider);
@@ -51,12 +57,14 @@ final daftarAmprahProvider =
   );
 });
 
+/// Memuat rincian satu amprah berdasarkan ID.
 final detailAmprahProvider =
     FutureProvider.autoDispose.family<AmprahHeaderModel, int>((ref, id) async {
   final repository = ref.watch(distribusiRepositoryProvider);
   return await repository.getDetailAmprah(id);
 });
 
+/// Memuat antrean picking gudang; mengembalikan daftar kosong bila user tidak punya izin/peran gudang agar tidak memicu 403.
 final antreanPickingProvider =
     FutureProvider.autoDispose<List<PickingAntreanModel>>((ref) async {
   final user = ref.watch(authStateProvider).user;
@@ -76,6 +84,7 @@ final antreanPickingProvider =
   return await repository.getAntreanPicking();
 });
 
+/// Memuat daftar SPPB kiriman gudang yang menunggu diterima unit ruangan.
 final sppbInboundProvider =
     FutureProvider.autoDispose<List<SppbHeaderModel>>((ref) async {
   final repository = ref.watch(distribusiRepositoryProvider);
@@ -87,6 +96,7 @@ class AmprahActionState {
   final String? errorMessage;
   final String? successMessage;
 
+  /// Membuat state aksi amprah; default tidak sedang loading dan tanpa pesan.
   const AmprahActionState({
     this.isLoading = false,
     this.errorMessage,
@@ -98,8 +108,10 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
   final DistribusiRepository _repository;
   final Ref _ref;
 
+  /// Membuat notifier aksi amprah dengan repository untuk API dan [Ref] untuk me-refresh provider terkait.
   AmprahActionNotifier(this._repository, this._ref) : super(const AmprahActionState());
 
+  /// Memvalidasi keranjang (tidak kosong, stok cukup) lalu mengajukan amprah; true bila berhasil, dan me-refresh daftar amprah, approval, dan dashboard.
   Future<bool> submitAmprah({
     int? gudangId,
     required String urgensi,
@@ -157,6 +169,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     }
   }
 
+  /// Membatalkan amprah [id] lalu me-refresh daftar amprah, approval, dan dashboard; true bila berhasil.
   Future<bool> batalkanAmprah(int id) async {
     state = const AmprahActionState(isLoading: true);
     try {
@@ -179,6 +192,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     }
   }
 
+  /// Menjalankan picking FEFO untuk permintaan [permintaanId] dan me-refresh antrean, SPPB, rak, dan dashboard; true bila berhasil.
   Future<bool> eksekusiPicking(int permintaanId) async {
     state = const AmprahActionState(isLoading: true);
     try {
@@ -203,6 +217,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     }
   }
 
+  /// Mengonfirmasi penerimaan SPPB [sppbId] sehingga stok ruangan bertambah, lalu me-refresh data terkait; true bila berhasil.
   Future<bool> konfirmasiTerimaSppb(int sppbId) async {
     state = const AmprahActionState(isLoading: true);
     try {
@@ -229,6 +244,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
   }
 }
 
+/// Menyediakan [AmprahActionNotifier] untuk aksi tulis amprah (ajukan, batal, picking, terima SPPB) beserta state loading/pesannya.
 final amprahActionProvider =
     StateNotifierProvider<AmprahActionNotifier, AmprahActionState>((ref) {
   final repository = ref.watch(distribusiRepositoryProvider);

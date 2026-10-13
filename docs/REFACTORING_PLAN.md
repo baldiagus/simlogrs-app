@@ -1,6 +1,6 @@
 # Master Checklist & Rencana Refactoring — Kepatuhan Kode Flutter
 
-Dokumen ini disusun berdasarkan aturan di `FLUTTER_CODE_RULES.md`.
+Dokumen ini disusun berdasarkan aturan di `docs/FLUTTER_CODE_RULES.md`.
 Status inventaris per 2026-10-12:
 - **Total file Dart di `lib/`**: 207 file
 - **Memenuhi target (≤300 baris)**: 167 file (80.7%)

@@ -2,6 +2,7 @@ import 'anggaran_ringkasan_model.dart';
 import 'sparepart_anggaran_model.dart';
 import 'unit_anggaran_model.dart';
 
+/// Data lengkap layar screening anggaran: ringkasan, anggaran per unit, sparepart, top aset, dan riwayat sparepart.
 class AnggaranScreeningModel {
   final String tahun;
   final AnggaranRingkasanModel ringkasan;
@@ -19,6 +20,7 @@ class AnggaranScreeningModel {
     required this.riwayatSparepart,
   });
 
+  /// Membuat [AnggaranScreeningModel] dari JSON API; sub-objek dan daftar yang hilang dianggap kosong.
   factory AnggaranScreeningModel.fromJson(Map<String, dynamic> json) {
     return AnggaranScreeningModel(
       tahun: json['tahun']?.toString() ?? '2026',

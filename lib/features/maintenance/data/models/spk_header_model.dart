@@ -5,6 +5,7 @@ class SpkAsetModel {
   final String nomorSeri;
   final String lokasi;
 
+  /// Membuat SpkAsetModel.
   const SpkAsetModel({
     this.id,
     required this.kodeAset,
@@ -13,6 +14,7 @@ class SpkAsetModel {
     required this.lokasi,
   });
 
+  /// Membuat SpkAsetModel dari JSON respons API.
   factory SpkAsetModel.fromJson(Map<String, dynamic> json) {
     return SpkAsetModel(
       id: json['id'] is int ? json['id'] as int : null,
@@ -33,6 +35,7 @@ class SpkTiketModel {
   final String? fotoUrl;
   final String? pelapor;
 
+  /// Membuat SpkTiketModel.
   const SpkTiketModel({
     this.id,
     required this.kode,
@@ -43,9 +46,12 @@ class SpkTiketModel {
     this.pelapor,
   });
 
+  /// True jika prioritas CITO (paling mendesak).
   bool get isCito => prioritas.toUpperCase() == 'CITO';
+  /// True jika prioritas TINGGI.
   bool get isTinggi => prioritas.toUpperCase() == 'TINGGI';
 
+  /// Membuat SpkTiketModel dari JSON respons API.
   factory SpkTiketModel.fromJson(Map<String, dynamic> json) {
     return SpkTiketModel(
       id: json['id'] is int ? json['id'] as int : null,
@@ -70,6 +76,7 @@ class SpkHeaderModel {
   final SpkTiketModel tiket;
   final SpkAsetModel aset;
 
+  /// Membuat SpkHeaderModel.
   const SpkHeaderModel({
     required this.id,
     required this.kodeSpk,
@@ -82,8 +89,10 @@ class SpkHeaderModel {
     required this.aset,
   });
 
+  /// True jika status sudah SELESAI.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
+  /// Membuat SpkHeaderModel dari JSON respons API.
   factory SpkHeaderModel.fromJson(Map<String, dynamic> json) {
     return SpkHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

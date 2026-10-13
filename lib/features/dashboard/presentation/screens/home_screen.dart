@@ -26,6 +26,7 @@ class HomeScreen extends ConsumerWidget {
     this.onScanPressed,
   });
 
+  /// Membangun halaman beranda: memilih tampilan dashboard sesuai peran user dan menangani state loading/error serta tarik-untuk-segarkan.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
@@ -44,6 +45,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: summaryAsync.when(
               data: (summary) {
+                /// Mengarahkan tombol hero ke layar tujuan sesuai `targetAksi` ringkasan.
                 void onHeroInspect() {
                   final target = summary.hero.targetAksi;
                   if (target == 'audit_spi') {

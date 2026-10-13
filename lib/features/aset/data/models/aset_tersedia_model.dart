@@ -1,3 +1,4 @@
+/// Aset yang tersedia di katalog untuk dipinjam atau dialihkan, beserta info penyedia dan lokasinya.
 class AsetTersediaModel {
   final int id;
   final String kodeAset;
@@ -13,6 +14,7 @@ class AsetTersediaModel {
   final String namaPenyedia;
   final String lokasiLengkap;
 
+  /// Membuat model aset tersedia; [spesifikasi] dan [penyediaId] opsional.
   const AsetTersediaModel({
     required this.id,
     required this.kodeAset,
@@ -29,8 +31,10 @@ class AsetTersediaModel {
     required this.lokasiLengkap,
   });
 
+  /// True bila penyedia aset adalah GUDANG (bukan ruangan).
   bool get isGudang => tipePenyedia.toUpperCase() == 'GUDANG';
 
+  /// Membuat [AsetTersediaModel] dari JSON API dengan default bila field kosong.
   factory AsetTersediaModel.fromJson(Map<String, dynamic> json) {
     return AsetTersediaModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

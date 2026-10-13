@@ -26,13 +26,18 @@ class AuthState {
     this.errorMessage,
   });
 
+  /// State awal sebelum sesi diperiksa.
   factory AuthState.initial() => const AuthState(status: AuthStatus.initial);
+  /// State saat proses otentikasi berlangsung.
   factory AuthState.loading() => const AuthState(status: AuthStatus.loading);
+  /// State sukses login dengan data user.
   factory AuthState.authenticated(UserModel user) =>
       AuthState(status: AuthStatus.authenticated, user: user);
+  /// State belum login atau sesi berakhir, dengan pesan error opsional untuk ditampilkan.
   factory AuthState.unauthenticated([String? message]) =>
       AuthState(status: AuthStatus.unauthenticated, errorMessage: message);
 
+  /// True jika status authenticated dan data user tersedia.
   bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
 }
 
@@ -40,11 +45,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
   final Ref _ref;
 
+  /// Mendaftarkan handler 401 ke DioClient lalu langsung memeriksa sesi tersimpan.
   AuthNotifier(this._repository, DioClient dioClient, this._ref) : super(AuthState.initial()) {
     dioClient.onUnauthorized = handleUnauthorized;
     checkAuth();
   }
 
+  /// Memeriksa token dan cache saat startup; tampilkan user cache dulu, lalu segarkan dari server.
   Future<void> checkAuth() async {
     state = AuthState.loading();
     try {
@@ -66,6 +73,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Login dengan email dan password; hasilnya (user atau pesan error) disimpan di state.
   Future<void> login({
     required String email,
     required String password,
@@ -85,6 +93,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.unauthenticated(e.toString());
     }
   }
+  /// Mengganti password wajib; error dilempar ke pemanggil agar UI bisa menampilkannya.
   Future<void> gantiPasswordWajib({
     required String passwordSaatIni,
     required String passwordBaru,
@@ -98,6 +107,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState.authenticated(updatedUser);
   }
 
+  /// Menghapus pesan error dari state tanpa mengubah status dan user.
   void clearError() {
     if (state.errorMessage != null) {
       state = AuthState(
@@ -109,23 +119,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
 
+  /// Logout: ubah state ke unauthenticated, hapus sesi lokal, dan reset cache data user.
   Future<void> logout() async {
     state = AuthState.unauthenticated();
     await _repository.logout();
     _clearUserCaches();
   }
 
+  /// Dipanggil saat server menolak token (401); bersihkan cache dan arahkan ke login.
   void handleUnauthorized() {
     _clearUserCaches();
     state = AuthState.unauthenticated('Sesi Anda telah berakhir. Silakan login kembali.');
   }
 
+  /// Logout otomatis karena tidak aktif demi keamanan perangkat bersama.
   Future<void> handleSessionTimeout() async {
     await _repository.logout();
     _clearUserCaches();
     state = AuthState.unauthenticated('Sesi berakhir otomatis demi keamanan gawai bersama (inaktivitas 30 menit).');
   }
 
+  /// Membatalkan cache provider data milik user sebelumnya agar tidak bocor ke user berikutnya.
   void _clearUserCaches() {
     try {
       _ref.invalidate(dashboardSummaryProvider);
@@ -144,6 +158,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
+  /// Provider state otentikasi global yang dipakai AuthGate dan seluruh fitur.
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   final dioClient = ref.watch(dioClientProvider);

@@ -14,6 +14,7 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
   final TextEditingController alasanController;
   final TextEditingController catatanController;
 
+  /// Membuat kartu tahap 2 dengan state kuantitas dan controller teks dari sheet induk.
   const ModalPengalihanAsetTahap2Card({
     super.key,
     required this.chosenAset,
@@ -24,6 +25,7 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
     required this.catatanController,
   });
 
+  /// Menghitung jumlah maksimal aset sejenis (komoditas + penyedia sama) yang boleh dialihkan, minimal 1.
   int get _maxAvailable {
     final list = katalogAsync.valueOrNull ?? [];
     final count = chosenAset != null
@@ -38,6 +40,7 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
     return count > 0 ? count : 1;
   }
 
+  /// Membangun kartu tahap 2: stepper jumlah (dibatasi stok aset sejenis), alasan, dan catatan pengalihan.
   @override
   Widget build(BuildContext context) {
     final maxAvailable = _maxAvailable;

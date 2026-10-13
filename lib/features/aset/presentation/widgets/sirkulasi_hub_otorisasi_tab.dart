@@ -11,6 +11,7 @@ import 'sirkulasi_hub_otorisasi_card.dart';
 
 /// Tab 2 hub sirkulasi: antrean otorisasi peminjaman masuk (Karu & Kagud).
 class SirkulasiHubOtorisasiTab extends ConsumerWidget {
+  /// Membuat tab otorisasi dengan data antrean dan callback [onOtorisasi].
   const SirkulasiHubOtorisasiTab({
     super.key,
     required this.approvalAsync,
@@ -22,6 +23,7 @@ class SirkulasiHubOtorisasiTab extends ConsumerWidget {
           BuildContext context, ApprovalPeminjamanModel item, String aksi)
       onOtorisasi;
 
+  /// Membangun daftar antrean otorisasi dari [approvalAsync] (loading/error/kosong/data).
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return approvalAsync.when(

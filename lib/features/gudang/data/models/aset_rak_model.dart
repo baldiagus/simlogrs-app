@@ -1,6 +1,7 @@
 import 'rak_model.dart';
 import 'barang_rak_model.dart';
 
+/// Aset fisik (inventaris) yang ditempatkan pada sebuah rak gudang.
 class AsetRakModel {
   final int id;
   final String kodeAset;
@@ -22,6 +23,7 @@ class AsetRakModel {
     required this.kondisiFisik,
   });
 
+  /// Membangun [AsetRakModel] dari JSON API; field kosong diisi nilai default aman.
   factory AsetRakModel.fromJson(Map<String, dynamic> json) {
     return AsetRakModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -38,6 +40,7 @@ class AsetRakModel {
   }
 }
 
+/// Detail rak: data rak beserta daftar barang dan aset yang tersimpan di dalamnya.
 class RakDetailModel {
   final RakModel rak;
   final List<BarangRakModel> barang;
@@ -49,6 +52,7 @@ class RakDetailModel {
     required this.aset,
   });
 
+  /// Membangun [RakDetailModel] dari JSON API, termasuk list `barang` dan `aset` bersarang.
   factory RakDetailModel.fromJson(Map<String, dynamic> json) {
     return RakDetailModel(
       rak: RakModel.fromJson(json),

@@ -5,8 +5,10 @@ import 'package:simlog_mobile/features/pengadaan/presentation/widgets/barang_pic
 class SparepartPickerSheet extends StatelessWidget {
   final ValueChanged<MasterBarangModel> onSelected;
 
+  /// Membuat SparepartPickerSheet.
   const SparepartPickerSheet({super.key, required this.onSelected});
 
+  /// Tampilkan sheet sebagai bottom sheet; hasilnya true jika data tersimpan.
   static Future<void> show(
     BuildContext context, {
     required ValueChanged<MasterBarangModel> onSelected,
@@ -22,6 +24,7 @@ class SparepartPickerSheet extends StatelessWidget {
     );
   }
 
+  /// Membangun tampilan SparepartPickerSheet.
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
 }

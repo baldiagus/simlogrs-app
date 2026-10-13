@@ -1,3 +1,4 @@
+/// Satu baris item pada PO: jumlah dipesan vs diterima beserta harga.
 class KepatuhanPoDetailModel {
   final int id;
   final String namaBarang;
@@ -17,6 +18,7 @@ class KepatuhanPoDetailModel {
     required this.subtotal,
   });
 
+  /// Membangun detail item PO dari JSON dengan nilai default untuk field kosong.
   factory KepatuhanPoDetailModel.fromJson(Map<String, dynamic> json) {
     return KepatuhanPoDetailModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -30,6 +32,7 @@ class KepatuhanPoDetailModel {
   }
 }
 
+/// PO yang diperiksa kepatuhannya (PR, ketepatan waktu, selisih penerimaan) beserta tag anomali.
 class KepatuhanPoModel {
   final int id;
   final String kode;
@@ -63,6 +66,7 @@ class KepatuhanPoModel {
     required this.items,
   });
 
+  /// Membangun PO beserta tag anomali dan daftar itemnya dari JSON.
   factory KepatuhanPoModel.fromJson(Map<String, dynamic> json) {
     return KepatuhanPoModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

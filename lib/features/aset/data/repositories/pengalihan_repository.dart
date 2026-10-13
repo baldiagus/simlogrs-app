@@ -4,11 +4,14 @@ import '../../../../core/network/dio_client.dart';
 import '../models/pengalihan_model.dart';
 import '../models/aset_tersedia_model.dart';
 
+/// Repository API pengalihan aset/barang: daftar, pengajuan, otorisasi, serah terima, dan pembatalan.
 class PengalihanRepository {
   final DioClient _client;
 
+  /// Membuat repository dengan [DioClient] untuk akses HTTP.
   PengalihanRepository(this._client);
 
+  /// Mengambil daftar pengalihan per [tab] dan [tipe] (ASET/BARANG) dari endpoint yang sesuai.
   Future<List<PengalihanItemModel>> getDaftarPengalihan({
     String tab = 'aktif',
     String tipe = 'ASET',
@@ -34,6 +37,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Mengajukan pengalihan aset dan mengembalikan data hasilnya.
   Future<Map<String, dynamic>> submitPengalihan(Map<String, dynamic> payload) async {
     try {
       final response = await _client.dio.post(
@@ -53,6 +57,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Mengajukan pengalihan barang gudang dan mengembalikan data hasilnya.
   Future<Map<String, dynamic>> submitPengalihanBarang(Map<String, dynamic> payload) async {
     try {
       final response = await _client.dio.post(
@@ -72,6 +77,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Mengambil inventaris aset asal yang dapat dialihkan.
   Future<List<AsetTersediaModel>> getDaftarAsetAsal() async {
     try {
       final response = await _client.dio.get('/aset/pengalihan/inventaris-asal');
@@ -90,6 +96,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Mengambil jumlah stok tersedia barang di gudang; mengembalikan 0 bila gagal.
   Future<int> getStokTersedia({required int barangId, required int gudangId}) async {
     try {
       final response = await _client.dio.get(
@@ -106,6 +113,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Mengirim keputusan otorisasi pengalihan [id] (aset atau barang) beserta catatan opsional.
   Future<void> otorisasiPengalihan({
     required int id,
     required String aksi,
@@ -131,6 +139,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Menyelesaikan serah terima fisik pengalihan [id] dengan kondisi yang diterima.
   Future<void> serahTerimaPengalihan({
     required int id,
     String kondisi = 'BAIK',
@@ -152,6 +161,7 @@ class PengalihanRepository {
     }
   }
 
+  /// Membatalkan pengalihan [id] dengan alasan opsional.
   Future<void> batalPengalihan({
     required int id,
     String? alasan,

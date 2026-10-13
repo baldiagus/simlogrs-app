@@ -13,6 +13,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/detail_barang_sections.dart';
 import '../providers/master_barang_provider.dart';
 
+/// Layar profil komoditas yang menampilkan detail satu barang master beserta aset, batch, dan ruangan.
 class DetailBarangScreen extends ConsumerWidget {
   final int barangId;
   final String? initialNama;
@@ -23,6 +24,7 @@ class DetailBarangScreen extends ConsumerWidget {
     this.initialNama,
   });
 
+  /// Membangun halaman detail barang: memuat profil, aset, batch, dan ruangan dari provider.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailBarangProvider(barangId));

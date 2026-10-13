@@ -1,6 +1,6 @@
 # Master Implementation Prompt: SIMLOG RS Mobile Client (Flutter)
 ## Autonomous Agent Execution Blueprint (Zero-Hardcode & Zero-Dummy-Data Standard)
-### Design Reference: `agents/desain.md` | Skill: `build-your-own-x`
+### Design Reference: `docs/desain.md` | Skill: `build-your-own-x`
 
 ---
 

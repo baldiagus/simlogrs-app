@@ -9,8 +9,10 @@ import '../models/teknisi_option_model.dart';
 class MaintenanceRepository {
   final DioClient _client;
 
+  /// Membuat MaintenanceRepository.
   MaintenanceRepository(this._client);
 
+  /// Ambil daftar tiket unit dengan filter status, prioritas, dan pencarian.
   Future<List<TiketMaintenanceModel>> getDaftarTiketUnit({
     String? status,
     String? prioritas,
@@ -41,6 +43,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Ambil daftar aset unit yang tersedia untuk dilaporkan.
   Future<List<AsetUnitModel>> getAsetUnitTersedia() async {
     try {
       final response = await _client.dio.get('/maintenance/aset-unit');
@@ -59,6 +62,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Ambil detail satu tiket unit berdasarkan ID.
   Future<TiketDetailModel> getDetailTiketUnit(int id) async {
     try {
       final response = await _client.dio.get('/maintenance/tiket/$id');
@@ -75,6 +79,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Batalkan tiket unit berdasarkan ID lewat API.
   Future<void> batalTiketUnit(int id) async {
     try {
       final response = await _client.dio.post('/maintenance/tiket/$id/batal');
@@ -90,6 +95,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Ambil daftar teknisi yang dapat ditugaskan.
   Future<List<TeknisiOptionModel>> getDaftarTeknisi() async {
     try {
       final response = await _client.dio.get('/maintenance/teknisi');
@@ -134,6 +140,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Ambil daftar SPK, opsional difilter status.
   Future<List<SpkHeaderModel>> getSpkList({String? status}) async {
     try {
       final response = await _client.dio.get(
@@ -161,6 +168,7 @@ class MaintenanceRepository {
     }
   }
 
+  /// Ambil detail SPK berdasarkan ID.
   Future<SpkDetailModel> getSpkDetail(int id) async {
     try {
       final response = await _client.dio.get('/maintenance/spk/$id');

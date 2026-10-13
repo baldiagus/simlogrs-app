@@ -9,11 +9,13 @@ import '../providers/gudang_provider.dart';
 import '../widgets/barang_rak_list_tab.dart';
 import '../widgets/aset_rak_list_tab.dart';
 
+/// Layar detail satu rak gudang: informasi rak beserta isi stok yang tersimpan di dalamnya.
 class DetailRakScreen extends ConsumerWidget {
   final int rakId;
   final String kodeRak;
   final String namaRak;
 
+  /// Membuat layar detail untuk rak dengan [rakId], [kodeRak], dan [namaRak] yang diberikan.
   const DetailRakScreen({
     super.key,
     required this.rakId,
@@ -21,6 +23,7 @@ class DetailRakScreen extends ConsumerWidget {
     required this.namaRak,
   });
 
+  /// Menyusun UI detail rak dari data [detailRakProvider] dengan status loading/error.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailRakProvider(rakId));

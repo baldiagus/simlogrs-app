@@ -17,6 +17,7 @@ class DisposisiSpkSheet extends ConsumerStatefulWidget {
   final String prioritas;
   final String? keluhan;
 
+  /// Membuat DisposisiSpkSheet.
   const DisposisiSpkSheet({
     super.key,
     required this.tiketId,
@@ -27,6 +28,7 @@ class DisposisiSpkSheet extends ConsumerStatefulWidget {
     this.keluhan,
   });
 
+  /// Tampilkan sheet sebagai bottom sheet; hasilnya true jika data tersimpan.
   static Future<bool?> show(
     BuildContext context, {
     required int tiketId,
@@ -51,6 +53,7 @@ class DisposisiSpkSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<DisposisiSpkSheet> createState() => _DisposisiSpkSheetState();
 }
@@ -63,12 +66,14 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
   DateTime _tanggalPenugasan = DateTime.now();
   DateTime _targetSelesai = DateTime.now().add(const Duration(days: 2));
 
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _instruksiCtrl.dispose();
     super.dispose();
   }
 
+  /// Tampilkan date picker dan simpan tanggal terpilih ke form.
   Future<void> _pickDate({required bool isTarget}) async {
     final initial = isTarget ? _targetSelesai : _tanggalPenugasan;
     final picked = await showDatePicker(
@@ -102,6 +107,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
     }
   }
 
+  /// Validasi form lalu kirim data ke server dan tampilkan hasilnya.
   Future<void> _submit() async {
     if (_selectedTeknisiId == null) {
       AppToast.error(context, 'Pilih teknisi penanggung jawab terlebih dahulu.');
@@ -136,6 +142,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
     }
   }
 
+  /// Membangun tampilan _DisposisiSpkSheetState.
   @override
   Widget build(BuildContext context) {
     final teknisiListAsync = ref.watch(teknisiListProvider);

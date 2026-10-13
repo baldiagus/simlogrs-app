@@ -1,3 +1,4 @@
+/// Ringkasan metrik monitoring FEFO: jumlah batch kedaluwarsa, kritis, peringatan, dan di bawah ROP.
 class FefoMetrikModel {
   final int countExpired;
   final int countKritis30;
@@ -13,6 +14,7 @@ class FefoMetrikModel {
     required this.totalBatchAktif,
   });
 
+  /// Membangun [FefoMetrikModel] dari JSON API.
   factory FefoMetrikModel.fromJson(Map<String, dynamic> json) {
     return FefoMetrikModel(
       countExpired: int.tryParse(json['count_expired']?.toString() ?? '0') ?? 0,
@@ -24,6 +26,7 @@ class FefoMetrikModel {
   }
 }
 
+/// Satu batch stok dalam monitoring FEFO beserta sisa hari dan status kedaluwarsanya.
 class FefoBatchItemModel {
   final int id;
   final String nomorBatch;
@@ -59,6 +62,7 @@ class FefoBatchItemModel {
     required this.statusFefo,
   });
 
+  /// Membangun [FefoBatchItemModel] dari JSON API dengan konversi tipe aman.
   factory FefoBatchItemModel.fromJson(Map<String, dynamic> json) {
     return FefoBatchItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -80,6 +84,7 @@ class FefoBatchItemModel {
   }
 }
 
+/// Respons monitoring FEFO: metrik ringkasan plus daftar batch.
 class FefoMonitoringResponse {
   final FefoMetrikModel metrik;
   final List<FefoBatchItemModel> items;
@@ -89,6 +94,7 @@ class FefoMonitoringResponse {
     required this.items,
   });
 
+  /// Membangun [FefoMonitoringResponse] dari JSON; metrik kosong dipakai bila `metrik` tidak ada.
   factory FefoMonitoringResponse.fromJson(Map<String, dynamic> json) {
     final m = json['metrik'] is Map<String, dynamic>
         ? FefoMetrikModel.fromJson(json['metrik'] as Map<String, dynamic>)

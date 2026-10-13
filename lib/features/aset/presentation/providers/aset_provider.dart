@@ -5,17 +5,20 @@ import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'peminjaman_provider.dart';
+/// Provider [AsetRepository] untuk operasi data aset via klien HTTP bersama.
 final asetRepositoryProvider = Provider<AsetRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return AsetRepository(client);
 });
 
+/// State aksi aset: status loading, pesan error/sukses, dan hasil aset hasil scan.
 class AsetActionState {
   final bool isLoading;
   final String? errorMessage;
   final String? successMessage;
   final AsetDetailModel? aset;
 
+  /// Membuat state aksi aset; default idle tanpa pesan dan tanpa aset.
   const AsetActionState({
     this.isLoading = false,
     this.errorMessage,
@@ -23,6 +26,7 @@ class AsetActionState {
     this.aset,
   });
 
+  /// Menyalin state dengan nilai baru; pesan error/sukses selalu di-reset kecuali diisi ulang.
   AsetActionState copyWith({
     bool? isLoading,
     String? errorMessage,
@@ -38,12 +42,15 @@ class AsetActionState {
   }
 }
 
+/// Notifier aksi aset: scan QR, serah terima, dan pengembalian fisik.
 class AsetActionNotifier extends StateNotifier<AsetActionState> {
   final AsetRepository _repository;
   final Ref _ref;
 
+  /// Membuat notifier dengan repository aset dan [Ref] untuk invalidasi provider terkait.
   AsetActionNotifier(this._repository, this._ref) : super(const AsetActionState());
 
+  /// Mencari aset berdasarkan hasil scan [query] (kode/QR) dan menyimpannya di state; null jika gagal.
   Future<AsetDetailModel?> scanAset(String query) async {
     state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
     try {
@@ -59,6 +66,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     }
   }
 
+  /// Mengonfirmasi serah terima fisik peminjaman [peminjamanId], lalu memuat ulang aset yang sedang di-scan.
   Future<bool> konfirmasiSerahTerima(int peminjamanId) async {
     state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
     try {
@@ -82,6 +90,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     }
   }
 
+  /// Mencatat pengembalian fisik peminjaman beserta hasil [inspeksi] dan [catatan], lalu menyegarkan daftar terkait.
   Future<bool> konfirmasiPengembalian({
     required int peminjamanId,
     required List<Map<String, dynamic>> inspeksi,
@@ -118,11 +127,13 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     }
   }
 
+  /// Mengembalikan state ke kondisi awal (tanpa loading, pesan, maupun aset).
   void clearState() {
     state = const AsetActionState();
   }
 }
 
+/// Provider [AsetActionNotifier] untuk aksi scan dan serah terima/pengembalian aset.
 final asetActionProvider =
     StateNotifierProvider<AsetActionNotifier, AsetActionState>((ref) {
   final repository = ref.watch(asetRepositoryProvider);

@@ -19,8 +19,10 @@ import 'spk_list_screen.dart';
 import 'jadwal_preventif_screen.dart';
 import 'rekam_medis_katalog_screen.dart';
 class IpsrsHubScreen extends ConsumerStatefulWidget {
+  /// Membuat IpsrsHubScreen.
   const IpsrsHubScreen({super.key});
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<IpsrsHubScreen> createState() => _IpsrsHubScreenState();
 }
@@ -35,6 +37,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
   String _searchKeyword = '';
 
 
+  /// Inisialisasi state awal layar/sheet.
   @override
   void initState() {
     super.initState();
@@ -49,6 +52,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     final tabCount = isKepalaTeknisi ? 2 : (_canViewSpk ? 3 : 1);
     _tabController = TabController(length: tabCount, vsync: this);
   }
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _tabController.dispose();
@@ -56,12 +60,14 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     super.dispose();
   }
 
+  /// Parameter filter tiket (status, prioritas, pencarian) dari state UI saat ini.
   TiketFilterParams get _filterParams => TiketFilterParams(
         status: _statusFilter,
         prioritas: _prioritasFilter,
         cari: _searchKeyword,
       );
 
+  /// Membangun tampilan _IpsrsHubScreenState.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -240,6 +246,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
     );
   }
 
+  /// Tampilan tab tiket unit lengkap dengan pencarian, filter, dan daftar tiket.
   Widget _buildTiketUnitView({bool hideSearchBar = false, bool canDisposisi = false}) {
     final tiketListAsync = ref.watch(daftarTiketUnitProvider(_filterParams));
 
@@ -389,6 +396,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
   }
 
 
+  /// Pill filter prioritas yang bisa diklik untuk memfilter daftar tiket.
   Widget _buildPrioritasPill(String val, String label, {Color? color}) {
     final isSelected = _prioritasFilter == val;
     final effectiveColor = color ?? AppColors.textPrimary;

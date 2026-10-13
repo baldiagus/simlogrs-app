@@ -16,6 +16,7 @@ class TerbitkanPoSheet extends ConsumerStatefulWidget {
 
   const TerbitkanPoSheet({super.key, required this.prItem});
 
+  /// Menampilkan sheet penerbitan PO sebagai modal bottom sheet untuk PR yang dipilih.
   static Future<void> show(BuildContext context, ApprovalItemModel prItem) {
     return showModalBottomSheet(
       context: context,
@@ -25,6 +26,7 @@ class TerbitkanPoSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet penerbitan PO.
   @override
   ConsumerState<TerbitkanPoSheet> createState() => _TerbitkanPoSheetState();
 }
@@ -37,6 +39,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
   final Map<int, TextEditingController> _priceControllers = {};
   bool _isLoading = false;
 
+  /// Menyiapkan kontroler harga tiap item PR sebagai nilai awal form.
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
     }
   }
 
+  /// Membersihkan semua kontroler teks agar tidak terjadi kebocoran memori.
   @override
   void dispose() {
     _catatanCtrl.dispose();
@@ -61,6 +65,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
     super.dispose();
   }
 
+  /// Menghitung total nilai PO dari harga satuan dikali jumlah tiap item.
   double _calculateTotal() {
     double total = 0;
     for (int i = 0; i < widget.prItem.items.length; i++) {
@@ -71,6 +76,8 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
     return total;
   }
 
+  /// Memvalidasi form lalu mengirim permintaan penerbitan PO ke server
+  /// dan menutup sheet bila berhasil.
   Future<void> _submitPo() async {
     if (_selectedPemasokId == null) {
       AppToast.error(context, 'Pilih rekanan / vendor pemasok terlebih dahulu.');
@@ -130,6 +137,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
     }
   }
 
+  /// Membangun form penerbitan PO: pemilihan pemasok, harga item, syarat bayar, dan total.
   @override
   Widget build(BuildContext context) {
     final pemasokAsync = ref.watch(pemasokListProvider);
@@ -192,6 +200,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                   const Text('Rekanan / Vendor Pemasok *', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                   const SizedBox(height: 6),
                   pemasokAsync.when(
+                    // Membangun dropdown pilihan pemasok dari daftar vendor.
                     data: (vendors) {
                       return DropdownButtonFormField<int>(
                         initialValue: _selectedPemasokId,
@@ -220,6 +229,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                             const Text('Estimasi Tgl Kirim', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                             const SizedBox(height: 6),
                             InkWell(
+                              // Membuka pemilih tanggal untuk estimasi tanggal kirim.
                               onTap: () async {
                                 final d = await showDatePicker(
                                   context: context,

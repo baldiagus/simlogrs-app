@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Tampilan error seragam di tengah layar dengan pesan dan tombol coba lagi opsional.
 class AppErrorView extends StatelessWidget {
   final String title;
   final Object? error;
@@ -16,12 +17,14 @@ class AppErrorView extends StatelessWidget {
     this.icon = LucideIcons.circleAlert,
   });
 
+  /// Membersihkan prefiks teknis ("ApiException: ", "Exception: ") dari error agar pesan layak dibaca pengguna.
   String _cleanErrorMessage(Object? err) {
     if (err == null) return 'Terjadi kesalahan sistem yang tidak terduga.';
     final text = err.toString();
     return text.replaceAll('ApiException: ', '').replaceAll('Exception: ', '').trim();
   }
 
+  /// Membangun ikon, judul, pesan error yang sudah dibersihkan, dan tombol "Coba Lagi" bila onRetry tersedia.
   @override
   Widget build(BuildContext context) {
     return Center(

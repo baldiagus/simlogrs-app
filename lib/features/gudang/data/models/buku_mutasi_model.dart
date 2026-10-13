@@ -1,3 +1,4 @@
+/// Satu baris mutasi pada buku mutasi (kartu stok): perpindahan dan saldo barang.
 class BukuMutasiItemModel {
   final int id;
   final String tanggal;
@@ -37,8 +38,10 @@ class BukuMutasiItemModel {
     required this.petugas,
   });
 
+  /// True bila mutasi menambah stok: jenis MASUK, atau PENYESUAIAN yang menaikkan saldo.
   bool get isMasuk => jenis == 'MASUK' || (jenis == 'PENYESUAIAN' && saldoSesudah > saldoSebelum);
 
+  /// Membangun [BukuMutasiItemModel] dari JSON API dengan konversi tipe aman dan nilai default.
   factory BukuMutasiItemModel.fromJson(Map<String, dynamic> json) {
     return BukuMutasiItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

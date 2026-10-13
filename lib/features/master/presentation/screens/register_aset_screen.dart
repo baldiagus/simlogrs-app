@@ -11,15 +11,19 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../../aset/presentation/screens/aset_detail_screen.dart';
 import '../providers/register_aset_provider.dart';
 
+/// Layar register master aset: pencarian, filter lokasi/status/kondisi, dan daftar aset fisik menuju detail.
 class RegisterAsetScreen extends ConsumerStatefulWidget {
   const RegisterAsetScreen({super.key});
 
+  /// Membuat state layar register aset.
   @override
   ConsumerState<RegisterAsetScreen> createState() => _RegisterAsetScreenState();
 }
 
+/// State layar register aset; memantau provider daftar aset dan filter-nya.
 class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
 
+  /// Membangun scaffold register aset dengan header pencarian, chip filter, dan daftar aset (loading, error, kosong, data).
   @override
   Widget build(BuildContext context) {
     final asetAsync = ref.watch(registerAsetListProvider);
@@ -35,6 +39,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            // Muat ulang daftar aset dari server.
             onPressed: () => ref.refresh(registerAsetListProvider),
           ),
         ],
@@ -52,6 +57,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                   AppSearchBar(
                     hint: 'Cari kode AST-..., no. seri, nama alat...',
                     onChanged: (val) {
+                      // Simpan kata kunci ke provider pencarian agar daftar difilter ulang.
                       ref.read(registerAsetSearchQueryProvider.notifier).state = val;
                     },
                   ),
@@ -66,6 +72,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                           'Semua Lokasi',
                           null,
                           lokasiTipe,
+                          // Setiap chip lokasi menyimpan pilihan ke provider filter lokasi.
                           (v) => ref.read(registerAsetLokasiTipeProvider.notifier).state = v,
                         ),
                         const SizedBox(width: 8),
@@ -89,6 +96,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                           'Semua Status',
                           null,
                           status,
+                          // Setiap chip status menyimpan pilihan ke provider filter status.
                           (v) => ref.read(registerAsetStatusProvider.notifier).state = v,
                         ),
                         const SizedBox(width: 8),
@@ -126,6 +134,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                           'Kondisi: Baik',
                           'BAIK',
                           kondisi,
+                          // Chip kondisi bersifat toggle: klik lagi pada chip aktif untuk menghapus filter.
                           (v) => ref.read(registerAsetKondisiProvider.notifier).state = (kondisi == 'BAIK' ? null : 'BAIK'),
                         ),
                         const SizedBox(width: 8),
@@ -149,8 +158,10 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
                   error: err,
+                  // Coba lagi dengan memuat ulang daftar aset.
                   onRetry: () => ref.refresh(registerAsetListProvider),
                 ),
+                // Tampilkan empty state bila kosong, selain itu daftar kartu aset.
                 data: (items) {
                   if (items.isEmpty) {
                     return const EmptyStateView(
@@ -164,10 +175,12 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    // Bangun kartu satu aset fisik beserta status dan lokasinya.
                     itemBuilder: (ctx, idx) {
                       final item = items[idx];
 
                       return InkWell(
+                        // Buka detail aset saat kartu diketuk.
                         onTap: () {
                           // Navigasi langsung ke profil fisik aset AST-...
                           Navigator.push(
@@ -283,6 +296,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
     );
   }
 
+  /// Membangun satu chip filter; tampil terpilih bila [currentSelected] sama dengan [value], memanggil [onSelect] saat diketuk.
   Widget _buildFilterChip(
     String label,
     String? value,

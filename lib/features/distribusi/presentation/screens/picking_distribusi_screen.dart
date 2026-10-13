@@ -13,6 +13,7 @@ import '../providers/distribusi_provider.dart';
 class PickingDistribusiScreen extends ConsumerWidget {
   const PickingDistribusiScreen({super.key});
 
+  /// Membangun layar antrean picking distribusi untuk petugas gudang beserta aksi memproses picking.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pickingListAsync = ref.watch(antreanPickingProvider);

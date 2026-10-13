@@ -20,11 +20,13 @@ import '../widgets/form_tambah_jadwal_sheet.dart';
 class JadwalPreventifScreen extends ConsumerStatefulWidget {
   final bool isEmbedded;
 
+  /// Membuat JadwalPreventifScreen.
   const JadwalPreventifScreen({
     super.key,
     this.isEmbedded = false,
   });
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<JadwalPreventifScreen> createState() => _JadwalPreventifScreenState();
 }
@@ -32,6 +34,7 @@ class JadwalPreventifScreen extends ConsumerStatefulWidget {
 class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
 
 
+  /// Konfirmasi lalu terbitkan SPK dari jadwal preventif, kemudian refresh daftar.
   Future<void> _confirmEksekusi(JadwalPreventifItemModel j) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -54,6 +57,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
       AppToast.error(context, e.toString());
     }
   }
+  /// Membangun tampilan _JadwalPreventifScreenState.
   @override
   Widget build(BuildContext context) {
     final jadwalAsync = ref.watch(jadwalPreventifListProvider);

@@ -22,12 +22,15 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+/// Kerangka utama aplikasi pasca-login: tab navigasi bawah menurut role, pemantauan sesi idle, dan refresh data saat kembali ke aplikasi.
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key});
 
+  /// Membuat state shell utama.
   @override
   ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
 }
+/// State shell yang mengelola tab aktif, timer inaktivitas, dan observer lifecycle aplikasi.
 class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
   Timer? _inactivityTimer;
@@ -35,6 +38,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   static const Duration _idleTimeout = Duration(minutes: 30);
   static const Duration _resumeThrottle = Duration(seconds: 15);
 
+  /// Mendaftarkan observer lifecycle dan memulai timer inaktivitas.
   @override
   void initState() {
     super.initState();
@@ -42,6 +46,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     _resetInactivityTimer();
   }
 
+  /// Mengulang hitungan timeout idle; bila habis tanpa interaksi, sesi diakhiri lewat handleSessionTimeout demi keamanan.
   void _resetInactivityTimer() {
     _inactivityTimer?.cancel();
     _inactivityTimer = Timer(_idleTimeout, () {
@@ -51,6 +56,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     });
   }
 
+  /// Saat aplikasi kembali aktif, data tab aktif di-refresh dengan throttle agar tidak memicu request berlebihan.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -62,6 +68,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     }
   }
 
+  /// Meng-invalidate provider data milik tab aktif supaya data terbaru dimuat; dilewati bila belum login.
   void _refreshActiveTabData() {
     if (!mounted) return;
     final authState = ref.read(authStateProvider);
@@ -93,6 +100,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     }
   }
 
+  /// Melepas observer lifecycle dan membatalkan timer inaktivitas.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -100,6 +108,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     super.dispose();
   }
 
+  /// Membuka layar pemindai QR aset dari tombol scan di tengah nav bar.
   void _onScanPressed() {
     Navigator.push(
       context,
@@ -107,6 +116,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     );
   }
 
+  /// Menyusun daftar layar dan item nav bawah sesuai role pengguna (teknisi, gudang, eksekutif, karu, atau petugas unit).
   _ShellNavConfig _resolveNavConfig(UserModel? user) {
     final homeScreen = HomeScreen(
       onNavigateTab: (index) {
@@ -221,6 +231,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     );
   }
 
+  /// Membangun shell dengan IndexedStack layar tab, nav bar melayang, dan Listener sentuhan untuk mereset timer idle.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -251,6 +262,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   }
 }
 
+/// Konfigurasi tab shell: pasangan daftar layar dan item navigasi yang urutannya sejajar.
 class _ShellNavConfig {
   final List<Widget> screens;
   final List<BottomNavItem> navItems;

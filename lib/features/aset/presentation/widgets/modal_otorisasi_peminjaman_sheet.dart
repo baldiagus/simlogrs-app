@@ -6,11 +6,13 @@ import 'package:simlog_mobile/features/aset/presentation/providers/peminjaman_pr
 import 'package:simlog_mobile/shared/widgets/app_bottom_sheet_wrapper.dart';
 import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 
+/// Bottom sheet untuk menyetujui/menolak pengajuan peminjaman aset.
 class ModalOtorisasiPeminjamanSheet extends ConsumerStatefulWidget {
   final ApprovalPeminjamanModel item;
   final String aksi;
   final VoidCallback? onSuccess;
 
+  /// Membuat sheet otorisasi untuk satu pengajuan dengan aksi tertentu.
   const ModalOtorisasiPeminjamanSheet({
     super.key,
     required this.item,
@@ -18,6 +20,7 @@ class ModalOtorisasiPeminjamanSheet extends ConsumerStatefulWidget {
     this.onSuccess,
   });
 
+  /// Menampilkan sheet otorisasi sebagai modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
     required ApprovalPeminjamanModel item,
@@ -36,22 +39,26 @@ class ModalOtorisasiPeminjamanSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet otorisasi.
   @override
   ConsumerState<ModalOtorisasiPeminjamanSheet> createState() =>
       _ModalOtorisasiPeminjamanSheetState();
 }
 
+/// State sheet otorisasi: mengelola input catatan dan status pengiriman.
 class _ModalOtorisasiPeminjamanSheetState
     extends ConsumerState<ModalOtorisasiPeminjamanSheet> {
   final TextEditingController _catatanController = TextEditingController();
   bool _isSubmitting = false;
 
+  /// Membebaskan controller catatan saat widget dibuang.
   @override
   void dispose() {
     _catatanController.dispose();
     super.dispose();
   }
 
+  /// Mengirim keputusan otorisasi (setuju/tolak) ke provider lalu menutup sheet dan menampilkan toast.
   Future<void> _submit(Color color, String buttonText) async {
     setState(() => _isSubmitting = true);
     final navigator = Navigator.of(context);
@@ -76,6 +83,7 @@ class _ModalOtorisasiPeminjamanSheetState
     }
   }
 
+  /// Membangun bottom sheet konfirmasi otorisasi beserta input catatan dan tombol aksi.
   @override
   Widget build(BuildContext context) {
     final isSetujui = widget.aksi == 'setujui';

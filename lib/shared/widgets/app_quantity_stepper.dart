@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Kontrol jumlah dengan tombol minus/plus dan input angka langsung, dibatasi nilai min dan max opsional.
 class AppQuantityStepper extends StatefulWidget {
   final int value;
   final ValueChanged<int> onChanged;
@@ -19,14 +20,17 @@ class AppQuantityStepper extends StatefulWidget {
     this.onMaxReached,
   });
 
+  /// Membuat state yang mengelola controller teks dan focus node untuk input jumlah.
   @override
   State<AppQuantityStepper> createState() => _AppQuantityStepperState();
 }
 
+/// State yang menjaga teks input tetap sinkron dengan nilai dari parent serta menerapkan batas min/max.
 class _AppQuantityStepperState extends State<AppQuantityStepper> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
+  /// Menyiapkan controller teks dengan nilai awal dan listener fokus untuk commit nilai saat fokus hilang.
   @override
   void initState() {
     super.initState();
@@ -35,6 +39,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     _focusNode.addListener(_handleFocusChange);
   }
 
+  /// Menyinkronkan teks input bila nilai dari parent berubah dan berbeda dari teks yang sedang diketik.
   @override
   void didUpdateWidget(covariant AppQuantityStepper oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -46,6 +51,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     }
   }
 
+  /// Melepas listener fokus serta membuang focus node dan controller agar tidak bocor memori.
   @override
   void dispose() {
     _focusNode.removeListener(_handleFocusChange);
@@ -54,6 +60,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     super.dispose();
   }
 
+  /// Saat fokus didapat, seluruh teks diblok untuk mempermudah penggantian; saat fokus hilang, nilai di-commit.
   void _handleFocusChange() {
     if (_focusNode.hasFocus) {
       _controller.selection = TextSelection(
@@ -65,6 +72,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     }
   }
 
+  /// Memvalidasi teks final: di bawah min atau kosong dikembalikan ke min, melebihi max dipotong ke max (memicu onMaxReached), selain itu dikirim apa adanya.
   void _commitValue() {
     final parsed = int.tryParse(_controller.text.trim());
     if (parsed == null || parsed < widget.min) {
@@ -80,6 +88,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     }
   }
 
+  /// Menangani ketikan secara langsung: nilai melebihi max langsung dipotong, nilai valid >= min diteruskan ke onChanged.
   void _handleTextChanged(String text) {
     final parsed = int.tryParse(text.trim());
     if (parsed == null) return;
@@ -94,6 +103,7 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     }
   }
 
+  /// Membangun stepper dengan tombol minus, field angka, dan tombol plus yang dinonaktifkan secara visual di batas min/max.
   @override
   Widget build(BuildContext context) {
     final canDecrease = widget.value > widget.min;

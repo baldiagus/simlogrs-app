@@ -1,3 +1,4 @@
+/// Pagu, realisasi, sisa, dan serapan anggaran sparepart.
 class SparepartAnggaranModel {
   final int id;
   final String kode;
@@ -19,6 +20,7 @@ class SparepartAnggaranModel {
     required this.status,
   });
 
+  /// Membuat [SparepartAnggaranModel] dari JSON API; field kosong diberi nilai default.
   factory SparepartAnggaranModel.fromJson(Map<String, dynamic> json) {
     return SparepartAnggaranModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -33,6 +35,7 @@ class SparepartAnggaranModel {
   }
 }
 
+/// Aset dengan biaya sparepart terbesar, beserta frekuensi servisnya.
 class TopAsetAnggaranModel {
   final int id;
   final String kodeAset;
@@ -50,6 +53,7 @@ class TopAsetAnggaranModel {
     required this.totalBiayaSparepart,
   });
 
+  /// Membuat [TopAsetAnggaranModel] dari JSON API; field kosong diberi nilai default.
   factory TopAsetAnggaranModel.fromJson(Map<String, dynamic> json) {
     return TopAsetAnggaranModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -62,6 +66,7 @@ class TopAsetAnggaranModel {
   }
 }
 
+/// Satu catatan pemakaian sparepart pada servis aset (batch, jumlah, harga, subtotal).
 class LogSparepartModel {
   final int id;
   final String spkKode;
@@ -85,6 +90,7 @@ class LogSparepartModel {
     required this.tanggal,
   });
 
+  /// Membuat [LogSparepartModel] dari JSON API; field kosong diberi nilai default.
   factory LogSparepartModel.fromJson(Map<String, dynamic> json) {
     return LogSparepartModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

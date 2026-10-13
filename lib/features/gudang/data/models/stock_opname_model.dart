@@ -1,3 +1,4 @@
+/// Satu baris detail stock opname: jumlah sistem vs hasil hitung fisik per batch.
 class StokOpnameDetailItemModel {
   final int id;
   final int stokBatchId;
@@ -12,6 +13,7 @@ class StokOpnameDetailItemModel {
   int selisih;
   String catatan;
 
+  /// Membuat satu baris detail opname dengan jumlah sistem dan hasil hitung fisik opsional.
   StokOpnameDetailItemModel({
     required this.id,
     required this.stokBatchId,
@@ -27,8 +29,10 @@ class StokOpnameDetailItemModel {
     this.catatan = '',
   });
 
+  /// True bila jumlah fisik sudah diinput petugas.
   bool get isSudahHitung => jumlahFisik != null;
 
+  /// Membangun [StokOpnameDetailItemModel] dari JSON API dengan konversi tipe aman.
   factory StokOpnameDetailItemModel.fromJson(Map<String, dynamic> json) {
     return StokOpnameDetailItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -46,6 +50,7 @@ class StokOpnameDetailItemModel {
     );
   }
 
+  /// Serialisasi hasil hitung fisik ke payload JSON untuk disimpan ke server.
   Map<String, dynamic> toCountJson() => {
     'detail_id': id,
     'jumlah_fisik': jumlahFisik ?? 0,
@@ -53,6 +58,7 @@ class StokOpnameDetailItemModel {
   };
 }
 
+/// Sesi stock opname per gudang beserta progres hitung, selisih, dan daftar detail.
 class StokOpnameSesiModel {
   final int id;
   final String kode;
@@ -82,9 +88,12 @@ class StokOpnameSesiModel {
     required this.details,
   });
 
+  /// True bila sesi masih dalam proses hitung (BERJALAN atau PROSES_COUNT).
   bool get isBerjalan => status == 'BERJALAN' || status == 'PROSES_COUNT';
+  /// True bila hasil opname sudah disetujui.
   bool get isDisetujui => status == 'DISETUJUI';
 
+  /// Membangun [StokOpnameSesiModel] dari JSON API, termasuk detail bersarang.
   factory StokOpnameSesiModel.fromJson(Map<String, dynamic> json) {
     final list = (json['details'] as List<dynamic>?)
             ?.map((e) => StokOpnameDetailItemModel.fromJson(e as Map<String, dynamic>))

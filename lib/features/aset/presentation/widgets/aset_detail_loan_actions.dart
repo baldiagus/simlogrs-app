@@ -12,6 +12,7 @@ class AsetDetailLoanActions extends StatelessWidget {
   final VoidCallback onPerpanjang;
   final VoidCallback onPengembalian;
 
+  /// Membuat tombol aksi peminjaman dengan data aset dan callback aksi.
   const AsetDetailLoanActions({
     super.key,
     required this.aset,
@@ -21,6 +22,8 @@ class AsetDetailLoanActions extends StatelessWidget {
     required this.onPengembalian,
   });
 
+  /// Membangun tombol perpanjang dan pengembalian sesuai hak akses dan
+  /// status loading aksi.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -100,8 +103,10 @@ class AsetDetailLoanActions extends StatelessWidget {
 class AsetDetailProsesPinjamNotice extends StatelessWidget {
   final AsetDetailModel aset;
 
+  /// Membuat banner proses pinjam dari data [aset].
   const AsetDetailProsesPinjamNotice({super.key, required this.aset});
 
+  /// Membangun banner oranye pemberitahuan aset sedang diproses peminjaman.
   @override
   Widget build(BuildContext context) {
     return Container(

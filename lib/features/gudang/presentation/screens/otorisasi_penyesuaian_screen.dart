@@ -17,14 +17,18 @@ import '../../data/models/penyesuaian_stok_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
 import '../providers/gudang_provider.dart';
+/// Layar otorisasi penyesuaian stok: pengesahan atau penolakan selisih hasil opname oleh pengguna berwenang.
 class OtorisasiPenyesuaianScreen extends ConsumerStatefulWidget {
   const OtorisasiPenyesuaianScreen({super.key});
 
+  /// Membuat state layar otorisasi penyesuaian.
   @override
   ConsumerState<OtorisasiPenyesuaianScreen> createState() => _OtorisasiPenyesuaianScreenState();
 }
 
+/// State layar otorisasi penyesuaian; mengelola daftar pengajuan, filter status, dan aksi sahkan/tolak.
 class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaianScreen> {
+  /// Meminta konfirmasi lalu mengesahkan penyesuaian [adj]; saldo stok berubah permanen dan data terkait di-refresh.
   Future<void> _confirmApprove(PenyesuaianStokHeaderModel adj) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -49,6 +53,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       AppToast.error(context, e.toString());
     }
   }
+  /// Meminta catatan alasan lewat dialog lalu menolak penyesuaian [adj].
   Future<void> _confirmReject(PenyesuaianStokHeaderModel adj) async {
     final catatanCtrl = TextEditingController();
     final shouldReject = await showDialog<bool>(
@@ -106,6 +111,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
     }
   }
 
+  /// Membuka sheet detail penyesuaian [adj]; [canAuthorize] menentukan apakah aksi otorisasi tersedia.
   void _showDetailModal(PenyesuaianStokHeaderModel adj, bool canAuthorize) {
     DetailPenyesuaianSheet.show(
       context,
@@ -116,6 +122,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
     );
   }
 
+  /// Menyusun UI otorisasi: chip filter status dan daftar pengajuan penyesuaian dengan status loading/error/kosong.
   @override
   Widget build(BuildContext context) {
     final penyesuaianAsync = ref.watch(otorisasiPenyesuaianListProvider);
@@ -281,6 +288,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
     );
   }
 
+  /// Membangun chip tab filter status; [label] teks tampil, [value] nilai filter, [selected] nilai terpilih saat ini.
   Widget _buildTabChip(String label, String value, String selected) {
     final isSelected = selected == value;
     return InkWell(

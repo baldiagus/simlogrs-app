@@ -7,13 +7,16 @@ import '../../../auth/data/models/user_model.dart';
 import '../models/master_barang_item_model.dart';
 import '../models/register_aset_item_model.dart';
 
+/// Provider singleton [MasterRepository] yang memakai [DioClient] bersama.
 final masterRepositoryProvider = Provider<MasterRepository>((ref) {
   return MasterRepository(ref.watch(dioClientProvider));
 });
 
+/// Akses API data master: komoditas barang, register aset, kategori, unit, dan gudang.
 class MasterRepository {
   final DioClient _client;
 
+  /// Membuat repository dengan klien HTTP [_client].
   MasterRepository(this._client);
 
   /// Mengambil daftar seluruh master komoditas barang

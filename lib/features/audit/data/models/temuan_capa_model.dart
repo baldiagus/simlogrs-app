@@ -1,3 +1,4 @@
+/// Temuan audit SPI beserta tindak lanjut CAPA (corrective and preventive action).
 class TemuanCapaModel {
   final int id;
   final String kode;
@@ -37,6 +38,7 @@ class TemuanCapaModel {
     required this.buktiPerbaikan,
   });
 
+  /// Membangun temuan audit beserta status CAPA dari JSON dengan default untuk field kosong.
   factory TemuanCapaModel.fromJson(Map<String, dynamic> json) {
     return TemuanCapaModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

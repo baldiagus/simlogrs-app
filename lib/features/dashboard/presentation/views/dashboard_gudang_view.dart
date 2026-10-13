@@ -33,6 +33,7 @@ class DashboardGudangView extends ConsumerWidget {
     required this.onHeroInspect,
   });
 
+  /// Membangun dashboard gudang (kepala, petugas, admin logistik) dengan pintasan inbound, picking, rak, dan opname sesuai peran.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;

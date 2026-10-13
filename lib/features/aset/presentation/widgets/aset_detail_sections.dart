@@ -7,12 +7,14 @@ import '../../data/models/aset_detail_model.dart';
 
 export 'aset_detail_ipsrs_card.dart';
 
+/// Baris informasi berikon (label + nilai) yang dipakai ulang di kartu detail aset.
 class AsetInfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
   final Widget? badge;
 
+  /// Membuat baris info dengan [icon], [label], [value], dan [badge] opsional.
   const AsetInfoRow({
     super.key,
     required this.icon,
@@ -21,6 +23,7 @@ class AsetInfoRow extends StatelessWidget {
     this.badge,
   });
 
+  /// Membangun satu baris info: ikon, label kecil, nilai, dan badge opsional.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -61,11 +64,14 @@ class AsetInfoRow extends StatelessWidget {
   }
 }
 
+/// Kartu lokasi, penanggung jawab, dan kondisi fisik aset.
 class AsetDetailLokasiCard extends StatelessWidget {
   final AsetDetailModel aset;
 
+  /// Membuat kartu lokasi dari data [aset].
   const AsetDetailLokasiCard({super.key, required this.aset});
 
+  /// Membangun kartu lokasi tercatat, penanggung jawab, dan kondisi fisik aset.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -101,11 +107,15 @@ class AsetDetailLokasiCard extends StatelessWidget {
   }
 }
 
+/// Kartu spesifikasi teknis dan nilai perolehan aset.
 class AsetDetailSpesifikasiCard extends StatelessWidget {
   final AsetDetailModel aset;
 
+  /// Membuat kartu spesifikasi dari data [aset].
   const AsetDetailSpesifikasiCard({super.key, required this.aset});
 
+  /// Membangun kartu spesifikasi: merek, nilai perolehan, tanggal perolehan,
+  /// dan spesifikasi teknis bila tersedia.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -169,11 +179,15 @@ class AsetDetailSpesifikasiCard extends StatelessWidget {
   }
 }
 
+/// Kartu detail transaksi peminjaman yang sedang berjalan pada aset.
 class AsetDetailActiveLoanCard extends StatelessWidget {
   final PeminjamanAktifInfo loan;
 
+  /// Membuat kartu peminjaman aktif dari data [loan].
   const AsetDetailActiveLoanCard({super.key, required this.loan});
 
+  /// Membangun kartu transaksi peminjaman aktif: kode, unit peminjam, dan
+  /// batas rencana kembali.
   @override
   Widget build(BuildContext context) {
     return Container(

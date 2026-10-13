@@ -8,6 +8,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../providers/inbound_provider.dart';
 
+/// Bottom sheet untuk menolak kiriman fisik PO: isi nomor surat jalan dan alasan penolakan.
 class ModalTolakPenerimaanSheet extends ConsumerStatefulWidget {
   final PoInboundHeaderModel po;
   final String nomorSuratJalanAwal;
@@ -18,6 +19,7 @@ class ModalTolakPenerimaanSheet extends ConsumerStatefulWidget {
     required this.nomorSuratJalanAwal,
   });
 
+  /// Menampilkan modal penolakan; hasil `true` bila penolakan berhasil.
   static Future<bool?> show(
     BuildContext context, {
     required PoInboundHeaderModel po,
@@ -34,21 +36,25 @@ class ModalTolakPenerimaanSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state form penolakan penerimaan.
   @override
   ConsumerState<ModalTolakPenerimaanSheet> createState() => _ModalTolakPenerimaanSheetState();
 }
 
+/// State form penolakan; mengelola form key serta controller surat jalan dan alasan.
 class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaanSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _suratJalanController;
   final _alasanController = TextEditingController();
 
+  /// Mengisi controller surat jalan dengan nilai awal dari PO.
   @override
   void initState() {
     super.initState();
     _suratJalanController = TextEditingController(text: widget.nomorSuratJalanAwal);
   }
 
+  /// Membersihkan controller surat jalan dan alasan.
   @override
   void dispose() {
     _suratJalanController.dispose();
@@ -56,6 +62,7 @@ class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaan
     super.dispose();
   }
 
+  /// Validasi form lalu kirim penolakan seluruh sisa item PO ke API; tampilkan toast dan tutup sheet bila sukses.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -86,6 +93,7 @@ class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaan
     }
   }
 
+  /// Membangun form penolakan dengan field surat jalan, alasan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final actionState = ref.watch(inboundActionProvider);

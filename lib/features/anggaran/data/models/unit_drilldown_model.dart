@@ -1,3 +1,4 @@
+/// Satu baris riwayat SPPB (distribusi barang) yang membebani anggaran sebuah unit.
 class SppbAnggaranItemModel {
   final int id;
   final String kode;
@@ -17,6 +18,7 @@ class SppbAnggaranItemModel {
     required this.totalNilai,
   });
 
+  /// Membuat [SppbAnggaranItemModel] dari JSON API; field kosong diberi nilai default.
   factory SppbAnggaranItemModel.fromJson(Map<String, dynamic> json) {
     return SppbAnggaranItemModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -30,6 +32,7 @@ class SppbAnggaranItemModel {
   }
 }
 
+/// Satu baris riwayat servis/sparepart yang membebani anggaran sebuah unit.
 class ServisAnggaranItemModel {
   final int id;
   final String spkKode;
@@ -49,6 +52,7 @@ class ServisAnggaranItemModel {
     required this.tanggal,
   });
 
+  /// Membuat [ServisAnggaranItemModel] dari JSON API; field kosong diberi nilai default.
   factory ServisAnggaranItemModel.fromJson(Map<String, dynamic> json) {
     return ServisAnggaranItemModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -62,6 +66,7 @@ class ServisAnggaranItemModel {
   }
 }
 
+/// Rincian pengeluaran satu unit: beban distribusi, beban sparepart, serta riwayat SPPB dan servis.
 class UnitDrilldownModel {
   final int unitId;
   final String unitKode;
@@ -85,6 +90,7 @@ class UnitDrilldownModel {
     required this.riwayatServis,
   });
 
+  /// Membuat [UnitDrilldownModel] dari JSON API, termasuk memetakan daftar riwayat SPPB dan servis.
   factory UnitDrilldownModel.fromJson(Map<String, dynamic> json) {
     final unit = json['unit'] as Map<String, dynamic>? ?? {};
     return UnitDrilldownModel(

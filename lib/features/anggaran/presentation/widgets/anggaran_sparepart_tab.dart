@@ -7,6 +7,7 @@ import 'package:simlog_mobile/core/utils/app_formatters.dart';
 import 'package:simlog_mobile/features/anggaran/data/models/anggaran_models.dart';
 import 'package:simlog_mobile/features/anggaran/presentation/providers/anggaran_provider.dart';
 
+/// Tab anggaran sparepart IPSRS: ringkasan pagu/realisasi, top aset, dan riwayat pemakaian sparepart.
 class AnggaranSparepartTab extends ConsumerWidget {
   final AnggaranScreeningModel data;
   final String tahun;
@@ -17,6 +18,7 @@ class AnggaranSparepartTab extends ConsumerWidget {
     required this.tahun,
   });
 
+  /// Membangun konten tab dengan pull-to-refresh yang memuat ulang [screeningAnggaranProvider].
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(

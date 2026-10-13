@@ -1,3 +1,4 @@
+/// Satu item detail dokumen penyesuaian stok (tambah/kurang jumlah pada batch tertentu).
 class PenyesuaianDetailItemModel {
   final int id;
   final int barangId;
@@ -27,8 +28,10 @@ class PenyesuaianDetailItemModel {
     required this.catatan,
   });
 
+  /// True bila penyesuaian bersifat mengurangi stok.
   bool get isKurang => jenisPenyesuaian == 'KURANG';
 
+  /// Membangun [PenyesuaianDetailItemModel] dari JSON API dengan konversi tipe aman.
   factory PenyesuaianDetailItemModel.fromJson(Map<String, dynamic> json) {
     return PenyesuaianDetailItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -47,6 +50,7 @@ class PenyesuaianDetailItemModel {
   }
 }
 
+/// Header dokumen otorisasi penyesuaian stok beserta daftar item dan status persetujuan.
 class PenyesuaianStokHeaderModel {
   final int id;
   final String kode;
@@ -78,10 +82,14 @@ class PenyesuaianStokHeaderModel {
     required this.items,
   });
 
+  /// True bila dokumen masih menunggu persetujuan.
   bool get isMenunggu => status == 'MENUNGGU';
+  /// True bila dokumen sudah disetujui.
   bool get isDisetujui => status == 'DISETUJUI';
+  /// True bila dokumen ditolak.
   bool get isDitolak => status == 'DITOLAK';
 
+  /// Membangun [PenyesuaianStokHeaderModel] dari JSON API, termasuk item detail bersarang.
   factory PenyesuaianStokHeaderModel.fromJson(Map<String, dynamic> json) {
     final list = (json['items'] as List<dynamic>?)
             ?.map((e) => PenyesuaianDetailItemModel.fromJson(e as Map<String, dynamic>))

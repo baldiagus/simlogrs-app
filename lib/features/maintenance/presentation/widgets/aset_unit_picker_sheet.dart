@@ -12,11 +12,13 @@ import '../providers/tiket_maintenance_provider.dart';
 class AsetUnitPickerSheet extends ConsumerStatefulWidget {
   final ValueChanged<AsetUnitModel> onAsetSelected;
 
+  /// Membuat AsetUnitPickerSheet.
   const AsetUnitPickerSheet({
     super.key,
     required this.onAsetSelected,
   });
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<AsetUnitPickerSheet> createState() => _AsetUnitPickerSheetState();
 }
@@ -24,6 +26,7 @@ class AsetUnitPickerSheet extends ConsumerStatefulWidget {
 class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
   String _query = '';
 
+  /// Membangun tampilan _AsetUnitPickerSheetState.
   @override
   Widget build(BuildContext context) {
     final asetUnitAsync = ref.watch(asetUnitTersediaProvider);

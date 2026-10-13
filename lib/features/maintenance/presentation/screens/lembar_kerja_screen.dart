@@ -12,11 +12,13 @@ import '../providers/maintenance_provider.dart';
 class LembarKerjaScreen extends ConsumerStatefulWidget {
   final SpkDetailModel spk;
 
+  /// Membuat LembarKerjaScreen.
   const LembarKerjaScreen({
     super.key,
     required this.spk,
   });
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<LembarKerjaScreen> createState() => _LembarKerjaScreenState();
 }
@@ -32,6 +34,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   String _hasil = 'BERHASIL';
   final List<Map<String, dynamic>> _spareparts = [];
 
+  /// Inisialisasi state awal layar/sheet.
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     _jamSelesaiController = TextEditingController(text: formatTime(now));
   }
 
+  /// Tampilkan time picker dan isi controller dengan jam terpilih.
   Future<void> _pickTime(TextEditingController controller) async {
     final parts = controller.text.split(':');
     final initial = parts.length == 2
@@ -61,6 +65,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     }
   }
 
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _diagnosaController.dispose();
@@ -72,6 +77,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   }
 
 
+  /// Buka sheet pemilih sparepart untuk ditambahkan ke lembar kerja.
   void _openSparepartPicker() {
     SparepartPickerSheet.show(
       context,
@@ -104,6 +110,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     );
   }
 
+  /// Validasi form lalu kirim data ke server dan tampilkan hasilnya.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
@@ -141,6 +148,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     }
   }
 
+  /// Membangun tampilan _LembarKerjaScreenState.
   @override
   Widget build(BuildContext context) {
     final actionState = ref.watch(lembarKerjaProvider);
@@ -407,6 +415,7 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
     );
   }
 
+  /// Chip pilihan hasil perbaikan; menandai pilihan aktif dengan warna berbeda.
   Widget _buildHasilChip(String val, String label, Color color, Color bg) {
     final isSelected = _hasil == val;
 

@@ -10,15 +10,19 @@ import '../providers/gudang_provider.dart';
 import '../widgets/rak_card_item.dart';
 import 'detail_rak_screen.dart';
 
+/// Layar daftar rak gudang dengan pencarian; ketuk rak membuka detail isi rak.
 class DaftarRakScreen extends ConsumerStatefulWidget {
   const DaftarRakScreen({super.key});
 
+  /// Membuat state layar daftar rak.
   @override
   ConsumerState<DaftarRakScreen> createState() => _DaftarRakScreenState();
 }
 
+/// State layar daftar rak; memantau daftar rak dari provider dan mendukung tarik-untuk-muat-ulang.
 class _DaftarRakScreenState extends ConsumerState<DaftarRakScreen> {
 
+  /// Menyusun UI daftar rak: bar pencarian dan daftar kartu rak dengan status loading/error/kosong.
   @override
   Widget build(BuildContext context) {
     final rakListAsync = ref.watch(daftarRakProvider);

@@ -15,29 +15,35 @@ import '../widgets/tabs/kepatuhan_po_tab.dart';
 import '../widgets/tabs/selisih_opname_tab.dart';
 import '../widgets/tabs/temuan_capa_tab.dart';
 
+/// Layar hub Audit SPI: ringkasan eksekutif plus tab jejak audit, kepatuhan PO, selisih opname, dan temuan CAPA.
 class AuditSpiHubScreen extends ConsumerStatefulWidget {
   const AuditSpiHubScreen({super.key});
 
+  /// Membuat state hub Audit SPI.
   @override
   ConsumerState<AuditSpiHubScreen> createState() => _AuditSpiHubScreenState();
 }
 
+/// State hub Audit SPI: mengelola TabController empat tab.
 class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  /// Menyiapkan [TabController] untuk empat tab hub audit.
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
   }
 
+  /// Membuang [TabController] agar tidak bocor memori.
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
 
+  /// Membangun hub audit SPI: header ringkasan, tab navigasi, dan tombol terbitkan temuan untuk auditor.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -148,6 +154,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
   // -------------------------------------------------------------
   // EXECUTIVE SUMMARY HEADER
   // -------------------------------------------------------------
+  /// Membangun header ringkasan eksekutif: closing rate CAPA dan hitungan temuan/anomali dari [summary].
   Widget _buildSummaryHeader(AuditSummaryModel summary) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -194,6 +201,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     );
   }
 
+  /// Membangun kartu metrik kecil (label + nilai) pada header ringkasan.
   Widget _buildMetricItem({
     required String label,
     required String value,
@@ -229,6 +237,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
   // -------------------------------------------------------------
   // MODALS & DETAIL SHEETS
   // -------------------------------------------------------------
+  /// Membuka sheet detail forensik log audit (data sebelum vs sesudah) untuk [logId].
   void _openTrailDetailModal(BuildContext context, int logId) {
     showModalBottomSheet(
       context: context,
@@ -238,6 +247,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     );
   }
 
+  /// Membuka sheet form penerbitan CAPA berdasarkan anomali [po] terpilih.
   void _openFormCapaFromPo(BuildContext context, KepatuhanPoModel po) {
     showModalBottomSheet(
       context: context,
@@ -247,6 +257,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     );
   }
 
+  /// Membuka sheet form penerbitan temuan audit baru (khusus auditor).
   void _openFormTerbitkanTemuan(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -256,6 +267,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     );
   }
 
+  /// Membuka sheet detail temuan; [isAuditor] menentukan aksi yang tersedia (evaluasi vs tindak lanjut).
   void _openDetailTemuanModal(BuildContext context, TemuanCapaModel temuan, bool isAuditor) {
     showModalBottomSheet(
       context: context,

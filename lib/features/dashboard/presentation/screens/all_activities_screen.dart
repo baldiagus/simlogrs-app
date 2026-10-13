@@ -28,6 +28,7 @@ class AllActivitiesScreen extends ConsumerStatefulWidget {
     required this.activities,
   });
 
+  /// Membuat state layar semua aktivitas.
   @override
   ConsumerState<AllActivitiesScreen> createState() => _AllActivitiesScreenState();
 }
@@ -37,6 +38,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
   String? _selectedType; // null = Semua, 'pr', 'amprah', 'spk', 'tiket', 'po'
 
 
+  /// Menyusun opsi filter jenis aktivitas sesuai peran user agar hanya tipe relevan yang tampil.
   List<AppFilterOption<String?>> _getRoleFilterOptions(UserModel? user) {
     if (user == null) {
       return const [
@@ -105,6 +107,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     ];
   }
 
+  /// Membangun daftar semua aktivitas dengan pencarian dan filter tipe, serta navigasi ke detail saat item diketuk.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -253,6 +256,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
   }
 
 
+  /// Menentukan ikon, warna ikon, dan warna latar untuk tipe aktivitas tertentu.
   (IconData, Color, Color) _resolveTypeStyle(String type) {
     switch (type.toLowerCase()) {
       case 'spk':
@@ -274,6 +278,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     }
   }
 
+  /// Membuka layar detail yang sesuai dengan tipe dan ID aktivitas yang diketuk.
   void _handleItemTap(BuildContext context, ActivityItemModel item) {
     final type = item.type.toLowerCase();
     final itemId = int.tryParse(item.id);

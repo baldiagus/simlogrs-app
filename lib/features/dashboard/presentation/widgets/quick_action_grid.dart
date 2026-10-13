@@ -78,6 +78,7 @@ class QuickActionGrid extends StatelessWidget {
     this.onPreventifTap,
   });
 
+  /// Menentukan judul seksi dan daftar aksi cepat operasional yang ditampilkan.
   (String, List<_QuickActionItem>) _resolveSection() {
     return (
       'Aksi Cepat Operasional',
@@ -120,6 +121,7 @@ class QuickActionGrid extends StatelessWidget {
     );
   }
 
+  /// Membangun seksi aksi cepat beserta grid kartu aksinya.
   @override
   Widget build(BuildContext context) {
     final (sectionTitle, items) = _resolveSection();
@@ -153,6 +155,7 @@ class QuickActionGrid extends StatelessWidget {
     );
   }
 
+  /// Membungkus satu aksi menjadi kartu dengan efek tekan (tactile).
   Widget _buildActionCard(_QuickActionItem item) {
     return _TactileActionCard(item: item);
   }
@@ -162,6 +165,7 @@ class _TactileActionCard extends StatefulWidget {
   final _QuickActionItem item;
   const _TactileActionCard({required this.item});
 
+  /// Membuat state untuk animasi tekan pada kartu aksi.
   @override
   State<_TactileActionCard> createState() => _TactileActionCardState();
 }
@@ -169,6 +173,7 @@ class _TactileActionCard extends StatefulWidget {
 class _TactileActionCardState extends State<_TactileActionCard> {
   bool _isPressed = false;
 
+  /// Membangun kartu aksi dengan animasi skala saat ditekan agar terasa responsif.
   @override
   Widget build(BuildContext context) {
     return AnimatedScale(

@@ -26,6 +26,7 @@ class FormTerbitkanTemuanLookupDropdown<T> extends StatelessWidget {
   final String Function(T item) namaOf;
   final ValueChanged<int?> onChanged;
 
+  /// Membangun dropdown master data (opsional) dengan tombol Reset serta tampilan loading/error.
   @override
   Widget build(BuildContext context) {
     return Column(

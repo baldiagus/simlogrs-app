@@ -18,6 +18,7 @@ import 'form_pengajuan_amprah_screen.dart';
 class AmprahHubScreen extends ConsumerStatefulWidget {
   const AmprahHubScreen({super.key});
 
+  /// Membuat state layar hub amprah yang mengelola tab dan filter status.
   @override
   ConsumerState<AmprahHubScreen> createState() => _AmprahHubScreenState();
 }
@@ -27,18 +28,21 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
   late final TabController _tabController;
   String _statusFilter = 'SEMUA';
 
+  /// Menyiapkan TabController dua tab (pengajuan dan konfirmasi penerimaan) saat layar dibuat.
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  /// Melepas TabController agar tidak terjadi kebocoran memori saat layar ditutup.
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
 
+  /// Membangun hub amprah: tab daftar permintaan, filter status, dan tombol pengajuan sesuai peran pengguna.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -302,6 +306,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
     );
   }
 
+  /// Membuat chip filter status; menandai pilihan aktif dan mengubah filter daftar saat diketuk.
   Widget _buildPill(String value, String label) {
     final isSelected = _statusFilter == value;
 
@@ -329,6 +334,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
     );
   }
 
+  /// Menampilkan lencana jumlah pada tab; disembunyikan bila jumlahnya nol.
   Widget _buildBadge(int count) {
     if (count == 0) return const SizedBox.shrink();
     return Container(

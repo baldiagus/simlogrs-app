@@ -18,12 +18,14 @@ class RekamMedisDetailScreen extends ConsumerStatefulWidget {
   final int asetId;
   final String? initialNama;
 
+  /// Membuat RekamMedisDetailScreen.
   const RekamMedisDetailScreen({
     super.key,
     required this.asetId,
     this.initialNama,
   });
 
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<RekamMedisDetailScreen> createState() => _RekamMedisDetailScreenState();
 }
@@ -31,6 +33,7 @@ class RekamMedisDetailScreen extends ConsumerStatefulWidget {
 class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen> {
   int _selectedTab = 0; // 0 = Rekam Servis, 1 = Jadwal Preventif
 
+  /// Konfirmasi lalu terbitkan SPK dari jadwal preventif pada rekam medis, kemudian refresh data.
   Future<void> _confirmEksekusiJadwal(Map<String, dynamic> j) async {
     final jId = j['id'] as int?;
     if (jId == null) return;
@@ -58,6 +61,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
     }
   }
 
+  /// Membangun tampilan _RekamMedisDetailScreenState.
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(rekamMedisDetailProvider(widget.asetId));

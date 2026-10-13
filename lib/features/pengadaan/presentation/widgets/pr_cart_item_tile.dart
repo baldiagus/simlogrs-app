@@ -18,6 +18,8 @@ class PrCartItemTile extends StatelessWidget {
     this.onCatatanChanged,
   });
 
+  /// Membangun tile item keranjang PR berisi info barang dan pengatur jumlah
+  /// agar pengguna dapat mengubah atau menghapus item.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -96,6 +98,7 @@ class PrCartItemTile extends StatelessWidget {
               AppQuantityStepper(
                 value: item.jumlah,
                 min: 1,
+                // Jumlah di bawah 1 menghapus item; selain itu memperbarui jumlah.
                 onChanged: (val) {
                   if (val < 1) {
                     onRemove();

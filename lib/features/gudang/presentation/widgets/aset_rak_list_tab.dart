@@ -6,6 +6,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/aset_rak_model.dart';
 
+/// Tab daftar aset di dalam rak, dengan kolom pencarian lokal.
 class AsetRakListTab extends StatefulWidget {
   final List<AsetRakModel> items;
 
@@ -14,13 +15,16 @@ class AsetRakListTab extends StatefulWidget {
     required this.items,
   });
 
+  /// Membuat state pencarian untuk tab aset rak.
   @override
   State<AsetRakListTab> createState() => _AsetRakListTabState();
 }
 
+/// State tab aset rak; menyimpan kata kunci pencarian dan memfilter daftar aset.
 class _AsetRakListTabState extends State<AsetRakListTab> {
   String _searchQuery = '';
 
+  /// Membangun kolom pencarian dan daftar aset yang sudah difilter, atau tampilan kosong bila tidak ada hasil.
   @override
   Widget build(BuildContext context) {
     final filtered = widget.items.where((a) {
@@ -69,6 +73,7 @@ class _AsetRakListTabState extends State<AsetRakListTab> {
     );
   }
 
+  /// Membangun kartu satu aset dengan badge warna sesuai status ketersediaan dan kondisi fisik.
   Widget _buildAsetCard(AsetRakModel item) {
     Color statusBg = AppColors.success.withValues(alpha: 0.1);
     Color statusText = AppColors.success;

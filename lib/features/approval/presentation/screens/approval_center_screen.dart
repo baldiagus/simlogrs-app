@@ -18,24 +18,29 @@ import '../../data/models/approval_item_model.dart';
 import '../providers/approval_provider.dart';
 import '../widgets/approval_card.dart';
 import '../../../pengadaan/presentation/widgets/terbitkan_po_sheet.dart';
+/// Layar Pusat Approval: antrean persetujuan PR/Amprah dan daftar PO.
 class ApprovalCenterScreen extends ConsumerStatefulWidget {
   const ApprovalCenterScreen({super.key});
 
+  /// Membuat state layar Pusat Approval.
   @override
   ConsumerState<ApprovalCenterScreen> createState() => _ApprovalCenterScreenState();
 }
 
+/// State layar Pusat Approval: mengelola tab dan input pencarian PO.
 class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   final TextEditingController _poSearchCtrl = TextEditingController();
 
+  /// Menyiapkan TabController dua tab (antrean approval dan PO).
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  /// Membuang controller tab dan pencarian PO agar tidak bocor.
   @override
   void dispose() {
     _tabController.dispose();
@@ -43,6 +48,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     super.dispose();
   }
 
+  /// Membuka modal aksi (setuju/tolak) untuk satu pengajuan approval.
   void _showActionModal({
     required ApprovalItemModel item,
     required String aksi,
@@ -53,10 +59,12 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   // -------------------------------------------------------------
   // MODAL TERBITKAN PO DARI PR DISETUJUI
   // -------------------------------------------------------------
+  /// Membuka sheet penerbitan PO dari PR yang sudah disetujui.
   void _showTerbitkanPoModal(BuildContext context, ApprovalItemModel item) {
     TerbitkanPoSheet.show(context, item);
   }
 
+  /// Membangun layar Pusat Approval dengan tab antrean persetujuan dan tab PO.
   @override
   Widget build(BuildContext context) {
     final pendingAsync = ref.watch(approvalPendingProvider);
@@ -195,6 +203,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   // -------------------------------------------------------------
   // TAB 2: PESANAN PEMBELIAN (PO)
   // -------------------------------------------------------------
+  /// Isi tab PO: pencarian dan daftar pesanan pembelian beserta aksi sesuai hak akses.
   Widget _buildPoListTab({required bool canManagePo, required bool isReadOnly}) {
     final filterStatus = ref.watch(poStatusFilterProvider);
     final poListAsync = ref.watch(poListProvider);
@@ -294,6 +303,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   }
 
 
+  /// Konfirmasi lalu tandai PO sebagai dikirim ke supplier.
   Future<void> _confirmUpdateKirim(BuildContext context, PesananPembelianModel po) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -316,6 +326,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     }
   }
 
+  /// Daftar kartu approval (PR/Amprah) dengan state kosong dan aksi setuju/tolak/terbitkan PO.
   Widget _buildList({
     required List<ApprovalItemModel> items,
     required String emptyTitle,
@@ -361,6 +372,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
     );
   }
 
+  /// Badge bulat kecil berisi jumlah item pada label tab.
   Widget _buildCountBadge(int count) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),

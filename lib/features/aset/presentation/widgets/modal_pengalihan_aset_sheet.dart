@@ -12,14 +12,17 @@ import '../providers/pengalihan_provider.dart';
 import 'modal_pengalihan_aset_tahap1_card.dart';
 import 'modal_pengalihan_aset_tahap2_card.dart';
 
+/// Bottom sheet form pengajuan pengalihan aset fisik antar unit/gudang.
 class ModalPengalihanAsetSheet extends ConsumerStatefulWidget {
   final AsetTersediaModel? aset;
 
+  /// Membuat sheet pengalihan aset; [aset] opsional untuk memilih aset asal sejak awal.
   const ModalPengalihanAsetSheet({
     super.key,
     this.aset,
   });
 
+  /// Menampilkan sheet pengalihan aset sebagai modal bottom sheet; mengembalikan true bila pengajuan berhasil.
   static Future<bool?> show(BuildContext context, {AsetTersediaModel? aset}) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -29,11 +32,13 @@ class ModalPengalihanAsetSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet pengalihan aset.
   @override
   ConsumerState<ModalPengalihanAsetSheet> createState() =>
       _ModalPengalihanAsetSheetState();
 }
 
+/// State sheet pengalihan aset: menyimpan input form, aset terpilih, dan jumlah, serta mengurus proses submit.
 class _ModalPengalihanAsetSheetState
     extends ConsumerState<ModalPengalihanAsetSheet> {
   final _formKey = GlobalKey<FormState>();
@@ -42,12 +47,14 @@ class _ModalPengalihanAsetSheetState
   AsetTersediaModel? _chosenAset;
   int _quantity = 1;
 
+  /// Mengisi aset terpilih awal dari aset yang dikirim lewat constructor (jika ada).
   @override
   void initState() {
     super.initState();
     _chosenAset = widget.aset;
   }
 
+  /// Melepas controller teks saat sheet ditutup agar tidak bocor memori.
   @override
   void dispose() {
     _alasanController.dispose();
@@ -55,6 +62,7 @@ class _ModalPengalihanAsetSheetState
     super.dispose();
   }
 
+  /// Memvalidasi form, menentukan asal/tujuan dari user, lalu mengajukan pengalihan ke server dan menampilkan hasilnya.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -139,6 +147,7 @@ class _ModalPengalihanAsetSheetState
     }
   }
 
+  /// Menyimpan aset asal terpilih lalu membatasi jumlah agar tidak melebihi stok aset sejenis di penyedia yang sama.
   void _onAsetChanged(List<AsetTersediaModel> asets, int? val) {
     setState(() {
       _chosenAset = asets.firstWhere((a) => a.id == val);
@@ -153,6 +162,7 @@ class _ModalPengalihanAsetSheetState
     });
   }
 
+  /// Membangun bottom sheet form pengajuan pengalihan aset fisik: pilih aset asal, jumlah, alasan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;

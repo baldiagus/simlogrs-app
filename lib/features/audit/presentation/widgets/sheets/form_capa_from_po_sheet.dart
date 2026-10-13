@@ -7,21 +7,25 @@ import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
 
+/// Bottom sheet untuk menerbitkan temuan CAPA dari PO yang terdeteksi anomali.
 class FormCapaFromPoSheet extends ConsumerStatefulWidget {
   final KepatuhanPoModel po;
 
   const FormCapaFromPoSheet({super.key, required this.po});
 
+  /// Membuat state form CAPA dari PO.
   @override
   ConsumerState<FormCapaFromPoSheet> createState() => _FormCapaFromPoSheetState();
 }
 
+/// State form CAPA dari PO: risiko, jatuh tempo, ringkasan, dan status loading.
 class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
   String _risiko = 'Mayor';
   final TextEditingController _ringkasanCtrl = TextEditingController();
   DateTime _dueDate = DateTime.now().add(const Duration(days: 14));
   bool _isLoading = false;
 
+  /// Mengisi ringkasan awal otomatis berdasarkan tipe anomali PO.
   @override
   void initState() {
     super.initState();
@@ -38,12 +42,14 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
     }
   }
 
+  /// Membuang controller ringkasan agar tidak bocor memori.
   @override
   void dispose() {
     _ringkasanCtrl.dispose();
     super.dispose();
   }
 
+  /// Mengirim temuan kepatuhan untuk PO ke server, lalu menyegarkan register dan ringkasan.
   Future<void> _submit() async {
     setState(() => _isLoading = true);
     try {
@@ -72,6 +78,7 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
     }
   }
 
+  /// Membangun form penerbitan CAPA dari anomali PO: tingkat risiko, jatuh tempo, dan ringkasan.
   @override
   Widget build(BuildContext context) {
     return Container(

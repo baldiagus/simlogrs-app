@@ -6,6 +6,7 @@ class DashboardRepository {
 
   DashboardRepository(this._client);
 
+  /// Mengambil ringkasan dashboard dari endpoint terpadu; bila gagal, merakit ringkasan dari approval pending dan SPK (jika diizinkan).
   Future<DashboardSummaryModel> getSummary({bool canViewSpk = false}) async {
     // 1. Coba ambil dari endpoint terpadu berbasis peran
     try {

@@ -10,6 +10,7 @@ import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 class IpsrsShortcutGrid extends ConsumerWidget {
   const IpsrsShortcutGrid({super.key});
 
+  /// Membangun grid pintasan IPSRS; menu disesuaikan dengan peran kepala teknisi.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
@@ -124,6 +125,7 @@ class IpsrsShortcutGrid extends ConsumerWidget {
     );
   }
 
+  /// Membangun satu kartu mini pintasan IPSRS berisi ikon, judul, dan subjudul yang dapat diketuk.
   Widget _buildIpsrsMiniCard({
     required BuildContext context,
     required String title,

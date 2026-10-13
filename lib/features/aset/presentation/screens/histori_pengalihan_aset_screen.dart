@@ -7,6 +7,7 @@ import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 import '../providers/aset_provider.dart';
 
+/// Halaman histori mutasi/pengalihan sebuah aset antar ruangan atau fasilitas.
 class HistoriPengalihanAsetScreen extends ConsumerStatefulWidget {
   final int asetId;
   final String kodeAset;
@@ -14,6 +15,7 @@ class HistoriPengalihanAsetScreen extends ConsumerStatefulWidget {
   final String nomorSeri;
   final List<RiwayatPengalihanAsetItemModel> initialRiwayat;
 
+  /// Membuat layar histori; riwayat awal opsional untuk tampilan instan sebelum refresh.
   const HistoriPengalihanAsetScreen({
     super.key,
     required this.asetId,
@@ -23,22 +25,26 @@ class HistoriPengalihanAsetScreen extends ConsumerStatefulWidget {
     this.initialRiwayat = const [],
   });
 
+  /// Membuat state layar histori pengalihan aset.
   @override
   ConsumerState<HistoriPengalihanAsetScreen> createState() =>
       _HistoriPengalihanAsetScreenState();
 }
 
+/// State histori pengalihan: menyimpan riwayat dan memuat ulang dari server.
 class _HistoriPengalihanAsetScreenState
     extends ConsumerState<HistoriPengalihanAsetScreen> {
   late List<RiwayatPengalihanAsetItemModel> _riwayat;
   bool _isLoading = false;
 
+  /// Mengisi riwayat awal dari `initialRiwayat`.
   @override
   void initState() {
     super.initState();
     _riwayat = widget.initialRiwayat;
   }
 
+  /// Mengambil ulang riwayat pengalihan terbaru dari server; gagal diabaikan agar data lama tetap tampil.
   Future<void> _fetchLatest() async {
     setState(() => _isLoading = true);
     try {
@@ -55,6 +61,7 @@ class _HistoriPengalihanAsetScreenState
     }
   }
 
+  /// Membangun halaman histori mutasi aset: daftar pengalihan atau tampilan kosong.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -365,6 +372,7 @@ class _HistoriPengalihanAsetScreenState
     );
   }
 
+  /// Membangun satu baris metadata (ikon, label, nilai) pada kartu riwayat mutasi.
   Widget _buildMetaRow(IconData icon, String label, String value, {Color? valueColor}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

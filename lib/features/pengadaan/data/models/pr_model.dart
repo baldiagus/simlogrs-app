@@ -32,6 +32,7 @@ class PrDetailItemModel {
     this.hargaEstimasi,
   });
 
+  /// Membuat [PrDetailItemModel] dari JSON item permintaan pengadaan (PR).
   factory PrDetailItemModel.fromJson(Map<String, dynamic> json) {
     return PrDetailItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -80,12 +81,17 @@ class PrHeaderModel {
     required this.items,
   });
 
+  /// True jika permintaan bersifat darurat (CITO/MENDESAK) sehingga perlu diprioritaskan.
   bool get isCito => urgensi.toUpperCase() == 'CITO' || urgensi.toUpperCase() == 'MENDESAK';
 
+  /// True jika PR baru diajukan dan menunggu persetujuan.
   bool get isDiajukan => status.toUpperCase() == 'DIAJUKAN';
+  /// True jika PR sedang diproses oleh bagian pengadaan.
   bool get isDiproses => status.toUpperCase() == 'DIPROSES';
+  /// True jika proses PR sudah selesai.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
+  /// True jika PR sudah melewati tahap persetujuan (disetujui, diteruskan, sudah jadi PO, diproses, atau selesai).
   bool get isDisetujui {
     final s = status.toUpperCase();
     return s.contains('SETUJU') ||
@@ -95,6 +101,7 @@ class PrHeaderModel {
         s == 'SELESAI';
   }
 
+  /// Mengubah PR menjadi [ApprovalItemModel] agar dapat ditampilkan di alur persetujuan.
   ApprovalItemModel toApprovalItem() {
     return ApprovalItemModel(
       id: id,
@@ -119,6 +126,7 @@ class PrHeaderModel {
           .toList(),
     );
   }
+  /// Membuat [PrHeaderModel] dari JSON header PR beserta item-nya, dengan nilai bawaan bila field kosong.
   factory PrHeaderModel.fromJson(Map<String, dynamic> json) {
     return PrHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -153,6 +161,7 @@ class PrCartItemModel {
     this.catatan,
   });
 
+  /// Mengubah item keranjang menjadi payload JSON untuk dikirim saat pengajuan PR.
   Map<String, dynamic> toSubmissionJson() => {
         'barang_id': barang.id,
         'jumlah': jumlah,

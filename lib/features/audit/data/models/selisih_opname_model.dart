@@ -1,3 +1,4 @@
+/// Detail selisih satu batch barang pada sesi opname (jumlah sistem vs fisik, nilai selisih).
 class SelisihOpnameDetailModel {
   final int id;
   final String namaBarang;
@@ -27,6 +28,7 @@ class SelisihOpnameDetailModel {
     required this.catatan,
   });
 
+  /// Membangun detail selisih per batch dari JSON; jenis diturunkan dari tanda selisih bila kosong.
   factory SelisihOpnameDetailModel.fromJson(Map<String, dynamic> json) {
     return SelisihOpnameDetailModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -46,6 +48,7 @@ class SelisihOpnameDetailModel {
   }
 }
 
+/// Sesi stok opname yang memiliki selisih antara stok sistem dan fisik.
 class SesiOpnameSelisihModel {
   final int id;
   final String kode;
@@ -69,6 +72,7 @@ class SesiOpnameSelisihModel {
     required this.details,
   });
 
+  /// Membangun sesi opname berselisih beserta daftar detail batch dari JSON.
   factory SesiOpnameSelisihModel.fromJson(Map<String, dynamic> json) {
     return SesiOpnameSelisihModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

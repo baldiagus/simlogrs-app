@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Pembungkus seragam untuk bottom sheet: handle, judul opsional, dan konten anak.
 class AppBottomSheetWrapper extends StatelessWidget {
   final Widget child;
   final String? title;
@@ -19,6 +20,7 @@ class AppBottomSheetWrapper extends StatelessWidget {
     this.maxHeightFactor,
   });
 
+  /// Membangun sheet dengan padding mengikuti tinggi keyboard agar konten tidak tertutup, serta batas tinggi opsional lewat maxHeightFactor.
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;

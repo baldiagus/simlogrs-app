@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Dialog konfirmasi standar aplikasi untuk aksi yang perlu persetujuan eksplisit pengguna.
 class AppConfirmDialog extends StatelessWidget {
   final String title;
   final String message;
@@ -19,6 +20,7 @@ class AppConfirmDialog extends StatelessWidget {
     this.icon,
   });
 
+  /// Menampilkan dialog konfirmasi dan mengembalikan true hanya bila pengguna menekan tombol konfirmasi; dibatalkan/ditutup dianggap false.
   static Future<bool> show(
     BuildContext context, {
     required String title,
@@ -42,6 +44,7 @@ class AppConfirmDialog extends StatelessWidget {
     return result ?? false;
   }
 
+  /// Membangun AlertDialog dengan ikon opsional serta tombol batal dan konfirmasi berwarna sesuai konteks aksi.
   @override
   Widget build(BuildContext context) {
     final effectiveColor = confirmColor ?? AppColors.primaryPurple;

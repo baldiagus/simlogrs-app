@@ -20,6 +20,7 @@ class PengadaanHubScreen extends ConsumerStatefulWidget {
     this.initialTabIndex = 0,
   });
 
+  /// Membuat state hub pengadaan (tab PR, PO, riwayat).
   @override
   ConsumerState<PengadaanHubScreen> createState() => _PengadaanHubScreenState();
 }
@@ -32,6 +33,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
   String _poQuery = '';
   String _inboundQuery = '';
 
+  /// Menyiapkan TabController sesuai hak akses pengguna dan tab awal yang diminta.
   @override
   void initState() {
     super.initState();
@@ -52,10 +54,12 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     _tabController.addListener(_onTabChanged);
   }
 
+  /// Membangun ulang UI saat tab berganti agar elemen yang bergantung tab (mis. FAB) ikut berubah.
   void _onTabChanged() {
     if (mounted) setState(() {});
   }
 
+  /// Melepas listener dan TabController saat layar ditutup.
   @override
   void dispose() {
     _tabController.removeListener(_onTabChanged);
@@ -63,6 +67,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     super.dispose();
   }
 
+  /// Membangun hub pengadaan berisi tab PR, PO, dan penerimaan barang sesuai peran pengguna.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -117,6 +122,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             tooltip: 'Segarkan Data',
+            /// Menyegarkan data PR, PO, dan penerimaan barang dari server.
             onPressed: () {
               ref.invalidate(daftarPrProvider);
               ref.invalidate(poListProvider);
@@ -171,6 +177,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
       floatingActionButton: (canCreatePr && _tabController.index == 0)
           ? FloatingActionButton.extended(
               heroTag: null,
+              /// Membuka form pengajuan PR dan menyegarkan daftar PR bila PR berhasil dibuat.
               onPressed: () async {
                 final created = await Navigator.push<bool>(
                   context,

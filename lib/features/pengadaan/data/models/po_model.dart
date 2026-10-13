@@ -15,6 +15,7 @@ class PemasokOptionModel {
     this.alamat,
   });
 
+  /// Membuat [PemasokOptionModel] dari JSON pemasok untuk pilihan dropdown saat menerbitkan PO.
   factory PemasokOptionModel.fromJson(Map<String, dynamic> json) {
     return PemasokOptionModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -48,6 +49,7 @@ class PoItemDetailModel {
     required this.subtotal,
   });
 
+  /// Membuat [PoItemDetailModel] dari JSON baris item PO beserta jumlah dipesan dan diterima.
   factory PoItemDetailModel.fromJson(Map<String, dynamic> json) {
     return PoItemDetailModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -101,9 +103,12 @@ class PesananPembelianModel {
     required this.items,
   });
 
+  /// True jika PO sudah diterbitkan dan belum diproses lebih lanjut (siap dikirim ke vendor).
   bool get isDiterbitkan => status.toUpperCase() == 'DITERBITKAN';
+  /// True jika seluruh barang PO sudah diterima lengkap sehingga PO dianggap selesai.
   bool get isSelesai => status.toUpperCase() == 'DITERIMA_LENGKAP';
 
+  /// Membuat [PesananPembelianModel] dari JSON PO lengkap beserta daftar item-nya.
   factory PesananPembelianModel.fromJson(Map<String, dynamic> json) {
     return PesananPembelianModel(
       id: (json['id'] as num?)?.toInt() ?? 0,

@@ -13,23 +13,28 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/anggaran_models.dart';
 import '../providers/anggaran_provider.dart';
 
+/// Layar Pagu & Realisasi Anggaran: ringkasan makro plus tab pengeluaran ruangan dan suku cadang IPSRS.
 class PaguRealisasiScreen extends ConsumerStatefulWidget {
   const PaguRealisasiScreen({super.key});
 
+  /// Membuat state layar Pagu & Realisasi Anggaran.
   @override
   ConsumerState<PaguRealisasiScreen> createState() => _PaguRealisasiScreenState();
 }
 
+/// State layar; mengelola [TabController] dua tab dan pembukaan detail unit.
 class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  /// Menginisialisasi [TabController] untuk dua tab (ruangan dan suku cadang).
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  /// Membuang [TabController] agar tidak bocor memori.
   @override
   void dispose() {
     _tabController.dispose();
@@ -37,6 +42,7 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     super.dispose();
   }
 
+  /// Membuka bottom sheet drilldown untuk unit terpilih; diabaikan bila unit tidak punya `unitId`.
   void _openUnitDetailModal(BuildContext context, UnitAnggaranModel unit, String tahun) {
     if (unit.unitId == null) return;
     showModalBottomSheet(
@@ -47,6 +53,7 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     );
   }
 
+  /// Membangun layar: cek hak akses, lalu tampilkan header ringkasan dan tab sesuai status data (loading/error/data).
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -182,6 +189,7 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     );
   }
 
+  /// Membangun kartu KPI ringkasan: total amprah ruangan (distribusi) dan sparepart IPSRS.
   Widget _buildMacroHeader(AnggaranRingkasanModel ringkasan, String tahun) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),

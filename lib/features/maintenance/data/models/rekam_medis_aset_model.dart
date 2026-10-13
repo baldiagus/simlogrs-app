@@ -3,12 +3,14 @@ class RekamMedisSukuCadangModel {
   final String nomorBatch;
   final int jumlah;
 
+  /// Membuat RekamMedisSukuCadangModel.
   const RekamMedisSukuCadangModel({
     required this.namaBarang,
     required this.nomorBatch,
     required this.jumlah,
   });
 
+  /// Membuat RekamMedisSukuCadangModel dari JSON respons API.
   factory RekamMedisSukuCadangModel.fromJson(Map<String, dynamic> json) {
     return RekamMedisSukuCadangModel(
       namaBarang: json['nama_barang']?.toString() ?? 'Suku Cadang',
@@ -36,6 +38,7 @@ class RekamMedisServisEntryModel {
   final String tanggalSelesai;
   final List<RekamMedisSukuCadangModel> sukuCadang;
 
+  /// Membuat RekamMedisServisEntryModel.
   const RekamMedisServisEntryModel({
     required this.id,
     required this.kodeTiket,
@@ -55,6 +58,7 @@ class RekamMedisServisEntryModel {
     required this.sukuCadang,
   });
 
+  /// Membuat RekamMedisServisEntryModel dari JSON respons API.
   factory RekamMedisServisEntryModel.fromJson(Map<String, dynamic> json) {
     final sc = (json['suku_cadang'] as List<dynamic>?)
             ?.map((e) => RekamMedisSukuCadangModel.fromJson(e as Map<String, dynamic>))
@@ -94,6 +98,7 @@ class RekamMedisAsetKatalogModel {
   final String lokasi;
   final int totalServis;
 
+  /// Membuat RekamMedisAsetKatalogModel.
   const RekamMedisAsetKatalogModel({
     required this.id,
     required this.kodeAset,
@@ -107,6 +112,7 @@ class RekamMedisAsetKatalogModel {
     required this.totalServis,
   });
 
+  /// Membuat RekamMedisAsetKatalogModel dari JSON respons API.
   factory RekamMedisAsetKatalogModel.fromJson(Map<String, dynamic> json) {
     return RekamMedisAsetKatalogModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -128,12 +134,14 @@ class RekamMedisDetailResponse {
   final List<RekamMedisServisEntryModel> riwayatServis;
   final List<Map<String, dynamic>> jadwalPreventif;
 
+  /// Membuat RekamMedisDetailResponse.
   const RekamMedisDetailResponse({
     required this.identitas,
     required this.riwayatServis,
     required this.jadwalPreventif,
   });
 
+  /// Membuat RekamMedisDetailResponse dari JSON respons API.
   factory RekamMedisDetailResponse.fromJson(Map<String, dynamic> json) {
     final rs = (json['riwayat_servis'] as List<dynamic>?)
             ?.map((e) => RekamMedisServisEntryModel.fromJson(e as Map<String, dynamic>))

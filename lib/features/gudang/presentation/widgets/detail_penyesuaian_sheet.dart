@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
 
+/// Bottom sheet detail penyesuaian stok hasil opname, dengan aksi otorisasi/tolak bila user berwenang.
 class DetailPenyesuaianSheet extends StatelessWidget {
   final PenyesuaianStokHeaderModel adj;
   final bool canAuthorize;
@@ -21,6 +22,7 @@ class DetailPenyesuaianSheet extends StatelessWidget {
     this.onReject,
   });
 
+  /// Menampilkan sheet detail penyesuaian sebagai modal bottom sheet.
   static Future<void> show(
     BuildContext context, {
     required PenyesuaianStokHeaderModel adj,
@@ -41,6 +43,7 @@ class DetailPenyesuaianSheet extends StatelessWidget {
     );
   }
 
+  /// Membangun isi sheet: rincian penyesuaian dan tombol otorisasi/tolak bila [canAuthorize].
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetWrapper(

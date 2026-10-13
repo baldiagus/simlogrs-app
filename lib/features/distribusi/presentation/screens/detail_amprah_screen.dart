@@ -21,6 +21,7 @@ class DetailAmprahScreen extends ConsumerWidget {
     required this.kodeAmprah,
   });
 
+  /// Membangun halaman detail amprah: info permintaan, linimasa status, daftar barang, dan aksi sesuai peran.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailAmprahProvider(amprahId));
@@ -349,6 +350,7 @@ class DetailAmprahScreen extends ConsumerWidget {
     );
   }
 
+  /// Membuat satu baris langkah linimasa status amprah dengan ikon dan warna sesuai kondisi (lewat/aktif/belum).
   Widget _buildStepRow({
     required String title,
     required String subtitle,

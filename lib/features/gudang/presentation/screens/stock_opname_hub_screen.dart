@@ -15,14 +15,18 @@ import '../../data/models/stock_opname_model.dart';
 import '../providers/persediaan_providers.dart';
 import '../providers/gudang_provider.dart';
 
+/// Layar hub stock opname: daftar sesi opname dan pintu masuk memulai opname baru atau menghitung fisik.
 class StockOpnameHubScreen extends ConsumerStatefulWidget {
   const StockOpnameHubScreen({super.key});
 
+  /// Membuat state layar hub stock opname.
   @override
   ConsumerState<StockOpnameHubScreen> createState() => _StockOpnameHubScreenState();
 }
 
+/// State layar hub stock opname; memantau daftar sesi opname dan menangani navigasi ke aksi terkait.
 class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
+  /// Membuka sheet inisiasi untuk memulai sesi opname baru.
   void _openInisiasiModal() {
     final user = ref.read(authStateProvider).user;
     InisiasiOpnameSheet.show(
@@ -32,6 +36,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
     );
   }
 
+  /// Membuka layar hitung fisik untuk sesi [opname], lalu memuat ulang daftar sesi setelah kembali.
   void _openHitungFisikScreen(StokOpnameSesiModel opname) {
     Navigator.push(
       context,
@@ -47,6 +52,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
       ref.invalidate(dashboardSummaryProvider);
     });
   }
+  /// Menyusun UI hub opname: daftar sesi dengan status loading/error/kosong dan tombol mulai opname.
   @override
   Widget build(BuildContext context) {
     final opnameAsync = ref.watch(stockOpnameListProvider);

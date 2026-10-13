@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -10,50 +8,22 @@ import '../providers/aset_provider.dart';
 import '../widgets/input_manual_kode_dialog.dart';
 import 'aset_detail_screen.dart';
 
+/// Layar pindai QR aset fisik; di web memakai input kode manual.
 class QrScannerScreen extends ConsumerStatefulWidget {
+  /// Membuat QrScannerScreen.
   const QrScannerScreen({super.key});
 
+  /// Membuat state layar pindai QR.
   @override
   ConsumerState<QrScannerScreen> createState() => _QrScannerScreenState();
 }
 
-class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
-    with WidgetsBindingObserver {
-  late final MobileScannerController _controller;
-
+/// State layar pindai QR: menjaga status proses dan jeda antar pindai.
+class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   bool _isProcessing = false;
   DateTime? _lastScannedTime;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.noDuplicates,
-      facing: CameraFacing.back,
-      torchEnabled: false,
-      autoStart: true,
-    );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!mounted || kIsWeb) return;
-    if (state == AppLifecycleState.resumed) {
-      _controller.start();
-    } else if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _controller.dispose();
-    super.dispose();
-  }
-
+  /// Memproses kode hasil pindai/input: throttle 1,2 detik, cari aset ke server, lalu buka detail atau tampilkan error.
   Future<void> _handleBarcodeDetected(String rawCode) async {
     final now = DateTime.now();
     if (_lastScannedTime != null &&
@@ -85,6 +55,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
     }
   }
 
+  /// Menampilkan dialog input kode manual lalu memproses kode yang dimasukkan.
   Future<void> _showManualInputDialog() async {
     final code = await InputManualKodeDialog.show(context);
     if (code != null && code.isNotEmpty) {
@@ -92,6 +63,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
     }
   }
 
+  /// Membangun layar pindai: placeholder web, bingkai panduan, dan tombol input kode manual.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,124 +106,36 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
             color: Colors.white,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.zap),
-            tooltip: 'Senter',
-            onPressed: () => _controller.toggleTorch(),
-          ),
-          IconButton(
-            icon: const Icon(LucideIcons.refreshCcw),
-            tooltip: 'Ganti Kamera',
-            onPressed: () => _controller.switchCamera(),
-          ),
-          const SizedBox(width: 8),
-        ],
+        actions: const [SizedBox(width: 8)],
       ),
       body: Stack(
         children: [
-          // Camera scanner preview
-          if (!kIsWeb)
-            Positioned.fill(
-              child: MobileScanner(
-                controller: _controller,
-                fit: BoxFit.cover,
-                placeholderBuilder: (context, child) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 16),
-                        Text(
-                          'Menyiapkan sensor kamera...',
-                          style: TextStyle(color: Colors.white70, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, child) {
-                  final isPermission = error.errorCode == MobileScannerErrorCode.permissionDenied;
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isPermission ? LucideIcons.shieldAlert : LucideIcons.cameraOff,
-                            color: AppColors.danger,
-                            size: 48,
-                          ),
-                          const SizedBox(height: 14),
-                          Text(
-                            isPermission ? 'Izin Kamera Diperlukan' : 'Sensor Kamera Tidak Siap',
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            isPermission
-                                ? 'Aplikasi memerlukan izin akses kamera untuk memindai QR Code aset fisik.'
-                                : (error.errorDetails?.message ?? error.errorCode.name),
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 18),
-                          ElevatedButton.icon(
-                            onPressed: () => _controller.start(),
-                            icon: const Icon(LucideIcons.refreshCw, size: 16),
-                            label: const Text('Aktifkan Sensor Kamera'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryPurple,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                onDetect: (capture) {
-                  final List<Barcode> barcodes = capture.barcodes;
-                  for (final barcode in barcodes) {
-                    if (barcode.rawValue != null) {
-                      _handleBarcodeDetected(barcode.rawValue!);
-                      break;
-                    }
-                  }
-                },
-              ),
-            )
-          else
-            // Web fallback placeholder when desktop web does not attach mobile camera directly
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(LucideIcons.qrCode, color: Colors.white, size: 64),
+          // Web: kamera tidak dipasang langsung; pengguna memakai input kode manual
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Mode Simulator / Web Browser',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Gunakan tombol "Input Kode Manual" di bawah untuk memindai.',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ],
-              ),
+                  child: const Icon(LucideIcons.qrCode, color: Colors.white, size: 64),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Mode Simulator / Web Browser',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Gunakan tombol "Input Kode Manual" di bawah untuk memindai.',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
             ),
+          ),
 
           // Central Guide Frame Overlay
           Center(

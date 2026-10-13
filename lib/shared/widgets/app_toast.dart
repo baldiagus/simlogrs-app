@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Jenis toast yang menentukan warna dan ikon: sukses, error, peringatan, atau info.
 enum AppToastType { success, error, warning, info }
 
+/// Utilitas notifikasi toast melayang di atas layar lewat overlay; hanya satu toast aktif pada satu waktu.
 class AppToast {
   AppToast._();
 
   static OverlayEntry? _currentEntry;
   static Timer? _currentTimer;
 
+  /// Menampilkan toast baru (menggantikan yang aktif) dan menjadwalkan penutupan otomatis setelah duration.
   static void show(
     BuildContext context,
     String message, {
@@ -44,22 +47,27 @@ class AppToast {
     });
   }
 
+  /// Pintasan menampilkan toast bertipe sukses.
   static void success(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
     show(context, message, type: AppToastType.success, duration: duration);
   }
 
+  /// Pintasan menampilkan toast bertipe error.
   static void error(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
     show(context, message, type: AppToastType.error, duration: duration);
   }
 
+  /// Pintasan menampilkan toast bertipe peringatan.
   static void warning(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
     show(context, message, type: AppToastType.warning, duration: duration);
   }
 
+  /// Pintasan menampilkan toast bertipe info.
   static void info(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
     show(context, message, type: AppToastType.info, duration: duration);
   }
 
+  /// Membatalkan timer dan melepas entri overlay toast yang sedang aktif bila masih terpasang.
   static void _dismiss() {
     _currentTimer?.cancel();
     _currentTimer = null;
@@ -73,6 +81,7 @@ class AppToast {
   }
 }
 
+/// Widget visual toast dengan animasi geser dan fade; bisa ditutup dengan tap atau geser ke atas.
 class _ToastWidget extends StatefulWidget {
   final String message;
   final AppToastType type;
@@ -84,15 +93,18 @@ class _ToastWidget extends StatefulWidget {
     required this.onDismiss,
   });
 
+  /// Membuat state yang memegang animasi masuk/keluar toast.
   @override
   State<_ToastWidget> createState() => _ToastWidgetState();
 }
 
+/// State yang mengatur AnimationController untuk animasi tampil dan tutup toast.
 class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
   late final Animation<double> _fadeAnimation;
 
+  /// Menyiapkan animasi geser dan fade lalu langsung memutarnya agar toast muncul halus.
   @override
   void initState() {
     super.initState();
@@ -111,18 +123,21 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
     _controller.forward();
   }
 
+  /// Memutar animasi keluar lebih dulu, baru memanggil onDismiss agar toast hilang tanpa terpotong mendadak.
   Future<void> _handleDismiss() async {
     if (!mounted) return;
     await _controller.reverse();
     widget.onDismiss();
   }
 
+  /// Membuang AnimationController agar tidak bocor memori.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Menentukan warna latar, border, teks, dan ikon beserta glyph-nya sesuai jenis toast.
   (Color bg, Color border, Color text, Color iconColor, IconData icon) _resolveTheme() {
     switch (widget.type) {
       case AppToastType.success:
@@ -160,6 +175,7 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
     }
   }
 
+  /// Membangun toast di bawah status bar dengan ikon, pesan maksimal dua baris, dan gestur untuk menutup.
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top;

@@ -14,6 +14,7 @@ class PengalihanEmptyTab extends StatelessWidget {
   final VoidCallback onBukaOtorisasi;
   final VoidCallback onCreate;
 
+  /// Membuat tab kosong pengalihan dengan callback refresh, buka otorisasi, dan ajukan.
   const PengalihanEmptyTab({
     super.key,
     required this.tab,
@@ -25,8 +26,10 @@ class PengalihanEmptyTab extends StatelessWidget {
     required this.onCreate,
   });
 
+  /// Label jenis objek pengalihan (aset atau barang persediaan) untuk teks UI.
   String get _tipeLabel => isAset ? 'aset' : 'barang persediaan';
 
+  /// Membangun tampilan kosong yang tetap bisa di-refresh.
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -58,6 +61,7 @@ class PengalihanEmptyTab extends StatelessWidget {
     );
   }
 
+  /// Membangun banner peringatan jumlah otorisasi pengalihan yang tertunda.
   Widget _buildOtorisasiBanner() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -96,6 +100,7 @@ class PengalihanEmptyTab extends StatelessWidget {
     );
   }
 
+  /// Membangun tombol ajukan pengalihan pada empty state.
   Widget _buildCreateButton() {
     return ElevatedButton.icon(
       onPressed: onCreate,

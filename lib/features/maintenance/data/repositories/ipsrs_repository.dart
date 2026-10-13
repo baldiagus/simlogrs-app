@@ -6,6 +6,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../models/jadwal_preventif_model.dart';
 import '../models/rekam_medis_aset_model.dart';
 
+/// Provider repository IPSRS (preventif dan rekam medis).
 final ipsrsRepositoryProvider = Provider<IpsrsRepository>((ref) {
   return IpsrsRepository(ref.watch(dioClientProvider));
 });
@@ -13,6 +14,7 @@ final ipsrsRepositoryProvider = Provider<IpsrsRepository>((ref) {
 class IpsrsRepository {
   final DioClient _client;
 
+  /// Membuat IpsrsRepository.
   IpsrsRepository(this._client);
 
   /// 1. Daftar Jadwal Pemeliharaan Preventif

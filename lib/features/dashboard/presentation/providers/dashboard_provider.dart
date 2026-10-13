@@ -4,11 +4,13 @@ import '../../../../core/providers/core_providers.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../../data/repositories/dashboard_repository.dart';
 
+/// Menyediakan [DashboardRepository] dengan klien Dio bersama.
 final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
   final client = ref.watch(dioClientProvider);
   return DashboardRepository(client);
 });
 
+/// Memuat ringkasan dashboard untuk user terautentikasi dan menentukan izin lihat SPK dari peran/permission-nya.
 final dashboardSummaryProvider =
     FutureProvider.autoDispose<DashboardSummaryModel>((ref) async {
   final authState = ref.watch(authStateProvider);

@@ -17,12 +17,14 @@ class DetailTiketScreen extends ConsumerWidget {
   final int tiketId;
   final String kodeTiket;
 
+  /// Membuat DetailTiketScreen.
   const DetailTiketScreen({
     super.key,
     required this.tiketId,
     required this.kodeTiket,
   });
 
+  /// Warna teks/ikon badge sesuai prioritas tiket.
   Color _getPrioritasColor(String p) {
     switch (p.toUpperCase()) {
       case 'CITO':
@@ -36,6 +38,7 @@ class DetailTiketScreen extends ConsumerWidget {
     }
   }
 
+  /// Warna latar badge sesuai prioritas tiket.
   Color _getPrioritasBg(String p) {
     switch (p.toUpperCase()) {
       case 'CITO':
@@ -49,6 +52,7 @@ class DetailTiketScreen extends ConsumerWidget {
     }
   }
 
+  /// Membangun tampilan DetailTiketScreen.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(detailTiketUnitProvider(tiketId));

@@ -13,6 +13,7 @@ import 'spk_detail_screen.dart';
 class SpkTabItem {
   final String label;
   final String status;
+  /// Membuat SpkTabItem.
   const SpkTabItem(this.label, this.status);
 }
 
@@ -24,6 +25,7 @@ class SpkListScreen extends ConsumerStatefulWidget {
   final Widget? leading;
   final List<String>? allowedStatuses;
 
+  /// Membuat SpkListScreen.
   const SpkListScreen({
     super.key,
     this.isEmbedded = false,
@@ -33,6 +35,7 @@ class SpkListScreen extends ConsumerStatefulWidget {
     this.leading,
     this.allowedStatuses,
   });
+  /// Membuat state mutable untuk widget ini.
   @override
   ConsumerState<SpkListScreen> createState() => _SpkListScreenState();
 }
@@ -43,6 +46,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
   TabController? _tabController;
   late String _selectedStatus;
 
+  /// Inisialisasi state awal layar/sheet.
   @override
   void initState() {
     super.initState();
@@ -90,6 +94,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
     }
   }
 
+  /// Sinkronkan status filter SPK saat tab berganti.
   void _onTabChanged() {
     if (_tabController != null && !_tabController!.indexIsChanging) {
       setState(() {
@@ -98,6 +103,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
     }
   }
 
+  /// Bersihkan controller dan resource saat widget dilepas.
   @override
   void dispose() {
     _tabController?.removeListener(_onTabChanged);
@@ -105,6 +111,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
     super.dispose();
   }
 
+  /// Membangun tampilan _SpkListScreenState.
   @override
   Widget build(BuildContext context) {
     final spkListAsync = ref.watch(spkListProvider(_selectedStatus));
@@ -224,6 +231,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
   }
 
 
+  /// Kartu ringkasan SPK; klik membuka detail SPK.
   Widget _buildSpkCard(BuildContext context, SpkHeaderModel spk) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),

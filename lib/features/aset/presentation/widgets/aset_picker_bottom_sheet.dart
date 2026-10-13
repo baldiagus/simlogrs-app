@@ -9,21 +9,27 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../providers/peminjaman_provider.dart';
 
+/// Bottom sheet untuk mencari dan memilih aset tersedia dari katalog.
 class AsetPickerBottomSheet extends ConsumerStatefulWidget {
   final ValueChanged<AsetTersediaModel> onAsetSelected;
 
+  /// Membuat sheet pemilih aset dengan callback [onAsetSelected] saat aset dipilih.
   const AsetPickerBottomSheet({
     super.key,
     required this.onAsetSelected,
   });
 
+  /// Membuat state untuk sheet pemilih aset.
   @override
   ConsumerState<AsetPickerBottomSheet> createState() => _AsetPickerBottomSheetState();
 }
 
+/// State pencarian katalog: menyimpan query dan memuat aset dari provider.
 class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
   String _query = '';
 
+  /// Membangun bottom sheet pencarian katalog aset tersedia; memilih satu
+  /// aset memanggil callback lalu menutup sheet.
   @override
   Widget build(BuildContext context) {
     final katalogAsync = ref.watch(katalogAsetTersediaProvider(_query));

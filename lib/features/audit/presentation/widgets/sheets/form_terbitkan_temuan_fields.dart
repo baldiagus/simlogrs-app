@@ -8,6 +8,7 @@ class FormTerbitkanTemuanRequiredLabel extends StatelessWidget {
 
   final String text;
 
+  /// Membangun teks label dengan tanda bintang merah penanda field wajib.
   @override
   Widget build(BuildContext context) {
     return RichText(
@@ -57,6 +58,7 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
 
+  /// Membuat satu item dropdown risiko dengan titik warna dan label.
   static DropdownMenuItem<String> _item(
       String value, Color color, String label) {
     return DropdownMenuItem(
@@ -75,6 +77,7 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
     );
   }
 
+  /// Membangun dropdown risiko dengan indikator warna tiap tingkat.
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
@@ -118,6 +121,7 @@ class FormTerbitkanTemuanDateField extends StatelessWidget {
   final String valueText;
   final VoidCallback onTap;
 
+  /// Membangun label field tanggal beserta tile yang memanggil [onTap] untuk membuka date picker.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -160,6 +164,7 @@ class FormTerbitkanTemuanSubmitButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onPressed;
 
+  /// Membangun tombol submit penuh lebar; dinonaktifkan dan menampilkan spinner saat [isLoading].
   @override
   Widget build(BuildContext context) {
     return SizedBox(

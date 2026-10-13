@@ -15,6 +15,7 @@ class SppbDetailItemModel {
     required this.nomorBatch,
   });
 
+  /// Membangun item detail SPPB (barang, jumlah dikirim, nomor batch) dari JSON API.
   factory SppbDetailItemModel.fromJson(Map<String, dynamic> json) {
     return SppbDetailItemModel(
       barangId: json['barang_id'] is int
@@ -56,9 +57,12 @@ class SppbHeaderModel {
     required this.items,
   });
 
+  /// True bila SPPB berstatus DIKIRIM, yakni barang dalam perjalanan dan menunggu konfirmasi terima.
   bool get isDikirim => status.toUpperCase() == 'DIKIRIM';
+  /// True bila SPPB sudah SELESAI, yakni barang sudah dikonfirmasi diterima unit.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
+  /// Membangun header SPPB beserta daftar itemnya dari JSON API dengan nilai default aman.
   factory SppbHeaderModel.fromJson(Map<String, dynamic> json) {
     return SppbHeaderModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -103,8 +107,10 @@ class PickingAntreanModel {
     required this.items,
   });
 
+  /// True bila antrean picking berurgensi CITO sehingga harus didahulukan petugas gudang.
   bool get isCito => urgensi.toUpperCase() == 'CITO';
 
+  /// Membangun data antrean picking gudang dari JSON API, menoleransi angka bertipe string.
   factory PickingAntreanModel.fromJson(Map<String, dynamic> json) {
     return PickingAntreanModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

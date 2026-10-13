@@ -4,13 +4,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 
+/// Kartu ringkasan riwayat servis/pemeliharaan IPSRS pada detail aset.
 class AsetDetailIpsrsCard extends StatelessWidget {
   final AsetDetailModel aset;
   final VoidCallback onTap;
 
+  /// Membuat kartu IPSRS dengan data [aset] dan callback [onTap].
   const AsetDetailIpsrsCard(
       {super.key, required this.aset, required this.onTap});
 
+  /// Membangun kartu ringkasan servis IPSRS (servis terakhir/jadwal) yang
+  /// bisa diketuk untuk membuka detailnya.
   @override
   Widget build(BuildContext context) {
     return InkWell(

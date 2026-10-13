@@ -5,12 +5,14 @@ class SpkSparepartModel {
   final int jumlah;
   final double subtotal;
 
+  /// Membuat SpkSparepartModel.
   const SpkSparepartModel({
     required this.barang,
     required this.jumlah,
     required this.subtotal,
   });
 
+  /// Membuat SpkSparepartModel dari JSON respons API.
   factory SpkSparepartModel.fromJson(Map<String, dynamic> json) {
     return SpkSparepartModel(
       barang: json['barang']?.toString() ?? 'Suku Cadang',
@@ -35,6 +37,7 @@ class SpkLogModel {
   final String? fotoUrl;
   final List<SpkSparepartModel> sukuCadang;
 
+  /// Membuat SpkLogModel.
   const SpkLogModel({
     required this.id,
     this.tanggalPengerjaan,
@@ -47,6 +50,7 @@ class SpkLogModel {
     required this.sukuCadang,
   });
 
+  /// Membuat SpkLogModel dari JSON respons API.
   factory SpkLogModel.fromJson(Map<String, dynamic> json) {
     return SpkLogModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -77,6 +81,7 @@ class SpkDetailModel {
   final SpkAsetModel aset;
   final List<SpkLogModel> riwayatLog;
 
+  /// Membuat SpkDetailModel.
   const SpkDetailModel({
     required this.id,
     required this.kodeSpk,
@@ -90,6 +95,7 @@ class SpkDetailModel {
     required this.riwayatLog,
   });
 
+  /// Membuat SpkDetailModel dari JSON respons API.
   factory SpkDetailModel.fromJson(Map<String, dynamic> json) {
     return SpkDetailModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

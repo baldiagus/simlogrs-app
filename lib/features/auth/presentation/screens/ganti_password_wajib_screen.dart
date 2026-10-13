@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 class GantiPasswordWajibScreen extends ConsumerStatefulWidget {
   const GantiPasswordWajibScreen({super.key});
 
+  /// Membuat state layar ganti password wajib yang menyimpan form dan status tampil/sembunyi password.
   @override
   ConsumerState<GantiPasswordWajibScreen> createState() => _GantiPasswordWajibScreenState();
 }
@@ -23,6 +24,7 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
   bool _obscureConfirm = true;
   bool _isLoading = false;
 
+  /// Membersihkan controller input password agar tidak bocor memori setelah layar ditutup.
   @override
   void dispose() {
     _currentPasswordController.dispose();
@@ -31,6 +33,7 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
     super.dispose();
   }
 
+  /// Validasi form lalu kirim password baru ke server; tampilkan toast sukses atau error.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -58,6 +61,7 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
     }
   }
 
+  /// Membangun form ganti password yang tidak bisa ditutup sampai password berhasil diperbarui.
   @override
   Widget build(BuildContext context) {
     return PopScope(

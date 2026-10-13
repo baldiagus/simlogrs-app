@@ -22,6 +22,7 @@ import 'form_pengajuan_pr_screen.dart';
 class RiwayatPrScreen extends ConsumerStatefulWidget {
   const RiwayatPrScreen({super.key});
 
+  /// Membuat state daftar riwayat PR beserta pencarian dan filter.
   @override
   ConsumerState<RiwayatPrScreen> createState() => _RiwayatPrScreenState();
 }
@@ -30,6 +31,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
   String _query = '';
   String _selectedFilter = 'SEMUA';
 
+  /// Meminta konfirmasi lalu menyetujui PR (aksi Kepala Ruangan) dan me-refresh data terkait.
   Future<void> _showSetujuiDialog(BuildContext context, PrHeaderModel pr) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -60,6 +62,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     }
   }
 
+  /// Menampilkan dialog penolakan PR dengan input alasan wajib, lalu mengirim penolakan ke server.
   void _showTolakDialog(BuildContext context, PrHeaderModel pr, {bool isPengadaan = false}) {
     final catatanCtrl = TextEditingController();
     showDialog(
@@ -93,6 +96,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
             child: const Text('Batal'),
           ),
           ElevatedButton(
+            /// Memvalidasi alasan penolakan lalu mengirim penolakan PR dan menyegarkan data bila berhasil.
             onPressed: () async {
               final catatan = catatanCtrl.text.trim();
               if (catatan.isEmpty) {
@@ -126,6 +130,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     );
   }
 
+  /// Meminta konfirmasi lalu meneruskan PR yang sudah disetujui ke Bagian Pengadaan.
   Future<void> _showTeruskanDialog(BuildContext context, PrHeaderModel pr) async {
     final confirmed = await AppConfirmDialog.show(
       context,
@@ -156,6 +161,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     }
   }
 
+  /// Membuka bottom sheet detail PR dengan tombol aksi sesuai hak akses pengguna.
   void _showDetailModal(
     BuildContext context,
     PrHeaderModel pr, {
@@ -178,6 +184,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     );
   }
 
+  /// Membangun layar riwayat PR lengkap dengan pencarian, filter status, dan daftar kartu PR.
   @override
   Widget build(BuildContext context) {
     final prListAsync = ref.watch(daftarPrProvider);
@@ -220,6 +227,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
       floatingActionButton: canCreate
           ? FloatingActionButton.extended(
               heroTag: null,
+              /// Membuka form pengajuan PR dan menyegarkan daftar PR bila PR berhasil dibuat.
               onPressed: () async {
                 final created = await Navigator.push<bool>(
                   context,
@@ -317,6 +325,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
                                     : 'Unit Anda belum pernah mengajukan permohonan pengadaan barang.'),
                             action: canCreate
                                 ? ElevatedButton.icon(
+                                    /// Membuka form pengajuan PR dari tampilan kosong dan menyegarkan daftar bila berhasil.
                                     onPressed: () async {
                                       final created = await Navigator.push<bool>(
                                         context,
@@ -342,6 +351,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
                     child: ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 90),
                       itemCount: filtered.length,
+                      /// Membangun kartu PR per baris daftar hasil filter.
                       itemBuilder: (context, index) {
                         final pr = filtered[index];
                         return RiwayatPrCardItem(

@@ -9,6 +9,7 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/amprah_model.dart';
 import '../providers/distribusi_provider.dart';
 
+/// Bottom sheet pemilih barang dari katalog amprah dengan pencarian dan indikator stok.
 class BarangAmprahPickerSheet extends ConsumerStatefulWidget {
   final ValueChanged<BarangAmprahKatalogModel> onBarangSelected;
 
@@ -17,6 +18,7 @@ class BarangAmprahPickerSheet extends ConsumerStatefulWidget {
     required this.onBarangSelected,
   });
 
+  /// Membuat state untuk sheet pemilih barang amprah.
   @override
   ConsumerState<BarangAmprahPickerSheet> createState() => _BarangAmprahPickerSheetState();
 }
@@ -24,6 +26,8 @@ class BarangAmprahPickerSheet extends ConsumerStatefulWidget {
 class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerSheet> {
   String _query = '';
 
+  /// Membangun sheet katalog: header, kolom pencarian, dan daftar barang dari provider
+  /// sesuai kata kunci (loading, error, kosong, data).
   @override
   Widget build(BuildContext context) {
     final katalogAsync = ref.watch(katalogAmprahProvider(_query));
@@ -79,7 +83,9 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AppSearchBar(
               hint: 'Cari nama barang, kode SKU, atau kategori...',
+              // Simpan kata kunci pencarian (dipangkas) agar katalog difilter ulang.
               onChanged: (v) => setState(() => _query = v.trim()),
+              // Kosongkan kata kunci agar seluruh katalog tampil kembali.
               onClear: () => setState(() => _query = ''),
             ),
           ),
@@ -89,6 +95,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
           // Catalog List
           Expanded(
             child: katalogAsync.when(
+              // Tampilkan daftar katalog, atau tampilan kosong bila tidak ada hasil.
               data: (list) {
                 if (list.isEmpty) {
                   return const EmptyStateView(
@@ -101,11 +108,14 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   itemCount: list.length,
+                  // Pemisah tipis antarbarang di daftar.
                   separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border, indent: 48),
+                  // Bangun satu baris barang: nama, kode, kategori, dan status stok/backorder.
                   itemBuilder: (context, index) {
                     final b = list[index];
                     final hasStok = b.stokTersedia > 0;
                     return InkWell(
+                      // Kirim barang terpilih ke pemanggil lalu tutup sheet.
                       onTap: () {
                         widget.onBarangSelected(b);
                         Navigator.pop(context);
@@ -218,6 +228,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
               error: (err, _) => AppErrorView(
                 title: 'Gagal Memuat Katalog',
                 error: err,
+                // Muat ulang katalog dengan kata kunci saat ini setelah gagal.
                 onRetry: () => ref.refresh(katalogAmprahProvider(_query)),
               ),
             ),

@@ -7,8 +7,10 @@ import '../models/sppb_model.dart';
 class DistribusiRepository {
   final DioClient _client;
 
+  /// Membuat repository dengan [DioClient] yang dipakai untuk semua panggilan API distribusi.
   DistribusiRepository(this._client);
 
+  /// Mengambil katalog barang yang bisa diamprah, difilter kata kunci [cari] dan gudang asal [gudangId].
   Future<List<BarangAmprahKatalogModel>> getKatalogBarang({String? cari, int? gudangId}) async {
     try {
       final response = await _client.dio.get(
@@ -32,6 +34,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengambil daftar amprah ruangan, opsional difilter status/urgensi ("SEMUA" berarti tanpa filter).
   Future<List<AmprahHeaderModel>> getDaftarAmprah({String? status, String? urgensi}) async {
     try {
       final response = await _client.dio.get(
@@ -55,6 +58,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengambil rincian satu amprah beserta item-itemnya berdasarkan [id].
   Future<AmprahHeaderModel> getDetailAmprah(int id) async {
     try {
       final response = await _client.dio.get('/distribusi/amprah/$id');
@@ -69,6 +73,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengirim pengajuan amprah baru ke server dan mengembalikan data amprah yang terbentuk.
   Future<Map<String, dynamic>> submitAmprah({
     int? gudangId,
     required String urgensi,
@@ -97,6 +102,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Membatalkan amprah [id] yang masih boleh dibatalkan; melempar [ApiException] bila ditolak server.
   Future<void> batalAmprah(int id) async {
     try {
       final response = await _client.dio.post('/distribusi/amprah/$id/batal');
@@ -110,6 +116,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengambil antrean permintaan yang siap di-picking gudang; mengembalikan daftar kosong bila akses 403 (bukan petugas gudang).
   Future<List<PickingAntreanModel>> getAntreanPicking() async {
     try {
       final response = await _client.dio.get('/distribusi/antrean-picking');
@@ -129,6 +136,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Menjalankan picking otomatis (FEFO) untuk permintaan [permintaanId] dan mengembalikan SPPB yang dihasilkan.
   Future<Map<String, dynamic>> eksekusiPicking(int permintaanId) async {
     try {
       final response = await _client.dio.post(
@@ -149,6 +157,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengambil daftar SPPB kiriman gudang yang masuk ke unit ruangan.
   Future<List<SppbHeaderModel>> getSppbInbound() async {
     try {
       final response = await _client.dio.get('/distribusi/sppb-inbound');
@@ -165,6 +174,7 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengonfirmasi bahwa barang pada SPPB [sppbId] sudah diterima unit sehingga stok ruangan bertambah.
   Future<Map<String, dynamic>> konfirmasiTerimaSppb(int sppbId) async {
     try {
       final response = await _client.dio.post('/distribusi/sppb/$sppbId/terima');

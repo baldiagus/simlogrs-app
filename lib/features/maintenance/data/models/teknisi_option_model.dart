@@ -4,6 +4,7 @@ class TeknisiOptionModel {
   final String email;
   final String? nip;
 
+  /// Membuat TeknisiOptionModel.
   const TeknisiOptionModel({
     required this.id,
     required this.nama,
@@ -11,6 +12,7 @@ class TeknisiOptionModel {
     this.nip,
   });
 
+  /// Membuat TeknisiOptionModel dari JSON respons API.
   factory TeknisiOptionModel.fromJson(Map<String, dynamic> json) {
     return TeknisiOptionModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

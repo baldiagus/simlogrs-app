@@ -9,10 +9,12 @@ import '../models/fefo_monitoring_model.dart';
 import '../models/penyesuaian_stok_model.dart';
 import '../models/stock_opname_model.dart';
 
+/// Provider [PersediaanRepository] yang memakai `DioClient` bersama.
 final persediaanRepositoryProvider = Provider<PersediaanRepository>((ref) {
   return PersediaanRepository(ref.watch(dioClientProvider));
 });
 
+/// Repository persediaan: monitoring FEFO, buku mutasi, stock opname, dan penyesuaian stok via API.
 class PersediaanRepository {
   final DioClient _client;
 

@@ -11,24 +11,29 @@ import 'package:simlog_mobile/shared/widgets/app_error_view.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 import 'package:simlog_mobile/shared/widgets/empty_state_view.dart';
 
+/// Tab audit kepatuhan pengadaan PO vs PR; [onTerbitkanCapa] dipanggil saat auditor menerbitkan CAPA dari PO.
 class KepatuhanPoTab extends ConsumerStatefulWidget {
   final ValueChanged<KepatuhanPoModel> onTerbitkanCapa;
 
   const KepatuhanPoTab({super.key, required this.onTerbitkanCapa});
 
+  /// Membuat state tab kepatuhan PO.
   @override
   ConsumerState<KepatuhanPoTab> createState() => _KepatuhanPoTabState();
 }
 
+/// State tab kepatuhan PO: menyimpan controller pencarian PO.
 class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
   final TextEditingController _poSearchCtrl = TextEditingController();
 
+  /// Membuang controller pencarian agar tidak bocor memori.
   @override
   void dispose() {
     _poSearchCtrl.dispose();
     super.dispose();
   }
 
+  /// Membangun tab kepatuhan PO: filter anomali, pencarian, dan daftar PO dari [kepatuhanPengadaanProvider].
   @override
   Widget build(BuildContext context) {
     final currentFilter = ref.watch(kepatuhanPoFilterProvider);
@@ -113,6 +118,7 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
     );
   }
 
+  /// Membangun chip filter anomali PO; chip [current] ditandai terpilih dan ketukan mengubah filter.
   Widget _buildPoFilterChip(String value, String label, String current) {
     final isSelected = value == current;
     return InkWell(
@@ -139,6 +145,7 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
     );
   }
 
+  /// Membangun kartu PO beserta tag anomali; auditor mendapat tombol untuk menerbitkan CAPA.
   Widget _buildKepatuhanPoCard(KepatuhanPoModel po, bool isAuditor) {
     return Container(
       padding: const EdgeInsets.all(16),

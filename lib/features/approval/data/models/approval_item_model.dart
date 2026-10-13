@@ -1,3 +1,4 @@
+/// Detail satu barang di dalam pengajuan approval (PR atau Amprah).
 class ApprovalDetailItem {
   final int? barangId;
   final String namaBarang;
@@ -17,6 +18,7 @@ class ApprovalDetailItem {
     this.hargaEstimasi,
   });
 
+  /// Membuat [ApprovalDetailItem] dari JSON respons API.
   factory ApprovalDetailItem.fromJson(Map<String, dynamic> json) {
     return ApprovalDetailItem(
       barangId: (json['barang_id'] as num?)?.toInt() ?? (json['id'] as num?)?.toInt(),
@@ -32,6 +34,7 @@ class ApprovalDetailItem {
   }
 }
 
+/// Satu pengajuan yang menunggu persetujuan, bertipe PR atau AMPRAH.
 class ApprovalItemModel {
   final int id;
   final String tipe; // 'PR' atau 'AMPRAH'
@@ -57,8 +60,10 @@ class ApprovalItemModel {
     required this.items,
   });
 
+  /// True jika urgensi pengajuan CITO/MENDESAK sehingga perlu diprioritaskan.
   bool get isCito => urgensi.toUpperCase() == 'CITO' || urgensi.toUpperCase() == 'MENDESAK';
 
+  /// Membuat [ApprovalItemModel] dari JSON respons API.
   factory ApprovalItemModel.fromJson(Map<String, dynamic> json) {
     return ApprovalItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -80,6 +85,7 @@ class ApprovalItemModel {
   }
 }
 
+/// Respons antrean approval: daftar PR dan Amprah beserta totalnya.
 class ApprovalPendingResponse {
   final List<ApprovalItemModel> prList;
   final List<ApprovalItemModel> amprahList;
@@ -92,10 +98,10 @@ class ApprovalPendingResponse {
     required this.totalPr,
     required this.totalAmprah,
   });
+  /// Total seluruh pengajuan menunggu (PR + Amprah).
   int get total => totalPr + totalAmprah;
 
-
-
+  /// Membuat [ApprovalPendingResponse] dari JSON; total dihitung dari panjang list bila tidak dikirim server.
   factory ApprovalPendingResponse.fromJson(Map<String, dynamic> json) {
     final prRaw = json['permintaan_pengadaan'] as List<dynamic>? ??
         json['pr'] as List<dynamic>? ??

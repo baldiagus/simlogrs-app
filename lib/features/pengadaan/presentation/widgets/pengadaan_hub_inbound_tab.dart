@@ -27,6 +27,8 @@ class PengadaanHubInboundTab extends ConsumerWidget {
     required this.onTerima,
   });
 
+  /// Membangun tab inbound: kolom pencarian dan daftar PO yang menunggu diterima,
+  /// dengan dukungan tarik-untuk-segarkan.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -60,6 +62,8 @@ class PengadaanHubInboundTab extends ConsumerWidget {
     );
   }
 
+  /// Menyaring PO inbound berdasarkan kata kunci pencarian lalu membangun daftarnya,
+  /// atau menampilkan tampilan kosong bila tidak ada hasil.
   Widget _buildList(List<PoInboundHeaderModel> list) {
     var filtered = list;
     if (query.isNotEmpty) {
@@ -89,6 +93,7 @@ class PengadaanHubInboundTab extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       itemCount: filtered.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
+      // Membangun kartu PO inbound untuk tiap item hasil filter.
       itemBuilder: (ctx, idx) {
         final item = filtered[idx];
         return PengadaanHubInboundCard(
@@ -114,6 +119,8 @@ class PengadaanHubInboundCard extends StatelessWidget {
     required this.onTerima,
   });
 
+  /// Membangun kartu ringkasan PO inbound beserta tombol terima barang
+  /// yang hanya aktif bila pengguna berhak dan PO siap diterima.
   @override
   Widget build(BuildContext context) {
     return Container(

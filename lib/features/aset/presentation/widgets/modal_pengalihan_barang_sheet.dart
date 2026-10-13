@@ -10,9 +10,12 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../master/presentation/providers/master_barang_provider.dart';
 import '../providers/pengalihan_provider.dart';
 
+/// Bottom sheet form pengajuan pengalihan barang antar gudang.
 class ModalPengalihanBarangSheet extends ConsumerStatefulWidget {
+  /// Membuat sheet pengalihan barang (tanpa parameter; user dan gudang tujuan diambil dari sesi login).
   const ModalPengalihanBarangSheet({super.key});
 
+  /// Menampilkan sheet pengalihan barang sebagai modal bottom sheet; mengembalikan true bila pengajuan berhasil.
   static Future<bool?> show(BuildContext context) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -22,10 +25,12 @@ class ModalPengalihanBarangSheet extends ConsumerStatefulWidget {
     );
   }
 
+  /// Membuat state untuk sheet pengalihan barang.
   @override
   ConsumerState<ModalPengalihanBarangSheet> createState() => _ModalPengalihanBarangSheetState();
 }
 
+/// State sheet pengalihan barang: menyimpan input form, barang, gudang asal, dan jumlah, serta mengurus proses submit.
 class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBarangSheet> {
   final _formKey = GlobalKey<FormState>();
   final _alasanController = TextEditingController();
@@ -35,6 +40,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
   int? _selectedBarangId;
   int? _selectedGudangAsalId;
 
+  /// Melepas controller teks saat sheet ditutup agar tidak bocor memori.
   @override
   void dispose() {
     _alasanController.dispose();
@@ -42,6 +48,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
     super.dispose();
   }
 
+  /// Memvalidasi form dan stok gudang asal, lalu mengajukan pengalihan barang ke server dan menampilkan hasilnya.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -92,6 +99,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
     }
   }
 
+  /// Membangun bottom sheet form pengajuan pengalihan barang gudang: pilih barang, gudang asal, jumlah, alasan, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;

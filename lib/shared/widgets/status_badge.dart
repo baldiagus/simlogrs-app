@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Lencana berwarna yang merepresentasikan status dokumen/aset berdasarkan kata kunci pada teks status.
 class StatusBadge extends StatelessWidget {
   final String status;
   final Color? customColor;
@@ -11,6 +12,7 @@ class StatusBadge extends StatelessWidget {
     this.customColor,
   });
 
+  /// Membangun lencana berbentuk pil dengan warna dari status, atau customColor bila diberikan.
   @override
   Widget build(BuildContext context) {
     final (bg, text) = _resolveColors(status);
@@ -33,6 +35,7 @@ class StatusBadge extends StatelessWidget {
     );
   }
 
+  /// Memetakan teks status ke pasangan warna latar dan teks (hijau sukses, merah gagal, kuning proses, ungu kirim, abu default).
   (Color bg, Color text) _resolveColors(String s) {
     final upper = s.toUpperCase();
     if (upper.contains('SETUJU') ||
@@ -73,6 +76,7 @@ class StatusBadge extends StatelessWidget {
     return (AppColors.surfaceSecondary, AppColors.textSecondary);
   }
 
+  /// Mengubah underscore pada kode status menjadi spasi agar mudah dibaca.
   String _formatStatus(String s) {
     return s.replaceAll('_', ' ');
   }

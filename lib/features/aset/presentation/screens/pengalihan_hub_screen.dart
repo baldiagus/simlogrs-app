@@ -14,19 +14,24 @@ import '../widgets/modal_pengalihan_barang_sheet.dart';
 import '../widgets/pengalihan_card_item.dart';
 import '../widgets/pengalihan_empty_tab.dart';
 
+/// Halaman hub pengalihan aset dan barang gudang.
 class PengalihanHubScreen extends ConsumerStatefulWidget {
+  /// Membuat layar hub pengalihan.
   const PengalihanHubScreen({super.key});
 
+  /// Membuat state layar hub pengalihan.
   @override
   ConsumerState<PengalihanHubScreen> createState() =>
       _PengalihanHubScreenState();
 }
 
+/// State hub pengalihan: mengelola tab, hak otorisasi, dan alur pengajuan.
 class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   bool _canApprove = false;
 
+  /// Menentukan hak otorisasi awal dan membuat [TabController] sesuai jumlah tab.
   @override
   void initState() {
     super.initState();
@@ -35,12 +40,14 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
   }
 
+  /// Membuang [TabController] saat state dilepas agar tidak bocor memori.
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
 
+  /// Membuka modal pengajuan pengalihan aset; segarkan data bila berhasil.
   void _openCreateAsetFlow() {
     ModalPengalihanAsetSheet.show(context).then((ok) {
       if (ok == true) {
@@ -49,6 +56,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     });
   }
 
+  /// Membuka modal pengajuan pengalihan barang gudang; segarkan data bila berhasil.
   void _openCreateBarangFlow() {
     ModalPengalihanBarangSheet.show(context).then((ok) {
       if (ok == true) {
@@ -57,6 +65,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     });
   }
 
+  /// Menyegarkan semua daftar pengalihan dan jumlah otorisasi.
   void _refreshAll() {
     ref.invalidate(daftarPengalihanProvider('aktif'));
     ref.invalidate(daftarPengalihanProvider('otorisasi'));
@@ -64,6 +73,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     ref.invalidate(countOtorisasiPengalihanProvider);
   }
 
+  /// Membangun halaman hub pengalihan: tab Aktif/Otorisasi/Riwayat, FAB ajukan, dan pemilih kategori.
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
@@ -159,7 +169,9 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     );
   }
 
+  /// Membangun pemilih kategori pengalihan (Aset Fisik / Barang Gudang).
   Widget _buildKategoriSelector(String selectedKategori) {
+    /// Chip pilihan kategori: aktif bila sama dengan kategori terpilih.
     Widget chip(String label, String kategori) => Expanded(
           child: ChoiceChip(
             label: Center(
@@ -190,6 +202,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     );
   }
 
+  /// Membangun badge jumlah otorisasi; kosong bila jumlah 0.
   Widget _buildBadge(int count) {
     if (count == 0) return const SizedBox.shrink();
     return Container(
@@ -208,6 +221,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     );
   }
 
+  /// Membangun isi tab: daftar pengalihan, tampilan kosong, loading, atau error.
   Widget _buildTabContent(String tab, int countOtorisasi) {
     final user = ref.watch(authStateProvider).user;
     final asyncData = ref.watch(daftarPengalihanProvider(tab));
@@ -247,6 +261,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     );
   }
 
+  /// Menjalankan aksi pengalihan lalu menampilkan toast sukses bila berhasil.
   Future<void> _runAction(
       Future<bool> Function(PengalihanActionNotifier n) action,
       String successMessage) async {
@@ -256,6 +271,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     }
   }
 
+  /// Membangun kartu pengalihan beserta aksi batal, tolak, setuju, dan serah terima.
   Widget _buildPengalihanCard(PengalihanItemModel item, String tab) {
     return PengalihanCardItem(
       item: item,

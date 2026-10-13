@@ -14,6 +14,7 @@ class HeroStatusCard extends StatelessWidget {
     required this.onInspectPressed,
   });
 
+  /// Membangun kartu utama berisi metrik hero dan sub-metrik ringkasan dashboard.
   @override
   Widget build(BuildContext context) {
     final hero = summary.hero;
@@ -123,6 +124,7 @@ class HeroStatusCard extends StatelessWidget {
     );
   }
 
+  /// Membangun satu item sub-metrik (nilai di atas, label di bawah) di dalam kartu hero.
   Widget _buildSubItem(String label, String value) {
     return Column(
       mainAxisSize: MainAxisSize.min,

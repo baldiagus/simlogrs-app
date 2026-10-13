@@ -8,12 +8,14 @@ import '../../data/models/peminjaman_aset_model.dart';
 ///
 /// [onAksi] dipanggil dengan 'tolak', 'setujui', atau 'serah_terima'.
 class SirkulasiHubOtorisasiCard extends StatelessWidget {
+  /// Membuat kartu otorisasi untuk [item] dengan callback aksi [onAksi].
   const SirkulasiHubOtorisasiCard(
       {super.key, required this.item, required this.onAksi});
 
   final ApprovalPeminjamanModel item;
   final ValueChanged<String> onAksi;
 
+  /// Membangun kartu permohonan beserta tombol aksi yang memanggil [onAksi].
   @override
   Widget build(BuildContext context) {
     return Container(

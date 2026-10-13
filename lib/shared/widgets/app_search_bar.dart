@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Kolom pencarian seragam dengan ikon cari dan tombol hapus yang muncul saat ada teks.
 class AppSearchBar extends StatefulWidget {
   final TextEditingController? controller;
   final String hint;
@@ -18,14 +19,17 @@ class AppSearchBar extends StatefulWidget {
     this.autofocus = false,
   });
 
+  /// Membuat state yang mengelola controller pencarian.
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();
 }
 
+/// State yang memakai controller dari luar bila ada, atau membuat dan membuang controller sendiri.
 class _AppSearchBarState extends State<AppSearchBar> {
   late final TextEditingController _ctrl;
   bool _ownsController = false;
 
+  /// Menentukan controller: pakai milik parent bila diberikan, jika tidak buat sendiri dan tandai sebagai miliknya.
   @override
   void initState() {
     super.initState();
@@ -37,6 +41,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
     }
   }
 
+  /// Membuang controller hanya bila dibuat sendiri; controller dari parent menjadi tanggung jawab parent.
   @override
   void dispose() {
     if (_ownsController) {
@@ -45,6 +50,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
     super.dispose();
   }
 
+  /// Membangun TextField yang rebuild saat teks berubah agar tombol hapus tampil/hilang; tombol hapus mengosongkan teks dan memanggil onChanged/onClear.
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<TextEditingValue>(

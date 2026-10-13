@@ -1,3 +1,4 @@
+/// Satu baris register aset fisik rumah sakit beserta lokasi, kondisi, dan nilai perolehan.
 class RegisterAsetItemModel {
   final int id;
   final String kodeAset;
@@ -27,10 +28,14 @@ class RegisterAsetItemModel {
     required this.nilaiPerolehan,
   });
 
+  /// True bila aset berstatus TERSEDIA.
   bool get isTersedia => status.toUpperCase() == 'TERSEDIA';
+  /// True bila aset sedang DIPINJAM.
   bool get isDipinjam => status.toUpperCase() == 'DIPINJAM';
+  /// True bila aset sedang DALAM_MAINTENANCE.
   bool get isMaintenance => status.toUpperCase() == 'DALAM_MAINTENANCE';
 
+  /// Membangun [RegisterAsetItemModel] dari JSON API dengan nilai default aman.
   factory RegisterAsetItemModel.fromJson(Map<String, dynamic> json) {
     return RegisterAsetItemModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),

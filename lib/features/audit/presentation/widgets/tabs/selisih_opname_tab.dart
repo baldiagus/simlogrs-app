@@ -9,9 +9,11 @@ import 'package:simlog_mobile/shared/widgets/app_error_view.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 import 'package:simlog_mobile/shared/widgets/empty_state_view.dart';
 
+/// Tab pemeriksaan selisih stok fisik vs sistem dan penyesuaian stok yang menunggu persetujuan.
 class SelisihOpnameTab extends ConsumerWidget {
   const SelisihOpnameTab({super.key});
 
+  /// Membangun tab selisih opname: sesi opname berselisih dan penyesuaian stok dari [selisihOpnameProvider].
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final opnameAsync = ref.watch(selisihOpnameProvider);
@@ -67,6 +69,7 @@ class SelisihOpnameTab extends ConsumerWidget {
     );
   }
 
+  /// Membangun kartu sesi opname yang berselisih beserta rincian batch barangnya.
   Widget _buildSesiSelisihCard(SesiOpnameSelisihModel sesi) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -148,6 +151,7 @@ class SelisihOpnameTab extends ConsumerWidget {
     );
   }
 
+  /// Membangun kartu pengajuan penyesuaian stok; status MENUNGGU diberi penanda khusus.
   Widget _buildPenyesuaianCard(PenyesuaianStokAuditModel p) {
     final isMenunggu = p.status == 'MENUNGGU';
 

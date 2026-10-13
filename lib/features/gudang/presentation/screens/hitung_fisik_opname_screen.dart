@@ -8,19 +8,24 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 
+/// Layar input hitung fisik untuk satu sesi stock opname ([opname]).
 class HitungFisikOpnameScreen extends StatefulWidget {
   final StokOpnameSesiModel opname;
 
+  /// Membuat layar hitung fisik untuk sesi [opname].
   const HitungFisikOpnameScreen({super.key, required this.opname});
 
+  /// Membuat state layar hitung fisik.
   @override
   State<HitungFisikOpnameScreen> createState() => _HitungFisikOpnameScreenState();
 }
 
+/// State layar hitung fisik; mengelola controller jumlah fisik per detail dan status penyimpanan.
 class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
   final Map<int, TextEditingController> _controllers = {};
   bool _isSaving = false;
 
+  /// Menyiapkan satu controller input per detail opname, diisi jumlah fisik yang sudah ada.
   @override
   void initState() {
     super.initState();
@@ -31,6 +36,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
     }
   }
 
+  /// Membuang semua controller input agar tidak bocor memori.
   @override
   void dispose() {
     for (final c in _controllers.values) {
@@ -39,6 +45,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
     super.dispose();
   }
 
+  /// Mengirim hasil hitung fisik; [finalisasi] `true` mengunci sesi dan menerbitkannya ke otorisasi, `false` hanya simpan sementara.
   Future<void> _submitCount(bool finalisasi) async {
     setState(() => _isSaving = true);
     final List<Map<String, dynamic>> items = [];
@@ -72,6 +79,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
     }
   }
 
+  /// Menyusun UI hitung fisik: daftar detail batch dengan input jumlah fisik serta tombol simpan sementara/finalisasi.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

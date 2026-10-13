@@ -4,16 +4,20 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/aset_detail_model.dart';
 
+/// Kartu ringkasan riwayat pengalihan/mutasi fisik aset antar lokasi.
 class AsetHistoriPengalihanCard extends StatelessWidget {
   final List<RiwayatPengalihanAsetItemModel> riwayat;
   final VoidCallback onTap;
 
+  /// Membuat kartu histori pengalihan dengan daftar [riwayat] dan callback [onTap].
   const AsetHistoriPengalihanCard({
     super.key,
     required this.riwayat,
     required this.onTap,
   });
 
+  /// Membangun kartu ringkasan histori pengalihan/mutasi aset yang bisa
+  /// diketuk untuk membuka histori lengkap.
   @override
   Widget build(BuildContext context) {
     return InkWell(

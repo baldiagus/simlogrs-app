@@ -14,6 +14,7 @@ class AppTheme {
     'sans-serif',
   ];
 
+  /// Tema terang global aplikasi (Material 3): warna, tipografi, kartu, app bar, tombol, dan input.
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,

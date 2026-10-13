@@ -9,6 +9,7 @@ class UnitModel {
     this.kode,
   });
 
+  /// Membangun data unit kerja dari JSON API; id diparse aman baik int maupun string.
   factory UnitModel.fromJson(Map<String, dynamic> json) {
     return UnitModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -17,6 +18,7 @@ class UnitModel {
     );
   }
 
+  /// Serialisasi unit ke JSON untuk cache lokal; `kode` hanya disertakan jika ada.
   Map<String, dynamic> toJson() => {
         'id': id,
         'nama': nama,
@@ -37,6 +39,7 @@ class GudangModel {
     this.activeBatchesCount,
   });
 
+  /// Membangun data gudang dari JSON API beserta jumlah batch aktif bila tersedia.
   factory GudangModel.fromJson(Map<String, dynamic> json) {
     return GudangModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -46,6 +49,7 @@ class GudangModel {
     );
   }
 
+  /// Serialisasi gudang ke JSON untuk cache lokal.
   Map<String, dynamic> toJson() => {
         'id': id,
         'nama': nama,
@@ -87,25 +91,40 @@ class UserModel {
   /// Pengecekan apakah user memiliki role tertentu
   bool hasRole(String role) => roles.contains(role);
 
+  /// True jika user adalah super admin (akses penuh ke semua fitur).
   bool get isSuperAdmin => hasRole('super_admin');
+  /// True jika user kepala teknisi dan bukan super admin.
   bool get isKepalaTeknisi => hasRole('kepala_teknisi') && !isSuperAdmin;
+  /// True jika user teknisi biasa (bukan kepala teknisi/super admin).
   bool get isTeknisi => hasRole('teknisi') && !isKepalaTeknisi && !isSuperAdmin;
+  /// True jika user bagian gudang (petugas, kepala gudang, admin logistik) dan bukan super admin.
   bool get isGudangUser => (hasRole('petugas_gudang') || hasRole('kepala_gudang') || hasRole('admin_logistik')) && !isSuperAdmin;
+  /// True jika user berhak menerima barang masuk (inbound) dari PO.
   bool get canReceiveInbound =>
       isSuperAdmin ||
       isAdminLogistik ||
       hasRole('kepala_gudang') ||
       hasRole('petugas_gudang') ||
       can('create_gudang_stok::penerimaan::po');
+  /// True jika user kepala gudang atau punya akses dashboard kepala gudang.
   bool get isKepalaGudang => (hasRole('kepala_gudang') || can('page_KepalaGudangDashboard')) && !isSuperAdmin;
+  /// True jika user petugas gudang dan bukan super admin.
   bool get isPetugasGudang => hasRole('petugas_gudang') && !isSuperAdmin;
+  /// True jika user kepala unit (karu) atau kepala teknisi atau punya akses dashboard kepala unit.
   bool get isKaru => (hasRole('kepala_unit') || isKepalaTeknisi || can('page_KepalaUnitDashboard')) && !isSuperAdmin;
+  /// True jika user admin logistik atau punya akses dashboard admin logistik.
   bool get isAdminLogistik => (hasRole('admin_logistik') || can('page_AdminLogistikDashboard')) && !isSuperAdmin;
+  /// True jika user auditor atau punya permission audit manajemen.
   bool get isAuditor => (hasRole('auditor') || permissions.any((p) => p.contains('audit_manajemen'))) && !isSuperAdmin;
+  /// True jika user manajemen atau punya akses dashboard manajemen.
   bool get isManajemen => (hasRole('manajemen') || can('page_ManajemenDashboard')) && !isSuperAdmin;
+  /// True jika user bagian pengadaan atau punya akses dashboard pengadaan.
   bool get isPengadaan => (hasRole('pengadaan') || can('page_PengadaanDashboard')) && !isSuperAdmin;
+  /// True jika user boleh mengakses fitur audit (super admin, auditor, manajemen, atau permission audit trail).
   bool get hasAuditAccess => isSuperAdmin || isAuditor || isManajemen || can('view_any_audit_manajemen::audit::trail');
+  /// True jika user boleh mengakses fitur persediaan/stok (gudang, auditor, manajemen, atau permission monitoring FEFO).
   bool get hasPersediaanAccess => isSuperAdmin || isGudangUser || isAuditor || isManajemen || can('view_any_gudang_stok::monitoring::fefo');
+  /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
@@ -133,6 +152,7 @@ class UserModel {
     );
   }
 
+  /// Serialisasi user ke JSON untuk disimpan sebagai cache lokal.
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,

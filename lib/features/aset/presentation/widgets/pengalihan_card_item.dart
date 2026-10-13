@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/pengalihan_model.dart';
 
+/// Kartu ringkasan satu pengalihan pada daftar tab Aktif/Otorisasi/Riwayat.
 class PengalihanCardItem extends StatelessWidget {
   final PengalihanItemModel item;
   final String tab;
@@ -12,6 +13,7 @@ class PengalihanCardItem extends StatelessWidget {
   final VoidCallback onApproveTap;
   final VoidCallback onReceiveTap;
 
+  /// Membuat kartu pengalihan dengan callback batal, tolak, setujui, dan terima.
   const PengalihanCardItem({
     super.key,
     required this.item,
@@ -22,6 +24,7 @@ class PengalihanCardItem extends StatelessWidget {
     required this.onReceiveTap,
   });
 
+  /// Membangun kartu pengalihan; tombol aksi muncul sesuai tab dan hak akses item.
   @override
   Widget build(BuildContext context) {
     final showApproveActions = tab == 'otorisasi' && item.canApprove;
@@ -74,6 +77,7 @@ class PengalihanCardItem extends StatelessWidget {
     );
   }
 
+  /// Membangun header kartu: nomor/jenis pengalihan dan badge status.
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,6 +125,7 @@ class PengalihanCardItem extends StatelessWidget {
     );
   }
 
+  /// Membangun baris jumlah barang/aset yang dialihkan.
   Widget _buildJumlahRow() {
     return Row(
       children: [
@@ -157,6 +162,7 @@ class PengalihanCardItem extends StatelessWidget {
     );
   }
 
+  /// Membangun kotak rute asal dan tujuan pengalihan.
   Widget _buildRuteBox() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -186,6 +192,7 @@ class PengalihanCardItem extends StatelessWidget {
     );
   }
 
+  /// Membangun baris tombol aksi (batal/tolak/setujui/terima) sesuai flag yang aktif.
   Widget _buildActions({
     required bool showCancelAction,
     required bool showApproveActions,
