@@ -1,0 +1,8 @@
+# Template Konfigurasi Keystore Rilis Mandiri SIMLOG RS Mobile
+# Salin berkas ini ke android/key.properties dan sesuaikan dengan kredensial keystore rilis Anda.
+# PENTING: Jangan pernah melakukan commit berkas android/key.properties ke repositori Git publik.
+
+keyAlias=simlogrs_release_key
+keyPassword=ganti_dengan_password_key_anda
+storeFile=../keystores/simlogrs-release.jks
+storePassword=ganti_dengan_password_keystore_anda

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simlog_mobile/core/security/security_device_service.dart';
 import 'package:simlog_mobile/features/auth/presentation/screens/login_screen.dart';
 
 /// Menguji chip preset Super Admin di LoginScreen mengisi kredensial dan mereset error saat diketuk.
@@ -14,8 +15,11 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
+      ProviderScope(
+        overrides: [
+          isDeviceRootedProvider.overrideWith((ref) => Future.value(false)),
+        ],
+        child: const MaterialApp(
           home: LoginScreen(),
         ),
       ),

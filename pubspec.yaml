@@ -19,6 +19,9 @@ dependencies:
   # Secure Storage & Persistence
   flutter_secure_storage: ^9.2.2
 
+  # Barcode & QR Code Camera Scanner
+  mobile_scanner: ^5.1.1
+
   # Camera & Image Picker
   image_picker: ^1.1.2
 

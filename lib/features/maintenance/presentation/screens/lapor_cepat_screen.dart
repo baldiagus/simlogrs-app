@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -321,7 +323,9 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                       border: Border.all(color: AppColors.border),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.network(_pickedImage!.path, fit: BoxFit.cover, width: double.infinity),
+                    child: kIsWeb
+                        ? Image.network(_pickedImage!.path, fit: BoxFit.cover, width: double.infinity)
+                        : Image.file(File(_pickedImage!.path), fit: BoxFit.cover, width: double.infinity),
                   ),
                 const SizedBox(height: 28),
 
