@@ -8,6 +8,8 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_filter_chip_bar.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../data/models/spk_model.dart';
+import '../../../../core/models/pagination_meta.dart';
+import '../../../../shared/widgets/app_paged_list_view.dart';
 import '../providers/maintenance_provider.dart';
 import 'spk_detail_screen.dart';
 class SpkTabItem {
@@ -114,7 +116,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
   /// Membangun tampilan _SpkListScreenState.
   @override
   Widget build(BuildContext context) {
-    final spkListAsync = ref.watch(spkListProvider(_selectedStatus));
+    final pagedState = ref.watch(spkPagedListProvider(_selectedStatus));
 
     return Scaffold(
       appBar: widget.isEmbedded
@@ -130,7 +132,10 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
                 IconButton(
                   icon: const Icon(LucideIcons.refreshCw, size: 18),
                   tooltip: 'Segarkan',
-                  onPressed: () => ref.invalidate(spkListProvider(_selectedStatus)),
+                  onPressed: () {
+                    ref.invalidate(spkListProvider(_selectedStatus));
+                    ref.read(spkPagedListProvider(_selectedStatus).notifier).loadInitial();
+                  },
                 ),
               ],
               bottom: _tabs.length > 1 && _tabController != null
@@ -171,62 +176,76 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
             ],
             // Content List
             Expanded(
-              child: RefreshIndicator(
-                color: AppColors.primaryPurple,
-                onRefresh: () async => ref.invalidate(spkListProvider(_selectedStatus)),
-                child: spkListAsync.when(
-                  data: (list) {
-                    if (list.isEmpty) {
-                      return SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.65,
-                          child: Builder(
-                            builder: (context) {
-                              String emptyTitle = 'Tidak Ada Data SPK';
-                              String emptyMsg = 'Belum ada surat perintah kerja pada status ini.';
-                              if (_selectedStatus == 'DITUGASKAN') {
-                                emptyTitle = 'Tidak Ada Tugas SPK Baru';
-                                emptyMsg = 'Saat ini belum ada surat perintah kerja baru yang ditugaskan kepada Anda.';
-                              } else if (_selectedStatus == 'DITERIMA') {
-                                emptyTitle = 'Tidak Ada SPK Berjalan';
-                                emptyMsg = 'Belum ada SPK yang sedang dikerjakan. Silakan konfirmasi tugas baru di menu Tugas SPK.';
-                              } else if (_selectedStatus == 'SELESAI') {
-                                emptyTitle = 'Belum Ada Riwayat Selesai';
-                                emptyMsg = 'Belum ada SPK yang diselesaikan pada daftar riwayat ini.';
-                              }
-                              return EmptyStateView(
-                                icon: LucideIcons.wrench,
-                                title: emptyTitle,
-                                message: emptyMsg,
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                      itemCount: list.length,
-                      itemBuilder: (context, index) {
-                        final spk = list[index];
-                        return _buildSpkCard(context, spk);
-                      },
-                    );
-                  },
-                  loading: () => const AppLoadingView(),
-                  error: (err, _) => AppErrorView(
-                    title: 'Gagal Memuat Tugas SPK',
-                    error: err,
-                    onRetry: () => ref.invalidate(spkListProvider(_selectedStatus)),
-                  ),
-                ),
-              ),
+              child: _buildContent(context, pagedState),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Membangun konten daftar SPK berhalaman atau tampilan status terkait.
+  Widget _buildContent(BuildContext context, PagedListState<SpkHeaderModel> pagedState) {
+    if (pagedState.isLoading && pagedState.items.isEmpty) {
+      return const AppLoadingView();
+    }
+
+    if (pagedState.errorMessage != null && pagedState.items.isEmpty) {
+      return AppErrorView(
+        title: 'Gagal Memuat Tugas SPK',
+        error: pagedState.errorMessage,
+        onRetry: () {
+          ref.invalidate(spkListProvider(_selectedStatus));
+          ref.read(spkPagedListProvider(_selectedStatus).notifier).loadInitial();
+        },
+      );
+    }
+
+    final emptyWidget = SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.65,
+        child: Builder(
+          builder: (context) {
+            String emptyTitle = 'Tidak Ada Data SPK';
+            String emptyMsg = 'Belum ada surat perintah kerja pada status ini.';
+            if (_selectedStatus == 'DITUGASKAN') {
+              emptyTitle = 'Tidak Ada Tugas SPK Baru';
+              emptyMsg = 'Saat ini belum ada surat perintah kerja baru yang ditugaskan kepada Anda.';
+            } else if (_selectedStatus == 'DITERIMA') {
+              emptyTitle = 'Tidak Ada SPK Berjalan';
+              emptyMsg = 'Belum ada SPK yang sedang dikerjakan. Silakan konfirmasi tugas baru di menu Tugas SPK.';
+            } else if (_selectedStatus == 'SELESAI') {
+              emptyTitle = 'Belum Ada Riwayat Selesai';
+              emptyMsg = 'Belum ada SPK yang diselesaikan pada daftar riwayat ini.';
+            }
+            return EmptyStateView(
+              icon: LucideIcons.wrench,
+              title: emptyTitle,
+              message: emptyMsg,
+            );
+          },
+        ),
+      ),
+    );
+
+    return AppPagedListView<SpkHeaderModel>(
+      items: pagedState.items,
+      isLoadingMore: pagedState.isLoadingMore,
+      hasMore: pagedState.hasMore,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+      separatorBuilder: (_, __) => const SizedBox(height: 0),
+      emptyWidget: emptyWidget,
+      onLoadMore: () {
+        ref.read(spkPagedListProvider(_selectedStatus).notifier).loadMore();
+      },
+      onRefresh: () async {
+        ref.invalidate(spkListProvider(_selectedStatus));
+        await ref.read(spkPagedListProvider(_selectedStatus).notifier).loadInitial();
+      },
+      itemBuilder: (context, index, spk) {
+        return _buildSpkCard(context, spk);
+      },
     );
   }
 

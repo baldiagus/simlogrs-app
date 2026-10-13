@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../gudang/presentation/providers/gudang_provider.dart';
@@ -18,7 +19,75 @@ final maintenanceRepositoryProvider = Provider<MaintenanceRepository>((ref) {
 final spkListProvider =
     FutureProvider.autoDispose.family<List<SpkHeaderModel>, String>((ref, status) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
-  return await repository.getSpkList(status: status == 'SEMUA' ? null : status);
+  final res = await repository.getSpkList(status: status == 'SEMUA' ? null : status);
+  return res.items;
+});
+
+/// State notifier untuk daftar SPK berhalaman dengan dukungan pagination dan infinite scroll.
+class SpkPagedNotifier extends StateNotifier<PagedListState<SpkHeaderModel>> {
+  final MaintenanceRepository _repository;
+  final String _status;
+
+  /// Membuat instance [SpkPagedNotifier] dan memulai pemuatan halaman awal.
+  SpkPagedNotifier(this._repository, this._status)
+      : super(const PagedListState<SpkHeaderModel>.initial()) {
+    loadInitial();
+  }
+
+  /// Memuat halaman awal daftar SPK (halaman 1).
+  Future<void> loadInitial() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final res = await _repository.getSpkList(
+        status: _status == 'SEMUA' ? null : _status,
+        page: 1,
+      );
+      state = state.copyWith(
+        items: res.items,
+        page: res.meta.halamanIni,
+        hasMore: res.meta.hasMore,
+        isLoading: false,
+        clearError: true,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// Memuat halaman data lanjutan berikutnya saat scroll mendekati bawah.
+  Future<void> loadMore() async {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+    try {
+      final nextPage = state.page + 1;
+      final res = await _repository.getSpkList(
+        status: _status == 'SEMUA' ? null : _status,
+        page: nextPage,
+      );
+      state = state.copyWith(
+        items: [...state.items, ...res.items],
+        page: res.meta.halamanIni,
+        hasMore: res.meta.hasMore,
+        isLoadingMore: false,
+        clearError: true,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+}
+
+/// Provider daftar SPK berhalaman dengan infinite scroll per status.
+final spkPagedListProvider = StateNotifierProvider.autoDispose.family<
+    SpkPagedNotifier, PagedListState<SpkHeaderModel>, String>((ref, status) {
+  final repository = ref.watch(maintenanceRepositoryProvider);
+  return SpkPagedNotifier(repository, status);
 });
 
 /// Provider detail SPK per ID.
@@ -81,6 +150,7 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
 
       _ref.invalidate(spkDetailProvider(spkId));
       _ref.invalidate(spkListProvider);
+      _ref.invalidate(spkPagedListProvider);
       _ref.invalidate(daftarTiketUnitProvider);
       _ref.invalidate(rekamMedisKatalogProvider);
       _ref.invalidate(daftarRakProvider);

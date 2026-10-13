@@ -207,4 +207,48 @@ void main() {
       );
     });
   });
+  group('MaintenanceRepository.getSpkList', () {
+    test('berhasil memparsing PagedResponse berisi spk dan metadata paginasi', () async {
+      final (repo, adapter) = _buat(200, {
+        'sukses': true,
+        'data': {
+          'spk': [
+            {
+              'id': 101,
+              'kode_spk': 'SPK-2026-001',
+              'status': 'DITUGASKAN',
+              'prioritas': 'CITO',
+              'deskripsi': 'Perbaikan ventilator',
+            },
+          ],
+          'paginasi': {
+            'total': 45,
+            'per_halaman': 15,
+            'halaman_ini': 1,
+            'total_halaman': 3,
+          },
+        },
+      });
+
+      final hasil = await repo.getSpkList(status: 'DITUGASKAN', page: 1);
+
+      expect(hasil.items.length, 1);
+      expect(hasil.items.first.id, 101);
+      expect(hasil.items.first.kodeSpk, 'SPK-2026-001');
+      expect(hasil.meta.total, 45);
+      expect(hasil.meta.halamanIni, 1);
+      expect(hasil.meta.totalHalaman, 3);
+      expect(hasil.meta.hasMore, isTrue);
+      expect(adapter.last!.queryParameters, {'status': 'DITUGASKAN', 'page': 1});
+    });
+
+    test('error dio dilempar sebagai ApiException', () async {
+      final (repo, _) = _buat(500, {'sukses': false, 'pesan': 'Server Error'});
+
+      expect(
+        repo.getSpkList(),
+        throwsA(isA<ApiException>()),
+      );
+    });
+  });
 }

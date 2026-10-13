@@ -146,13 +146,19 @@ void main() {
         },
         {'id': 102},
       ],
+      'paginasi': {
+        'total': 499,
+        'per_halaman': 20,
+        'halaman_ini': 1,
+        'total_halaman': 25,
+      },
     });
 
     test('mengirim page dan filter di queryParameters, lalu mem-parse item', () async {
       final adapter = FakeAdapter((o) => jsonResponse(trailJson));
       final repo = buildRepo(adapter);
 
-      final items = await repo.getAuditTrail(
+      final res = await repo.getAuditTrail(
         aksi: 'UPDATE',
         entitas: 'Barang',
         search: '  budi  ',
@@ -167,16 +173,17 @@ void main() {
         'search': 'budi',
         'page': 3,
       });
-      expect(items, hasLength(2));
-      expect(items[0].id, 101);
-      expect(items[0].penggunaNama, 'Budi Santoso');
-      expect(items[0].referensiId, 55);
-      expect(items[0].hasDataSebelum, isTrue);
+      expect(res.items, hasLength(2));
+      expect(res.items[0].id, 101);
+      expect(res.items[0].penggunaNama, 'Budi Santoso');
+      expect(res.items[0].referensiId, 55);
+      expect(res.items[0].hasDataSebelum, isTrue);
       // Field kosong memakai default model.
-      expect(items[1].penggunaNama, 'Sistem');
-      expect(items[1].hasDataSesudah, isFalse);
+      expect(res.items[1].penggunaNama, 'Sistem');
+      expect(res.items[1].hasDataSesudah, isFalse);
+      expect(res.meta.total, 499);
+      expect(res.meta.hasMore, isTrue);
     });
-
     test('hanya mengirim page=1 bila tanpa filter dan mengabaikan string kosong', () async {
       final adapter = FakeAdapter((o) => jsonResponse(trailJson));
       final repo = buildRepo(adapter);
@@ -190,7 +197,9 @@ void main() {
       final adapter = FakeAdapter((o) => jsonResponse(envelope({'total': 0})));
       final repo = buildRepo(adapter);
 
-      expect(await repo.getAuditTrail(), isEmpty);
+      final res = await repo.getAuditTrail();
+      expect(res.items, isEmpty);
+      expect(res.meta.total, 0);
     });
 
     test('403 diubah menjadi ApiException dengan pesan dari server', () async {
@@ -256,6 +265,59 @@ void main() {
             .having((e) => e.message, 'message', 'Log audit tidak ditemukan')
             .having((e) => e.statusCode, 'statusCode', 404)),
       );
+    });
+  });
+
+  group('AuditRepository.getKepatuhanPengadaan', () {
+    final kepatuhanJson = envelope({
+      'items': [
+        {
+          'id': 201,
+          'kode': 'PO-2026-001',
+          'pemasok': 'PT Medika Farma',
+          'status': 'SELESAI',
+          'anomali_tags': ['TANPA_PR'],
+        },
+      ],
+      'paginasi': {
+        'total': 499,
+        'per_halaman': 20,
+        'halaman_ini': 1,
+        'total_halaman': 25,
+      },
+    });
+
+    test('mengirim queryParameters dan mem-parse items serta paginasi', () async {
+      final adapter = FakeAdapter((o) => jsonResponse(kepatuhanJson));
+      final repo = buildRepo(adapter);
+
+      final res = await repo.getKepatuhanPengadaan(
+        anomali: 'TANPA_PR',
+        search: '  farma  ',
+        page: 1,
+      );
+
+      final req = adapter.requests.single;
+      expect(req.path, '/audit/kepatuhan-pengadaan');
+      expect(req.queryParameters, {
+        'anomali': 'TANPA_PR',
+        'search': 'farma',
+        'page': 1,
+      });
+      expect(res.items, hasLength(1));
+      expect(res.items[0].id, 201);
+      expect(res.items[0].kode, 'PO-2026-001');
+      expect(res.meta.total, 499);
+      expect(res.meta.hasMore, isTrue);
+    });
+
+    test('mengembalikan PagedResponse kosong bila items tidak ada', () async {
+      final adapter = FakeAdapter((o) => jsonResponse(envelope({'total': 0})));
+      final repo = buildRepo(adapter);
+
+      final res = await repo.getKepatuhanPengadaan();
+      expect(res.items, isEmpty);
+      expect(res.meta.total, 0);
     });
   });
 

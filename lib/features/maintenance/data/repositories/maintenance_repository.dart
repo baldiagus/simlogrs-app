@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/spk_model.dart';
@@ -140,26 +141,34 @@ class MaintenanceRepository {
     }
   }
 
-  /// Ambil daftar SPK, opsional difilter status.
-  Future<List<SpkHeaderModel>> getSpkList({String? status}) async {
+  /// Ambil daftar SPK berhalaman, opsional difilter status dan nomor halaman.
+  Future<PagedResponse<SpkHeaderModel>> getSpkList({
+    String? status,
+    int page = 1,
+  }) async {
     try {
       final response = await _client.dio.get(
         '/maintenance/spk',
         queryParameters: {
           if (status != null && status.isNotEmpty) 'status': status,
+          'page': page,
         },
       );
 
       final data = response.data;
       if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
         final inner = data['data'] as Map<String, dynamic>;
-        if (inner['spk'] is List) {
-          return (inner['spk'] as List)
-              .map((e) => SpkHeaderModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-        }
+        final items = (inner['spk'] is List)
+            ? (inner['spk'] as List)
+                .map((e) => SpkHeaderModel.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : <SpkHeaderModel>[];
+        final meta = (inner['paginasi'] is Map<String, dynamic>)
+            ? PaginationMeta.fromJson(inner['paginasi'] as Map<String, dynamic>)
+            : PaginationMeta.empty;
+        return PagedResponse<SpkHeaderModel>(items: items, meta: meta);
       }
-      return [];
+      return PagedResponse.empty<SpkHeaderModel>();
     } on DioException catch (e) {
       if (e.error is ApiException) {
         throw e.error as ApiException;

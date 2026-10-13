@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../data/models/audit_models.dart';
 import '../../data/repositories/audit_repository.dart';
 
@@ -33,17 +34,150 @@ class AuditTrailFilter {
   int get hashCode => Object.hash(aksi, entitas, search, page);
 }
 
-/// Jejak audit per filter (aksi, entitas, search, halaman); tiap kombinasi filter di-cache terpisah.
-final auditTrailProvider =
-    FutureProvider.autoDispose.family<List<AuditTrailItemModel>, AuditTrailFilter>((ref, filter) async {
+/// Alias state paginasi daftar jejak audit.
+typedef AuditTrailState = PagedListState<AuditTrailItemModel>;
+
+/// StateNotifier untuk mengelola pemuatan jejak audit dengan paginasi dan filter.
+class AuditTrailNotifier extends StateNotifier<PagedListState<AuditTrailItemModel>> {
+  final AuditRepository _repository;
+  String? _aksi;
+  String? _search;
+  String? _entitas;
+
+  /// Membuat [AuditTrailNotifier] dengan filter awal opsional.
+  AuditTrailNotifier(
+    this._repository, {
+    String? aksi,
+    String? search,
+    String? entitas,
+  })  : _aksi = aksi,
+        _search = search,
+        _entitas = entitas,
+        super(const PagedListState<AuditTrailItemModel>.initial());
+
+  /// Aksi yang sedang difilter.
+  String? get aksi => _aksi;
+
+  /// Kata kunci pencarian yang sedang aktif.
+  String? get search => _search;
+
+  /// Jenis entitas yang sedang difilter.
+  String? get entitas => _entitas;
+
+  /// Memuat halaman pertama jejak audit.
+  Future<void> loadInitial() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final res = await _repository.getAuditTrail(
+        aksi: _aksi,
+        entitas: _entitas,
+        search: _search,
+        page: 1,
+      );
+      state = state.copyWith(
+        items: res.items,
+        page: 1,
+        hasMore: res.meta.hasMore,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// Memuat halaman berikutnya bila masih ada data dan tidak sedang memuat.
+  Future<void> loadMore() async {
+    if (!state.hasMore || state.isLoadingMore || state.isLoading) return;
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+    final nextPage = state.page + 1;
+    try {
+      final res = await _repository.getAuditTrail(
+        aksi: _aksi,
+        entitas: _entitas,
+        search: _search,
+        page: nextPage,
+      );
+      state = state.copyWith(
+        items: [...state.items, ...res.items],
+        page: nextPage,
+        hasMore: res.meta.hasMore,
+        isLoadingMore: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// Memuat ulang jejak audit dari halaman pertama.
+  Future<void> refresh() async {
+    try {
+      final res = await _repository.getAuditTrail(
+        aksi: _aksi,
+        entitas: _entitas,
+        search: _search,
+        page: 1,
+      );
+      state = state.copyWith(
+        items: res.items,
+        page: 1,
+        hasMore: res.meta.hasMore,
+        isLoading: false,
+        clearError: true,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// Memperbarui filter aksi dan kata kunci pencarian lalu memuat ulang dari halaman 1.
+  Future<void> setFilter({String? aksi, String? search, String? entitas}) async {
+    _aksi = aksi;
+    _search = search;
+    if (entitas != null) _entitas = entitas;
+    state = const PagedListState<AuditTrailItemModel>.initial();
+    await loadInitial();
+  }
+
+  /// Mengatur filter aksi dan memuat ulang halaman pertama.
+  Future<void> setAksi(String? aksi) => setFilter(aksi: aksi, search: _search, entitas: _entitas);
+
+  /// Mengatur kata kunci pencarian dan memuat ulang halaman pertama.
+  Future<void> setSearch(String? search) => setFilter(aksi: _aksi, search: search, entitas: _entitas);
+}
+
+/// Provider state paginasi jejak audit yang memegang filter aksi dan pencarian.
+final auditTrailProvider = StateNotifierProvider.autoDispose<
+    AuditTrailNotifier,
+    PagedListState<AuditTrailItemModel>>((ref) {
   final repo = ref.watch(auditRepositoryProvider);
-  return repo.getAuditTrail(
+  return AuditTrailNotifier(repo)..loadInitial();
+});
+
+/// Family provider jejak audit per filter untuk skenario isolasi filter.
+final auditTrailFamilyProvider = StateNotifierProvider.autoDispose.family<
+    AuditTrailNotifier,
+    PagedListState<AuditTrailItemModel>,
+    AuditTrailFilter>((ref, filter) {
+  final repo = ref.watch(auditRepositoryProvider);
+  return AuditTrailNotifier(
+    repo,
     aksi: filter.aksi,
     entitas: filter.entitas,
     search: filter.search,
-    page: filter.page,
-  );
+  )..loadInitial();
 });
+
+/// Alias untuk [auditTrailProvider] agar konsisten penamaan notifier.
+final auditTrailNotifierProvider = auditTrailProvider;
 
 /// Filter jenis anomali PO yang dipilih ('SEMUA' berarti tanpa filter).
 final kepatuhanPoFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA');
@@ -56,10 +190,11 @@ final kepatuhanPengadaanProvider = FutureProvider.autoDispose<List<KepatuhanPoMo
   final anomali = ref.watch(kepatuhanPoFilterProvider);
   final search = ref.watch(kepatuhanPoSearchProvider);
 
-  return repo.getKepatuhanPengadaan(
+  final res = await repo.getKepatuhanPengadaan(
     anomali: anomali == 'SEMUA' ? null : anomali,
     search: search.isEmpty ? null : search,
   );
+  return res.items;
 });
 
 /// Data selisih opname fisik vs sistem untuk tab audit selisih opname.

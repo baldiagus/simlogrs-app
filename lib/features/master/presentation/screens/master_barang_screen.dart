@@ -22,6 +22,17 @@ class MasterBarangScreen extends ConsumerStatefulWidget {
 
 /// State layar katalog; memantau provider daftar barang dan filter tipe.
 class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
+  int _displayedCount = 25;
+
+  /// Menambah kuota item yang ditampilkan saat scroll mendekati batas bawah.
+  void _loadMoreDisplayed(int total) {
+    if (_displayedCount < total) {
+      setState(() {
+        _displayedCount = (_displayedCount + 25).clamp(0, total);
+      });
+    }
+  }
+
 
   /// Membangun scaffold katalog dengan header pencarian/filter dan daftar barang (loading, error, kosong, data).
   @override
@@ -56,6 +67,8 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                   AppSearchBar(
                     hint: 'Cari nama barang, kode SKU, spesifikasi...',
                     onChanged: (val) {
+                      // Reset jumlah slice saat filter pencarian berubah.
+                      setState(() => _displayedCount = 25);
                       // Simpan kata kunci ke provider pencarian agar daftar difilter ulang.
                       ref.read(masterBarangSearchQueryProvider.notifier).state = val;
                     },
@@ -65,6 +78,8 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                     padding: EdgeInsets.zero,
                     selected: selectedTipe,
                     onSelected: (val) {
+                      // Reset jumlah slice saat filter tipe berubah.
+                      setState(() => _displayedCount = 25);
                       // Simpan tipe terpilih ke provider filter agar daftar difilter ulang.
                       ref.read(masterBarangFilterTipeProvider.notifier).state = val;
                     },
@@ -99,16 +114,28 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                     );
                   }
 
-                  return RefreshIndicator(
-                    onRefresh: () => ref.refresh(masterBarangListProvider.future),
-                    child: ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    // Bangun kartu satu barang: ikon/warna per tipe, harga estimasi, dan ringkasan stok.
-                    itemBuilder: (ctx, idx) {
-                      final item = items[idx];
+                  final displayedItems = items.take(_displayedCount).toList();
+
+                  return NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (notification) {
+                      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <= 200) {
+                        _loadMoreDisplayed(items.length);
+                      }
+                      return false;
+                    },
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        setState(() => _displayedCount = 25);
+                        return ref.refresh(masterBarangListProvider.future);
+                      },
+                      child: ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        itemCount: displayedItems.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        // Bangun kartu satu barang: ikon/warna per tipe, harga estimasi, dan ringkasan stok.
+                        itemBuilder: (ctx, idx) {
+                          final item = displayedItems[idx];
                       final isAset = item.tipe == 'ASET';
 
                       Color tipeColor = AppColors.tintBlue;
@@ -256,8 +283,10 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                           ),
                         ),
                       );
-                    },
-                  ));
+                      },
+                    ),
+                  ),
+                );
                 },
               ),
             ),

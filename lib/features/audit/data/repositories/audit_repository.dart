@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
@@ -32,7 +33,7 @@ class AuditRepository {
   }
 
   /// 2. Digital Forensic Audit Trail
-  Future<List<AuditTrailItemModel>> getAuditTrail({
+  Future<PagedResponse<AuditTrailItemModel>> getAuditTrail({
     String? aksi,
     String? entitas,
     String? search,
@@ -53,11 +54,16 @@ class AuditRepository {
       if (data is Map<String, dynamic> &&
           data['data'] is Map<String, dynamic> &&
           data['data']['items'] is List) {
-        return (data['data']['items'] as List)
+        final items = (data['data']['items'] as List)
             .map((e) => AuditTrailItemModel.fromJson(e as Map<String, dynamic>))
             .toList();
+        final metaJson = data['data']['paginasi'];
+        final meta = metaJson is Map<String, dynamic>
+            ? PaginationMeta.fromJson(metaJson)
+            : PaginationMeta.empty;
+        return PagedResponse(items: items, meta: meta);
       }
-      return [];
+      return PagedResponse.empty();
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal memuat audit trail');
@@ -80,7 +86,7 @@ class AuditRepository {
   }
 
   /// 4. Audit Kepatuhan Pengadaan PO vs PR
-  Future<List<KepatuhanPoModel>> getKepatuhanPengadaan({
+  Future<PagedResponse<KepatuhanPoModel>> getKepatuhanPengadaan({
     String? anomali,
     String? search,
     int page = 1,
@@ -99,11 +105,16 @@ class AuditRepository {
       if (data is Map<String, dynamic> &&
           data['data'] is Map<String, dynamic> &&
           data['data']['items'] is List) {
-        return (data['data']['items'] as List)
+        final items = (data['data']['items'] as List)
             .map((e) => KepatuhanPoModel.fromJson(e as Map<String, dynamic>))
             .toList();
+        final metaJson = data['data']['paginasi'];
+        final meta = metaJson is Map<String, dynamic>
+            ? PaginationMeta.fromJson(metaJson)
+            : PaginationMeta.empty;
+        return PagedResponse(items: items, meta: meta);
       }
-      return [];
+      return PagedResponse.empty();
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal memuat audit kepatuhan');

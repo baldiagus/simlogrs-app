@@ -133,6 +133,7 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
       _ref.invalidate(daftarTiketUnitProvider);
       _ref.invalidate(detailTiketUnitProvider(tiketId));
       _ref.invalidate(spkListProvider);
+      _ref.invalidate(spkPagedListProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
