@@ -10,7 +10,7 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:8000/api/v1
 
 ## Menjalankan dengan file dart-define
 
-Konfigurasi lokal disimpan di `dart_defines/dev.json` (diabaikan git). Langkah:
+Konfigurasi lokal disimpan di `dart_defines/dev.json` dan `dart_defines/wifi.json` (diabaikan git). Langkah:
 
 1. Salin `dart_defines/dev.example.json` ke `dart_defines/dev.json`, lalu sesuaikan nilainya.
 2. Jalankan:
@@ -24,7 +24,7 @@ Konfigurasi VS Code tersedia di `.vscode/launch.json` (Web Chrome, Android USB, 
 Ponsel Android:
 
 - **USB**: jalankan `adb reverse tcp:8000 tcp:8000`, lalu pakai `API_BASE_URL` dengan host `127.0.0.1` (contoh: `http://127.0.0.1:8000/api/v1`).
-- **Wi-Fi**: pakai IP LAN PC pada `API_BASE_URL` (contoh: `http://192.168.1.10:8000/api/v1`); ponsel dan PC harus satu jaringan.
+- **Wi-Fi**: salin `dart_defines/wifi.example.json` ke `dart_defines/wifi.json` untuk tes via Wi-Fi tanpa adb reverse. Gunakan profil 'SIMLOG Android Wi-Fi' atau flag `--dart-define-from-file=dart_defines/wifi.json` (pakai IP LAN PC, ponsel dan PC harus satu jaringan).
 
 Catatan: `--dart-define` hanya berlaku saat build/run ulang. Mengubah `dev.json` tidak memengaruhi aplikasi yang sedang berjalan; jalankan ulang (bukan hot reload/restart).
 

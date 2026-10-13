@@ -23,7 +23,7 @@
       "request": "launch",
       "type": "dart",
       "args": [
-        "--dart-define-from-file=dart_defines/dev.json"
+        "--dart-define-from-file=dart_defines/wifi.json"
       ]
     }
   ]
