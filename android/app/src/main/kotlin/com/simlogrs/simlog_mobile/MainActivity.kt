@@ -1,5 +1,6 @@
 package com.simlogrs.simlog_mobile
 
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -18,14 +19,18 @@ class MainActivity : FlutterActivity() {
     /**
      * Dipanggil saat activity dibuat; mengaktifkan FLAG_SECURE agar layar tidak bisa
      * di-screenshot dan tampilan di daftar aplikasi terbaru disamarkan.
+     * Dilewati pada build debug supaya layar bisa di-screenshot/di-mirror saat pengembangan.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // [L-02] Proteksi Anti-Screenshot dan Task Snapshot Masking
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
+        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (!isDebuggable) {
+            // [L-02] Proteksi Anti-Screenshot dan Task Snapshot Masking (hanya build rilis)
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE
+            )
+        }
     }
 
     /**
