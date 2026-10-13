@@ -57,15 +57,19 @@ class ApiResponse<T> {
   }
 }
 
+/// Kesalahan dari lapisan API. [isNetworkError] true bila permintaan gagal sebelum
+/// mendapat respons server (timeout, koneksi ditolak, tanpa jaringan), sehingga aman diantrekan ulang.
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
   final Map<String, dynamic>? errors;
+  final bool isNetworkError;
 
   ApiException({
     required this.message,
     this.statusCode,
     this.errors,
+    this.isNetworkError = false,
   });
 
   /// Representasi teks pengecualian untuk keperluan log dan debugging.

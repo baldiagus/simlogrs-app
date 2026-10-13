@@ -199,7 +199,10 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(otorisasiPenyesuaianListProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -278,7 +281,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

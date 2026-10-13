@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
@@ -10,6 +11,9 @@ class AppSearchBar extends StatefulWidget {
   final VoidCallback? onClear;
   final bool autofocus;
 
+  /// Jeda sebelum onChanged dipanggil setelah pengetikan berhenti; Duration.zero berarti langsung.
+  final Duration debounce;
+
   const AppSearchBar({
     super.key,
     this.controller,
@@ -17,6 +21,7 @@ class AppSearchBar extends StatefulWidget {
     this.onChanged,
     this.onClear,
     this.autofocus = false,
+    this.debounce = const Duration(milliseconds: 300),
   });
 
   /// Membuat state yang mengelola controller pencarian.
@@ -28,6 +33,7 @@ class AppSearchBar extends StatefulWidget {
 class _AppSearchBarState extends State<AppSearchBar> {
   late final TextEditingController _ctrl;
   bool _ownsController = false;
+  Timer? _debounceTimer;
 
   /// Menentukan controller: pakai milik parent bila diberikan, jika tidak buat sendiri dan tandai sebagai miliknya.
   @override
@@ -44,10 +50,29 @@ class _AppSearchBarState extends State<AppSearchBar> {
   /// Membuang controller hanya bila dibuat sendiri; controller dari parent menjadi tanggung jawab parent.
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     if (_ownsController) {
       _ctrl.dispose();
     }
     super.dispose();
+  }
+
+  /// Menunda pemanggilan onChanged sebesar debounce; timer sebelumnya dibatalkan. Duration.zero memanggil langsung.
+  void _handleChanged(String text) {
+    _debounceTimer?.cancel();
+    if (widget.debounce == Duration.zero) {
+      widget.onChanged?.call(text);
+      return;
+    }
+    _debounceTimer = Timer(widget.debounce, () => widget.onChanged?.call(text));
+  }
+
+  /// Mengosongkan teks, membatalkan debounce tertunda, lalu memanggil onChanged('') dan onClear segera.
+  void _handleClear() {
+    _debounceTimer?.cancel();
+    _ctrl.clear();
+    widget.onChanged?.call('');
+    widget.onClear?.call();
   }
 
   /// Membangun TextField yang rebuild saat teks berubah agar tombol hapus tampil/hilang; tombol hapus mengosongkan teks dan memanggil onChanged/onClear.
@@ -60,7 +85,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
         return TextField(
           controller: _ctrl,
           autofocus: widget.autofocus,
-          onChanged: widget.onChanged,
+          onChanged: _handleChanged,
           style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: widget.hint,
@@ -74,11 +99,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
             suffixIcon: hasText
                 ? IconButton(
                     icon: const Icon(LucideIcons.x, size: 16, color: AppColors.textSecondary),
-                    onPressed: () {
-                      _ctrl.clear();
-                      widget.onChanged?.call('');
-                      widget.onClear?.call();
-                    },
+                    onPressed: _handleClear,
                   )
                 : null,
             filled: true,

@@ -81,7 +81,9 @@ class DioClient {
           }
 
           final responseData = error.response?.data;
-          String errorMessage = 'Terjadi kesalahan pada jaringan';
+          String errorMessage = error.response == null
+              ? _pesanTanpaRespons(error.type)
+              : 'Terjadi kesalahan pada jaringan';
           Map<String, dynamic>? errors;
 
           if (responseData is Map<String, dynamic>) {
@@ -109,6 +111,7 @@ class DioClient {
                 message: errorMessage,
                 statusCode: error.response?.statusCode,
                 errors: errors,
+                isNetworkError: error.response == null && _isGangguanJaringan(error.type),
               ),
             ),
           );
@@ -117,4 +120,30 @@ class DioClient {
     );
   }
 
+  /// Memilih pesan error berbahasa Indonesia sesuai jenis kegagalan saat server tidak memberi respons.
+  static String _pesanTanpaRespons(DioExceptionType type) {
+    switch (type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'Koneksi ke server terlalu lambat. Coba lagi.';
+      case DioExceptionType.connectionError:
+        return 'Server tidak dapat dihubungi. Periksa koneksi internet dan alamat server.';
+      case DioExceptionType.badCertificate:
+        return 'Sertifikat server tidak dikenali.';
+      case DioExceptionType.cancel:
+        return 'Permintaan dibatalkan.';
+      default:
+        return 'Terjadi kesalahan pada jaringan';
+    }
+  }
+
+  /// True bila jenis error berasal dari gangguan jaringan (timeout, koneksi gagal, atau tak dikenal).
+  static bool _isGangguanJaringan(DioExceptionType type) {
+    return type == DioExceptionType.connectionTimeout ||
+        type == DioExceptionType.sendTimeout ||
+        type == DioExceptionType.receiveTimeout ||
+        type == DioExceptionType.connectionError ||
+        type == DioExceptionType.unknown;
+  }
 }

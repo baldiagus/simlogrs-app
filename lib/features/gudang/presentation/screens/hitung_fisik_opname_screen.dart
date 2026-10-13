@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../core/network/api_response.dart';
+import '../../../../core/offline/offline_providers.dart';
+import '../../../../core/offline/offline_queue.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -73,6 +76,21 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
           : 'Hasil hitung fisik berhasil disimpan sementara.');
       Navigator.pop(context, true);
     } catch (e) {
+      if (e is ApiException && e.isNetworkError) {
+        final container = ProviderScope.containerOf(context, listen: false);
+        await container.read(offlineQueueCountProvider.notifier).enqueue(
+          OfflineMutation.jenisHitungFisik,
+          {
+            'opname_id': widget.opname.id,
+            'items': items,
+            'finalisasi': finalisasi,
+          },
+        );
+        if (!mounted) return;
+        AppToast.info(context, 'Tidak ada koneksi. Disimpan, akan dikirim otomatis saat online.');
+        Navigator.pop(context, true);
+        return;
+      }
       if (!mounted) return;
       setState(() => _isSaving = false);
       AppToast.error(context, e.toString());

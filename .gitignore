@@ -15,6 +15,11 @@ migrate_working_dir/
 .env
 .env.*
 !.env.example
+
+# Konfigurasi dart-define lokal (simpan hanya contohnya)
+dart_defines/*.json
+!dart_defines/*.example.json
+
 # IntelliJ related
 *.iml
 *.ipr

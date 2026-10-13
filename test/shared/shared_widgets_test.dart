@@ -39,7 +39,7 @@ void main() {
 
       expect(find.text('Cari barang...'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'Paracetamol');
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(query, 'Paracetamol');
     });
 

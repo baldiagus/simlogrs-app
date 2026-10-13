@@ -91,7 +91,10 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(rekamMedisKatalogProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -202,7 +205,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

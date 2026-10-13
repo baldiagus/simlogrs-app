@@ -17,6 +17,7 @@ import '../../../maintenance/presentation/screens/detail_tiket_screen.dart';
 import '../../../maintenance/presentation/screens/spk_detail_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../providers/dashboard_provider.dart';
 import '../../data/models/dashboard_summary_model.dart';
 
 
@@ -170,7 +171,10 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
                       title: 'Tidak Ada Aktivitas Ditemukan',
                       message: 'Tidak ada dokumen aktivitas yang sesuai dengan filter atau kata kunci.',
                     )
-                  : ListView.separated(
+                  : RefreshIndicator(
+                      onRefresh: () => ref.refresh(dashboardSummaryProvider.future),
+                      child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       itemCount: filtered.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -247,7 +251,7 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
                           ),
                         );
                       },
-                    ),
+                    )),
             ),
           ],
         ),

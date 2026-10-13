@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SIMLOG Web (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "args": [
+        "--dart-define-from-file=dart_defines/dev.json"
+      ]
+    },
+    {
+      "name": "SIMLOG Android USB",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define-from-file=dart_defines/dev.json"
+      ]
+    },
+    {
+      "name": "SIMLOG Android Wi-Fi",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define-from-file=dart_defines/dev.json"
+      ]
+    }
+  ]
+}

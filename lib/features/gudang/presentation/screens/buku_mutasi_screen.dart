@@ -91,7 +91,10 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(bukuMutasiListProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -204,7 +207,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

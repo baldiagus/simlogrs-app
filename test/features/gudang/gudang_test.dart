@@ -184,7 +184,7 @@ void main() {
 
       // Search filter
       await tester.enterText(find.byType(TextField), 'Kertas');
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Kertas A4'), findsOneWidget);
       expect(find.text('Pulpen Gel'), findsNothing);
@@ -221,7 +221,7 @@ void main() {
 
       // Search filter
       await tester.enterText(find.byType(TextField), 'Kursi');
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('Kursi Roda'), findsOneWidget);
       expect(find.text('Tensimeter Digital'), findsNothing);

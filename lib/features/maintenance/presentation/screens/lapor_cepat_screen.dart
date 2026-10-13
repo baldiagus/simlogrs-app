@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../core/network/api_response.dart';
+import '../../../../core/offline/offline_providers.dart';
+import '../../../../core/offline/offline_queue.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../aset/presentation/screens/qr_scanner_screen.dart';
 import '../widgets/aset_unit_picker_sheet.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
+import '../providers/tiket_maintenance_provider.dart';
 
 /// Layar pelaporan cepat kerusakan sarana, dengan opsi kode aset awal.
 class LaporCepatScreen extends ConsumerStatefulWidget {
@@ -33,6 +38,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
   final _deskripsiController = TextEditingController();
   String _prioritas = 'SEDANG';
   XFile? _pickedImage;
+  bool _isSending = false;
   final ImagePicker _picker = ImagePicker();
 
   /// Mengisi kode aset awal dari parameter widget jika ada (mis. hasil scan QR).
@@ -72,36 +78,57 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     }
   }
 
-  /// Memvalidasi form lalu mengirim laporan kerusakan; sukses menutup layar, gagal menampilkan toast error.
+  /// Memvalidasi form lalu mengirim laporan; sukses menutup layar, gagal jaringan diantrekan (teks saja), gagal lain menampilkan toast error.
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-    final notifier = ref.read(laporCepatProvider.notifier);
+    final kodeAset = _kodeAsetController.text.trim();
+    final deskripsi = _deskripsiController.text.trim();
+    final punyaFoto = _pickedImage != null;
+    setState(() => _isSending = true);
 
-    final ok = await notifier.submit(
-      kodeAset: _kodeAsetController.text.trim(),
-      deskripsiMasalah: _deskripsiController.text.trim(),
-      prioritas: _prioritas,
-      foto: _pickedImage,
-    );
-
-    if (!mounted) return;
-    final state = ref.read(laporCepatProvider);
-
-    if (ok) {
-      AppToast.success(context, state.successMessage ?? 'Laporan berhasil dikirim.');
+    try {
+      final res = await ref.read(maintenanceRepositoryProvider).submitLaporCepat(
+            kodeAset: kodeAset,
+            deskripsiMasalah: deskripsi,
+            prioritas: _prioritas,
+            foto: _pickedImage,
+          );
+      ref.invalidate(daftarTiketUnitProvider);
+      ref.invalidate(dashboardSummaryProvider);
+      if (!mounted) return;
+      final kode = res['kode']?.toString() ?? 'MNT';
+      AppToast.success(context, 'Laporan kerusakan $kode berhasil diterbitkan ke IPSRS.');
       Navigator.pop(context, true);
-    } else {
-      AppToast.error(context, state.errorMessage ?? 'Gagal mengirim laporan.');
+    } catch (e) {
+      if (e is ApiException && e.isNetworkError) {
+        await ref.read(offlineQueueCountProvider.notifier).enqueue(
+          OfflineMutation.jenisLaporCepat,
+          {
+            'kode_aset': kodeAset,
+            'deskripsi': deskripsi,
+            'prioritas': _prioritas,
+          },
+        );
+        if (!mounted) return;
+        AppToast.info(
+          context,
+          'Tidak ada koneksi. Disimpan, akan dikirim otomatis saat online.'
+          '${punyaFoto ? ' Foto tidak ikut terkirim.' : ''}',
+        );
+        Navigator.pop(context, true);
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _isSending = false);
+      AppToast.error(context, e.toString().replaceAll('ApiException: ', ''));
     }
   }
 
   /// Membangun form laporan cepat kerusakan: kode aset, deskripsi, prioritas, foto, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
-    final laporState = ref.watch(laporCepatProvider);
-
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -332,7 +359,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 // Submit Button
                 CustomButton(
                   text: 'Kirim Laporan Kerusakan',
-                  isLoading: laporState.isLoading,
+                  isLoading: _isSending,
                   icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
                   onPressed: _submit,
                 ),

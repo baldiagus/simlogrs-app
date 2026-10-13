@@ -171,7 +171,10 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(registerAsetListProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -286,7 +289,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

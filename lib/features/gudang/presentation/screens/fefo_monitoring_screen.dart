@@ -133,7 +133,10 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(fefoMonitoringProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: data.items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -253,7 +256,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

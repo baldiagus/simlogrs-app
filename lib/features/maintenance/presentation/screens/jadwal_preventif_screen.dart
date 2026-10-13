@@ -143,7 +143,10 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                     );
                   }
 
-                  return ListView.separated(
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(jadwalPreventifListProvider.future),
+                    child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -264,7 +267,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                         ),
                       );
                     },
-                  );
+                  ));
                 },
               ),
             ),

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/offline/offline_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../shared/widgets/app_action_banner_card.dart';
+import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/floating_bottom_nav_bar.dart';
 import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../approval/presentation/screens/approval_center_screen.dart';
@@ -44,6 +47,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _resetInactivityTimer();
+    _sinkronkanAntrean();
+  }
+
+  /// Mengirim antrean mutasi offline ke server; memberi tahu pengguna bila ada yang ditolak server.
+  Future<void> _sinkronkanAntrean() async {
+    try {
+      final gagal = await ref.read(offlineQueueCountProvider.notifier).flush();
+      if (mounted && gagal.isNotEmpty) {
+        AppToast.warning(context, '${gagal.length} data offline ditolak server dan dibuang.');
+      }
+    } catch (_) {
+      // Sinkron gagal tak boleh mengganggu shell; akan dicoba lagi saat resume.
+    }
   }
 
   /// Mengulang hitungan timeout idle; bila habis tanpa interaksi, sesi diakhiri lewat handleSessionTimeout demi keamanan.
@@ -60,6 +76,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _sinkronkanAntrean();
       final now = DateTime.now();
       if (_lastResumeTime == null || now.difference(_lastResumeTime!) > _resumeThrottle) {
         _lastResumeTime = now;
@@ -235,6 +252,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
+    final antrean = ref.watch(offlineQueueCountProvider);
     final navConfig = _resolveNavConfig(user);
     final activeIndex = _currentIndex.clamp(0, navConfig.screens.length - 1);
 
@@ -244,9 +262,29 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       onPointerMove: (_) => _resetInactivityTimer(),
       child: Scaffold(
         backgroundColor: AppColors.canvas,
-        body: IndexedStack(
-          index: activeIndex,
-          children: navConfig.screens,
+        body: Column(
+          children: [
+            if (antrean > 0)
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: AppActionBannerCard(
+                    title: '$antrean laporan menunggu dikirim',
+                    subtitle: 'Akan dikirim otomatis saat tersambung internet. Ketuk untuk coba sekarang.',
+                    icon: LucideIcons.cloudOff,
+                    iconColor: AppColors.warning,
+                    onTap: _sinkronkanAntrean,
+                  ),
+                ),
+              ),
+            Expanded(
+              child: IndexedStack(
+                index: activeIndex,
+                children: navConfig.screens,
+              ),
+            ),
+          ],
         ),
         bottomNavigationBar: FloatingBottomNavBar(
           currentIndex: activeIndex,

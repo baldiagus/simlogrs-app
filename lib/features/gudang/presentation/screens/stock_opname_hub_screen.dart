@@ -93,7 +93,10 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
               );
             }
 
-            return ListView.separated(
+            return RefreshIndicator(
+              onRefresh: () => ref.refresh(stockOpnameListProvider.future),
+              child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
               itemCount: sessions.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -208,7 +211,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                   ),
                 );
               },
-            );
+            ));
           },
         ),
       ),
