@@ -83,6 +83,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () {
               ref.invalidate(auditSummaryProvider);
               ref.invalidate(auditTrailProvider);

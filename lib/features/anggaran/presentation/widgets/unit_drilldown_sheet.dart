@@ -58,6 +58,7 @@ class UnitDrilldownSheet extends ConsumerWidget {
               ),
               IconButton(
                   icon: const Icon(LucideIcons.x, size: 18),
+                  tooltip: 'Tutup',
                   onPressed: () => Navigator.pop(context)),
             ],
           ),

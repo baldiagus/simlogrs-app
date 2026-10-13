@@ -39,6 +39,7 @@ class DetailAmprahScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.invalidate(detailAmprahProvider(amprahId)),
           ),
         ],

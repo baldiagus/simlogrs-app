@@ -37,6 +37,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(fefoMonitoringProvider),
           ),
         ],

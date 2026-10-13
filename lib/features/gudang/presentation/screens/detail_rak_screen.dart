@@ -36,6 +36,7 @@ class DetailRakScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft, color: AppColors.textPrimary),
+          tooltip: 'Kembali',
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -58,6 +59,7 @@ class DetailRakScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18, color: AppColors.textSecondary),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.invalidate(detailRakProvider(rakId)),
           ),
         ],

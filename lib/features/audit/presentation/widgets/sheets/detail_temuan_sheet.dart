@@ -134,7 +134,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
+                IconButton(icon: const Icon(LucideIcons.x, size: 18), tooltip: 'Tutup', onPressed: () => Navigator.pop(context)),
               ],
             ),
             const SizedBox(height: 6),

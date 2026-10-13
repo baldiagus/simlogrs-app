@@ -267,6 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           size: 20,
                           color: AppColors.textSecondary,
                         ),
+                        tooltip: _obscurePassword ? 'Tampilkan kata sandi' : 'Sembunyikan kata sandi',
                         onPressed: () {
                           setState(() {
                             _obscurePassword = !_obscurePassword;

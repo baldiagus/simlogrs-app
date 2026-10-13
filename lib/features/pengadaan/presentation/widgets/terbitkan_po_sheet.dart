@@ -188,7 +188,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
+              IconButton(tooltip: 'Tutup', icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const Divider(height: 16),

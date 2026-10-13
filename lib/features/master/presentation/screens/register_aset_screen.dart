@@ -39,6 +39,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             // Muat ulang daftar aset dari server.
             onPressed: () => ref.refresh(registerAsetListProvider),
           ),

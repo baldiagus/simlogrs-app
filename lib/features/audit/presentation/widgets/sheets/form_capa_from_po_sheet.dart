@@ -101,7 +101,7 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
             children: [
               const Text('Terbitkan Temuan CAPA',
                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-              IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
+              IconButton(icon: const Icon(LucideIcons.x, size: 18), tooltip: 'Tutup', onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 12),

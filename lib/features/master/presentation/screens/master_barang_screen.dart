@@ -37,6 +37,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             // Muat ulang daftar barang dari server.
             onPressed: () => ref.refresh(masterBarangListProvider),
           ),

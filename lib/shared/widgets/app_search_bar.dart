@@ -99,6 +99,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
             suffixIcon: hasText
                 ? IconButton(
                     icon: const Icon(LucideIcons.x, size: 16, color: AppColors.textSecondary),
+                    tooltip: 'Hapus teks',
                     onPressed: _handleClear,
                   )
                 : null,

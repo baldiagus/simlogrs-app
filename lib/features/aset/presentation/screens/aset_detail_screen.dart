@@ -178,6 +178,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
           ),
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => _refreshAset(currentAset),
           ),
         ],

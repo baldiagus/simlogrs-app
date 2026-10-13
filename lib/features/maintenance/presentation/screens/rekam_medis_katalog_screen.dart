@@ -36,6 +36,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(rekamMedisKatalogProvider),
           ),
         ],

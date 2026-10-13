@@ -35,6 +35,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(bukuMutasiListProvider),
           ),
         ],

@@ -134,6 +134,7 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
           ),
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(screeningAnggaranProvider),
           ),
         ],

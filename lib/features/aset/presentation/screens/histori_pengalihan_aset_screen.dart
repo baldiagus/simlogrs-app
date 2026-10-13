@@ -71,6 +71,7 @@ class _HistoriPengalihanAsetScreenState
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: _fetchLatest,
           ),
         ],

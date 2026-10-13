@@ -28,69 +28,6 @@ final spkDetailProvider =
   return await repository.getSpkDetail(id);
 });
 
-class LaporCepatState {
-  final bool isLoading;
-  final String? errorMessage;
-  final String? successMessage;
-
-  /// Membuat LaporCepatState.
-  const LaporCepatState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.successMessage,
-  });
-}
-
-class LaporCepatNotifier extends StateNotifier<LaporCepatState> {
-  final MaintenanceRepository _repository;
-  final Ref _ref;
-
-  /// Membuat LaporCepatNotifier.
-  LaporCepatNotifier(this._repository, this._ref) : super(const LaporCepatState());
-
-  /// Kirim laporan ke server dan perbarui state; true jika berhasil.
-  Future<bool> submit({
-    int? asetId,
-    String? kodeAset,
-    required String deskripsiMasalah,
-    required String prioritas,
-    XFile? foto,
-  }) async {
-    state = const LaporCepatState(isLoading: true);
-    try {
-      final res = await _repository.submitLaporCepat(
-        asetId: asetId,
-        kodeAset: kodeAset,
-        deskripsiMasalah: deskripsiMasalah,
-        prioritas: prioritas,
-        foto: foto,
-      );
-
-      final kode = res['kode']?.toString() ?? 'MNT';
-      state = LaporCepatState(
-        isLoading: false,
-        successMessage: 'Laporan kerusakan $kode berhasil diterbitkan ke IPSRS.',
-      );
-      _ref.invalidate(daftarTiketUnitProvider);
-      _ref.invalidate(dashboardSummaryProvider);
-      return true;
-    } catch (e) {
-      state = LaporCepatState(
-        isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
-      );
-      return false;
-    }
-  }
-}
-
-/// Provider notifier laporan cepat kerusakan.
-final laporCepatProvider =
-    StateNotifierProvider<LaporCepatNotifier, LaporCepatState>((ref) {
-  final repository = ref.watch(maintenanceRepositoryProvider);
-  return LaporCepatNotifier(repository, ref);
-});
-
 class LembarKerjaState {
   final bool isLoading;
   final String? errorMessage;

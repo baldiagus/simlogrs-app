@@ -35,6 +35,7 @@ class _DaftarRakScreenState extends ConsumerState<DaftarRakScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft, color: AppColors.textPrimary),
+          tooltip: 'Kembali',
           onPressed: () => Navigator.pop(context),
         ),
         title: const Column(

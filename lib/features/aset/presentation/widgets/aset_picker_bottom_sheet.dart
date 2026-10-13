@@ -70,6 +70,7 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(LucideIcons.x, size: 20),
+                  tooltip: 'Tutup',
                   visualDensity: VisualDensity.compact,
                 ),
               ],

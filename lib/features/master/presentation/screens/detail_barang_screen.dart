@@ -37,6 +37,7 @@ class DetailBarangScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
+            tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(detailBarangProvider(barangId)),
           ),
         ],

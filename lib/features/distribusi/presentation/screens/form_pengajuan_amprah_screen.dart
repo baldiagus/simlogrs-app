@@ -285,6 +285,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                     ),
                                     IconButton(
                                       icon: const Icon(LucideIcons.trash2, size: 18, color: AppColors.danger),
+                                      tooltip: 'Hapus',
                                       onPressed: () {
                                         setState(() => _cartItems.remove(cartItem));
                                       },
