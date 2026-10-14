@@ -125,6 +125,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
         }
         break;
       case 2:
+        if (authState.user?.isGudangUser == true) ref.invalidate(approvalPendingProvider);
         ref.invalidate(jadwalPreventifListProvider);
         ref.invalidate(rekamMedisKatalogProvider);
         ref.invalidate(spkListProvider);
@@ -218,9 +219,20 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
   /// Membuka layar tujuan notifikasi lewat MaterialPageRoute; tipe tidak dikenal membuka inbox, ID tak valid jatuh ke layar daftar.
   void _bukaTujuan(NotificationPayload payload) {
     if (!mounted) return;
+    final user = ref.read(authStateProvider).user;
+    final target = resolveTarget(payload);
+    if (user?.isGudangUser == true) {
+      final tab = resolveGudangTabIndex(target, punyaTabApproval: _punyaTabApprovalGudang(user));
+      if (tab != null) {
+        Navigator.of(context).popUntil((r) => r.isFirst);
+        setState(() => _currentIndex = tab);
+        _refreshActiveTabData();
+        return;
+      }
+    }
     final id = int.tryParse(payload.referensiId ?? '');
     final Widget layar;
-    switch (resolveTarget(payload)) {
+    switch (target) {
       case NotificationTarget.approvalPr:
       case NotificationTarget.approvalAmprah:
         layar = const ApprovalCenterScreen();
@@ -295,6 +307,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     );
   }
 
+  /// True bila user gudang berhak memutuskan amprah (Meja 2): kepala gudang atau admin logistik; petugas gudang tidak.
+  bool _punyaTabApprovalGudang(UserModel? user) =>
+      user?.isKepalaGudang == true || user?.isAdminLogistik == true;
+
   /// Menyusun daftar layar dan item nav bawah sesuai role pengguna (teknisi, gudang, eksekutif, karu, atau petugas unit).
   _ShellNavConfig _resolveNavConfig(UserModel? user) {
     final homeScreen = HomeScreen(
@@ -338,16 +354,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
 
     // 2. Gudang & Logistik Sentral (Kepala Gudang, Petugas Gudang, Admin Logistik)
     if (user?.isGudangUser == true) {
+      final punyaTabApproval = _punyaTabApprovalGudang(user);
       return _ShellNavConfig(
         screens: [
           homeScreen,
           const InboundPoListScreen(),
+          if (punyaTabApproval) const ApprovalCenterScreen(),
           const PickingDistribusiScreen(),
           profileScreen,
         ],
         navItems: [
           const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
           const BottomNavItem(icon: LucideIcons.packageCheck, label: 'Inbound PO'),
+          if (punyaTabApproval) const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
           const BottomNavItem(icon: LucideIcons.truck, label: 'Picking'),
           const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
         ],

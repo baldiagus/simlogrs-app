@@ -63,8 +63,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
     final jadwalAsync = ref.watch(jadwalPreventifListProvider);
     final selectedFilter = ref.watch(preventifStatusFilterProvider);
     final user = ref.watch(authStateProvider).user;
-    final canTerbitkanSpk = (user?.isTeknisi == true) ||
-        (user?.isKepalaTeknisi == true) ||
+    final canTerbitkanSpk = (user?.isKepalaTeknisi == true) ||
         (user?.isAdminLogistik == true) ||
         (user?.hasRole('super_admin') == true);
     final canTambahJadwal = (user?.isKepalaTeknisi == true) || (user?.hasRole('super_admin') == true);

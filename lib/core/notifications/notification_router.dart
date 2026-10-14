@@ -92,3 +92,16 @@ NotificationTarget resolveTarget(NotificationPayload p) {
       return NotificationTarget.tidakDikenal;
   }
 }
+
+/// Indeks tab shell role gudang untuk [target]; null bila target tidak punya tab sendiri.
+/// Urutan tab dengan Approval: Beranda, Inbound PO, Approval, Picking, Profil; tanpa Approval: Beranda, Inbound PO, Picking, Profil.
+int? resolveGudangTabIndex(NotificationTarget target, {required bool punyaTabApproval}) {
+  switch (target) {
+    case NotificationTarget.approvalAmprah:
+      return punyaTabApproval ? 2 : null;
+    case NotificationTarget.antreanPicking:
+      return punyaTabApproval ? 3 : 2;
+    default:
+      return null;
+  }
+}

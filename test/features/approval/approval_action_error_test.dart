@@ -37,4 +37,33 @@ void main() {
       'Anda hanya berhak mengesahkan atau menolak permintaan pengadaan dari unit ruangan Anda sendiri.',
     );
   });
+
+  test('approveAmprah mengirim aksi setujui/tolak beserta catatan ke repository', () async {
+    final repo = RecordingApprovalRepository();
+    final container = ProviderContainer(
+      overrides: [approvalRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
+    final notifier = container.read(approvalActionProvider.notifier);
+
+    expect(await notifier.approveAmprah(id: 9, isSetujui: true), isTrue);
+    expect(await notifier.approveAmprah(id: 9, isSetujui: false, catatan: 'Stok kosong'), isTrue);
+
+    expect(repo.calls, ['9:true:null', '9:false:Stok kosong']);
+  });
+}
+
+/// Repository palsu yang mencatat pemanggilan executeApprovalAmprah.
+class RecordingApprovalRepository extends Fake implements ApprovalRepository {
+  final List<String> calls = [];
+
+  /// Mencatat id, keputusan, dan catatan tanpa memanggil jaringan.
+  @override
+  Future<void> executeApprovalAmprah({
+    required int id,
+    required bool isSetujui,
+    String? catatan,
+  }) async {
+    calls.add('$id:$isSetujui:$catatan');
+  }
 }

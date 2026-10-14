@@ -106,6 +106,35 @@ void main() {
     expect(find.text('REQ-202609-001'), findsNothing);
   });
 
+  testWidgets('Admin Logistik melihat tab Amprah berisi DISETUJUI_KARU dengan tombol Setujui dan Tolak', (tester) async {
+    const adminLogistikUser = UserModel(
+      id: 4,
+      name: 'Admin Logistik',
+      email: 'adminlogistik@simlogrs.local',
+      roles: ['admin_logistik'],
+      permissions: [],
+      gudang: GudangModel(id: 1, nama: 'Gudang Sentral', kode: 'GUD_SENTRAL'),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(adminLogistikUser)),
+          approvalPendingProvider.overrideWith((ref) => Future.value(mockPending)),
+        ],
+        child: const MaterialApp(home: ApprovalCenterScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Amprah'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('REQ-202609-002'), findsOneWidget);
+    expect(find.text('REQ-202609-001'), findsNothing);
+    expect(find.text('Setujui'), findsOneWidget);
+    expect(find.text('Tolak'), findsOneWidget);
+  });
+
   testWidgets('Kepala Ruangan hanya melihat amprah DIAJUKAN dan menyembunyikan DISETUJUI_KARU', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

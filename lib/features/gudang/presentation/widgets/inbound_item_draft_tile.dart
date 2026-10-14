@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -98,6 +99,38 @@ class InboundItemDraftTile extends StatelessWidget {
                 min: 0,
                 max: draft.poItem.sisaKebutuhan,
                 onChanged: onQuantityChanged,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 2b. Jumlah Rusak: 0 <= rusak <= jumlah diterima (sama dengan validasi backend)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Jumlah Rusak',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 6),
+              TextFormField(
+                key: const ValueKey('jumlah-rusak-field'),
+                initialValue: draft.jumlahRusak.toString(),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (v) => draft.jumlahRusak = int.tryParse(v) ?? 0,
+                validator: (v) {
+                  final rusak = int.tryParse(v ?? '') ?? 0;
+                  if (rusak > draft.jumlahDiterima) {
+                    return 'Jumlah rusak tidak boleh melebihi jumlah diterima';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  hintText: '0',
+                  helperText: 'Stok bersih: diterima - rusak',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                ),
               ),
             ],
           ),

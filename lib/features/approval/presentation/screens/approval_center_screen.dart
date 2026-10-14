@@ -10,6 +10,7 @@ import '../widgets/approval_po_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/data/models/po_model.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
@@ -33,12 +34,17 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
   late final TabController _tabController;
   final TextEditingController _poSearchCtrl = TextEditingController();
 
-  /// Menyiapkan TabController dua tab (antrean approval dan PO).
+  /// Menyiapkan TabController: dua tab (PR dan PO/Amprah), tiga tab untuk admin logistik yang juga memutuskan amprah gudang.
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    final user = ref.read(authStateProvider).user;
+    _tabController = TabController(length: _punyaTabAmprahGudang(user) ? 3 : 2, vsync: this);
   }
+
+  /// True bila user gudang (admin logistik) memakai alur PO sekaligus perlu tab Amprah untuk Meja 2.
+  bool _punyaTabAmprahGudang(UserModel? user) =>
+      user?.isGudangUser == true && user?.isAdminLogistik == true;
 
   /// Membuang controller tab dan pencarian PO agar tidak bocor.
   @override
@@ -97,6 +103,7 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
         ? (pendingAsync.valueOrNull?.prList.where((pr) => pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui).length ?? 0)
         : (pendingAsync.valueOrNull?.totalPr ?? 0);
 
+    final showAmprahGudangTab = _punyaTabAmprahGudang(user);
     final totalAmprahBadge = isGudangUser
         ? (pendingAsync.valueOrNull?.amprahList.where((a) => a.status == 'DISETUJUI_KARU').length ?? 0)
         : (isKaru
@@ -150,6 +157,19 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                 ],
               ),
             ),
+            if (showAmprahGudangTab)
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Flexible(
+                      child: Text('Amprah', overflow: TextOverflow.ellipsis, maxLines: 1),
+                    ),
+                    const SizedBox(width: 6),
+                    _buildCountBadge(totalAmprahBadge),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -185,6 +205,13 @@ class _ApprovalCenterScreenState extends ConsumerState<ApprovalCenterScreen>
                   emptyMessage: isGudangUser
                       ? 'Tidak ada permohonan amprah yang menunggu otorisasi pengeluaran barang gudang.'
                       : 'Semua permintaan distribusi ruangan telah diproses.',
+                  canApprove: isReadOnly ? false : canApproveAmprah,
+                ),
+              if (showAmprahGudangTab)
+                _buildList(
+                  items: pending.amprahList.where((a) => a.status == 'DISETUJUI_KARU').toList(),
+                  emptyTitle: 'Tidak Ada Antrean Amprah',
+                  emptyMessage: 'Tidak ada permohonan amprah yang menunggu otorisasi pengeluaran barang gudang.',
                   canApprove: isReadOnly ? false : canApproveAmprah,
                 ),
             ],

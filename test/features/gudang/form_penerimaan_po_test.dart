@@ -126,4 +126,56 @@ void main() {
     expect(find.text('Kertas A4'), findsOneWidget);
     expect(find.text('Total Diterima:'), findsOneWidget);
   });
+
+  Future<void> pumpForm(WidgetTester tester, UserModel user) async {
+    tester.view.physicalSize = const Size(360, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
+          daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
+        ],
+        child: const MaterialApp(home: FormPenerimaanPoScreen(po: mockPo)),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Field Jumlah Rusak tampil dengan teks bantu stok bersih', (tester) async {
+    await pumpForm(tester, gudangUser);
+    expect(find.text('Jumlah Rusak'), findsOneWidget);
+    expect(find.text('Stok bersih: diterima - rusak'), findsOneWidget);
+  });
+
+  testWidgets('Jumlah rusak melebihi diterima ditolak validasi', (tester) async {
+    await pumpForm(tester, gudangUser);
+    await tester.enterText(find.byKey(const ValueKey('jumlah-rusak-field')), '51');
+    await tester.enterText(find.byType(TextFormField).first, 'SJ-1');
+    await tester.tap(find.text('Simpan ke Stok Gudang'));
+    await tester.pumpAndSettle();
+    expect(find.text('Jumlah rusak tidak boleh melebihi jumlah diterima'), findsOneWidget);
+  });
+
+  testWidgets('Tombol Tolak Kiriman Vendor terlihat untuk penerima, ikon AppBar hilang', (tester) async {
+    await pumpForm(tester, gudangUser);
+    expect(find.text('Tolak Kiriman Vendor'), findsOneWidget);
+    expect(find.byTooltip('Tolak Kiriman Fisik'), findsNothing);
+  });
+
+  testWidgets('Tombol Tolak Kiriman Vendor tersembunyi tanpa izin terima', (tester) async {
+    const viewer = UserModel(
+      id: 9,
+      name: 'Viewer',
+      email: 'v@simlogrs.local',
+      roles: ['auditor'],
+      permissions: [],
+    );
+    await pumpForm(tester, viewer);
+    expect(find.text('Tolak Kiriman Vendor'), findsNothing);
+  });
 }

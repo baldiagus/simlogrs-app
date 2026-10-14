@@ -32,9 +32,20 @@ class FloatingBottomNavBar extends StatelessWidget {
     required this.onScanPressed,
     this.items,
   });
-  /// Membangun bar dengan dua tab, tombol scan QR menonjol di tengah, lalu dua tab lagi; label/ikon default dipakai bila items tidak diberikan.
+  /// Membangun bar dengan tombol scan QR menonjol di tengah; tab dibagi dua sisi (separuh pertama kiri, sisanya kanan) dan jumlahnya mengikuti items (default empat tab).
   @override
   Widget build(BuildContext context) {
+    final tabs = items ??
+        [
+          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
+          BottomNavItem(
+            icon: (isTeknisi || isKepalaTeknisi) ? LucideIcons.clipboardCheck : LucideIcons.checkSquare,
+            label: isKepalaTeknisi ? 'Semua SPK' : (isTeknisi ? 'Tugas SPK' : 'Approval'),
+          ),
+          const BottomNavItem(icon: LucideIcons.wrench, label: 'IPSRS'),
+          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
+        ];
+    final split = tabs.length ~/ 2;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       height: 68,
@@ -46,22 +57,8 @@ class FloatingBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(
-            index: 0,
-            icon: items?[0].icon ?? LucideIcons.home,
-            label: items?[0].label ?? 'Beranda',
-          ),
-          _buildNavItem(
-            index: 1,
-            icon: items?[1].icon ??
-                ((isTeknisi || isKepalaTeknisi)
-                    ? LucideIcons.clipboardCheck
-                    : LucideIcons.checkSquare),
-            label: items?[1].label ??
-                (isKepalaTeknisi
-                    ? 'Semua SPK'
-                    : (isTeknisi ? 'Tugas SPK' : 'Approval')),
-          ),
+          for (var i = 0; i < split; i++)
+            _buildNavItem(index: i, icon: tabs[i].icon, label: tabs[i].label),
           Transform.translate(
             offset: const Offset(0, -12),
             child: GestureDetector(
@@ -82,16 +79,8 @@ class FloatingBottomNavBar extends StatelessWidget {
               ),
             ),
           ),
-          _buildNavItem(
-            index: 2,
-            icon: items?[2].icon ?? LucideIcons.wrench,
-            label: items?[2].label ?? 'IPSRS',
-          ),
-          _buildNavItem(
-            index: 3,
-            icon: items?[3].icon ?? LucideIcons.user,
-            label: items?[3].label ?? 'Profil',
-          ),
+          for (var i = split; i < tabs.length; i++)
+            _buildNavItem(index: i, icon: tabs[i].icon, label: tabs[i].label),
         ],
       ),
     );
