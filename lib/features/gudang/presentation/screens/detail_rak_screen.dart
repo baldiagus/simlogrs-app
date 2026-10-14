@@ -219,6 +219,8 @@ class DetailRakScreen extends ConsumerWidget {
                   color: AppColors.surface,
                   child: TabBar(
                     indicatorColor: AppColors.primaryPurple,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
                     indicatorWeight: 3,
                     labelColor: AppColors.primaryPurple,
                     unselectedLabelColor: AppColors.textSecondary,

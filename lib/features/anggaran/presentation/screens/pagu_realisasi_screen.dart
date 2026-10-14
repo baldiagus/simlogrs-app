@@ -140,6 +140,8 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primaryPurple,

@@ -7,7 +7,7 @@ import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
+import '../widgets/amprah_approval_modal.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/distribusi_provider.dart';
@@ -54,6 +54,16 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
         (user?.isAuditor == true) ||
         (user?.isManajemen == true) ||
         (user?.hasRole('super_admin') == true);
+    final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
+        (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
+        (user?.hasRole('admin_logistik') ?? false) ||
+        (user?.hasRole('kepala_gudang') ?? false) ||
+        (user?.hasRole('super_admin') ?? false);
+    // Meja 1 (Karu) memutuskan amprah DIAJUKAN; Meja 2 (kepala gudang / admin logistik gudang) memutuskan amprah DISETUJUI_KARU.
+    // Petugas gudang tidak masuk kedua meja sehingga tidak melihat aksi.
+    final canMeja1 = canApproveAmprah && (user?.isKaru ?? false);
+    final canMeja2 = canApproveAmprah &&
+        ((user?.isKepalaGudang ?? false) || (user?.isAdminLogistik ?? false));
     final filterParams = AmprahFilterParams(status: _statusFilter);
     final amprahListAsync = ref.watch(daftarAmprahProvider(filterParams));
     final sppbListAsync = ref.watch(sppbInboundProvider);
@@ -74,6 +84,8 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,
@@ -81,34 +93,16 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           tabs: [
             const Tab(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.fileSpreadsheet, size: 15),
-                  SizedBox(width: 5),
-                  Flexible(
-                    child: Text(
-                      'Permintaan Amprah',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+              icon: Icon(LucideIcons.fileSpreadsheet, size: 15),
+              text: 'Permintaan Amprah',
             ),
             Tab(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(LucideIcons.truck, size: 15),
                   const SizedBox(width: 5),
-                  const Flexible(
-                    child: Text(
-                      'Barang Masuk (SPPB)',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  const Text('Barang Masuk (SPPB)'),
                   const SizedBox(width: 4),
                   _buildBadge(sppbListAsync.valueOrNull?.length ?? 0),
                 ],
@@ -191,7 +185,6 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                                         );
                                         if (created == true && context.mounted) {
                                           ref.invalidate(daftarAmprahProvider);
-                                          ref.invalidate(approvalPendingProvider);
                                           ref.invalidate(dashboardSummaryProvider);
                                         }
                                       },
@@ -209,6 +202,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                         itemCount: list.length,
                         itemBuilder: (context, index) {
                           final item = list[index];
+                          final bisaKeputusan = (canMeja1 && item.isDiajukan) || (canMeja2 && item.isDisetujuiKaru);
                           return AmprahCardItem(
                             item: item,
                             onCancelTap: () async {
@@ -222,6 +216,12 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                                 AppToast.error(context, s.errorMessage ?? 'Gagal');
                               }
                             },
+                            onSetujuiTap: bisaKeputusan
+                                ? () => AmprahApprovalModal.show(context, amprah: item, isSetujui: true)
+                                : null,
+                            onTolakTap: bisaKeputusan
+                                ? () => AmprahApprovalModal.show(context, amprah: item, isSetujui: false)
+                                : null,
                           );
                         },
                       );

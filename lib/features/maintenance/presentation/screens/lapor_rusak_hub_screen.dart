@@ -69,6 +69,8 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           labelPadding: const EdgeInsets.symmetric(horizontal: 4),
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,

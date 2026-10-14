@@ -5,41 +5,41 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
-import '../../data/models/approval_item_model.dart';
-import '../providers/approval_provider.dart';
+import '../../data/models/amprah_model.dart';
+import '../providers/distribusi_provider.dart';
 
-/// Bottom sheet konfirmasi aksi approval (setujui/tolak/serahkan) dengan input catatan.
-class ApprovalActionModal extends ConsumerStatefulWidget {
-  final ApprovalItemModel item;
-  final String aksi; // 'setujui', 'tolak', 'serahkan'
+/// Bottom sheet keputusan amprah (setujui/tolak) untuk Meja 1 (Karu) dan Meja 2 (gudang); alasan wajib saat tolak.
+class AmprahApprovalModal extends ConsumerStatefulWidget {
+  final AmprahHeaderModel amprah;
+  final bool isSetujui;
 
-  const ApprovalActionModal({
+  const AmprahApprovalModal({
     super.key,
-    required this.item,
-    required this.aksi,
+    required this.amprah,
+    required this.isSetujui,
   });
 
-  /// Menampilkan modal aksi approval untuk [item]; selesai dengan true bila aksi berhasil.
+  /// Menampilkan modal keputusan untuk [amprah]; menutup dengan true bila aksi berhasil.
   static Future<void> show(
     BuildContext context, {
-    required ApprovalItemModel item,
-    required String aksi,
+    required AmprahHeaderModel amprah,
+    required bool isSetujui,
   }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => ApprovalActionModal(item: item, aksi: aksi),
+      builder: (ctx) => AmprahApprovalModal(amprah: amprah, isSetujui: isSetujui),
     );
   }
 
-  /// Membuat state modal aksi approval.
+  /// Membuat state modal keputusan amprah.
   @override
-  ConsumerState<ApprovalActionModal> createState() => _ApprovalActionModalState();
+  ConsumerState<AmprahApprovalModal> createState() => _AmprahApprovalModalState();
 }
 
-/// State modal: menyimpan controller catatan dan menjalankan eksekusi approval.
-class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
+/// State modal: menyimpan controller catatan dan menjalankan keputusan amprah.
+class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
   final TextEditingController _noteController = TextEditingController();
 
   /// Membersihkan controller catatan agar tidak bocor memori.
@@ -49,24 +49,36 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
     super.dispose();
   }
 
-  /// Menyusun UI modal: judul, warna, dan label tombol menyesuaikan jenis aksi, plus input catatan dan tombol eksekusi.
+  /// Memvalidasi alasan tolak (wajib), lalu mengirim keputusan dan menutup modal bila berhasil.
+  Future<void> _kirim(BuildContext context) async {
+    final catatan = _noteController.text.trim();
+    if (!widget.isSetujui && catatan.isEmpty) {
+      AppToast.error(context, 'Alasan penolakan wajib diisi!');
+      return;
+    }
+    final ok = await ref.read(amprahActionProvider.notifier).approveAmprah(
+          id: widget.amprah.id,
+          isSetujui: widget.isSetujui,
+          catatan: catatan,
+        );
+    if (!context.mounted) return;
+    final state = ref.read(amprahActionProvider);
+    if (ok) {
+      AppToast.success(context, state.successMessage ?? 'Berhasil');
+      Navigator.pop(context, true);
+    } else {
+      AppToast.error(context, state.errorMessage ?? 'Gagal');
+    }
+  }
+
+  /// Menyusun UI modal: judul, warna, label tombol sesuai aksi, input catatan, dan tombol eksekusi.
   @override
   Widget build(BuildContext context) {
-    final isSetujui = widget.aksi == 'setujui';
-    final isSerahkan = widget.aksi == 'serahkan';
-
-    final Color themeColor = isSetujui
-        ? AppColors.success
-        : (isSerahkan ? AppColors.primaryPurple : AppColors.danger);
-    final IconData icon = isSetujui
-        ? LucideIcons.checkCheck
-        : (isSerahkan ? LucideIcons.send : LucideIcons.alertTriangle);
-    final String modalTitle = isSetujui
-        ? 'Setujui Dokumen'
-        : (isSerahkan ? 'Serahkan ke Bagian Pengadaan' : 'Tolak Dokumen');
-    final String buttonLabel = isSetujui
-        ? 'Ya, Setujui'
-        : (isSerahkan ? 'Ya, Serahkan ke Pengadaan' : 'Ya, Tolak');
+    final isSetujui = widget.isSetujui;
+    final Color themeColor = isSetujui ? AppColors.success : AppColors.danger;
+    final IconData icon = isSetujui ? LucideIcons.checkCheck : LucideIcons.alertTriangle;
+    final String modalTitle = isSetujui ? 'Setujui Amprah' : 'Tolak Amprah';
+    final String buttonLabel = isSetujui ? 'Ya, Setujui' : 'Ya, Tolak';
 
     return AppBottomSheetWrapper(
       child: Column(
@@ -98,7 +110,7 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${widget.item.kode} • ${widget.item.unit}',
+                      '${widget.amprah.kode} • ${widget.amprah.unit}',
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
@@ -113,9 +125,7 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
             decoration: InputDecoration(
               hintText: isSetujui
                   ? 'Catatan persetujuan (opsional)...'
-                  : (isSerahkan
-                      ? 'Catatan pelimpahan ke bagian pengadaan...'
-                      : 'Alasan penolakan dokumen (wajib)...'),
+                  : 'Alasan penolakan amprah (wajib)...',
               filled: true,
               fillColor: AppColors.canvas,
               border: OutlineInputBorder(
@@ -129,27 +139,7 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
             text: buttonLabel,
             backgroundColor: themeColor,
             textColor: Colors.white,
-            onPressed: () async {
-              final catatan = _noteController.text.trim();
-              if (!isSetujui && !isSerahkan && catatan.isEmpty) {
-                AppToast.error(context, 'Alasan penolakan wajib diisi!');
-                return;
-              }
-              final ok = await ref.read(approvalActionProvider.notifier).eksekusi(
-                    id: widget.item.id,
-                    tipe: widget.item.tipe,
-                    aksi: widget.aksi,
-                    catatan: catatan,
-                  );
-              if (!context.mounted) return;
-              final state = ref.read(approvalActionProvider);
-              if (ok) {
-                AppToast.success(context, state.successMessage ?? 'Berhasil');
-                Navigator.pop(context, true);
-              } else {
-                AppToast.error(context, state.errorMessage ?? 'Gagal');
-              }
-            },
+            onPressed: () => _kirim(context),
           ),
         ],
       ),

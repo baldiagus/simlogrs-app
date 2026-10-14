@@ -8,11 +8,17 @@ import '../screens/detail_amprah_screen.dart';
 class AmprahCardItem extends StatelessWidget {
   final AmprahHeaderModel item;
   final VoidCallback? onCancelTap;
+  /// Aksi setujui Meja 1/Meja 2; null bila user tidak berhak atau status tidak sesuai.
+  final VoidCallback? onSetujuiTap;
+  /// Aksi tolak Meja 1/Meja 2; null bila user tidak berhak atau status tidak sesuai.
+  final VoidCallback? onTolakTap;
 
   const AmprahCardItem({
     super.key,
     required this.item,
     this.onCancelTap,
+    this.onSetujuiTap,
+    this.onTolakTap,
   });
 
   /// Membangun kartu ringkasan amprah (kode, urgensi CITO, status, unit, jumlah item)
@@ -171,6 +177,40 @@ class AmprahCardItem extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
+                  ],
+                ),
+              ],
+              // Aksi keputusan Meja 1/Meja 2 (setujui/tolak) bila user berhak pada status ini.
+              if (onSetujuiTap != null || onTolakTap != null) ...[
+                const SizedBox(height: 10),
+                const Divider(height: 1, color: AppColors.border),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (onTolakTap != null)
+                      OutlinedButton.icon(
+                        onPressed: onTolakTap,
+                        icon: const Icon(LucideIcons.x, size: 13, color: AppColors.danger),
+                        label: const Text('Tolak', style: TextStyle(color: AppColors.danger, fontSize: 11)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFFCA5A5)),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                    if (onTolakTap != null && onSetujuiTap != null) const SizedBox(width: 8),
+                    if (onSetujuiTap != null)
+                      ElevatedButton.icon(
+                        onPressed: onSetujuiTap,
+                        icon: const Icon(LucideIcons.checkCheck, size: 13, color: Colors.white),
+                        label: const Text('Setujui', style: TextStyle(color: Colors.white, fontSize: 11)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
                   ],
                 ),
               ],

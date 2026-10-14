@@ -109,22 +109,6 @@ class DashboardEksekutifView extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
 
-        // 4. Modul Khusus Pengadaan (Monitoring & Verifikasi PR)
-        if (isPengadaan) ...[
-          AppActionBannerCard(
-            title: 'Monitoring & Verifikasi PR',
-            subtitle: 'Daftar pengajuan PR dari seluruh unit rumah sakit untuk penerbitan PO',
-            icon: LucideIcons.fileSpreadsheet,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-        ],
-
         // 5. Layanan Pengalihan & Mutasi Aset
         AppActionBannerCard(
           title: 'Pengalihan & Mutasi Aset',

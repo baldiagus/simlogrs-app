@@ -152,7 +152,8 @@ class PengadaanHubPrTab extends ConsumerWidget {
                 TerbitkanPoSheet.show(context, pr.toApprovalItem()),
           ),
           onSetujuiTap: () => onSetujui(pr),
-          onTolakTap: () => onTolak(pr, false),
+          // Tombol Tolak pada kartu mengikuti peran pengguna (pengadaan atau karu).
+          onTolakTap: () => onTolak(pr, isPengadaan),
           onTeruskanTap: () => onTeruskan(pr),
           onTerbitkanPoTap: () =>
               TerbitkanPoSheet.show(context, pr.toApprovalItem()),

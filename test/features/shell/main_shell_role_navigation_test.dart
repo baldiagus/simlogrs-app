@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simlog_mobile/features/approval/data/models/approval_item_model.dart';
-import 'package:simlog_mobile/features/approval/presentation/providers/approval_provider.dart';
-import 'package:simlog_mobile/features/approval/presentation/screens/approval_center_screen.dart';
+import 'package:simlog_mobile/features/pengadaan/data/models/approval_item_model.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/providers/approval_provider.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import 'package:simlog_mobile/features/aset/data/models/pengalihan_model.dart';
 import 'package:simlog_mobile/features/aset/presentation/providers/pengalihan_provider.dart';
 import 'package:simlog_mobile/features/aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
@@ -12,6 +12,7 @@ import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider
 import 'package:simlog_mobile/features/dashboard/data/models/dashboard_summary_model.dart';
 import 'package:simlog_mobile/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:simlog_mobile/features/distribusi/presentation/screens/amprah_hub_screen.dart';
+import 'package:simlog_mobile/core/notifications/notification_router.dart';
 import 'package:simlog_mobile/features/distribusi/presentation/screens/picking_distribusi_screen.dart';
 import 'package:simlog_mobile/features/maintenance/presentation/screens/ipsrs_hub_screen.dart';
 import 'package:simlog_mobile/features/maintenance/presentation/screens/spk_list_screen.dart';
@@ -112,7 +113,7 @@ void main() {
     );
   }
 
-  testWidgets('MainShellScreen renders Karu navigation (Beranda, Approval, Amprah, Profil)', (tester) async {
+  testWidgets('MainShellScreen renders Karu navigation (Beranda, Amprah, Profil)', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -125,7 +126,7 @@ void main() {
 
     expect(find.byType(FloatingBottomNavBar), findsOneWidget);
     expect(find.text('Beranda'), findsOneWidget);
-    expect(find.text('Approval'), findsOneWidget);
+    expect(find.text('Approval'), findsNothing);
     expect(find.text('Amprah'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('IPSRS'), findsNothing);
@@ -188,6 +189,49 @@ void main() {
     expect(find.byType(PickingDistribusiScreen), findsOneWidget);
   });
 
+  testWidgets('Kepala Gudang punya tab Amprah berurutan sebelum Picking tanpa Inbound PO di nav; petugas gudang tetap Inbound PO', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    const kepalaGudangUser = UserModel(
+      id: 5,
+      name: 'Kepala Gudang',
+      email: 'kepalagudang@simlogrs.local',
+      roles: ['kepala_gudang'],
+      permissions: ['page_KepalaGudangDashboard'],
+      gudang: GudangModel(id: 1, nama: 'Gudang Sentral', kode: 'GUD_SENTRAL'),
+    );
+
+    await tester.pumpWidget(createShellForUser(kepalaGudangUser));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.descendant(of: find.byType(FloatingBottomNavBar), matching: find.text('Amprah')), findsOneWidget);
+    final nav = find.byType(FloatingBottomNavBar);
+    double x(String t) => tester.getCenter(find.descendant(of: nav, matching: find.text(t))).dx;
+    expect(find.descendant(of: nav, matching: find.text('Inbound PO')), findsNothing);
+    expect(x('Beranda') < x('Amprah') && x('Amprah') < x('Picking') && x('Picking') < x('Profil'), isTrue);
+
+    await tester.tap(find.descendant(of: nav, matching: find.text('Amprah')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(AmprahHubScreen), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(createShellForUser(gudangUser));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Amprah'), findsNothing);
+  });
+
+  test('resolveGudangTabIndex menyesuaikan indeks tab dengan ada/tidaknya tab Approval', () {
+    expect(resolveGudangTabIndex(NotificationTarget.approvalAmprah, punyaTabApproval: true), 1);
+    expect(resolveGudangTabIndex(NotificationTarget.approvalAmprah, punyaTabApproval: false), isNull);
+    expect(resolveGudangTabIndex(NotificationTarget.antreanPicking, punyaTabApproval: true), 2);
+    expect(resolveGudangTabIndex(NotificationTarget.antreanPicking, punyaTabApproval: false), 2);
+    expect(resolveGudangTabIndex(NotificationTarget.inboundPo, punyaTabApproval: true), isNull);
+  });
+
   testWidgets('MainShellScreen renders Teknisi navigation (Beranda, Tugas SPK, IPSRS, Profil)', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
@@ -217,7 +261,7 @@ void main() {
     expect(find.byType(IpsrsHubScreen), findsOneWidget);
   });
 
-  testWidgets('MainShellScreen renders Manajemen navigation (Beranda, Approval, Amprah, Profil)', (tester) async {
+  testWidgets('MainShellScreen renders Manajemen navigation (Beranda, Pengadaan, Amprah, Profil)', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -229,15 +273,15 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Beranda'), findsOneWidget);
-    expect(find.text('Approval'), findsOneWidget);
+    expect(find.descendant(of: find.byType(FloatingBottomNavBar), matching: find.text('Pengadaan')), findsOneWidget);
     expect(find.text('Amprah'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('IPSRS'), findsNothing);
 
-    // Tap Approval tab (index 1)
-    await tester.tap(find.text('Approval'));
+    // Tap Pengadaan tab (index 1)
+    await tester.tap(find.descendant(of: find.byType(FloatingBottomNavBar), matching: find.text('Pengadaan')));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byType(ApprovalCenterScreen), findsOneWidget);
+    expect(find.byType(PengadaanHubScreen), findsOneWidget);
 
     // Tap Amprah tab (index 2)
     await tester.tap(find.text('Amprah'));

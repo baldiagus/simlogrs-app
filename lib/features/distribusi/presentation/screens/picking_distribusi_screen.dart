@@ -45,7 +45,7 @@ class PickingDistribusiScreen extends ConsumerWidget {
                     child: const EmptyStateView(
                       icon: LucideIcons.packageCheck,
                       title: 'Tidak Ada Antrean Picking',
-                      message: 'Semua permohonan amprah yang disetujui telah selesai dipicking ke SPPB.',
+                      message: 'Belum ada amprah yang disetujui gudang',
                     ),
                   ),
                 );

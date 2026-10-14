@@ -7,8 +7,8 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-
-/// Layar profil pengguna: identitas, unit/gudang, daftar wewenang, info aplikasi, dan tombol keluar.
+import 'ubah_password_screen.dart';
+/// Layar profil pengguna: identitas, unit/gudang, keamanan akun, info aplikasi, dan tombol keluar.
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
@@ -17,9 +17,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-/// State layar profil yang menyimpan toggle tampilan seluruh wewenang.
+/// State layar profil pengguna yang mengelola tampilan profil dan navigasi keamanan.
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _showAllPermissions = false;
 
   /// Mengubah kode role dari backend menjadi nama jabatan yang mudah dibaca; role tak dikenal diformat generik.
   String _formatRoleName(String raw) {
@@ -251,7 +250,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 3. Spatie Permissions (Capability-Based RBAC)
+              // 3. Keamanan Akun
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -262,77 +261,94 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    const Row(
                       children: [
-                        const Expanded(
-                          child: Text(
-                            'Wewenang Sistem (Spatie RBAC)',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Icon(
+                          LucideIcons.shieldCheck,
+                          color: AppColors.primaryPurple,
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Keamanan Akun',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        StatusBadge(status: '${user.permissions.length} Akses'),
                       ],
                     ),
                     const SizedBox(height: 12),
-
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: (_showAllPermissions ? user.permissions : user.permissions.take(8))
-                          .map(
-                            (p) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceSecondary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                p,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(14),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UbahPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                   height: 36,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.tintVioletBg,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    LucideIcons.keyRound,
+                                    color: AppColors.primaryPurple,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Ubah Kata Sandi',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'Perbarui kata sandi untuk akses Web & Mobile',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(
+                                  LucideIcons.chevronRight,
+                                  size: 16,
                                   color: AppColors.textSecondary,
                                 ),
-                              ),
+                              ],
                             ),
-                          )
-                          .toList(),
-                    ),
-
-                    if (user.permissions.length > 8) ...[
-                      const SizedBox(height: 10),
-                      InkWell(
-                        onTap: () => setState(() => _showAllPermissions = !_showAllPermissions),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _showAllPermissions
-                                  ? 'Sembunyikan Wewenang'
-                                  : 'Lihat Semua (+${user.permissions.length - 8} wewenang)',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryPurple,
-                              ),
-                            ),
-                            Icon(
-                              _showAllPermissions ? LucideIcons.chevronUp : LucideIcons.chevronDown,
-                              size: 14,
-                              color: AppColors.primaryPurple,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),

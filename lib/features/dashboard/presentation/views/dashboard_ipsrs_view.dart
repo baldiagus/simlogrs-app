@@ -8,7 +8,6 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
-import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../data/models/dashboard_summary_model.dart';
 import '../widgets/hero_status_card.dart';
@@ -63,7 +62,7 @@ class DashboardIpsrsView extends ConsumerWidget {
             onApprovalTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+                MaterialPageRoute(builder: (_) => const PengadaanHubScreen()),
               );
             },
             onPengadaanTap: () {

@@ -128,6 +128,18 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     }
   }
 
+  /// Membuka sheet penolakan kiriman fisik vendor; jika berhasil ditolak, menutup layar dengan hasil `true`.
+  Future<void> _tolakKiriman() async {
+    final rejected = await ModalTolakPenerimaanSheet.show(
+      context,
+      po: widget.po,
+      nomorSuratJalanAwal: _suratJalanController.text.trim(),
+    );
+    if (rejected == true && mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
   /// Menyusun UI form penerimaan: info PO, surat jalan, daftar draft item (batch, rak, kuantitas), dan tombol simpan/tolak.
   @override
   Widget build(BuildContext context) {
@@ -135,28 +147,11 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     final actionState = ref.watch(inboundActionProvider);
     final totalDiterima = _itemDrafts.fold<int>(0, (sum, i) => sum + i.jumlahDiterima);
     final totalJenisDiterima = _itemDrafts.where((i) => i.jumlahDiterima > 0).length;
+    final canReceive = ref.watch(authStateProvider).user?.canReceiveInbound ?? false;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: Text('Terima PO: ${widget.po.kodePo}'),
-        actions: (ref.watch(authStateProvider).user?.canReceiveInbound ?? false)
-            ? [
-                IconButton(
-                  icon: const Icon(LucideIcons.ban, size: 20, color: AppColors.danger),
-                  tooltip: 'Tolak Kiriman Fisik',
-                  onPressed: () async {
-                    final rejected = await ModalTolakPenerimaanSheet.show(
-                      context,
-                      po: widget.po,
-                      nomorSuratJalanAwal: _suratJalanController.text.trim(),
-                    );
-                    if (rejected == true && context.mounted) {
-                      Navigator.pop(context, true);
-                    }
-                  },
-                ),
-              ]
-            : null,
       ),
       body: SafeArea(
         child: Column(
@@ -320,7 +315,10 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
-                  child: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
                     children: [
                       Flexible(
                         flex: 4,
@@ -372,6 +370,19 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                                 ),
                               ),
                       ),
+                    ],
+                  ),
+                      if (canReceive) ...[
+                        const SizedBox(height: 10),
+                        CustomButton(
+                          text: 'Tolak Kiriman Vendor',
+                          isOutlined: true,
+                          backgroundColor: AppColors.danger,
+                          textColor: AppColors.danger,
+                          icon: const Icon(LucideIcons.ban, size: 18, color: AppColors.danger),
+                          onPressed: _tolakKiriman,
+                        ),
+                      ],
                     ],
                   ),
                 ),

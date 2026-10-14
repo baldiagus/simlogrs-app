@@ -9,7 +9,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
+import '../../../pengadaan/presentation/providers/approval_provider.dart';
 import '../../../audit/presentation/providers/audit_provider.dart';
 import '../../../anggaran/presentation/providers/anggaran_provider.dart';
 import '../../../aset/presentation/providers/peminjaman_provider.dart';

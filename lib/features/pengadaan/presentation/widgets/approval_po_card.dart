@@ -4,7 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/status_badge.dart';
-import '../../../pengadaan/data/models/po_model.dart';
+import '../../data/models/po_model.dart';
 
 /// Kartu ringkasan Pesanan Pembelian (PO) untuk antrean approval/pengadaan.
 class ApprovalPoCard extends StatelessWidget {

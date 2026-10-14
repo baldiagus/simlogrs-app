@@ -141,6 +141,8 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
               bottom: _tabs.length > 1 && _tabController != null
                   ? TabBar(
                       controller: _tabController,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
                       indicatorColor: AppColors.primaryPurple,
                       indicatorWeight: 3,
                       labelColor: AppColors.primaryPurple,

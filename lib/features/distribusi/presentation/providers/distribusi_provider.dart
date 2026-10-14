@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../gudang/presentation/providers/gudang_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
@@ -157,7 +156,6 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       );
 
       _ref.invalidate(daftarAmprahProvider);
-      _ref.invalidate(approvalPendingProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -180,7 +178,6 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       );
 
       _ref.invalidate(daftarAmprahProvider);
-      _ref.invalidate(approvalPendingProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
@@ -232,6 +229,34 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
       _ref.invalidate(daftarAmprahProvider);
       _ref.invalidate(registerAsetListProvider);
       _ref.invalidate(daftarPeminjamanSayaProvider);
+      _ref.invalidate(dashboardSummaryProvider);
+      return true;
+    } catch (e) {
+      state = AmprahActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
+  /// Menyetujui atau menolak amprah [id] (Meja 1 Karu / Meja 2 gudang) lalu me-refresh daftar amprah, approval, dan dashboard; true bila berhasil.
+  Future<bool> approveAmprah({
+    required int id,
+    required bool isSetujui,
+    String? catatan,
+  }) async {
+    state = const AmprahActionState(isLoading: true);
+    try {
+      await _repository.approveAmprah(id: id, isSetujui: isSetujui, catatan: catatan);
+      state = AmprahActionState(
+        isLoading: false,
+        successMessage: isSetujui
+            ? 'Amprah Ruangan berhasil disetujui.'
+            : 'Amprah Ruangan berhasil ditolak.',
+      );
+
+      _ref.invalidate(daftarAmprahProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../../shared/widgets/app_toast.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
+import '../providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../gudang/data/models/po_inbound_model.dart';
 import '../../../gudang/presentation/providers/inbound_provider.dart';

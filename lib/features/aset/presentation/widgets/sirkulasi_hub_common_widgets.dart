@@ -43,14 +43,13 @@ class SirkulasiHubBadgeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tab(
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(width: 4),
           SirkulasiHubTabBadge(count: count),
