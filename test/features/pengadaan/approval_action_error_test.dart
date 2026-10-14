@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/core/network/api_response.dart';
-import 'package:simlog_mobile/features/approval/data/repositories/approval_repository.dart';
-import 'package:simlog_mobile/features/approval/presentation/providers/approval_provider.dart';
+import 'package:simlog_mobile/features/pengadaan/data/repositories/approval_repository.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/providers/approval_provider.dart';
 
 class FakeApprovalRepository extends Fake implements ApprovalRepository {
   @override

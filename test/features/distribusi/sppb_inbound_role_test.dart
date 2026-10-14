@@ -81,6 +81,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Switch to Tab 2: Barang Masuk (SPPB)
+    await tester.ensureVisible(find.textContaining('Barang Masuk'));
+    await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Barang Masuk'));
     await tester.pumpAndSettle();
 
@@ -103,6 +105,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Switch to Tab 2: Barang Masuk (SPPB)
+    await tester.ensureVisible(find.textContaining('Barang Masuk'));
+    await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Barang Masuk'));
     await tester.pumpAndSettle();
 

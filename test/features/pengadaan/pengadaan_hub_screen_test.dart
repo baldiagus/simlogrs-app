@@ -54,6 +54,35 @@ void main() {
     gudang: GudangModel(id: 1, nama: 'Gudang Sentral', kode: 'GUD_SENTRAL'),
   );
 
+  const karuUser = UserModel(
+    id: 5,
+    name: 'Dr. Karu',
+    email: 'karu@simlogrs.local',
+    roles: ['kepala_unit'],
+    permissions: [],
+    unit: UnitModel(id: 3, nama: 'Ruang Melati', kode: 'MELATI'),
+  );
+
+  const manajemenUser = UserModel(
+    id: 6,
+    name: 'Pak Manajemen',
+    email: 'manajemen@simlogrs.local',
+    roles: ['manajemen'],
+    permissions: [],
+  );
+
+  const prDiajukan = PrHeaderModel(
+    id: 11,
+    kode: 'PR-202610-002',
+    unit: 'Ruang Melati',
+    pengaju: 'Staf Ruangan',
+    tanggalPermintaan: '2026-10-08',
+    urgensi: 'NORMAL',
+    status: 'DIAJUKAN',
+    jumlahItem: 1,
+    items: [],
+  );
+
   const dummyPr = PrHeaderModel(
     id: 10,
     kode: 'PR-202610-001',
@@ -106,6 +135,21 @@ void main() {
     );
   }
 
+  /// Membangun hub dengan satu PR yang diberikan, untuk menguji aksi per peran.
+  Widget createHubWithPr(UserModel user, PrHeaderModel pr) {
+    return ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
+        daftarPrProvider.overrideWith((ref) => Future.value([pr])),
+        poListProvider.overrideWith((ref) => Future.value([])),
+        daftarPoInboundProvider.overrideWith((ref) => Future.value([])),
+      ],
+      child: const MaterialApp(
+        home: PengadaanHubScreen(),
+      ),
+    );
+  }
+
   testWidgets('PengadaanHubScreen renders 3 tabs for Gudang user and switches between tabs', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1.0;
@@ -144,7 +188,7 @@ void main() {
     expect(find.text('PO-202610-099'), findsOneWidget);
   });
 
-  testWidgets('PengadaanHubScreen hides Penerimaan Inbound for Petugas Unit and toggles FAB', (tester) async {
+  testWidgets('PengadaanHubScreen hides PO and Penerimaan Inbound for Petugas Unit, FAB on PR tab', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -157,18 +201,12 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Permintaan (PR)'), findsOneWidget);
-    expect(find.text('Pesanan (PO)'), findsOneWidget);
-    // Penerimaan Inbound MUST NOT exist for Petugas Unit
+    // Petugas Unit tidak punya tab PO maupun Penerimaan Inbound
+    expect(find.text('Pesanan (PO)'), findsNothing);
     expect(find.text('Penerimaan Inbound'), findsNothing);
 
-    // On Tab 1 (PR): FAB 'Ajukan PR Baru' is visible
+    // Tab PR satu-satunya: FAB 'Ajukan PR Baru' tetap terlihat
     expect(find.text('Ajukan PR Baru'), findsOneWidget);
-
-    // Switch to Tab 2 (Pesanan PO)
-    await tester.tap(find.text('Pesanan (PO)'));
-    await tester.pumpAndSettle();
-    // On Tab 2 (PO): FAB 'Ajukan PR Baru' is hidden
-    expect(find.text('Ajukan PR Baru'), findsNothing);
   });
 
   testWidgets('PengadaanHubScreen hides PR authorization buttons for Petugas Gudang but shows for Kepala Gudang', (tester) async {
@@ -212,5 +250,145 @@ void main() {
     expect(find.text('PR-202610-002'), findsOneWidget);
     expect(find.text('Setujui'), findsOneWidget);
     expect(find.text('Tolak'), findsOneWidget);
+  });
+
+  /// Pengadaan menerbitkan PO dari PR diteruskan dan tidak melihat tombol setujui PR.
+  testWidgets('Pengadaan dapat menerbitkan PO dari PR diteruskan tanpa tombol setujui', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createWidget(user: pengadaanUser));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Terbitkan PO'), findsOneWidget);
+    expect(find.text('Setujui'), findsNothing);
+  });
+
+  /// Karu menyetujui PR berstatus DIAJUKAN, tanpa tombol terbitkan PO.
+  testWidgets('Karu dapat menyetujui PR diajukan dan tidak melihat terbitkan PO', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createHubWithPr(karuUser, prDiajukan));
+    await tester.pumpAndSettle();
+
+    expect(find.text('PR-202610-002'), findsOneWidget);
+    expect(find.text('Setujui'), findsOneWidget);
+    expect(find.text('Terbitkan PO'), findsNothing);
+  });
+
+  /// Manajemen read-only: PR diajukan tidak menampilkan tombol setujui atau tolak.
+  testWidgets('Manajemen read-only tidak melihat tombol setujui atau tolak PR', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createHubWithPr(manajemenUser, prDiajukan));
+    await tester.pumpAndSettle();
+
+    expect(find.text('PR-202610-002'), findsOneWidget);
+    expect(find.text('Setujui'), findsNothing);
+    expect(find.text('Tolak'), findsNothing);
+  });
+
+  /// Manajemen read-only: PR diteruskan dan PO tidak menampilkan aksi terbitkan PO atau tandai dikirim.
+  testWidgets('Manajemen read-only tanpa aksi terbitkan PO atau tandai dikirim', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createWidget(user: manajemenUser));
+    await tester.pumpAndSettle();
+    expect(find.text('Pesanan (PO)'), findsOneWidget);
+
+    expect(find.text('Terbitkan PO'), findsNothing);
+    expect(find.text('Tolak Belanja'), findsNothing);
+
+    await tester.tap(find.text('Pesanan (PO)'));
+    await tester.pumpAndSettle();
+    expect(find.text('PO-202610-099'), findsOneWidget);
+    expect(find.text('Tandai Dikirim Vendor'), findsNothing);
+  });
+
+  /// Kepala gudang melihat tab PR dan Penerimaan Inbound, tanpa tab Pesanan (PO).
+  testWidgets('Kepala Gudang melihat tab PR dan Penerimaan Inbound tanpa Pesanan (PO)', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createWidget(user: kepalaGudangUser));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Permintaan (PR)'), findsOneWidget);
+    expect(find.text('Penerimaan Inbound'), findsOneWidget);
+    expect(find.text('Pesanan (PO)'), findsNothing);
+  });
+
+  /// Layar hub dengan initialTab PO membuka tab PO bila tersedia untuk pengguna.
+  testWidgets('PengadaanHubScreen initialTab PO membuka tab PO untuk pengadaan', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => MockAuthNotifier(pengadaanUser)),
+        daftarPrProvider.overrideWith((ref) => Future.value([dummyPr])),
+        poListProvider.overrideWith((ref) => Future.value([dummyPo])),
+        daftarPoInboundProvider.overrideWith((ref) => Future.value([dummyInbound])),
+      ],
+      child: const MaterialApp(
+        home: PengadaanHubScreen(initialTab: HubTab.po),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('PO-202610-099'), findsOneWidget);
+  });
+
+  /// Kepala gudang yang meminta initialTab PO jatuh ke tab PR karena PO tidak tersedia.
+  testWidgets('PengadaanHubScreen initialTab PO jatuh ke PR untuk kepala gudang', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => MockAuthNotifier(kepalaGudangUser)),
+        daftarPrProvider.overrideWith((ref) => Future.value([dummyPr])),
+        poListProvider.overrideWith((ref) => Future.value([])),
+        daftarPoInboundProvider.overrideWith((ref) => Future.value([])),
+      ],
+      child: const MaterialApp(
+        home: PengadaanHubScreen(initialTab: HubTab.po),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('PR-202610-001'), findsOneWidget);
+    expect(find.text('Pesanan (PO)'), findsNothing);
   });
 }

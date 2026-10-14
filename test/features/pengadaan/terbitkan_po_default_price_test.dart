@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simlog_mobile/features/approval/data/models/approval_item_model.dart';
+import 'package:simlog_mobile/features/pengadaan/data/models/approval_item_model.dart';
 import 'package:simlog_mobile/features/pengadaan/data/models/po_model.dart';
 import 'package:simlog_mobile/features/pengadaan/data/models/pr_model.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/providers/pengadaan_provider.dart';

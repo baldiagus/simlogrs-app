@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_action_banner_card.dart';
-import '../../../approval/presentation/screens/approval_center_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
@@ -69,13 +68,13 @@ class DashboardGudangView extends ConsumerWidget {
           onApprovalTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const ApprovalCenterScreen()),
+              MaterialPageRoute(builder: (_) => const AmprahHubScreen()),
             );
           },
           onPengadaanTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const PengadaanHubScreen(initialTabIndex: 2)),
+              MaterialPageRoute(builder: (_) => const PengadaanHubScreen(initialTab: HubTab.inbound)),
             );
           },
           onAmprahTap: () {

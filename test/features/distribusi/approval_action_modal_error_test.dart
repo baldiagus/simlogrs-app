@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/core/network/api_response.dart';
-import 'package:simlog_mobile/features/approval/data/models/approval_item_model.dart';
-import 'package:simlog_mobile/features/approval/data/repositories/approval_repository.dart';
-import 'package:simlog_mobile/features/approval/presentation/providers/approval_provider.dart';
-import 'package:simlog_mobile/features/approval/presentation/widgets/approval_action_modal.dart';
+import 'package:simlog_mobile/features/pengadaan/data/models/approval_item_model.dart';
+import 'package:simlog_mobile/features/pengadaan/data/repositories/approval_repository.dart';
+import 'package:simlog_mobile/features/pengadaan/presentation/providers/approval_provider.dart';
+import 'package:simlog_mobile/features/distribusi/presentation/widgets/approval_action_modal.dart';
 
 class RejectingApprovalRepository extends Fake implements ApprovalRepository {
   @override

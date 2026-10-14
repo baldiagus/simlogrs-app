@@ -180,6 +180,8 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,

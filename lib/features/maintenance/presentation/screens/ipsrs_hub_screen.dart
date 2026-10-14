@@ -107,6 +107,8 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
         bottom: _canViewSpk
             ? TabBar(
                 controller: _tabController,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
                 indicatorColor: AppColors.primaryPurple,
                 indicatorWeight: 3,
                 labelColor: AppColors.primaryPurple,
@@ -116,21 +118,23 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     ? const [
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.clipboardList, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.wrench, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Semua SPK', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Semua SPK', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
@@ -139,31 +143,34 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     ? const [
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.wrench, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Tugas SPK', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Tugas SPK', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.calendarClock, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.clipboardList, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Tiket Masuk', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
@@ -171,31 +178,34 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                     : const [
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.clipboardList, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Tiket Unit', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Tiket Unit', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.wrench, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('SPK Teknisi', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('SPK Teknisi', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
                         Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(LucideIcons.calendarClock, size: 15),
                               SizedBox(width: 5),
-                              Flexible(child: Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                              Text('Preventif', maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
@@ -288,6 +298,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text('Prioritas: ', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
                     const SizedBox(width: 4),

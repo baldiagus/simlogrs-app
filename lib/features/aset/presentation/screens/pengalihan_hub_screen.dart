@@ -107,6 +107,8 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,
@@ -118,12 +120,10 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             if (_canApprove)
               Tab(
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Flexible(
-                      child: Text('Otorisasi',
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                    ),
+                    const Text('Otorisasi', maxLines: 1, overflow: TextOverflow.ellipsis),
                     if (countOtorisasi > 0) ...[
                       const SizedBox(width: 4),
                       _buildBadge(countOtorisasi),

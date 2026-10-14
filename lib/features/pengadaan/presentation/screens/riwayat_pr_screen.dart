@@ -11,7 +11,7 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../widgets/riwayat_pr_card_item.dart';
 import '../widgets/pr_detail_sheet.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
+import '../providers/approval_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/pr_model.dart';
@@ -215,7 +215,7 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Monitoring & Verifikasi PR'),
+        title: const Text('Riwayat PR'),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),

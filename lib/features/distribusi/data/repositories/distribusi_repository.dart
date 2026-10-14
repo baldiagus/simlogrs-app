@@ -116,6 +116,30 @@ class DistribusiRepository {
     }
   }
 
+  /// Mengirim keputusan setujui/tolak amprah [id] ke endpoint approval; catatan dikirim bila tidak kosong. Melempar [ApiException] bila ditolak server.
+  Future<void> approveAmprah({
+    required int id,
+    required bool isSetujui,
+    String? catatan,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        '/approval/amprah/$id',
+        data: {
+          'aksi': isSetujui ? 'setujui' : 'tolak',
+          if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
+        },
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['sukses'] == false) {
+        throw ApiException(message: data['pesan']?.toString() ?? 'Gagal memproses Amprah');
+      }
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal memproses persetujuan Amprah');
+    }
+  }
+
   /// Mengambil antrean permintaan yang siap di-picking gudang; mengembalikan daftar kosong bila akses 403 (bukan petugas gudang).
   Future<List<PickingAntreanModel>> getAntreanPicking() async {
     try {

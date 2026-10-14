@@ -1,4 +1,4 @@
-import '../../../approval/data/models/approval_item_model.dart';
+import 'approval_item_model.dart';
 import 'master_barang_model.dart';
 
 abstract final class PrStatus {

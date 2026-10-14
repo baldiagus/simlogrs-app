@@ -6,7 +6,7 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
-import '../../../approval/presentation/widgets/approval_po_card.dart';
+import 'approval_po_card.dart';
 import '../../data/models/po_model.dart';
 import '../providers/pengadaan_provider.dart';
 

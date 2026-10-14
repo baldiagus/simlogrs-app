@@ -7,8 +7,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../shared/widgets/app_action_banner_card.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/floating_bottom_nav_bar.dart';
-import '../../../approval/presentation/providers/approval_provider.dart';
-import '../../../approval/presentation/screens/approval_center_screen.dart';
+import '../../../pengadaan/presentation/providers/approval_provider.dart';
+import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
 import '../../../aset/presentation/screens/qr_scanner_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
@@ -234,8 +234,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     final Widget layar;
     switch (target) {
       case NotificationTarget.approvalPr:
+        layar = const PengadaanHubScreen(initialTab: HubTab.pr);
+        break;
       case NotificationTarget.approvalAmprah:
-        layar = const ApprovalCenterScreen();
+        layar = const AmprahHubScreen();
         break;
       case NotificationTarget.antreanPicking:
         layar = const PickingDistribusiScreen();
@@ -358,15 +360,17 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       return _ShellNavConfig(
         screens: [
           homeScreen,
-          const InboundPoListScreen(),
-          if (punyaTabApproval) const ApprovalCenterScreen(),
+          // Kepala gudang & admin logistik: tab Amprah; petugas gudang: tab Inbound PO.
+          if (punyaTabApproval) const AmprahHubScreen() else const InboundPoListScreen(),
           const PickingDistribusiScreen(),
           profileScreen,
         ],
         navItems: [
           const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
-          const BottomNavItem(icon: LucideIcons.packageCheck, label: 'Inbound PO'),
-          if (punyaTabApproval) const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
+          if (punyaTabApproval)
+            const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah')
+          else
+            const BottomNavItem(icon: LucideIcons.packageCheck, label: 'Inbound PO'),
           const BottomNavItem(icon: LucideIcons.truck, label: 'Picking'),
           const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
         ],
@@ -381,13 +385,13 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       return _ShellNavConfig(
         screens: [
           homeScreen,
-          const ApprovalCenterScreen(),
+          const PengadaanHubScreen(),
           const AmprahHubScreen(),
           profileScreen,
         ],
         navItems: [
           const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
-          const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
+          const BottomNavItem(icon: LucideIcons.clipboardCheck, label: 'Pengadaan'),
           const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
           const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
         ],
@@ -399,13 +403,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       return _ShellNavConfig(
         screens: [
           homeScreen,
-          const ApprovalCenterScreen(),
           const AmprahHubScreen(),
           profileScreen,
         ],
         navItems: [
           const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
-          const BottomNavItem(icon: LucideIcons.checkSquare, label: 'Approval'),
           const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
           const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
         ],
