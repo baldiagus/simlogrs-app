@@ -22,13 +22,16 @@ class QrScannerScreen extends ConsumerStatefulWidget {
 
 /// State layar pindai QR: mengelola kamera, siklus hidup aplikasi, status proses, dan jeda antar pindai.
 class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   late final MobileScannerController _controller;
+  late final AnimationController _laserController;
+  late final Animation<double> _laserAnimation;
 
   bool _isProcessing = false;
+  bool _isTorchOn = false;
   DateTime? _lastScannedTime;
 
-  /// Menyiapkan observer siklus hidup dan MobileScannerController (kamera belakang, tanpa duplikat).
+  /// Menyiapkan observer siklus hidup, controller kamera, dan animasi garis laser pindai.
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       facing: CameraFacing.back,
       torchEnabled: false,
       autoStart: true,
+    );
+    _laserController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat(reverse: true);
+    _laserAnimation = CurvedAnimation(
+      parent: _laserController,
+      curve: Curves.easeInOut,
     );
   }
 
@@ -58,6 +69,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
+    _laserController.dispose();
     super.dispose();
   }
 
@@ -65,7 +77,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
   Future<void> _handleBarcodeDetected(String rawCode) async {
     final now = DateTime.now();
     if (_lastScannedTime != null &&
-        now.difference(_lastScannedTime!) < const Duration(milliseconds: 1200)) {
+        now.difference(_lastScannedTime!) <
+            const Duration(milliseconds: 1200)) {
       return;
     }
     _lastScannedTime = now;
@@ -88,7 +101,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
         ),
       );
     } else {
-      final error = ref.read(asetActionProvider).errorMessage ?? 'Aset tidak ditemukan';
+      final error =
+          ref.read(asetActionProvider).errorMessage ?? 'Aset tidak ditemukan';
       AppToast.error(context, error);
     }
   }
@@ -145,17 +159,38 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.zap),
-            tooltip: 'Senter',
-            onPressed: () => _controller.toggleTorch(),
-          ),
-          IconButton(
-            icon: const Icon(LucideIcons.refreshCcw),
-            tooltip: 'Ganti Kamera',
-            onPressed: () => _controller.switchCamera(),
+          _buildAppBarButton(
+            tooltip: _isTorchOn ? 'Matikan Senter' : 'Nyalakan Senter',
+            backgroundColor: _isTorchOn
+                ? Colors.amber.withValues(alpha: 0.9)
+                : Colors.white.withValues(alpha: 0.18),
+            borderColor: _isTorchOn
+                ? Colors.amber.withValues(alpha: 0.9)
+                : Colors.white.withValues(alpha: 0.35),
+            icon: Icon(
+              LucideIcons.zap,
+              color: _isTorchOn ? Colors.black : Colors.white,
+              size: 20,
+            ),
+            onTap: () async {
+              await _controller.toggleTorch();
+              if (mounted) {
+                setState(() => _isTorchOn = !_isTorchOn);
+              }
+            },
           ),
           const SizedBox(width: 8),
+          _buildAppBarButton(
+            tooltip: 'Ganti Kamera',
+            backgroundColor: Colors.white.withValues(alpha: 0.18),
+            icon: const Icon(
+              LucideIcons.refreshCcw,
+              color: Colors.white,
+              size: 20,
+            ),
+            onTap: () => _controller.switchCamera(),
+          ),
+          const SizedBox(width: 16),
         ],
       ),
       body: Stack(
@@ -182,7 +217,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                   );
                 },
                 errorBuilder: (context, error, child) {
-                  final isPermission = error.errorCode == MobileScannerErrorCode.permissionDenied;
+                  final isPermission = error.errorCode ==
+                      MobileScannerErrorCode.permissionDenied;
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
@@ -190,22 +226,31 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            isPermission ? LucideIcons.shieldAlert : LucideIcons.cameraOff,
+                            isPermission
+                                ? LucideIcons.shieldAlert
+                                : LucideIcons.cameraOff,
                             color: AppColors.danger,
                             size: 48,
                           ),
                           const SizedBox(height: 14),
                           Text(
-                            isPermission ? 'Izin Kamera Diperlukan' : 'Sensor Kamera Tidak Siap',
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            isPermission
+                                ? 'Izin Kamera Diperlukan'
+                                : 'Sensor Kamera Tidak Siap',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             isPermission
                                 ? 'Aplikasi memerlukan izin akses kamera untuk memindai QR Code aset fisik.'
-                                : (error.errorDetails?.message ?? error.errorCode.name),
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                : (error.errorDetails?.message ??
+                                    error.errorCode.name),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 18),
@@ -216,7 +261,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryPurple,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
                             ),
                           ),
                         ],
@@ -247,12 +293,16 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                       color: Colors.white.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(LucideIcons.qrCode, color: Colors.white, size: 64),
+                    child: const Icon(LucideIcons.qrCode,
+                        color: Colors.white, size: 64),
                   ),
                   const SizedBox(height: 20),
                   const Text(
                     'Mode Simulator / Web Browser',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
                   const Text(
@@ -263,22 +313,31 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
               ),
             ),
 
-          // Central Guide Frame Overlay
+          // Scrim overlay with viewfinder cutout and corner brackets
+          const Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _ScannerOverlayPainter(),
+              ),
+            ),
+          ),
+
+          // Central Guide Frame Overlay & scanning laser
           Center(
-            child: Container(
+            child: SizedBox(
               width: 260,
               height: 260,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primaryLight, width: 2.5),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-              ),
-              child: Stack(
-                children: [
-                  if (_isProcessing)
-                    const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                ],
+                child: Stack(
+                  children: [
+                    _buildScanningLaser(),
+                    if (_isProcessing)
+                      const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -292,7 +351,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
@@ -306,7 +366,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                 const SizedBox(height: 16),
                 CustomButton(
                   text: 'Input Kode Aset Manual',
-                  icon: const Icon(LucideIcons.keyboard, size: 18, color: Colors.white),
+                  icon: const Icon(LucideIcons.keyboard,
+                      size: 18, color: Colors.white),
                   onPressed: _showManualInputDialog,
                 ),
               ],
@@ -316,4 +377,174 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       ),
     );
   }
+
+  /// Membangun tombol aksi di AppBar dengan wadah glassmorphism rounded 12 dan border transparan.
+  Widget _buildAppBarButton({
+    required Widget icon,
+    required VoidCallback onTap,
+    required String tooltip,
+    Color? backgroundColor,
+    Color? borderColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Tooltip(
+        message: tooltip,
+        child: Material(
+          color: backgroundColor ?? Colors.white.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: borderColor ?? Colors.white.withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: icon,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Membangun garis laser horizontal beranimasi dengan gradien neon dan bayangan glow.
+  Widget _buildScanningLaser() {
+    return AnimatedBuilder(
+      animation: _laserAnimation,
+      builder: (context, child) {
+        final double topPosition =
+            12.0 + (_laserAnimation.value * (260.0 - 24.0 - 3.0));
+        return Positioned(
+          top: topPosition,
+          left: 14.0,
+          right: 14.0,
+          child: child!,
+        );
+      },
+      child: Container(
+        height: 3.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2.0),
+          gradient: const LinearGradient(
+            colors: [
+              Colors.transparent,
+              Color(0x808B80F9),
+              Color(0xFFB8A9FC),
+              Color(0xFFFFFFFF),
+              Color(0xFFB8A9FC),
+              Color(0x808B80F9),
+              Colors.transparent,
+            ],
+            stops: [0.0, 0.15, 0.4, 0.5, 0.6, 0.85, 1.0],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryPurple.withValues(alpha: 0.8),
+              blurRadius: 8.0,
+              spreadRadius: 1.0,
+            ),
+            BoxShadow(
+              color: const Color(0xFF9B8FFB).withValues(alpha: 0.6),
+              blurRadius: 16.0,
+              spreadRadius: 2.0,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Painter untuk menggambar lapisan gelap (scrim) dengan cutout jendela pemindai dan 4 siku sudut.
+class _ScannerOverlayPainter extends CustomPainter {
+  /// Membuat instance [_ScannerOverlayPainter].
+  const _ScannerOverlayPainter();
+
+  /// Ukuran kotak bidik tengah pemindai.
+  static const double scanWindowSize = 260.0;
+
+  /// Radius sudut lengkung jendela bidik pemindai.
+  static const double borderRadius = 24.0;
+
+  /// Panjang lengan siku sudut pemindai.
+  static const double cornerLength = 36.0;
+
+  /// Ketebalan garis siku sudut pemindai.
+  static const double cornerStrokeWidth = 4.0;
+
+  /// Menggambar scrim overlay dan 4 siku sudut berbentuk L pada canvas.
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double left = (size.width - scanWindowSize) / 2;
+    final double top = (size.height - scanWindowSize) / 2;
+    final Rect scanRect =
+        Rect.fromLTWH(left, top, scanWindowSize, scanWindowSize);
+    final RRect scanRRect = RRect.fromRectAndRadius(
+      scanRect,
+      const Radius.circular(borderRadius),
+    );
+
+    // 1. Lapisan gelap (scrim ~55% opacity) di seluruh layar kecuali kotak bidik tengah
+    final Path screenPath = Path()
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final Path cutoutPath = Path()..addRRect(scanRRect);
+    final Path overlayPath =
+        Path.combine(PathOperation.difference, screenPath, cutoutPath);
+
+    final Paint scrimPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.55)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(overlayPath, scrimPaint);
+
+    // 2. 4 siku sudut (corner brackets) berbentuk L di keempat sudut jendela scan
+    final Paint bracketPaint = Paint()
+      ..color = AppColors.primaryPurple
+      ..strokeWidth = cornerStrokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final double right = left + scanWindowSize;
+    final double bottom = top + scanWindowSize;
+
+    // Sudut kiri atas
+    final Path topLeft = Path()
+      ..moveTo(left, top + cornerLength)
+      ..lineTo(left, top)
+      ..lineTo(left + cornerLength, top);
+    canvas.drawPath(topLeft, bracketPaint);
+
+    // Sudut kanan atas
+    final Path topRight = Path()
+      ..moveTo(right - cornerLength, top)
+      ..lineTo(right, top)
+      ..lineTo(right, top + cornerLength);
+    canvas.drawPath(topRight, bracketPaint);
+
+    // Sudut kiri bawah
+    final Path bottomLeft = Path()
+      ..moveTo(left, bottom - cornerLength)
+      ..lineTo(left, bottom)
+      ..lineTo(left + cornerLength, bottom);
+    canvas.drawPath(bottomLeft, bracketPaint);
+
+    // Sudut kanan bawah
+    final Path bottomRight = Path()
+      ..moveTo(right - cornerLength, bottom)
+      ..lineTo(right, bottom)
+      ..lineTo(right, bottom - cornerLength);
+    canvas.drawPath(bottomRight, bracketPaint);
+  }
+
+  /// Menentukan apakah painter perlu digambar ulang saat state berganti.
+  @override
+  bool shouldRepaint(covariant _ScannerOverlayPainter oldDelegate) => false;
 }
