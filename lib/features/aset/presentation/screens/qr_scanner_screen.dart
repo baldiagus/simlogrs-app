@@ -37,7 +37,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.noDuplicates,
+      detectionSpeed: DetectionSpeed.normal,
+      detectionTimeoutMs: 1000,
       facing: CameraFacing.back,
       torchEnabled: false,
       autoStart: true,
@@ -94,12 +95,17 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
     setState(() => _isProcessing = false);
 
     if (detail != null) {
-      Navigator.push(
+      await _controller.stop();
+      if (!mounted) return;
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => AsetDetailScreen(initialAset: detail),
         ),
       );
+      if (!mounted) return;
+      _lastScannedTime = null;
+      await _controller.start();
     } else {
       final error =
           ref.read(asetActionProvider).errorMessage ?? 'Aset tidak ditemukan';
