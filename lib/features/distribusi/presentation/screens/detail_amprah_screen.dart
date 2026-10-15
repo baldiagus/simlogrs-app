@@ -152,8 +152,10 @@ class DetailAmprahScreen extends ConsumerWidget {
                           title: 'Tahap 1: Persetujuan Kepala Ruangan (Karu)',
                           subtitle: amprah.isDiajukan
                               ? 'Menunggu persetujuan Karu'
-                              : (amprah.isDitolak ? 'Ditolak' : 'Disetujui Karu'),
-                          isPassed: !amprah.isDiajukan && !amprah.isDitolak,
+                              : amprah.isDitolak
+                                  ? 'Ditolak'
+                                  : (amprah.isDibatalkan ? 'Dibatalkan' : 'Disetujui Karu'),
+                          isPassed: amprah.isTahapKaruSelesai,
                           isCurrent: amprah.isDiajukan,
                         ),
                         const SizedBox(height: 10),
