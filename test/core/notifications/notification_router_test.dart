@@ -30,6 +30,10 @@ void main() {
     'PINJAM_JATUH_TEMPO': NotificationTarget.peminjamanSaya,
     'PINJAM_TERLAMBAT': NotificationTarget.peminjamanSaya,
     'SPK_PREVENTIF': NotificationTarget.detailSpk,
+    'CAPA_BARU': NotificationTarget.capaAuditee,
+    'CAPA_DIEVALUASI': NotificationTarget.capaAuditee,
+    'CAPA_JATUH_TEMPO': NotificationTarget.capaAuditee,
+    'CAPA_TINDAK_LANJUT': NotificationTarget.capaAuditor,
   };
 
   group('resolveTarget', () {

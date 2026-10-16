@@ -114,14 +114,16 @@ class UserModel {
   bool get isKaru => (hasRole('kepala_unit') || isKepalaTeknisi || can('page_KepalaUnitDashboard')) && !isSuperAdmin;
   /// True jika user admin logistik atau punya akses dashboard admin logistik.
   bool get isAdminLogistik => (hasRole('admin_logistik') || can('page_AdminLogistikDashboard')) && !isSuperAdmin;
-  /// True jika user auditor atau punya permission audit manajemen.
-  bool get isAuditor => (hasRole('auditor') || permissions.any((p) => p.contains('audit_manajemen'))) && !isSuperAdmin;
+  /// True jika auditor (role `auditor`) atau berhak menerbitkan temuan audit; permission view saja (mis. auditee) tidak cukup.
+  bool get isAuditor => (hasRole('auditor') || can('create_audit_manajemen::temuan::capa')) && !isSuperAdmin;
   /// True jika user manajemen atau punya akses dashboard manajemen.
   bool get isManajemen => (hasRole('manajemen') || can('page_ManajemenDashboard')) && !isSuperAdmin;
   /// True jika user bagian pengadaan atau punya akses dashboard pengadaan.
   bool get isPengadaan => (hasRole('pengadaan') || can('page_PengadaanDashboard')) && !isSuperAdmin;
   /// True jika user boleh mengakses fitur audit (super admin, auditor, manajemen, atau permission audit trail).
   bool get hasAuditAccess => isSuperAdmin || isAuditor || isManajemen || can('view_any_audit_manajemen::audit::trail');
+  /// True jika user boleh melihat register Temuan CAPA (akses audit penuh atau auditee dengan permission view CAPA).
+  bool get hasCapaAccess => hasAuditAccess || can('view_audit_manajemen::temuan::capa');
   /// True jika user boleh mengakses fitur persediaan/stok (gudang, auditor, manajemen, atau permission monitoring FEFO).
   bool get hasPersediaanAccess => isSuperAdmin || isGudangUser || isAuditor || isManajemen || can('view_any_gudang_stok::monitoring::fefo');
   /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).

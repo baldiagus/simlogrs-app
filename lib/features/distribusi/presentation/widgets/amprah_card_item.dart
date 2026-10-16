@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/amprah_model.dart';
 import '../screens/detail_amprah_screen.dart';
@@ -61,10 +62,14 @@ class AmprahCardItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Row: Kode Amprah, Urgensi CITO, Status Badge
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 6,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -115,10 +120,51 @@ class AmprahCardItem extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                'Tgl: ${item.tanggalPermintaan} • Oleh ${item.pengaju} (Tujuan: ${item.gudang})',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(LucideIcons.user, size: 13, color: AppColors.textSecondary),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      item.pengaju,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(
+                    AppFormatters.tanggalString(item.tanggalPermintaan),
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(LucideIcons.warehouse, size: 13, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      'Tujuan: ${item.gudang}',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.textSecondary,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
 
@@ -129,10 +175,14 @@ class AmprahCardItem extends StatelessWidget {
                   color: AppColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 4,
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(LucideIcons.boxes, size: 14, color: AppColors.primaryPurple),
                         const SizedBox(width: 6),

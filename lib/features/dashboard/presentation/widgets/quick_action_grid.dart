@@ -48,6 +48,13 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onAuditSpiTap;
   final VoidCallback? onPaguRealisasiTap;
 
+  /// Tampilkan pintasan 'Temuan CAPA' (auditee: punya akses CAPA tanpa akses audit penuh).
+  final bool showTemuanCapa;
+  final VoidCallback? onTemuanCapaTap;
+
+  /// Jumlah CAPA berstatus In Progress yang menunggu tindak lanjut (ditampilkan di subjudul pintasan).
+  final int temuanCapaCount;
+
   const QuickActionGrid({
     super.key,
     required this.pendingCount,
@@ -76,6 +83,9 @@ class QuickActionGrid extends StatelessWidget {
     this.onLembarKerjaTap,
     this.onRekamMedisTap,
     this.onPreventifTap,
+    this.showTemuanCapa = false,
+    this.onTemuanCapaTap,
+    this.temuanCapaCount = 0,
   });
 
   /// Menentukan judul seksi dan daftar aksi cepat operasional yang ditampilkan.
@@ -117,6 +127,15 @@ class QuickActionGrid extends StatelessWidget {
           iconColor: AppColors.tintTeal,
           onTap: onLaporRusakTap,
         ),
+        if (showTemuanCapa && onTemuanCapaTap != null)
+          _QuickActionItem(
+            title: 'Temuan CAPA',
+            subtitle: temuanCapaCount > 0 ? '$temuanCapaCount perlu tindak lanjut' : 'Tindak lanjut temuan audit',
+            icon: LucideIcons.clipboardCheck,
+            bgColor: AppColors.tintVioletBg,
+            iconColor: AppColors.tintViolet,
+            onTap: onTemuanCapaTap!,
+          ),
       ],
     );
   }

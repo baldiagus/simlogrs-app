@@ -54,6 +54,54 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(UserTopBar), findsOneWidget);
+    expect(find.text('Drs. H. Mulyono, M.Kes, Sp.PK(K)'), findsOneWidget);
+    expect(find.text('DIREKSI_SENTRAL_RS'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('UserTopBar renders Bambang Supriyadi, S.Kom and Sentral RS completely', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    const adminLogistikUser = UserModel(
+      id: 2,
+      name: 'Bambang Supriyadi, S.Kom',
+      email: 'adminlogistik@simlogrs.local',
+      username: 'adminlogistik',
+      roles: ['admin_logistik'],
+      permissions: ['page_AdminLogistikDashboard'],
+      gudang: GudangModel(
+        id: 1,
+        nama: 'Gudang Sentral Logistik RS',
+        kode: 'Sentral RS',
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(adminLogistikUser)),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: UserTopBar(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bambang Supriyadi, S.Kom'), findsOneWidget);
+    expect(find.text('Sentral RS'), findsOneWidget);
+    expect(find.text('Selamat Bertugas,'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

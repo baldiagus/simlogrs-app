@@ -38,6 +38,9 @@ import '../../../maintenance/presentation/screens/spk_detail_screen.dart';
 import '../../../notifikasi/data/models/notifikasi_model.dart';
 import '../../../notifikasi/presentation/screens/notifikasi_screen.dart';
 import '../../../pengadaan/presentation/screens/riwayat_pr_screen.dart';
+import '../../../audit/presentation/providers/audit_provider.dart';
+import '../../../audit/presentation/screens/audit_spi_hub_screen.dart';
+import '../../../audit/presentation/screens/temuan_capa_screen.dart';
 import '../../../../core/notifications/notification_payload.dart';
 import '../../../../core/notifications/notification_router.dart';
 import '../../../../core/notifications/push_notification_service.dart';
@@ -210,6 +213,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       case NotificationTarget.otorisasiPenyesuaian:
         ref.invalidate(otorisasiPenyesuaianListProvider);
         break;
+      case NotificationTarget.capaAuditee:
+      case NotificationTarget.capaAuditor:
+        ref.invalidate(registerTemuanProvider);
+        ref.invalidate(capaMenungguCountProvider);
+        break;
       case NotificationTarget.inbox:
       case NotificationTarget.tidakDikenal:
         break;
@@ -278,6 +286,12 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
         break;
       case NotificationTarget.otorisasiPenyesuaian:
         layar = const OtorisasiPenyesuaianScreen();
+        break;
+      case NotificationTarget.capaAuditee:
+        layar = const TemuanCapaScreen();
+        break;
+      case NotificationTarget.capaAuditor:
+        layar = const AuditSpiHubScreen(initialTab: 3);
         break;
       case NotificationTarget.inbox:
       case NotificationTarget.tidakDikenal:

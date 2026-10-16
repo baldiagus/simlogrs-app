@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_action_banner_card.dart';
 import '../../../aset/presentation/screens/pengalihan_hub_screen.dart';
+import '../../../audit/presentation/screens/temuan_capa_screen.dart';
+import '../../../audit/presentation/providers/audit_provider.dart';
 import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
@@ -33,6 +35,8 @@ class DashboardRuanganView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).user;
     final isKaru = user?.isKaru ?? false;
+    final showCapa = user?.hasCapaAccess == true && user?.hasAuditAccess != true;
+    final capaCount = showCapa ? (ref.watch(capaMenungguCountProvider).valueOrNull ?? 0) : 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -91,6 +95,14 @@ class DashboardRuanganView extends ConsumerWidget {
             );
           },
           onRakGudangTap: () {},
+          showTemuanCapa: showCapa,
+          temuanCapaCount: capaCount,
+          onTemuanCapaTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TemuanCapaScreen()),
+            );
+          },
         ),
         const SizedBox(height: 16),
         // 4. Layanan Pengalihan & Mutasi Ruangan

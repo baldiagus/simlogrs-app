@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_response.dart';
@@ -254,6 +255,30 @@ class AuditRepository {
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal mengirimkan tindak lanjut');
+    }
+  }
+
+  /// 9b. Unggah bukti perbaikan (foto/berkas) auditee; mengembalikan seluruh daftar bukti tersimpan.
+  Future<List<String>> uploadBuktiTemuan(int id, List<XFile> berkas) async {
+    try {
+      final files = <MultipartFile>[];
+      for (final f in berkas) {
+        files.add(MultipartFile.fromBytes(await f.readAsBytes(), filename: f.name));
+      }
+      final response = await _client.dio.post(
+        '/audit/temuan-capa/$id/bukti',
+        data: FormData.fromMap({'berkas[]': files}),
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic> &&
+          data['data'] is Map<String, dynamic> &&
+          data['data']['bukti_perbaikan'] is List) {
+        return (data['data']['bukti_perbaikan'] as List).map((e) => e.toString()).toList();
+      }
+      throw ApiException(message: 'Format respons unggah bukti tidak valid');
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal mengunggah bukti perbaikan');
     }
   }
 

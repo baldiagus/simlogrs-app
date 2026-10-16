@@ -44,6 +44,12 @@ enum NotificationTarget {
   /// Otorisasi Penyesuaian stok.
   otorisasiPenyesuaian,
 
+  /// Layar Temuan & CAPA untuk auditee (unit/gudang terperiksa).
+  capaAuditee,
+
+  /// Hub Audit SPI tab Temuan & CAPA untuk auditor.
+  capaAuditor,
+
   /// Inbox notifikasi.
   inbox,
 
@@ -86,6 +92,12 @@ NotificationTarget resolveTarget(NotificationPayload p) {
       return NotificationTarget.hubPengalihan;
     case 'OTORISASI_STOK':
       return NotificationTarget.otorisasiPenyesuaian;
+    case 'CAPA_BARU':
+    case 'CAPA_DIEVALUASI':
+    case 'CAPA_JATUH_TEMPO':
+      return NotificationTarget.capaAuditee;
+    case 'CAPA_TINDAK_LANJUT':
+      return NotificationTarget.capaAuditor;
     case 'UMUM':
       return NotificationTarget.inbox;
     default:

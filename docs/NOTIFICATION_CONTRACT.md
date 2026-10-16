@@ -86,6 +86,10 @@ Semua nilai string. Backend mengirim **notification + data** agar tampil walau a
 | `PINJAM_JATUH_TEMPO` | cron H-1 sebelum `tanggal_kembali_rencana` | peminjam + penyetuju | Peminjaman Saya |
 | `PINJAM_TERLAMBAT` | cron harian: lewat `tanggal_kembali_rencana` | peminjam + penyetuju | Peminjaman Saya |
 | `SPK_PREVENTIF` | cron preventif menugaskan teknisi | `teknisi_id` | Detail SPK |
+| `CAPA_BARU` | `TemuanAudit` dibuat | `kepala_unit` `unit_id` temuan atau `kepala_gudang` `gudang_id` temuan (auditor pelaku tidak menerima) | Temuan CAPA (auditee) |
+| `CAPA_TINDAK_LANJUT` | `TemuanAudit.status_capa` → `In Review` | `auditor_id` temuan | Hub Audit SPI, tab Temuan & CAPA |
+| `CAPA_DIEVALUASI` | `TemuanAudit.status_capa` `In Review` → `Closed` / kembali `In Progress` | kepala unit/gudang terperiksa (sama seperti `CAPA_BARU`) | Temuan CAPA (auditee) |
+| `CAPA_JATUH_TEMPO` | cron harian: `status_capa` = `In Progress` dan `due_date_capa` besok (H-1) atau sudah lewat (judul/pesan berbeda untuk terlambat; tidak ada tipe `CAPA_TERLAMBAT`) | kepala unit/gudang terperiksa | Temuan CAPA (auditee) |
 
 `referensi_id` = id baris dokumen yang dimaksud.
 

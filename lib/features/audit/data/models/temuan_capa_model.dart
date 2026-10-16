@@ -13,6 +13,8 @@ class TemuanCapaModel {
   final String evaluator;
   final String unit;
   final String? gudang;
+  final int? unitId;
+  final int? gudangId;
   final String? analisisPenyebab;
   final String? tindakanPerbaikan;
   final String? catatanEvaluasi;
@@ -36,6 +38,8 @@ class TemuanCapaModel {
     this.tindakanPerbaikan,
     this.catatanEvaluasi,
     required this.buktiPerbaikan,
+    this.unitId,
+    this.gudangId,
   });
 
   /// Membangun temuan audit beserta status CAPA dari JSON dengan default untuk field kosong.
@@ -54,6 +58,8 @@ class TemuanCapaModel {
       evaluator: json['evaluator']?.toString() ?? '-',
       unit: json['unit']?.toString() ?? 'Sentral',
       gudang: json['gudang']?.toString(),
+      unitId: (json['unit_id'] as num?)?.toInt(),
+      gudangId: (json['gudang_id'] as num?)?.toInt(),
       analisisPenyebab: json['analisis_penyebab']?.toString(),
       tindakanPerbaikan: json['tindakan_perbaikan']?.toString(),
       catatanEvaluasi: json['catatan_evaluasi']?.toString(),

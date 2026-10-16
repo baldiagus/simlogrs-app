@@ -1,18 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
 import 'package:simlog_mobile/shared/widgets/app_toast.dart';
 import 'package:simlog_mobile/features/audit/data/models/audit_models.dart';
 import 'package:simlog_mobile/features/audit/data/repositories/audit_repository.dart';
+import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/audit/presentation/providers/audit_provider.dart';
+
+/// Auditee berhak menindaklanjuti temuan: super admin, admin logistik, atau pegawai unit/gudang yang diperiksa.
+bool canTindakLanjutTemuan(UserModel? user, TemuanCapaModel t) {
+  if (user == null) return false;
+  if (user.isSuperAdmin || user.hasRole('admin_logistik')) return true;
+  return (t.unitId != null && t.unitId == user.unit?.id) ||
+      (t.gudangId != null && t.gudangId == user.gudang?.id);
+}
+
+/// Auditor dan super admin boleh mengevaluasi/closing temuan.
+bool canEvaluasiTemuan(UserModel? user) => user != null && (user.isAuditor || user.isSuperAdmin);
 
 /// Bottom sheet detail temuan CAPA; auditee mengisi tindak lanjut, auditor mengevaluasi closing.
 class DetailTemuanSheet extends ConsumerStatefulWidget {
   final TemuanCapaModel temuan;
-  final bool isAuditor;
+  final bool canTindakLanjut;
+  final bool canEvaluasi;
 
-  const DetailTemuanSheet({super.key, required this.temuan, required this.isAuditor});
+  const DetailTemuanSheet({
+    super.key,
+    required this.temuan,
+    required this.canTindakLanjut,
+    required this.canEvaluasi,
+  });
 
   /// Membuat state sheet detail temuan.
   @override
@@ -26,6 +45,13 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
   final TextEditingController _evaluasiCtrl = TextEditingController();
   String _hasilEvaluasi = 'Closed';
   bool _isLoading = false;
+  static const int _maxBerkas = 5;
+  final ImagePicker _picker = ImagePicker();
+  final List<XFile> _picked = [];
+  late List<String> _bukti;
+
+  /// Form tindak lanjut hanya aktif untuk auditee berhak saat status In Progress.
+  bool get _bisaTindakLanjut => widget.canTindakLanjut && widget.temuan.statusCapa == 'In Progress';
 
   /// Mengisi controller dengan data tindak lanjut/evaluasi yang sudah ada pada temuan.
   @override
@@ -34,6 +60,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     _analisisCtrl.text = widget.temuan.analisisPenyebab ?? '';
     _tindakanCtrl.text = widget.temuan.tindakanPerbaikan ?? '';
     _evaluasiCtrl.text = widget.temuan.catatanEvaluasi ?? '';
+    _bukti = List.of(widget.temuan.buktiPerbaikan);
   }
 
   /// Membuang semua [TextEditingController] agar tidak bocor memori.
@@ -55,6 +82,11 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(auditRepositoryProvider);
+      if (_picked.isNotEmpty) {
+        final tersimpan = await repo.uploadBuktiTemuan(widget.temuan.id, List.of(_picked));
+        _picked.clear();
+        if (mounted) setState(() => _bukti = tersimpan);
+      }
       await repo.tindakLanjutTemuan(
         widget.temuan.id,
         analisisPenyebab: _analisisCtrl.text.trim(),
@@ -65,6 +97,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
         AppToast.success(context, 'Tindak lanjut berhasil dikirimkan ke auditor!');
         Navigator.pop(context, true);
         ref.invalidate(registerTemuanProvider);
+        ref.invalidate(capaMenungguCountProvider);
         ref.invalidate(auditSummaryProvider);
       }
     } catch (e) {
@@ -73,6 +106,50 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Memilih foto dari galeri atau kamera sebagai bukti perbaikan (maksimal [_maxBerkas] lampiran).
+  Future<void> _pilihBukti() async {
+    if (_picked.length >= _maxBerkas) {
+      AppToast.error(context, 'Maksimal $_maxBerkas lampiran.');
+      return;
+    }
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(LucideIcons.image),
+              title: const Text('Galeri'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(LucideIcons.camera),
+              title: const Text('Kamera'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null) return;
+    try {
+      if (source == ImageSource.camera) {
+        final foto = await _picker.pickImage(
+            source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 85);
+        if (foto != null && mounted) setState(() => _picked.add(foto));
+      } else {
+        // Tanpa `limit`: image_picker menolak limit < 2; sisa kuota dipotong dengan take().
+        final fotos = await _picker.pickMultiImage(maxWidth: 1600, maxHeight: 1600, imageQuality: 85);
+        if (mounted) {
+          setState(() => _picked.addAll(fotos.take(_maxBerkas - _picked.length)));
+        }
+      }
+    } catch (e) {
+      if (mounted) AppToast.error(context, 'Gagal mengambil berkas: $e');
     }
   }
 
@@ -154,42 +231,82 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
             const Divider(),
             const SizedBox(height: 8),
 
-            // Bagian Tindak Lanjut Auditee
+            // Bagian Tindak Lanjut Auditee: aktif hanya bagi auditee berhak saat status In Progress.
             const Text('Tindak Lanjut Auditee (Penyebab & Solusi)',
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
             const SizedBox(height: 6),
-            TextField(
-              controller: _analisisCtrl,
-              maxLines: 2,
-              enabled: t.statusCapa != 'Closed',
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), hintText: 'Analisis akar penyebab (Root Cause)...'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _tindakanCtrl,
-              maxLines: 2,
-              enabled: t.statusCapa != 'Closed',
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Tindakan perbaikan dan pencegahan (CAPA)...'),
-            ),
-            if (t.statusCapa != 'Closed') ...[
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _submitTindakLanjut,
-                  icon: const Icon(LucideIcons.send, size: 14, color: Colors.white),
-                  label: const Text('Kirim Tindak Lanjut',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.tintBlue),
-                ),
+            if (t.statusCapa == 'In Progress' && !widget.canTindakLanjut)
+              const Text('Menunggu respon auditee',
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary))
+            else ...[
+              TextField(
+                controller: _analisisCtrl,
+                maxLines: 2,
+                enabled: _bisaTindakLanjut,
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), hintText: 'Analisis akar penyebab (Root Cause)...'),
               ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _tindakanCtrl,
+                maxLines: 2,
+                enabled: _bisaTindakLanjut,
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Tindakan perbaikan dan pencegahan (CAPA)...'),
+              ),
+              if (_bukti.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text('Bukti Perbaikan Tersimpan',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                for (final b in _bukti)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text('• ${b.split('/').last}',
+                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  ),
+              ],
+              if (_bisaTindakLanjut) ...[
+                const SizedBox(height: 8),
+                for (var i = 0; i < _picked.length; i++)
+                  Row(
+                    children: [
+                      const Icon(LucideIcons.paperclip, size: 14),
+                      const SizedBox(width: 6),
+                      Expanded(
+                          child: Text(_picked[i].name,
+                              style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+                      IconButton(
+                        icon: const Icon(LucideIcons.x, size: 14),
+                        tooltip: 'Hapus lampiran',
+                        onPressed: _isLoading ? null : () => setState(() => _picked.removeAt(i)),
+                      ),
+                    ],
+                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _pilihBukti,
+                    icon: const Icon(LucideIcons.paperclip, size: 14),
+                    label: const Text('Lampirkan Foto/Berkas'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _submitTindakLanjut,
+                    icon: const Icon(LucideIcons.send, size: 14, color: Colors.white),
+                    label: const Text('Kirim Tindak Lanjut',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.tintBlue),
+                  ),
+                ),
+              ],
             ],
 
-            // Bagian Evaluasi Closing (Khusus Auditor)
-            if (widget.isAuditor) ...[
+            // Bagian Evaluasi Closing (hanya auditor / super admin)
+            if (widget.canEvaluasi) ...[
               const SizedBox(height: 20),
               const Divider(),
               const SizedBox(height: 8),

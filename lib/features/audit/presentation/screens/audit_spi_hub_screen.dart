@@ -17,7 +17,10 @@ import '../widgets/tabs/temuan_capa_tab.dart';
 
 /// Layar hub Audit SPI: ringkasan eksekutif plus tab jejak audit, kepatuhan PO, selisih opname, dan temuan CAPA.
 class AuditSpiHubScreen extends ConsumerStatefulWidget {
-  const AuditSpiHubScreen({super.key});
+  /// Indeks tab awal (0 = Audit Trail ... 3 = Temuan & CAPA).
+  final int initialTab;
+
+  const AuditSpiHubScreen({super.key, this.initialTab = 0});
 
   /// Membuat state hub Audit SPI.
   @override
@@ -33,7 +36,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTab);
   }
 
   /// Membuang [TabController] agar tidak bocor memori.
@@ -134,7 +137,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
                 AuditTrailTab(onOpenDetail: (logId) => _openTrailDetailModal(context, logId)),
                 KepatuhanPoTab(onTerbitkanCapa: (po) => _openFormCapaFromPo(context, po)),
                 const SelisihOpnameTab(),
-                TemuanCapaTab(onOpenDetail: (temuan) => _openDetailTemuanModal(context, temuan, isAuditor)),
+                TemuanCapaTab(onOpenDetail: (temuan) => _openDetailTemuanModal(context, temuan)),
               ],
             ),
           ),
@@ -268,13 +271,18 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     );
   }
 
-  /// Membuka sheet detail temuan; [isAuditor] menentukan aksi yang tersedia (evaluasi vs tindak lanjut).
-  void _openDetailTemuanModal(BuildContext context, TemuanCapaModel temuan, bool isAuditor) {
+  /// Membuka sheet detail temuan; hak tindak lanjut (auditee) dan evaluasi (auditor) dihitung dari user aktif.
+  void _openDetailTemuanModal(BuildContext context, TemuanCapaModel temuan) {
+    final user = ref.read(authStateProvider).user;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => DetailTemuanSheet(temuan: temuan, isAuditor: isAuditor),
+      builder: (ctx) => DetailTemuanSheet(
+        temuan: temuan,
+        canTindakLanjut: canTindakLanjutTemuan(user, temuan),
+        canEvaluasi: canEvaluasiTemuan(user),
+      ),
     );
   }
 }

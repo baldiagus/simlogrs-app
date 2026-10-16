@@ -180,8 +180,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
+          isScrollable: false,
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,
@@ -189,18 +188,15 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           labelStyle:
               const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           tabs: [
-            Tab(
-              child: Text(
-                (user?.isKepalaGudang == true ||
-                        user?.isAdminLogistik == true ||
-                        (user?.gudang != null &&
-                            user?.isManajemen != true &&
-                            user?.isAuditor != true))
-                    ? 'Peminjaman Gudang'
-                    : 'Pinjaman Saya',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            SirkulasiHubBadgeTab(
+              label: (user?.isKepalaGudang == true ||
+                      user?.isAdminLogistik == true ||
+                      (user?.gudang != null &&
+                          user?.isManajemen != true &&
+                          user?.isAuditor != true))
+                  ? 'Peminjaman Gudang'
+                  : 'Pinjaman Saya',
+              count: 0,
             ),
             if (_canApprove)
               SirkulasiHubBadgeTab(

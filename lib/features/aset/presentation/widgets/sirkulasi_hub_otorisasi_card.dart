@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 
@@ -29,8 +30,11 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -49,25 +53,103 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(item.namaAset,
               style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary)),
-          const SizedBox(height: 2),
-          Text(
-              'Kode: ${item.kodeAset} • Pemohon: ${item.unitPeminjam} (${item.pengaju})',
+          const SizedBox(height: 6),
+
+          // 1. Asset Code Pill Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceSecondary,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              item.kodeAset,
               style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary)),
+                fontFamily: 'JetBrains Mono',
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryPurple,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+
+          // 2. Pemohon Row (wrap alami)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Icon(LucideIcons.user, size: 13, color: AppColors.textSecondary),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Pemohon: ${item.unitPeminjam} (${item.pengaju})',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
-          Text(
-              'Jadwal: ${item.tanggalPinjam} s/d ${item.tanggalKembaliRencana}',
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+
+          // 3. Rentang Tanggal Peminjaman (Terformat Standar RS)
+          Row(
+            children: [
+              const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Jadwal: ${AppFormatters.tanggalString(item.tanggalPinjam)} s/d ${AppFormatters.tanggalString(item.tanggalKembaliRencana)}',
+                  style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+
+          // 4. Catatan Keperluan Terpadu
           if (item.keperluan.isNotEmpty) ...[
             const SizedBox(height: 6),
-            Text('Keperluan: ${item.keperluan}',
-                style: const TextStyle(
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic,
-                    color: AppColors.textSecondary)),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSecondary,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 1.5),
+                    child: Icon(LucideIcons.fileText, size: 12, color: AppColors.textMuted),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Keperluan: ${item.keperluan}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
           const SizedBox(height: 14),
           const Divider(height: 1, color: AppColors.border),

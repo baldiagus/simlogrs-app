@@ -240,3 +240,9 @@ final registerTemuanProvider = FutureProvider.autoDispose<List<TemuanCapaModel>>
     search: filter.search,
   );
 });
+
+/// Jumlah CAPA berstatus In Progress (halaman pertama register) untuk lencana pintasan dashboard auditee.
+final capaMenungguCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final repo = ref.watch(auditRepositoryProvider);
+  return (await repo.getRegisterTemuan(status: 'In Progress')).length;
+});

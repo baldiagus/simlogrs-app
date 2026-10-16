@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../data/models/sppb_model.dart';
@@ -84,10 +85,46 @@ class SppbCardItem extends StatelessWidget {
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  'Asal: ${item.gudang} • Tgl Kirim: ${item.tanggalKirim ?? '-'} • Ekspedisi: ${item.pengirim}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(LucideIcons.truck, size: 13, color: AppColors.textSecondary),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        'Kurir: ${item.pengirim}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      AppFormatters.tanggalString(item.tanggalKirim),
+                      style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(LucideIcons.warehouse, size: 13, color: AppColors.textSecondary),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        'Asal: ${item.gudang}',
+                        style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
 
