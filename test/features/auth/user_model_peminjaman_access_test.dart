@@ -27,7 +27,7 @@ void main() {
       ('kepala_gudang tanpa permission', _user(['kepala_gudang']), false),
       ('petugas_gudang tanpa permission', _user(['petugas_gudang']), false),
       ('teknisi tanpa permission', _user(['teknisi']), false),
-      ('kepala_teknisi tanpa permission', _user(['kepala_teknisi']), false),
+      ('kepala_teknisi tanpa permission', _user(['kepala_teknisi']), true),
       ('auditor tanpa permission', _user(['auditor']), false),
       ('manajemen tanpa permission', _user(['manajemen']), false),
       ('tanpa role dan tanpa permission', _user([]), false),

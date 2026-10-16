@@ -35,6 +35,15 @@ const _dummyUserKepala = UserModel(
   unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
 );
 
+const _dummyUserKepalaTeknisi = UserModel(
+  id: 103,
+  name: 'Kepala Teknisi IPSRS',
+  email: 'kateknisi@simlogrs.local',
+  roles: ['kepala_teknisi'],
+  permissions: [],
+  unit: UnitModel(id: 3, nama: 'IPSRS', kode: 'IPSRS'),
+);
+
 const _dummyItemDipinjam = PeminjamanAsetModel(
   id: 10,
   kode: 'PINJ-2026-001',
@@ -184,6 +193,32 @@ void main() {
       expect(find.text('Perpanjang'), findsOneWidget);
     });
 
+    testWidgets('SirkulasiHubSiapKembaliTab shows Perpanjang button for kepala_teknisi in dipinjam list', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => MockAuthNotifier(_dummyUserKepalaTeknisi)),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: SirkulasiHubSiapKembaliTab(
+                dipinjamAsync: const AsyncValue.data([_dummyItemDipinjam]),
+                dipinjamkanAsync: const AsyncValue.data([]),
+                subPerspektif: 'dipinjam',
+                onSubPerspektifChanged: (_) {},
+                onExtend: (_, __) {},
+                onReturn: (_, __) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Syringe Pump'), findsOneWidget);
+      expect(find.text('Perpanjang'), findsOneWidget);
+    });
+
     testWidgets('AsetDetailLoanActions flex layout when canPerpanjang is false vs true', (tester) async {
       // canPerpanjang: false, isProviderOwner: true -> Kembalikan Fisik takes flex 1 (full width)
       await tester.pumpWidget(
@@ -265,6 +300,30 @@ void main() {
           key: const ValueKey('kepala'),
           overrides: [
             authStateProvider.overrideWith((ref) => MockAuthNotifier(_dummyUserKepala)),
+          ],
+          child: const MaterialApp(
+            home: AsetDetailScreen(initialAset: _dummyAsetDipinjamDetail),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Perpanjang', skipOffstage: false), findsOneWidget);
+    });
+
+    testWidgets('AsetDetailScreen shows Perpanjang button for kepala_teknisi', (tester) async {
+      tester.view.physicalSize = const Size(400, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          key: const ValueKey('kepala_teknisi'),
+          overrides: [
+            authStateProvider.overrideWith((ref) => MockAuthNotifier(_dummyUserKepalaTeknisi)),
           ],
           child: const MaterialApp(
             home: AsetDetailScreen(initialAset: _dummyAsetDipinjamDetail),

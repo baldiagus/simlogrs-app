@@ -176,6 +176,7 @@ class UserModel {
       isSuperAdmin ||
       isAdminLogistik ||
       hasRole('kepala_unit') ||
+      isKepalaTeknisi ||
       can('update_layanan_unit::peminjaman::aset');
   /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).
   factory UserModel.fromJson(Map<String, dynamic> json) {
