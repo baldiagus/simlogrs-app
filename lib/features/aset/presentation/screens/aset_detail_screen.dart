@@ -231,6 +231,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 isProviderOwner: access.isProviderOwner,
                 canPinjam: access.canPinjam,
                 canLaporRusak: access.canLaporRusak,
+                canPerpanjang: user?.canPerpanjangPeminjaman ?? false,
                 isActionLoading: actionState.isLoading,
                 onPerpanjang: () => _showPerpanjangModal(currentAset),
                 onPengembalian: _showPengembalianModal,

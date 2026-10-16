@@ -18,6 +18,7 @@ class AsetDetailActionSection extends StatelessWidget {
   final bool isProviderOwner;
   final bool canPinjam;
   final bool canLaporRusak;
+  final bool canPerpanjang;
   final bool isActionLoading;
   final VoidCallback onPerpanjang;
   final VoidCallback onPengembalian;
@@ -31,6 +32,7 @@ class AsetDetailActionSection extends StatelessWidget {
     required this.isProviderOwner,
     required this.canPinjam,
     required this.canLaporRusak,
+    this.canPerpanjang = false,
     required this.isActionLoading,
     required this.onPerpanjang,
     required this.onPengembalian,
@@ -100,6 +102,7 @@ class AsetDetailActionSection extends StatelessWidget {
             aset: aset,
             isProviderOwner: isProviderOwner,
             isActionLoading: isActionLoading,
+            canPerpanjang: canPerpanjang,
             onPerpanjang: onPerpanjang,
             onPengembalian: onPengembalian,
           ),

@@ -9,6 +9,7 @@ class AsetDetailLoanActions extends StatelessWidget {
   final AsetDetailModel aset;
   final bool isProviderOwner;
   final bool isActionLoading;
+  final bool canPerpanjang;
   final VoidCallback onPerpanjang;
   final VoidCallback onPengembalian;
 
@@ -18,6 +19,7 @@ class AsetDetailLoanActions extends StatelessWidget {
     required this.aset,
     required this.isProviderOwner,
     required this.isActionLoading,
+    this.canPerpanjang = false,
     required this.onPerpanjang,
     required this.onPengembalian,
   });
@@ -29,48 +31,49 @@ class AsetDetailLoanActions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: isProviderOwner ? 2 : 1,
-              child: OutlinedButton.icon(
-                onPressed: onPerpanjang,
-                icon: const Icon(LucideIcons.calendarPlus,
-                    size: 16, color: AppColors.primaryPurple),
-                label: const Text(
-                  'Perpanjang',
-                  style: TextStyle(
-                      color: AppColors.primaryPurple,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700),
-                  overflow: TextOverflow.ellipsis,
+        if (canPerpanjang || isProviderOwner)
+          Row(
+            children: [
+              if (canPerpanjang)
+                Expanded(
+                  flex: isProviderOwner ? 2 : 1,
+                  child: OutlinedButton.icon(
+                    onPressed: onPerpanjang,
+                    icon: const Icon(LucideIcons.calendarPlus,
+                        size: 16, color: AppColors.primaryPurple),
+                    label: const Text(
+                      'Perpanjang',
+                      style: TextStyle(
+                          color: AppColors.primaryPurple,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                          color: AppColors.primaryPurple, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                      color: AppColors.primaryPurple, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+              if (canPerpanjang && isProviderOwner) const SizedBox(width: 10),
+              if (isProviderOwner)
+                Expanded(
+                  flex: canPerpanjang ? 3 : 1,
+                  child: CustomButton(
+                    text: 'Kembalikan Fisik',
+                    icon: const Icon(LucideIcons.packageCheck,
+                        size: 18, color: Colors.white),
+                    isLoading: isActionLoading,
+                    onPressed: onPengembalian,
+                  ),
                 ),
-              ),
-            ),
-            if (isProviderOwner) ...[
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 3,
-                child: CustomButton(
-                  text: 'Kembalikan Fisik',
-                  icon: const Icon(LucideIcons.packageCheck,
-                      size: 18, color: Colors.white),
-                  isLoading: isActionLoading,
-                  onPressed: onPengembalian,
-                ),
-              ),
             ],
-          ],
-        ),
+          ),
         if (!isProviderOwner) ...[
-          const SizedBox(height: 8),
+          if (canPerpanjang) const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(

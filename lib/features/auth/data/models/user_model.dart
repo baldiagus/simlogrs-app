@@ -171,6 +171,12 @@ class UserModel {
         isKepalaTeknisi ||
         can('create_layanan_unit::permintaan::barang');
   }
+  /// True jika user berhak memperpanjang peminjaman aset.
+  bool get canPerpanjangPeminjaman =>
+      isSuperAdmin ||
+      isAdminLogistik ||
+      hasRole('kepala_unit') ||
+      can('update_layanan_unit::peminjaman::aset');
   /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

@@ -77,8 +77,10 @@ class SirkulasiHubPeminjamanTab extends ConsumerWidget {
               final item = list[index];
               return PeminjamanCardItem(
                 item: item,
-                onExtendTap:
-                    item.isDipinjam ? () => onExtend(context, item) : null,
+                onExtendTap: item.isDipinjam &&
+                        (user?.canPerpanjangPeminjaman ?? false)
+                    ? () => onExtend(context, item)
+                    : null,
                 onReturnTap: null,
                 onCancelTap: item.isDiajukan
                     ? () => _batalkan(context, ref, item)

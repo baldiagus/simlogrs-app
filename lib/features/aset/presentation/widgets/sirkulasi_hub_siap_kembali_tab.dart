@@ -80,6 +80,7 @@ class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
 
   /// Membangun daftar aset yang sedang dipinjam (perspektif peminjam) dengan aksi perpanjang.
   Widget _buildListDipinjam(WidgetRef ref) {
+    final user = ref.watch(authStateProvider).user;
     return dipinjamAsync.when(
       data: (list) {
         if (list.isEmpty) {
@@ -107,7 +108,9 @@ class SirkulasiHubSiapKembaliTab extends ConsumerWidget {
               return PeminjamanCardItem(
                 item: item,
                 isPenyediaPerspective: false,
-                onExtendTap: () => onExtend(context, item),
+                onExtendTap: (user?.canPerpanjangPeminjaman ?? false)
+                    ? () => onExtend(context, item)
+                    : null,
                 onReturnTap: null,
               );
             },
