@@ -106,6 +106,13 @@ class UserModel {
       hasRole('kepala_gudang') ||
       hasRole('petugas_gudang') ||
       can('create_gudang_stok::penerimaan::po');
+  /// True jika user berhak menginisiasi stock opname gudang.
+  bool get canInisiasiStockOpname =>
+      isSuperAdmin ||
+      isAdminLogistik ||
+      hasRole('kepala_gudang') ||
+      hasRole('petugas_gudang') ||
+      can('create_gudang_stok::stok::opname');
   /// True jika user kepala gudang atau punya akses dashboard kepala gudang.
   bool get isKepalaGudang => (hasRole('kepala_gudang') || can('page_KepalaGudangDashboard')) && !isSuperAdmin;
   /// True jika user petugas gudang dan bukan super admin.

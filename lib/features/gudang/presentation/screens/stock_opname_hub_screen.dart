@@ -56,6 +56,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
   @override
   Widget build(BuildContext context) {
     final opnameAsync = ref.watch(stockOpnameListProvider);
+    final user = ref.watch(authStateProvider).user;
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
@@ -69,14 +70,16 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: null,
-        backgroundColor: AppColors.primaryPurple,
-        foregroundColor: Colors.white,
-        icon: const Icon(LucideIcons.plus, size: 20),
-        label: const Text('Inisiasi Opname', style: TextStyle(fontWeight: FontWeight.w700)),
-        onPressed: _openInisiasiModal,
-      ),
+      floatingActionButton: user?.canInisiasiStockOpname == true
+          ? FloatingActionButton.extended(
+              heroTag: null,
+              backgroundColor: AppColors.primaryPurple,
+              foregroundColor: Colors.white,
+              icon: const Icon(LucideIcons.plus, size: 20),
+              label: const Text('Inisiasi Opname', style: TextStyle(fontWeight: FontWeight.w700)),
+              onPressed: _openInisiasiModal,
+            )
+          : null,
       body: SafeArea(
         child: opnameAsync.when(
           loading: () => const AppLoadingView(),
