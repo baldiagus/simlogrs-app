@@ -6,6 +6,8 @@ class AsetUnitModel {
   final String kategori;
   final String kondisi;
   final String status;
+  final bool isPinjaman;
+  final String? asalPenyedia;
 
   /// Membuat AsetUnitModel.
   const AsetUnitModel({
@@ -16,6 +18,8 @@ class AsetUnitModel {
     required this.kategori,
     required this.kondisi,
     required this.status,
+    this.isPinjaman = false,
+    this.asalPenyedia,
   });
 
   /// Membuat AsetUnitModel dari JSON respons API.
@@ -28,6 +32,8 @@ class AsetUnitModel {
       kategori: json['kategori']?.toString() ?? 'Umum',
       kondisi: json['kondisi']?.toString() ?? 'BAIK',
       status: json['status']?.toString() ?? 'TERSEDIA',
+      isPinjaman: json['is_pinjaman'] == true,
+      asalPenyedia: json['asal_penyedia']?.toString(),
     );
   }
 }
@@ -67,6 +73,8 @@ class TiketMaintenanceModel {
   final bool canCancel;
   final Map<String, dynamic> aset;
   final PenugasanAktifInfo? penugasanAktif;
+  final bool isAsetPinjaman;
+  final String? namaPenyediaAsal;
 
   /// Membuat TiketMaintenanceModel.
   const TiketMaintenanceModel({
@@ -82,6 +90,8 @@ class TiketMaintenanceModel {
     required this.canCancel,
     required this.aset,
     this.penugasanAktif,
+    this.isAsetPinjaman = false,
+    this.namaPenyediaAsal,
   });
 
   /// True jika prioritas CITO (paling mendesak).
@@ -119,6 +129,8 @@ class TiketMaintenanceModel {
       penugasanAktif: json['penugasan_aktif'] is Map<String, dynamic>
           ? PenugasanAktifInfo.fromJson(json['penugasan_aktif'] as Map<String, dynamic>)
           : null,
+      isAsetPinjaman: json['is_aset_pinjaman'] == true,
+      namaPenyediaAsal: json['nama_penyedia_asal']?.toString(),
     );
   }
 }
@@ -137,6 +149,8 @@ class TiketDetailModel {
   final Map<String, dynamic> aset;
   final List<Map<String, dynamic>> penugasan;
   final List<Map<String, dynamic>> riwayatLog;
+  final bool isAsetPinjaman;
+  final String? namaPenyediaAsal;
 
   /// Membuat TiketDetailModel.
   const TiketDetailModel({
@@ -153,6 +167,8 @@ class TiketDetailModel {
     required this.aset,
     required this.penugasan,
     required this.riwayatLog,
+    this.isAsetPinjaman = false,
+    this.namaPenyediaAsal,
   });
 
   /// True jika prioritas CITO (paling mendesak).
@@ -188,6 +204,8 @@ class TiketDetailModel {
               ?.map((e) => e as Map<String, dynamic>)
               .toList() ??
           [],
+      isAsetPinjaman: json['is_aset_pinjaman'] == true,
+      namaPenyediaAsal: json['nama_penyedia_asal']?.toString(),
     );
   }
 }

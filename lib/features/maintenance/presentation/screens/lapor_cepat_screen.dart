@@ -15,7 +15,8 @@ import '../widgets/aset_unit_picker_sheet.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
-
+import '../../data/models/tiket_maintenance_model.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 /// Layar pelaporan cepat kerusakan sarana, dengan opsi kode aset awal.
 class LaporCepatScreen extends ConsumerStatefulWidget {
   final String? initialKodeAset;
@@ -48,11 +49,17 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
     if (widget.initialKodeAset != null) {
       _kodeAsetController.text = widget.initialKodeAset!;
     }
+    _kodeAsetController.addListener(_onKodeAsetChanged);
+  }
+
+  void _onKodeAsetChanged() {
+    setState(() {});
   }
 
   /// Membersihkan controller input saat widget dibuang.
   @override
   void dispose() {
+    _kodeAsetController.removeListener(_onKodeAsetChanged);
     _kodeAsetController.dispose();
     _deskripsiController.dispose();
     super.dispose();
@@ -80,6 +87,23 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
 
   /// Memvalidasi form lalu mengirim laporan; sukses menutup layar, gagal jaringan diantrekan (teks saja), gagal lain menampilkan toast error.
   Future<void> _submit() async {
+    final user = ref.read(authStateProvider).user;
+    final isGlobalAdmin = (user?.isSuperAdmin == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.hasRole('super_admin') == true) ||
+        (user?.hasRole('admin_logistik') == true);
+    final asetUnitAsync = ref.read(asetUnitTersediaProvider);
+    final asetList = asetUnitAsync.asData?.value;
+    final hasAsetData = !asetUnitAsync.isLoading && asetList != null && asetList.isNotEmpty;
+    final inputKode = _kodeAsetController.text.trim();
+    if (!isGlobalAdmin && hasAsetData && inputKode.isNotEmpty) {
+      final exists = asetList.any((a) => a.kodeAset.trim().toUpperCase() == inputKode.toUpperCase());
+      if (!exists) {
+        _formKey.currentState?.validate();
+        return;
+      }
+    }
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -129,6 +153,27 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
   /// Membangun form laporan cepat kerusakan: kode aset, deskripsi, prioritas, foto, dan tombol kirim.
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final isGlobalAdmin = (user?.isSuperAdmin == true) ||
+        (user?.isAdminLogistik == true) ||
+        (user?.hasRole('super_admin') == true) ||
+        (user?.hasRole('admin_logistik') == true);
+    final asetUnitAsync = ref.watch(asetUnitTersediaProvider);
+    final asetList = asetUnitAsync.asData?.value;
+    final hasAsetData = !asetUnitAsync.isLoading && asetList != null && asetList.isNotEmpty;
+
+    final inputKode = _kodeAsetController.text.trim();
+    AsetUnitModel? matched;
+    if (hasAsetData && inputKode.isNotEmpty) {
+      for (final a in asetList) {
+        if (a.kodeAset.trim().toUpperCase() == inputKode.toUpperCase()) {
+          matched = a;
+          break;
+        }
+      }
+    }
+    final isBlocked = !isGlobalAdmin && hasAsetData && inputKode.isNotEmpty && matched == null;
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -142,7 +187,6 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header Guidance Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -217,8 +261,9 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 TextFormField(
                   controller: _kodeAsetController,
                   textCapitalization: TextCapitalization.characters,
+                  onChanged: (v) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'misal: AST-2026-001',
+                    hintText: 'misal: AST-IGD-001',
                     prefixIcon: const Icon(LucideIcons.qrCode, size: 18, color: AppColors.textSecondary),
                     suffixIcon: IconButton(
                       icon: const Icon(LucideIcons.camera, size: 20, color: AppColors.primaryPurple),
@@ -235,9 +280,74 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                     if (v == null || v.trim().isEmpty) {
                       return 'Kode atau nomor aset wajib diisi';
                     }
+                    if (!isGlobalAdmin && hasAsetData) {
+                      final code = v.trim().toUpperCase();
+                      final exists = asetList.any((a) => a.kodeAset.trim().toUpperCase() == code);
+                      if (!exists) {
+                        return 'Aset ini milik unit lain dan tidak sedang dipinjam oleh ruangan Anda. Pelaporan diblokir.';
+                      }
+                    }
                     return null;
                   },
                 ),
+                if (isBlocked) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(LucideIcons.alertTriangle, size: 16, color: AppColors.danger),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Aset ini milik unit lain dan tidak sedang dipinjam oleh ruangan Anda. Pelaporan diblokir.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.danger,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (matched != null && matched.isPinjaman) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.tintOrangeBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.tintOrange.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(LucideIcons.info, size: 16, color: AppColors.tintOrange),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            matched.asalPenyedia != null && matched.asalPenyedia!.isNotEmpty
+                                ? 'Aset Pinjaman dari: ${matched.asalPenyedia}'
+                                : 'Aset Pinjaman',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.tintOrange,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 18),
 
                 // Prioritas Selector

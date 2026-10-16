@@ -122,6 +122,25 @@ class TiketCardItem extends StatelessWidget {
                     ),
                   ),
                   StatusBadge(status: item.status),
+                  if (item.isAsetPinjaman)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.tintOrangeBg,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.tintOrange.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        item.namaPenyediaAsal != null && item.namaPenyediaAsal!.isNotEmpty
+                            ? 'Pinjaman: ${item.namaPenyediaAsal}'
+                            : 'Aset Pinjaman',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.tintOrange,
+                        ),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 12),

@@ -143,6 +143,27 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
+                                  if (a.isPinjaman) ...[
+                                    const SizedBox(height: 3),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.tintOrangeBg,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: AppColors.tintOrange.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Text(
+                                        a.asalPenyedia != null && a.asalPenyedia!.isNotEmpty
+                                            ? 'Aset Pinjaman dari: ${a.asalPenyedia}'
+                                            : 'Aset Pinjaman',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.tintOrange,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                   const SizedBox(height: 2),
                                   Text(
                                     '${a.kodeAset} • SN: ${a.nomorSeri}',

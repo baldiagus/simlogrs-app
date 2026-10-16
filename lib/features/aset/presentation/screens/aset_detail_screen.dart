@@ -267,38 +267,35 @@ class _AsetDetailAccess {
       AsetDetailModel currentAset, UserModel? user) {
     final isTeknisi = user?.isTeknisi ?? false;
 
-    // Cek apakah aset berada di unit/ruangan/gudang pengguna sendiri
-    final isAsetUnitPengguna = currentAset.unitId != null &&
-        user?.unit?.id != null &&
+    // Cek apakah aset berada di unit/ruangan/gudang pengguna sendiri (strict check)
+    final isAsetUnitPengguna = user?.unit != null &&
+        currentAset.unitId != null &&
         currentAset.unitId == user!.unit!.id;
 
-    final isAsetGudangPengguna = currentAset.gudangId != null &&
-        user?.gudang?.id != null &&
+    final isAsetGudangPengguna = user?.gudang != null &&
+        currentAset.gudangId != null &&
         currentAset.gudangId == user!.gudang!.id;
 
-    final isSameLocationName = (user?.unit?.nama != null &&
-            (currentAset.penanggungJawab == user!.unit!.nama ||
-                currentAset.lokasiTercatat.contains(user.unit!.nama))) ||
+    final isExactPenanggungJawab = (user?.unit?.nama != null &&
+            currentAset.penanggungJawab == user!.unit!.nama) ||
         (user?.gudang?.nama != null &&
-            (currentAset.penanggungJawab == user!.gudang!.nama ||
-                currentAset.lokasiTercatat.contains(user.gudang!.nama)));
+            currentAset.penanggungJawab == user!.gudang!.nama);
 
     final isOwnedByCurrentUserLocation =
-        isAsetUnitPengguna || isAsetGudangPengguna || isSameLocationName;
+        isAsetUnitPengguna || isAsetGudangPengguna || isExactPenanggungJawab;
 
     final isGlobalAdmin =
         user?.isSuperAdmin == true || user?.isAdminLogistik == true;
 
-    final isAsetSedangDipinjamUnitUser = currentAset.isDipinjam &&
-        currentAset.peminjamanAktif != null &&
-        user?.unit?.nama != null &&
-        currentAset.peminjamanAktif!.unitPeminjam == user!.unit!.nama;
+    final isBorrowerOrOwnerWhenBorrowed = currentAset.isDipinjam &&
+        ((user?.unit?.id != null && currentAset.unitId == user!.unit!.id) ||
+            (user?.unit?.nama != null &&
+                currentAset.peminjamanAktif?.unitPeminjam == user!.unit!.nama));
 
     final canLaporRusak = !isTeknisi &&
         (isOwnedByCurrentUserLocation ||
-            isAsetSedangDipinjamUnitUser ||
+            isBorrowerOrOwnerWhenBorrowed ||
             isGlobalAdmin);
-
     final canPinjam = !isTeknisi &&
         user?.unit != null &&
         !isOwnedByCurrentUserLocation &&
