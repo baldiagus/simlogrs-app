@@ -110,7 +110,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
   /// Membuat notifier aksi amprah dengan repository untuk API dan [Ref] untuk me-refresh provider terkait.
   AmprahActionNotifier(this._repository, this._ref) : super(const AmprahActionState());
 
-  /// Memvalidasi keranjang (tidak kosong, stok cukup) lalu mengajukan amprah; true bila berhasil, dan me-refresh daftar amprah, approval, dan dashboard.
+  /// Memvalidasi keranjang (tidak kosong dan pengguna berhak) lalu mengajukan amprah; barang dengan stok kosong atau kurang tetap diajukan sebagai backorder. Me-refresh daftar amprah dan dashboard bila berhasil.
   Future<bool> submitAmprah({
     int? gudangId,
     required String urgensi,
@@ -129,21 +129,6 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
         errorMessage: 'Keranjang amprah masih kosong. Pilih minimal 1 barang.',
       );
       return false;
-    }
-
-    for (final item in items) {
-      if (item.barang.stokTersedia <= 0) {
-        state = AmprahActionState(
-          errorMessage: 'Komoditas "${item.barang.nama}" di gudang saat ini kosong (0). Hapus barang ini sebelum mengirim.',
-        );
-        return false;
-      }
-      if (item.jumlah > item.barang.stokTersedia) {
-        state = AmprahActionState(
-          errorMessage: 'Jumlah diminta untuk "${item.barang.nama}" (${item.jumlah} ${item.barang.satuan}) melebihi stok gudang yang tersedia (${item.barang.stokTersedia} ${item.barang.satuan}).',
-        );
-        return false;
-      }
     }
 
     state = const AmprahActionState(isLoading: true);
@@ -186,6 +171,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
 
       _ref.invalidate(daftarAmprahProvider);
       _ref.invalidate(dashboardSummaryProvider);
+      _ref.invalidate(detailAmprahProvider(id));
       return true;
     } catch (e) {
       state = AmprahActionState(
@@ -252,10 +238,16 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     required int id,
     required bool isSetujui,
     String? catatan,
+    List<Map<String, int>>? items,
   }) async {
     state = const AmprahActionState(isLoading: true);
     try {
-      await _repository.approveAmprah(id: id, isSetujui: isSetujui, catatan: catatan);
+      await _repository.approveAmprah(
+        id: id,
+        isSetujui: isSetujui,
+        catatan: catatan,
+        items: items,
+      );
       state = AmprahActionState(
         isLoading: false,
         successMessage: isSetujui
@@ -265,6 +257,30 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
 
       _ref.invalidate(daftarAmprahProvider);
       _ref.invalidate(dashboardSummaryProvider);
+      _ref.invalidate(detailAmprahProvider(id));
+      return true;
+    } catch (e) {
+      state = AmprahActionState(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
+  /// Menutup sisa kuota terhutang (backorder) pada amprah [id] yang berstatus DIKIRIM_SEBAGIAN.
+  Future<bool> tutupSisaAmprah(int id) async {
+    state = const AmprahActionState(isLoading: true);
+    try {
+      await _repository.tutupSisaAmprah(id);
+      state = const AmprahActionState(
+        isLoading: false,
+        successMessage: 'Sisa barang terhutang telah ditutup.',
+      );
+
+      _ref.invalidate(daftarAmprahProvider);
+      _ref.invalidate(dashboardSummaryProvider);
+      _ref.invalidate(detailAmprahProvider(id));
       return true;
     } catch (e) {
       state = AmprahActionState(

@@ -7,6 +7,7 @@ import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider
 import 'package:simlog_mobile/features/distribusi/data/models/amprah_model.dart';
 import 'package:simlog_mobile/features/distribusi/presentation/providers/distribusi_provider.dart';
 import 'package:simlog_mobile/features/distribusi/presentation/screens/form_pengajuan_amprah_screen.dart';
+import 'package:simlog_mobile/features/distribusi/data/repositories/distribusi_repository.dart';
 
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
   MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
@@ -33,6 +34,31 @@ class FakeAmprahActionNotifier extends StateNotifier<AmprahActionState>
     submitCalled = true;
     lastItems = items;
     return true;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeDistribusiSubmitRepository implements DistribusiRepository {
+  bool submitCalled = false;
+  Map<String, dynamic>? lastPayload;
+
+  @override
+  Future<Map<String, dynamic>> submitAmprah({
+    int? gudangId,
+    required String urgensi,
+    String? catatan,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    submitCalled = true;
+    lastPayload = {
+      'gudang_id': gudangId,
+      'urgensi': urgensi,
+      'catatan': catatan,
+      'items': items,
+    };
+    return {'id': 99, 'kode': 'REQ-202610-099'};
   }
 
   @override
@@ -201,5 +227,41 @@ void main() {
     expect(fakeNotifier.submitCalled, isTrue);
     expect(fakeNotifier.lastItems?.first.jumlah, 15);
     await tester.pump(const Duration(seconds: 4));
+  });
+
+  test('provider submitAmprah with stok 0 item and quantity above stock sends them to repository', () async {
+    final fakeRepo = FakeDistribusiSubmitRepository();
+    final container = ProviderContainer(
+      overrides: [
+        authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+        distribusiRepositoryProvider.overrideWithValue(fakeRepo),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final draftZeroStock = AmprahCartDraftItem(
+      barang: itemZeroStock,
+      jumlah: 3,
+    );
+    final draftAboveStock = AmprahCartDraftItem(
+      barang: itemWithStock,
+      jumlah: 15,
+    );
+
+    final notifier = container.read(amprahActionProvider.notifier);
+    final ok = await notifier.submitAmprah(
+      urgensi: 'REGULER',
+      items: [draftZeroStock, draftAboveStock],
+    );
+
+    expect(ok, isTrue);
+    expect(fakeRepo.submitCalled, isTrue);
+    final sentItems = fakeRepo.lastPayload?['items'] as List<Map<String, dynamic>>?;
+    expect(sentItems, isNotNull);
+    expect(sentItems!.length, 2);
+    expect(sentItems[0]['barang_id'], itemZeroStock.id);
+    expect(sentItems[0]['jumlah'], 3);
+    expect(sentItems[1]['barang_id'], itemWithStock.id);
+    expect(sentItems[1]['jumlah'], 15);
   });
 }

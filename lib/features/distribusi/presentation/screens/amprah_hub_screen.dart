@@ -48,16 +48,8 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
     final user = ref.watch(authStateProvider).user;
     final canKonfirmasiDiRuangan = user?.canKonfirmasiPenerimaanSppb ?? false;
     final canAjukanAmprah = user?.canAjukanAmprah ?? false;
-    final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
-        (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
-        (user?.hasRole('admin_logistik') ?? false) ||
-        (user?.hasRole('kepala_gudang') ?? false) ||
-        (user?.hasRole('super_admin') ?? false);
-    // Meja 1 (Karu) memutuskan amprah DIAJUKAN; Meja 2 (kepala gudang / admin logistik gudang) memutuskan amprah DISETUJUI_KARU.
-    // Petugas gudang tidak masuk kedua meja sehingga tidak melihat aksi.
-    final canMeja1 = canApproveAmprah && (user?.isKaru ?? false);
-    final canMeja2 = canApproveAmprah &&
-        ((user?.isKepalaGudang ?? false) || (user?.isAdminLogistik ?? false));
+    final canMeja1 = user?.canApproveAmprahMeja1 ?? false;
+    final canMeja2 = user?.canApproveAmprahMeja2 ?? false;
     final filterParams = AmprahFilterParams(status: _statusFilter);
     final amprahListAsync = ref.watch(daftarAmprahProvider(filterParams));
     final sppbListAsync = ref.watch(sppbInboundProvider);

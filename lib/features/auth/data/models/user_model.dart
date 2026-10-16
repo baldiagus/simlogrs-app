@@ -151,6 +151,14 @@ class UserModel {
       isKepalaGudang ||
       isPetugasGudang ||
       can('create_gudang_stok::picking::distribusi');
+  /// True jika user berhak menyetujui/menolak amprah di Meja 1 (Karu / Super Admin / Admin Logistik).
+  bool get canApproveAmprahMeja1 =>
+      can('update_layanan_unit::approval::karu') &&
+      (isSuperAdmin || isAdminLogistik || hasRole('kepala_unit'));
+  /// True jika user berhak menyetujui/menolak amprah di Meja 2 (Kepala Gudang / Super Admin / Admin Logistik).
+  bool get canApproveAmprahMeja2 =>
+      can('update_gudang_stok::distribusi::approval') &&
+      (isSuperAdmin || isAdminLogistik || hasRole('kepala_gudang'));
   /// True jika user berhak mengajukan permintaan amprah ruangan ke gudang.
   bool get canAjukanAmprah {
     final hasScope = unit != null || gudang != null;

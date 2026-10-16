@@ -61,5 +61,75 @@ void main() {
       expect(item.jumlahDikirim, 0);
       expect(item.sisaBackorder, 5);
     });
+
+    test('AmprahDetailItemModel parses stok_tersedia tolerantly with default 0', () {
+      final itemInt = AmprahDetailItemModel.fromJson({
+        'id': 1,
+        'barang_id': 10,
+        'nama_barang': 'Spuit',
+        'kode_barang': 'SPT',
+        'satuan': 'Pcs',
+        'jumlah_diminta': 5,
+        'jumlah_disetujui': 5,
+        'stok_tersedia': 15,
+      });
+      expect(itemInt.stokTersedia, 15);
+
+      final itemString = AmprahDetailItemModel.fromJson({
+        'id': 2,
+        'barang_id': 11,
+        'nama_barang': 'Jarum',
+        'kode_barang': 'JRM',
+        'satuan': 'Pcs',
+        'jumlah_diminta': 5,
+        'jumlah_disetujui': 5,
+        'stok_tersedia': '25',
+      });
+      expect(itemString.stokTersedia, 25);
+
+      final itemMissing = AmprahDetailItemModel.fromJson({
+        'id': 3,
+        'barang_id': 12,
+        'nama_barang': 'Kasa',
+        'kode_barang': 'KSA',
+        'satuan': 'Pcs',
+        'jumlah_diminta': 5,
+        'jumlah_disetujui': 5,
+      });
+      expect(itemMissing.stokTersedia, 0);
+    });
+
+    test('AmprahHeaderModel parses can_tutup_sisa correctly', () {
+      final headerTrue = AmprahHeaderModel.fromJson({
+        'id': 1,
+        'kode': 'REQ-001',
+        'unit': 'IGD',
+        'gudang': 'Gudang',
+        'pengaju': 'Staf',
+        'tanggal_permintaan': '2026-10-16',
+        'urgensi': 'REGULER',
+        'status': 'DIKIRIM_SEBAGIAN',
+        'can_cancel': false,
+        'can_tutup_sisa': true,
+        'jumlah_item': 1,
+        'items': [],
+      });
+      expect(headerTrue.canTutupSisa, isTrue);
+
+      final headerDefault = AmprahHeaderModel.fromJson({
+        'id': 2,
+        'kode': 'REQ-002',
+        'unit': 'IGD',
+        'gudang': 'Gudang',
+        'pengaju': 'Staf',
+        'tanggal_permintaan': '2026-10-16',
+        'urgensi': 'REGULER',
+        'status': 'DIAJUKAN',
+        'can_cancel': true,
+        'jumlah_item': 1,
+        'items': [],
+      });
+      expect(headerDefault.canTutupSisa, isFalse);
+    });
   });
 }

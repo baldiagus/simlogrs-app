@@ -52,8 +52,8 @@ class AmprahDetailItemModel {
   final int jumlahDiminta;
   final int jumlahDisetujui;
   final int jumlahDikirim;
+  final int stokTersedia;
   final String? catatan;
-
   const AmprahDetailItemModel({
     required this.id,
     required this.barangId,
@@ -63,9 +63,9 @@ class AmprahDetailItemModel {
     required this.jumlahDiminta,
     required this.jumlahDisetujui,
     this.jumlahDikirim = 0,
+    this.stokTersedia = 0,
     this.catatan,
   });
-
   /// Sisa jumlah disetujui yang belum dikirim (backorder), dibatasi minimal 0
   /// supaya pengiriman berlebih tidak menghasilkan angka negatif.
   int get sisaBackorder => (jumlahDisetujui - jumlahDikirim).clamp(0, jumlahDisetujui);
@@ -95,6 +95,9 @@ class AmprahDetailItemModel {
                       json['terkirim']?.toString() ??
                       '') ??
                   0)),
+      stokTersedia: json['stok_tersedia'] is int
+          ? json['stok_tersedia'] as int
+          : (int.tryParse(json['stok_tersedia']?.toString() ?? '') ?? 0),
       catatan: json['catatan']?.toString(),
     );
   }
@@ -111,9 +114,9 @@ class AmprahHeaderModel {
   final String status;
   final String? catatan;
   final bool canCancel;
+  final bool canTutupSisa;
   final int jumlahItem;
   final List<AmprahDetailItemModel> items;
-
   const AmprahHeaderModel({
     required this.id,
     required this.kode,
@@ -125,6 +128,7 @@ class AmprahHeaderModel {
     required this.status,
     this.catatan,
     required this.canCancel,
+    this.canTutupSisa = false,
     required this.jumlahItem,
     required this.items,
   });
@@ -163,6 +167,7 @@ class AmprahHeaderModel {
       status: json['status']?.toString() ?? 'DIAJUKAN',
       catatan: json['catatan']?.toString(),
       canCancel: json['can_cancel'] == true,
+      canTutupSisa: json['can_tutup_sisa'] == true,
       jumlahItem: json['jumlah_item'] is int
           ? json['jumlah_item'] as int
           : int.tryParse(json['jumlah_item']?.toString() ?? '') ?? 0,

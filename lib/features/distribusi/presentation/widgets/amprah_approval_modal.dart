@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
+import '../../../../shared/widgets/app_quantity_stepper.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/amprah_model.dart';
@@ -20,12 +21,12 @@ class AmprahApprovalModal extends ConsumerStatefulWidget {
   });
 
   /// Menampilkan modal keputusan untuk [amprah]; menutup dengan true bila aksi berhasil.
-  static Future<void> show(
+  static Future<bool?> show(
     BuildContext context, {
     required AmprahHeaderModel amprah,
     required bool isSetujui,
   }) {
-    return showModalBottomSheet(
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -41,6 +42,16 @@ class AmprahApprovalModal extends ConsumerStatefulWidget {
 /// State modal: menyimpan controller catatan dan menjalankan keputusan amprah.
 class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
   final TextEditingController _noteController = TextEditingController();
+  late final Map<int, int> _quotas;
+
+  @override
+  void initState() {
+    super.initState();
+    _quotas = {
+      for (final item in widget.amprah.items)
+        item.id: item.jumlahDisetujui > 0 ? item.jumlahDisetujui : item.jumlahDiminta,
+    };
+  }
 
   /// Membersihkan controller catatan agar tidak bocor memori.
   @override
@@ -49,17 +60,36 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
     super.dispose();
   }
 
-  /// Memvalidasi alasan tolak (wajib), lalu mengirim keputusan dan menutup modal bila berhasil.
+  /// Memvalidasi alasan tolak (wajib) atau kuota Meja 2, lalu mengirim keputusan dan menutup modal bila berhasil.
   Future<void> _kirim(BuildContext context) async {
     final catatan = _noteController.text.trim();
     if (!widget.isSetujui && catatan.isEmpty) {
       AppToast.error(context, 'Alasan penolakan wajib diisi!');
       return;
     }
+
+    List<Map<String, int>>? itemsPayload;
+    if (widget.isSetujui && widget.amprah.isDisetujuiKaru) {
+      final allZero = _quotas.values.isNotEmpty && _quotas.values.every((q) => q == 0);
+      if (allZero) {
+        AppToast.error(context, 'Minimal satu barang harus disetujui, atau gunakan Tolak.');
+        return;
+      }
+      itemsPayload = [
+        for (final item in widget.amprah.items)
+          {
+            'id': item.id,
+            'jumlah_disetujui': _quotas[item.id] ??
+                (item.jumlahDisetujui > 0 ? item.jumlahDisetujui : item.jumlahDiminta),
+          },
+      ];
+    }
+
     final ok = await ref.read(amprahActionProvider.notifier).approveAmprah(
           id: widget.amprah.id,
           isSetujui: widget.isSetujui,
-          catatan: catatan,
+          catatan: catatan.isNotEmpty ? catatan : null,
+          items: itemsPayload,
         );
     if (!context.mounted) return;
     final state = ref.read(amprahActionProvider);
@@ -118,7 +148,105 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          if (isSetujui && widget.amprah.isDisetujuiKaru) ...[
+            const Text(
+              'Alokasi Kuota Persetujuan Gudang:',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.35,
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: widget.amprah.items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final item = widget.amprah.items[index];
+                  final quota = _quotas[item.id] ?? item.jumlahDiminta;
+                  final isBackorder = quota > item.stokTersedia;
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.canvas,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.namaBarang,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Diminta: ${item.jumlahDiminta} ${item.satuan} • Stok Gudang: ${item.stokTersedia} ${item.satuan}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            AppQuantityStepper(
+                              min: 0,
+                              max: item.jumlahDiminta,
+                              value: quota,
+                              onChanged: (val) {
+                                setState(() {
+                                  _quotas[item.id] = val;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        if (isBackorder) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(LucideIcons.alertCircle, size: 13, color: AppColors.warning),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  'Kuota melebihi stok gudang (${quota - item.stokTersedia} ${item.satuan} selisih dicatat sebagai backorder)',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.warning,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           TextField(
             controller: _noteController,
             maxLines: 3,

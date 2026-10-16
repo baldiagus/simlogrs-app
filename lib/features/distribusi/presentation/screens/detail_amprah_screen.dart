@@ -11,6 +11,7 @@ import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/distribusi_provider.dart';
+import '../widgets/amprah_approval_modal.dart';
 
 class DetailAmprahScreen extends ConsumerWidget {
   final int amprahId;
@@ -29,6 +30,8 @@ class DetailAmprahScreen extends ConsumerWidget {
     final actionState = ref.watch(amprahActionProvider);
     final user = ref.watch(authStateProvider).user;
     final canPick = user?.canPickingDistribusi ?? false;
+    final canMeja1 = user?.canApproveAmprahMeja1 ?? false;
+    final canMeja2 = user?.canApproveAmprahMeja2 ?? false;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -321,6 +324,55 @@ class DetailAmprahScreen extends ConsumerWidget {
                     );
                   }),
                   const SizedBox(height: 24),
+                  // Tombol Keputusan Persetujuan Meja 1 / Meja 2
+                  if ((canMeja1 && amprah.isDiajukan) || (canMeja2 && amprah.isDisetujuiKaru)) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Tolak',
+                            backgroundColor: const Color(0xFFFEF2F2),
+                            textColor: AppColors.danger,
+                            icon: const Icon(LucideIcons.x, size: 18, color: AppColors.danger),
+                            isLoading: actionState.isLoading,
+                            onPressed: () async {
+                              final res = await AmprahApprovalModal.show(
+                                context,
+                                amprah: amprah,
+                                isSetujui: false,
+                              );
+                              if (res == true) {
+                                ref.invalidate(detailAmprahProvider(amprahId));
+                                ref.invalidate(daftarAmprahProvider);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Setujui',
+                            backgroundColor: AppColors.success,
+                            textColor: Colors.white,
+                            icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                            isLoading: actionState.isLoading,
+                            onPressed: () async {
+                              final res = await AmprahApprovalModal.show(
+                                context,
+                                amprah: amprah,
+                                isSetujui: true,
+                              );
+                              if (res == true) {
+                                ref.invalidate(detailAmprahProvider(amprahId));
+                                ref.invalidate(daftarAmprahProvider);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   // Tombol Eksekusi Picking FEFO (Khusus Petugas / Kepala Gudang)
                   if (canPick &&
                       (amprah.status == 'DISETUJUI_GUDANG' ||
@@ -361,6 +413,46 @@ class DetailAmprahScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                   ],
 
+                  // Tombol Tutup Sisa Hutang bila ada sisa backorder dan status DIKIRIM_SEBAGIAN
+                  if (amprah.canTutupSisa) ...[
+                    CustomButton(
+                      text: 'Tutup Sisa Hutang',
+                      backgroundColor: const Color(0xFFFFFBEB),
+                      textColor: const Color(0xFFB45309),
+                      icon: const Icon(LucideIcons.checkCheck, size: 18, color: Color(0xFFB45309)),
+                      isLoading: actionState.isLoading,
+                      onPressed: () async {
+                        final confirmed = await AppConfirmDialog.show(
+                          context,
+                          title: 'Tutup Sisa Hutang Amprah',
+                          message:
+                              'Sisa barang yang belum terkirim tidak akan dikirim lagi dan permohonan dinyatakan selesai.',
+                          confirmLabel: 'Ya, Tutup Sisa Hutang',
+                          confirmColor: AppColors.primaryPurple,
+                          icon: LucideIcons.checkCheck,
+                        );
+                        if (!confirmed || !context.mounted) return;
+
+                        final ok = await ref
+                            .read(amprahActionProvider.notifier)
+                            .tutupSisaAmprah(amprah.id);
+                        if (!context.mounted) return;
+                        final s = ref.read(amprahActionProvider);
+                        if (ok) {
+                          AppToast.success(
+                            context,
+                            s.successMessage ?? 'Sisa barang terhutang telah ditutup.',
+                          );
+                          ref.invalidate(detailAmprahProvider(amprahId));
+                          ref.invalidate(daftarAmprahProvider);
+                        } else {
+                          AppToast.error(context, s.errorMessage ?? 'Gagal menutup sisa amprah');
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
                   // Batal Action button if canCancel
                   if (amprah.canCancel) ...[
                     CustomButton(
@@ -378,9 +470,8 @@ class DetailAmprahScreen extends ConsumerWidget {
                         } else {
                           AppToast.error(context, s.errorMessage ?? 'Gagal');
                         }
-                        if (ok) {
-                          ref.invalidate(detailAmprahProvider(amprahId));
-                        }
+                        ref.invalidate(detailAmprahProvider(amprahId));
+                        ref.invalidate(daftarAmprahProvider);
                       },
                     ),
                     const SizedBox(height: 20),

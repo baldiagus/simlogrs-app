@@ -121,6 +121,7 @@ class DistribusiRepository {
     required int id,
     required bool isSetujui,
     String? catatan,
+    List<Map<String, int>>? items,
   }) async {
     try {
       final response = await _client.dio.post(
@@ -128,6 +129,7 @@ class DistribusiRepository {
         data: {
           'aksi': isSetujui ? 'setujui' : 'tolak',
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
+          if (items != null && items.isNotEmpty) 'items': items,
         },
       );
       final data = response.data;
@@ -137,6 +139,20 @@ class DistribusiRepository {
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw ApiException(message: e.message ?? 'Gagal memproses persetujuan Amprah');
+    }
+  }
+
+  /// Menutup sisa barang terhutang pada amprah [id] berstatus DIKIRIM_SEBAGIAN sehingga menjadi SELESAI.
+  Future<void> tutupSisaAmprah(int id) async {
+    try {
+      final response = await _client.dio.post('/distribusi/amprah/$id/tutup-sisa');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data['sukses'] == false) {
+        throw ApiException(message: data['pesan']?.toString() ?? 'Gagal menutup sisa amprah');
+      }
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException(message: e.message ?? 'Gagal menutup sisa amprah');
     }
   }
 

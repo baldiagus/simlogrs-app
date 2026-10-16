@@ -249,4 +249,73 @@ void main() {
       expect(user.canAjukanAmprah, isFalse);
     });
   });
+
+  group('UserModel Meja 1 dan Meja 2 Approval Matrix per Role', () {
+    // (label, user, canMeja1, canMeja2)
+    final mejaCases = <(String, UserModel, bool, bool)>[
+      (
+        'kepala_teknisi dengan permission otorisasi karu & gudang -> false untuk Meja 1, false untuk Meja 2',
+        _user(
+          roles: ['kepala_teknisi'],
+          permissions: [
+            'update_layanan_unit::approval::karu',
+            'update_gudang_stok::distribusi::approval',
+          ],
+        ),
+        false,
+        false,
+      ),
+      (
+        'kepala_unit dengan permission karu -> true untuk Meja 1, false untuk Meja 2',
+        _user(
+          roles: ['kepala_unit'],
+          permissions: ['update_layanan_unit::approval::karu'],
+        ),
+        true,
+        false,
+      ),
+      (
+        'kepala_gudang dengan permission gudang -> false untuk Meja 1, true untuk Meja 2',
+        _user(
+          roles: ['kepala_gudang'],
+          permissions: ['update_gudang_stok::distribusi::approval'],
+        ),
+        false,
+        true,
+      ),
+      (
+        'super_admin dengan kedua permission -> true untuk Meja 1, true untuk Meja 2',
+        _user(
+          roles: ['super_admin'],
+          permissions: [
+            'update_layanan_unit::approval::karu',
+            'update_gudang_stok::distribusi::approval',
+          ],
+        ),
+        true,
+        true,
+      ),
+      (
+        'petugas_unit dengan kedua permission -> false untuk Meja 1, false untuk Meja 2',
+        _user(
+          roles: ['petugas_unit'],
+          permissions: [
+            'update_layanan_unit::approval::karu',
+            'update_gudang_stok::distribusi::approval',
+          ],
+        ),
+        false,
+        false,
+      ),
+    ];
+
+    for (final (label, user, canMeja1, canMeja2) in mejaCases) {
+      test('$label -> canApproveAmprahMeja1=$canMeja1', () {
+        expect(user.canApproveAmprahMeja1, canMeja1);
+      });
+      test('$label -> canApproveAmprahMeja2=$canMeja2', () {
+        expect(user.canApproveAmprahMeja2, canMeja2);
+      });
+    }
+  });
 }
