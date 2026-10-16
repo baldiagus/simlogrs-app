@@ -117,6 +117,13 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     String? catatan,
     required List<AmprahCartDraftItem> items,
   }) async {
+    final user = _ref.read(authStateProvider).user;
+    if (user == null || !user.canAjukanAmprah) {
+      state = const AmprahActionState(
+        errorMessage: 'Akun Anda belum terhubung dengan unit ruangan atau gudang',
+      );
+      return false;
+    }
     if (items.isEmpty) {
       state = const AmprahActionState(
         errorMessage: 'Keranjang amprah masih kosong. Pilih minimal 1 barang.',

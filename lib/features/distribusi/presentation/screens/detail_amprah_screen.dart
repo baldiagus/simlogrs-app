@@ -28,11 +28,7 @@ class DetailAmprahScreen extends ConsumerWidget {
     final detailAsync = ref.watch(detailAmprahProvider(amprahId));
     final actionState = ref.watch(amprahActionProvider);
     final user = ref.watch(authStateProvider).user;
-    final canPick = (user?.isPetugasGudang == true) ||
-        (user?.isKepalaGudang == true) ||
-        (user?.isAdminLogistik == true) ||
-        (user?.isSuperAdmin == true) ||
-        (user?.can('create_gudang_stok::picking::distribusi') == true);
+    final canPick = user?.canPickingDistribusi ?? false;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -204,7 +200,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                               ? 'Menunggu persetujuan Karu'
                               : amprah.isDitolak
                                   ? 'Ditolak'
-                                  : (amprah.isDibatalkan ? 'Dibatalkan' : 'Disetujui Karu'),
+                                  : 'Disetujui Karu',
                           isPassed: amprah.isTahapKaruSelesai,
                           isCurrent: amprah.isDiajukan,
                         ),
@@ -215,10 +211,10 @@ class DetailAmprahScreen extends ConsumerWidget {
                               ? 'Menunggu verifikasi stok gudang'
                               : (amprah.isDikirimSebagian
                                   ? 'Disetujui Sebagian (Pengiriman Bertahap)'
-                                  : (amprah.isDisetujuiGudang || amprah.isSelesai
+                                  : (amprah.isDisetujuiGudang || amprah.isSedangDikirim || amprah.isSelesai
                                       ? 'Disetujui untuk pengeluaran barang'
                                       : '-')),
-                          isPassed: amprah.isDisetujuiGudang || amprah.isSelesai || amprah.isDikirimSebagian,
+                          isPassed: amprah.isDisetujuiGudang || amprah.isSedangDikirim || amprah.isSelesai || amprah.isDikirimSebagian,
                           isCurrent: amprah.isDisetujuiKaru,
                         ),
                       ],
@@ -328,7 +324,6 @@ class DetailAmprahScreen extends ConsumerWidget {
                   // Tombol Eksekusi Picking FEFO (Khusus Petugas / Kepala Gudang)
                   if (canPick &&
                       (amprah.status == 'DISETUJUI_GUDANG' ||
-                          amprah.status == 'DISETUJUI_KARU' ||
                           amprah.status == 'DIKIRIM_SEBAGIAN')) ...[
                     CustomButton(
                       text: 'Eksekusi Picking FEFO & Terbitkan SPPB',

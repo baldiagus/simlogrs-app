@@ -10,6 +10,7 @@ import '../../../pengadaan/presentation/widgets/urgensi_selector_widget.dart';
 import '../../data/models/amprah_model.dart';
 import '../providers/distribusi_provider.dart';
 import '../widgets/barang_amprah_picker_sheet.dart';
+import '../../../../shared/widgets/empty_state_view.dart';
 
 class FormPengajuanAmprahScreen extends ConsumerStatefulWidget {
   final BarangAmprahKatalogModel? initialBarang;
@@ -73,6 +74,11 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
 
   /// Memvalidasi form lalu mengirim pengajuan amprah; menutup layar dengan hasil true bila berhasil.
   Future<void> _submit() async {
+    final user = ref.read(authStateProvider).user;
+    if (user?.canAjukanAmprah != true) {
+      AppToast.error(context, 'Akun Anda belum terhubung dengan unit ruangan atau gudang');
+      return;
+    }
     if (_cartItems.isEmpty) {
       AppToast.error(context, 'Pilih minimal 1 komoditas barang dari katalog amprah.');
       return;
@@ -101,6 +107,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
+    final canAjukan = user?.canAjukanAmprah ?? false;
     final actionState = ref.watch(amprahActionProvider);
     final totalQty = _cartItems.fold<int>(0, (sum, i) => sum + i.jumlah);
 
@@ -114,7 +121,15 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: SingleChildScrollView(
+              child: !canAjukan
+                  ? const Center(
+                      child: EmptyStateView(
+                        icon: LucideIcons.building,
+                        title: 'Tidak Dapat Mengajukan Amprah',
+                        message: 'Akun Anda belum terhubung dengan unit ruangan atau gudang',
+                      ),
+                    )
+                  : SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Form(
                   key: _formKey,
@@ -437,7 +452,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                           text: 'Kirim Pengajuan Amprah',
                           isLoading: actionState.isLoading,
                           icon: const Icon(LucideIcons.send, size: 16, color: Colors.white),
-                          onPressed: _cartItems.isEmpty ? null : _submit,
+                          onPressed: (_cartItems.isEmpty || !canAjukan) ? null : _submit,
                         ),
                       ),
                     ],

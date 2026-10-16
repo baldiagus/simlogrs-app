@@ -46,14 +46,8 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
-    final isGudangRole = (user?.isPetugasGudang == true) || (user?.isKepalaGudang == true);
-    final canKonfirmasiDiRuangan = !isGudangRole &&
-        (user?.unit != null || user?.isSuperAdmin == true || user?.isAdminLogistik == true);
-    final canAjukanAmprah = (user?.unit != null) ||
-        (user?.isPengadaan == true) ||
-        (user?.isAuditor == true) ||
-        (user?.isManajemen == true) ||
-        (user?.hasRole('super_admin') == true);
+    final canKonfirmasiDiRuangan = user?.canKonfirmasiPenerimaanSppb ?? false;
+    final canAjukanAmprah = user?.canAjukanAmprah ?? false;
     final canApproveAmprah = (user?.can('update_layanan_unit::approval::karu') ?? false) ||
         (user?.can('update_gudang_stok::distribusi::approval') ?? false) ||
         (user?.hasRole('admin_logistik') ?? false) ||
@@ -151,6 +145,8 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                       _buildPill('DISETUJUI_KARU', 'Acc Karu'),
                       const SizedBox(width: 6),
                       _buildPill('DISETUJUI_GUDANG', 'Acc Gudang'),
+                      const SizedBox(width: 6),
+                      _buildPill('SEDANG_DIKIRIM', 'Dikirim'),
                       const SizedBox(width: 6),
                       _buildPill('SELESAI', 'Selesai'),
                       const SizedBox(width: 6),

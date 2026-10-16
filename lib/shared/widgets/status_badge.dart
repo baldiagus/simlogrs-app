@@ -69,7 +69,7 @@ class StatusBadge extends StatelessWidget {
       return (const Color(0xFFFFFBEB), AppColors.warning);
     }
 
-    if (upper.contains('DITERUSKAN') || upper.contains('KIRIM')) {
+    if (upper == 'SEDANG_DIKIRIM' || upper.contains('DITERUSKAN') || upper.contains('KIRIM')) {
       return (AppColors.tintVioletBg, AppColors.primaryPurple);
     }
 
@@ -78,6 +78,9 @@ class StatusBadge extends StatelessWidget {
 
   /// Mengubah underscore pada kode status menjadi spasi agar mudah dibaca.
   String _formatStatus(String s) {
+    if (s.toUpperCase() == 'SEDANG_DIKIRIM') {
+      return 'SEDANG DIKIRIM';
+    }
     return s.replaceAll('_', ' ');
   }
 }

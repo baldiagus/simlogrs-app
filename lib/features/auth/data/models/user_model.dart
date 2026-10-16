@@ -137,6 +137,32 @@ class UserModel {
   bool get canCreatePr =>
       !isPengadaan &&
       (can('create_pengadaan::permintaan::pengadaan') || hasRole('petugas_unit') || hasRole('kepala_unit') || isSuperAdmin);
+  /// True jika user berhak mengonfirmasi penerimaan SPPB di ruangan.
+  bool get canKonfirmasiPenerimaanSppb =>
+      isSuperAdmin ||
+      isAdminLogistik ||
+      hasRole('petugas_unit') ||
+      isKepalaTeknisi ||
+      can('update_layanan_unit::penerimaan::barang');
+  /// True jika user berhak melakukan eksekusi picking distribusi FEFO.
+  bool get canPickingDistribusi =>
+      isSuperAdmin ||
+      isAdminLogistik ||
+      isKepalaGudang ||
+      isPetugasGudang ||
+      can('create_gudang_stok::picking::distribusi');
+  /// True jika user berhak mengajukan permintaan amprah ruangan ke gudang.
+  bool get canAjukanAmprah {
+    final hasScope = unit != null || gudang != null;
+    if (!hasScope) return false;
+    return isSuperAdmin ||
+        isAdminLogistik ||
+        isPengadaan ||
+        hasRole('kepala_unit') ||
+        hasRole('petugas_unit') ||
+        isKepalaTeknisi ||
+        can('create_layanan_unit::permintaan::barang');
+  }
   /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

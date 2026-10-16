@@ -141,13 +141,13 @@ class AmprahHeaderModel {
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
   /// True bila amprah ditolak sehingga tidak akan diproses lebih lanjut.
   bool get isDitolak => status.toUpperCase() == 'DITOLAK';
+  /// True bila seluruh barang amprah sedang dalam proses pengiriman.
+  bool get isSedangDikirim => status.toUpperCase() == 'SEDANG_DIKIRIM';
   /// True bila barang baru dikirim sebagian dan masih ada sisa backorder.
   bool get isDikirimSebagian => status.toUpperCase() == 'DIKIRIM_SEBAGIAN';
-  /// True bila amprah dibatalkan oleh pengaju sebelum diproses.
-  bool get isDibatalkan => status.toUpperCase() == 'DIBATALKAN';
   /// True bila Tahap 1 (Karu) sudah lewat, termasuk pengajuan langsung Karu/Kepala Teknisi
   /// yang oleh backend langsung diberi status DISETUJUI_KARU.
-  bool get isTahapKaruSelesai => !isDiajukan && !isDitolak && !isDibatalkan;
+  bool get isTahapKaruSelesai => !isDiajukan && !isDitolak;
 
   /// Membangun header amprah beserta daftar item dari JSON API, mengisi default
   /// untuk field kosong agar tampilan daftar tetap konsisten.

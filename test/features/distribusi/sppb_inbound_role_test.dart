@@ -54,6 +54,14 @@ void main() {
     permissions: [],
     unit: UnitModel(id: 3, nama: 'Ruang Melati', kode: 'MELATI'),
   );
+  const petugasUnitUser = UserModel(
+    id: 4,
+    name: 'Staf Unit Melati',
+    email: 'stafmelati@simlogrs.local',
+    roles: ['petugas_unit'],
+    permissions: ['update_layanan_unit::penerimaan::barang'],
+    unit: UnitModel(id: 3, nama: 'Ruang Melati', kode: 'MELATI'),
+  );
 
   Widget createWidgetFor(UserModel user) {
     return ProviderScope(
@@ -93,7 +101,7 @@ void main() {
     expect(find.text('Konfirmasi Terima Barang di Ruangan'), findsNothing);
   });
 
-  testWidgets('AmprahHubScreen Tab 2 displays destination unit and shows confirmation button for Karu Ruangan', (tester) async {
+  testWidgets('AmprahHubScreen Tab 2 displays destination unit and hides confirmation button for Karu Ruangan', (tester) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -111,9 +119,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('SPPB-202610-001'), findsOneWidget);
-    // Verifikasi teks tujuan: Dikirim ke Ruang Melati
     expect(find.text('Dikirim ke Ruang Melati'), findsOneWidget);
-    // Verifikasi tombol konfirmasi di ruangan MUNCUL untuk Karu / staf unit
+    // Kepala unit tidak memiliki wewenang update_layanan_unit::penerimaan::barang sehingga tombol disembunyikan
+    expect(find.text('Konfirmasi Terima Barang di Ruangan'), findsNothing);
+  });
+
+  testWidgets('AmprahHubScreen Tab 2 displays destination unit and shows confirmation button for Petugas Unit', (tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createWidgetFor(petugasUnitUser));
+    await tester.pumpAndSettle();
+
+    // Switch to Tab 2: Barang Masuk (SPPB)
+    await tester.ensureVisible(find.textContaining('Barang Masuk'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Barang Masuk'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SPPB-202610-001'), findsOneWidget);
+    expect(find.text('Dikirim ke Ruang Melati'), findsOneWidget);
+    // Petugas unit memiliki wewenang penerimaan barang sehingga tombol konfirmasi muncul
     expect(find.text('Konfirmasi Terima Barang di Ruangan'), findsOneWidget);
   });
 }

@@ -66,12 +66,19 @@ void main() {
     expect(find.text('Menunggu verifikasi stok gudang'), findsOneWidget);
   });
 
-  testWidgets('amprah DIBATALKAN tidak ditandai Disetujui Karu', (tester) async {
-    await _pumpDetail(tester, _amprah('DIBATALKAN'), kepalaTeknisi);
+  testWidgets('amprah DITOLAK tidak ditandai Disetujui Karu', (tester) async {
+    await _pumpDetail(tester, _amprah('DITOLAK'), kepalaTeknisi);
 
-    expect(find.text('Dibatalkan'), findsOneWidget);
+    expect(find.text('Ditolak'), findsOneWidget);
     expect(find.text('Disetujui Karu'), findsNothing);
     expect(find.byIcon(LucideIcons.checkCircle2), findsNothing);
+  });
+
+  testWidgets('amprah SEDANG_DIKIRIM menandai Tahap 1 dan Tahap 2 selesai', (tester) async {
+    await _pumpDetail(tester, _amprah('SEDANG_DIKIRIM'), kepalaTeknisi);
+
+    expect(find.text('Disetujui Karu'), findsOneWidget);
+    expect(find.text('Disetujui untuk pengeluaran barang'), findsOneWidget);
   });
 
   test('payload pengajuan amprah tidak mengirim status (ditentukan backend)', () {
