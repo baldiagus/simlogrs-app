@@ -8,6 +8,16 @@ abstract final class PrStatus {
   static const String selesai = 'SELESAI';
   static const String ditolak = 'DITOLAK';
   static const String disetujui = 'DISETUJUI';
+  static const String disetujuiKaru = 'DISETUJUI_KARU';
+
+  /// Status yang menandakan PR sudah melewati tahap persetujuan.
+  static const Set<String> sudahDisetujui = {
+    disetujui,
+    disetujuiKaru,
+    diteruskanKePengadaan,
+    diproses,
+    selesai,
+  };
 }
 class PrDetailItemModel {
   final int id;
@@ -91,15 +101,8 @@ class PrHeaderModel {
   /// True jika proses PR sudah selesai.
   bool get isSelesai => status.toUpperCase() == 'SELESAI';
 
-  /// True jika PR sudah melewati tahap persetujuan (disetujui, diteruskan, sudah jadi PO, diproses, atau selesai).
-  bool get isDisetujui {
-    final s = status.toUpperCase();
-    return s.contains('SETUJU') ||
-        s == 'DITERUSKAN_KE_PENGADAAN' ||
-        s.contains('PO') ||
-        s == 'DIPROSES' ||
-        s == 'SELESAI';
-  }
+  /// True jika PR sudah melewati tahap persetujuan (disetujui, disetujui Karu, diteruskan, diproses, atau selesai).
+  bool get isDisetujui => PrStatus.sudahDisetujui.contains(status.toUpperCase());
 
   /// Mengubah PR menjadi [ApprovalItemModel] agar dapat ditampilkan di alur persetujuan.
   ApprovalItemModel toApprovalItem() {

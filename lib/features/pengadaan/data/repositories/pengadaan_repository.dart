@@ -56,14 +56,14 @@ class PengadaanRepository {
     }
   }
 
-  /// Mengirim PR baru ke server; bila [isKaru] true, PR langsung disetujui otomatis.
+  /// Mengirim PR baru ke server. Persetujuan otomatis diputuskan server dari role dan
+  /// cakupan pengaju; status akhir dikembalikan pada `data.status`.
   Future<Map<String, dynamic>> submitPr({
     int? unitId,
     int? gudangId,
     required String urgensi,
     String? catatan,
     required List<Map<String, dynamic>> items,
-    bool isKaru = false,
   }) async {
     try {
       final response = await _client.dio.post(
@@ -74,8 +74,6 @@ class PengadaanRepository {
           'urgensi': urgensi,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
           'items': items,
-          if (isKaru) 'status': 'DISETUJUI',
-          if (isKaru) 'auto_approve': true,
         },
       );
       final data = response.data;

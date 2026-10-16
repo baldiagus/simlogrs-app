@@ -18,11 +18,7 @@ enum HubTab { pr, po, inbound }
 
 /// Membangun daftar kunci tab yang berlaku untuk [user]: PR selalu; PO bila pengelola PO, manajemen, atau auditor; Inbound bila berhak melihat penerimaan.
 List<HubTab> _resolveTabKeys(UserModel? user) {
-  final isPengadaan = user?.isPengadaan ?? false;
-  final isSuperAdmin = user?.hasRole('super_admin') ?? false;
-  final isAdminLogistik = user?.isAdminLogistik ?? false;
-  final canManagePo = isPengadaan || isAdminLogistik || isSuperAdmin;
-  final canViewPo = canManagePo ||
+  final canViewPo = (user?.canManagePo ?? false) ||
       (user?.isManajemen ?? false) ||
       (user?.isAuditor ?? false);
   final canViewInbound =
@@ -100,28 +96,9 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
   Widget build(BuildContext context) {
     final user = ref.watch(authStateProvider).user;
     final isPengadaan = user?.isPengadaan ?? false;
-    final isSuperAdmin = user?.hasRole('super_admin') ?? false;
-    final isAdminLogistik = user?.isAdminLogistik ?? false;
-    final isKaru = user?.isKaru ?? false;
-    final isKepalaGudang = user?.isKepalaGudang ?? false;
-
-    /// Manajemen dan auditor hanya melihat data (read-only), tanpa aksi approval PR.
-    final isReadOnly = (user?.isManajemen ?? false) || (user?.isAuditor ?? false);
-    final canApproveKaru = !isPengadaan &&
-        !isReadOnly &&
-        (isKaru ||
-            isKepalaGudang ||
-            isAdminLogistik ||
-            isSuperAdmin ||
-            (user?.can('update_pengadaan::permintaan::pengadaan') ?? false));
-
-    final canManagePo = isPengadaan || isAdminLogistik || isSuperAdmin;
-
-    final canCreatePr = !isPengadaan &&
-        ((user?.can('create_pengadaan::permintaan::pengadaan') ?? false) ||
-            (user?.hasRole('petugas_unit') ?? false) ||
-            (user?.hasRole('kepala_unit') ?? false) ||
-            isSuperAdmin);
+    final canApproveKaru = user?.canApprovePrMeja1 ?? false;
+    final canManagePo = user?.canManagePo ?? false;
+    final canCreatePr = user?.canCreatePr ?? false;
     final actionablePoCount =
         ref.watch(poActionableCountProvider).valueOrNull ?? 0;
     final actions = PengadaanHubActions(ref);

@@ -133,10 +133,10 @@ void main() {
   });
 
   group('PengadaanRepository.submitPr', () {
-    test('Karu menambah status DISETUJUI dan auto_approve, catatan kosong dibuang', () async {
+    test('body POST tanpa status/auto_approve; status hasil diputuskan server', () async {
       final (repo, adapter) = _buat(200, {
         'sukses': true,
-        'data': {'id': 9, 'kode': 'PR-9'},
+        'data': {'id': 9, 'kode': 'PR-9', 'status': 'DISETUJUI'},
       });
 
       final hasil = await repo.submitPr(
@@ -146,19 +146,21 @@ void main() {
         items: [
           {'barang_id': 7, 'jumlah': 5},
         ],
-        isKaru: true,
       );
 
       expect(hasil['kode'], 'PR-9');
+      expect(hasil['status'], 'DISETUJUI');
+      expect(adapter.last!.method, 'POST');
+      expect(adapter.last!.path, '/pengadaan/pr');
       final body = adapter.last!.data as Map<String, dynamic>;
       expect(body['unit_id'], 2);
-      expect(body['status'], 'DISETUJUI');
-      expect(body['auto_approve'], isTrue);
+      expect(body.containsKey('status'), isFalse);
+      expect(body.containsKey('auto_approve'), isFalse);
       expect(body.containsKey('catatan'), isFalse);
       expect(body.containsKey('gudang_id'), isFalse);
     });
 
-    test('non-Karu tidak mengirim status maupun auto_approve', () async {
+    test('body minimal hanya berisi urgensi dan items', () async {
       final (repo, adapter) = _buat(200, {
         'sukses': true,
         'data': {'id': 10},
@@ -167,8 +169,7 @@ void main() {
       await repo.submitPr(urgensi: 'REGULER', items: const []);
 
       final body = adapter.last!.data as Map<String, dynamic>;
-      expect(body.containsKey('status'), isFalse);
-      expect(body.containsKey('auto_approve'), isFalse);
+      expect(body.keys, unorderedEquals(['urgensi', 'items']));
     });
 
     test('respons tanpa data Map memicu ApiException format tidak valid', () async {

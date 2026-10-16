@@ -76,7 +76,6 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
 
     final user = ref.read(authStateProvider).user;
     final notifier = ref.read(prSubmissionProvider.notifier);
-    final isKaru = (user?.isKaru ?? false) || (user?.hasRole('kepala_unit') ?? false);
 
     final success = await notifier.submitPr(
       unitId: user?.unit?.id,
@@ -84,7 +83,6 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
       urgensi: _urgensi,
       catatan: _catatanController.text.trim(),
       items: _cartItems,
-      isKaru: isKaru,
     );
 
     if (!mounted) return;

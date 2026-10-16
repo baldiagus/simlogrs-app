@@ -126,6 +126,17 @@ class UserModel {
   bool get hasCapaAccess => hasAuditAccess || can('view_audit_manajemen::temuan::capa');
   /// True jika user boleh mengakses fitur persediaan/stok (gudang, auditor, manajemen, atau permission monitoring FEFO).
   bool get hasPersediaanAccess => isSuperAdmin || isGudangUser || isAuditor || isManajemen || can('view_any_gudang_stok::monitoring::fefo');
+  /// True jika user boleh menyetujui/menolak PR di Meja 1 (Karu/Kepala Gudang/Admin Logistik/Super Admin); pengadaan, manajemen, dan auditor tidak.
+  bool get canApprovePrMeja1 =>
+      !isPengadaan &&
+      !(isManajemen || isAuditor) &&
+      (isKaru || isKepalaGudang || isAdminLogistik || isSuperAdmin || can('update_pengadaan::permintaan::pengadaan'));
+  /// True jika user boleh mengelola PO di Meja 2 (Pengadaan/Admin Logistik/Super Admin).
+  bool get canManagePo => isPengadaan || isAdminLogistik || isSuperAdmin;
+  /// True jika user boleh membuat PR baru (petugas/kepala unit, super admin, atau permission create); tim pengadaan tidak.
+  bool get canCreatePr =>
+      !isPengadaan &&
+      (can('create_pengadaan::permintaan::pengadaan') || hasRole('petugas_unit') || hasRole('kepala_unit') || isSuperAdmin);
   /// Membangun data user dari JSON API (profil, unit, gudang, role, permission).
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

@@ -68,14 +68,13 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
   PrSubmissionNotifier(this._repository, this._ref) : super(const PrSubmissionState());
 
   /// Mengajukan PR dari isi keranjang; mengembalikan true bila sukses.
-  /// Jika pengaju Karu, PR langsung disetujui agar diteruskan ke Bagian Pengadaan tanpa antre approval.
+  /// Persetujuan otomatis diputuskan server; pesan sukses mengikuti status yang dikembalikan server.
   Future<bool> submitPr({
     int? unitId,
     int? gudangId,
     required String urgensi,
     String? catatan,
     required List<PrCartItemModel> items,
-    bool isKaru = false,
   }) async {
     if (items.isEmpty) {
       state = const PrSubmissionState(
@@ -93,25 +92,13 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
         urgensi: urgensi,
         catatan: catatan,
         items: payloadItems,
-        isKaru: isKaru,
       );
       final kode = res['kode']?.toString() ?? 'PR Baru';
-      final prId = res['id'] is int ? res['id'] as int : int.tryParse(res['id']?.toString() ?? '');
-      final currentStatus = res['status']?.toString().toUpperCase();
-
-      // Jika diajukan oleh Karu dan backend masih berstatus DIAJUKAN, bypass approval langsung
-      if (isKaru && prId != null && currentStatus == 'DIAJUKAN') {
-        try {
-          final approvalRepo = _ref.read(approvalRepositoryProvider);
-          await approvalRepo.executeApprovalPr(id: prId, aksi: 'setujui');
-        } catch (_) {
-          // Abaikan jika sudah di-approve otomatis oleh backend
-        }
-      }
+      final disetujui = res['status']?.toString().toUpperCase() == PrStatus.diteruskanKePengadaan;
 
       state = PrSubmissionState(
         isLoading: false,
-        successMessage: isKaru
+        successMessage: disetujui
             ? 'Permintaan pengadaan $kode berhasil diajukan dan langsung diteruskan ke Bagian Pengadaan.'
             : 'Permintaan pengadaan $kode berhasil diajukan.',
       );

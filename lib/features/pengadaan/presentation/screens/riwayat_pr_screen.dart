@@ -190,27 +190,9 @@ class _RiwayatPrScreenState extends ConsumerState<RiwayatPrScreen> {
     final prListAsync = ref.watch(daftarPrProvider);
     final user = ref.watch(authStateProvider).user;
     final isPengadaan = user?.isPengadaan ?? false;
-    final isSuperAdmin = user?.hasRole('super_admin') ?? false;
-    final isAdminLogistik = user?.isAdminLogistik ?? false;
-    final isKaru = user?.isKaru ?? false;
-    final isKepalaGudang = user?.isKepalaGudang ?? false;
-
-    // Wewenang Otorisasi Meja 1 (Karu / Kepala Gudang / Admin Logistik / Super Admin)
-    final canApproveKaru = !isPengadaan &&
-        (isKaru ||
-            isKepalaGudang ||
-            isAdminLogistik ||
-            isSuperAdmin ||
-            (user?.can('update_pengadaan::permintaan::pengadaan') ?? false));
-
-    // Wewenang Meja 2 (Pengadaan / Admin Logistik / Super Admin)
-    final canManagePo = isPengadaan || isAdminLogistik || isSuperAdmin;
-
-    final canCreate = !isPengadaan &&
-        ((user?.can('create_pengadaan::permintaan::pengadaan') ?? false) ||
-            (user?.hasRole('petugas_unit') ?? false) ||
-            (user?.hasRole('kepala_unit') ?? false) ||
-            isSuperAdmin);
+    final canApproveKaru = user?.canApprovePrMeja1 ?? false;
+    final canManagePo = user?.canManagePo ?? false;
+    final canCreate = user?.canCreatePr ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
