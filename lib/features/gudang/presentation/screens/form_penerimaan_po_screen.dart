@@ -293,8 +293,12 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                           onQuantityChanged: (val) {
                             setState(() {
                               draft.jumlahDiterima = val;
+                              if (draft.jumlahRusak > val) {
+                                draft.jumlahRusak = val;
+                              }
                             });
                           },
+                          onRusakChanged: (val) => setState(() => draft.jumlahRusak = val),
                         );
                       }),
                       const SizedBox(height: 20),
@@ -319,18 +323,18 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
-                    children: [
-                      Flexible(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Total Diterima:',
-                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total Diterima:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
                             ),
-                            Text(
+                          ),
+                          Flexible(
+                            child: Text(
                               '$totalDiterima Barang ($totalJenisDiterima Jenis)',
                               style: const TextStyle(
                                 fontSize: 14,
@@ -340,49 +344,52 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 5,
-                        child: (ref.watch(authStateProvider).user?.canReceiveInbound ?? false)
-                            ? CustomButton(
+                      const SizedBox(height: 12),
+                      if (canReceive)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                text: 'Tolak Kiriman Vendor',
+                                isOutlined: true,
+                                backgroundColor: AppColors.danger,
+                                textColor: AppColors.danger,
+                                icon: const Icon(LucideIcons.ban, size: 16, color: AppColors.danger),
+                                onPressed: _tolakKiriman,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CustomButton(
                                 text: 'Simpan ke Stok Gudang',
                                 isLoading: actionState.isLoading,
-                                icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+                                backgroundColor: AppColors.primaryPurple,
+                                icon: const Icon(LucideIcons.checkCheck, size: 16, color: Colors.white),
                                 onPressed: _submit,
-                              )
-                            : Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: AppColors.surfaceSecondary,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Text(
-                                  'Mode Peninjauan (Hanya Lihat)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
                               ),
-                      ),
-                    ],
-                  ),
-                      if (canReceive) ...[
-                        const SizedBox(height: 10),
-                        CustomButton(
-                          text: 'Tolak Kiriman Vendor',
-                          isOutlined: true,
-                          backgroundColor: AppColors.danger,
-                          textColor: AppColors.danger,
-                          icon: const Icon(LucideIcons.ban, size: 18, color: AppColors.danger),
-                          onPressed: _tolakKiriman,
+                            ),
+                          ],
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            'Mode Peninjauan (Hanya Lihat)',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                         ),
-                      ],
                     ],
                   ),
                 ),

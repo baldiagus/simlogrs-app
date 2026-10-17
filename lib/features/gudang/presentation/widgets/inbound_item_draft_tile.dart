@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -14,6 +13,7 @@ class InboundItemDraftTile extends StatelessWidget {
   final VoidCallback onPickExpiredDate;
   final ValueChanged<int?> onRakChanged;
   final ValueChanged<int> onQuantityChanged;
+  final ValueChanged<int>? onRusakChanged;
   final ValueChanged<String>? onBatchChanged;
 
   const InboundItemDraftTile({
@@ -23,12 +23,18 @@ class InboundItemDraftTile extends StatelessWidget {
     required this.onPickExpiredDate,
     required this.onRakChanged,
     required this.onQuantityChanged,
+    this.onRusakChanged,
     this.onBatchChanged,
   });
 
   /// Membangun form draft item penerimaan; pilihan rak diambil dari [rakListAsync].
   @override
   Widget build(BuildContext context) {
+    if (draft.jumlahRusak > draft.jumlahDiterima) {
+      draft.jumlahRusak = draft.jumlahDiterima;
+    } else if (draft.jumlahRusak < 0) {
+      draft.jumlahRusak = 0;
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -105,32 +111,45 @@ class InboundItemDraftTile extends StatelessWidget {
           const SizedBox(height: 12),
 
           // 2b. Jumlah Rusak: 0 <= rusak <= jumlah diterima (sama dengan validasi backend)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Jumlah Rusak',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 6),
-              TextFormField(
-                key: const ValueKey('jumlah-rusak-field'),
-                initialValue: draft.jumlahRusak.toString(),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (v) => draft.jumlahRusak = int.tryParse(v) ?? 0,
-                validator: (v) {
-                  final rusak = int.tryParse(v ?? '') ?? 0;
-                  if (rusak > draft.jumlahDiterima) {
-                    return 'Jumlah rusak tidak boleh melebihi jumlah diterima';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  hintText: '0',
-                  helperText: 'Stok bersih: diterima - rusak',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Jumlah Rusak (${draft.poItem.satuan}):',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Stok bersih: ${draft.jumlahDiterima - draft.jumlahRusak} ${draft.poItem.satuan}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 8),
+              AppQuantityStepper(
+                key: const ValueKey('jumlah-rusak-stepper'),
+                value: draft.jumlahRusak,
+                min: 0,
+                max: draft.jumlahDiterima,
+                onChanged: (v) {
+                  final clamped = v.clamp(0, draft.jumlahDiterima);
+                  draft.jumlahRusak = clamped;
+                  onRusakChanged?.call(clamped);
+                },
               ),
             ],
           ),
