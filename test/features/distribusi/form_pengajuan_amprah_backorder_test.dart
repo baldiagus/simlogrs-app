@@ -113,7 +113,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
-          katalogAmprahProvider('').overrideWith((ref) => Future.value([itemZeroStock])),
+          katalogAmprahProvider(const KatalogAmprahFilterParams()).overrideWith((ref) => Future.value([itemZeroStock])),
           amprahActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(
@@ -152,7 +152,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
-          katalogAmprahProvider('').overrideWith((ref) => Future.value([itemWithStock])),
+          katalogAmprahProvider(const KatalogAmprahFilterParams()).overrideWith((ref) => Future.value([itemWithStock])),
           amprahActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(
@@ -198,7 +198,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
-          katalogAmprahProvider('').overrideWith((ref) => Future.value([itemWithStock])),
+          katalogAmprahProvider(const KatalogAmprahFilterParams()).overrideWith((ref) => Future.value([itemWithStock])),
           amprahActionProvider.overrideWith((ref) => fakeNotifier),
         ],
         child: const MaterialApp(

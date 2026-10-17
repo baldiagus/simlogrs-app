@@ -15,11 +15,36 @@ final distribusiRepositoryProvider = Provider<DistribusiRepository>((ref) {
   return DistribusiRepository(client);
 });
 
-/// Memuat katalog barang amprah berdasarkan kata kunci pencarian [query]; otomatis dibuang saat tidak dipakai.
+/// Parameter filter katalog barang amprah berdasarkan kata kunci pencarian dan gudang asal logistik.
+class KatalogAmprahFilterParams {
+  final String query;
+  final int? gudangId;
+
+  const KatalogAmprahFilterParams({
+    this.query = '',
+    this.gudangId,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is KatalogAmprahFilterParams &&
+          runtimeType == other.runtimeType &&
+          query == other.query &&
+          gudangId == other.gudangId;
+
+  @override
+  int get hashCode => query.hashCode ^ gudangId.hashCode;
+}
+
+/// Memuat katalog barang amprah berdasarkan [params] (kata kunci dan gudang); otomatis dibuang saat tidak dipakai.
 final katalogAmprahProvider =
-    FutureProvider.autoDispose.family<List<BarangAmprahKatalogModel>, String>((ref, query) async {
+    FutureProvider.autoDispose.family<List<BarangAmprahKatalogModel>, KatalogAmprahFilterParams>((ref, params) async {
   final repository = ref.watch(distribusiRepositoryProvider);
-  return await repository.getKatalogBarang(cari: query);
+  return await repository.getKatalogBarang(
+    cari: params.query.isEmpty ? null : params.query,
+    gudangId: params.gudangId,
+  );
 });
 
 class AmprahFilterParams {

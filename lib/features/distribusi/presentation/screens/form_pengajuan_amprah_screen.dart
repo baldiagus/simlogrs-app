@@ -5,7 +5,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/app_quantity_stepper.dart';
+import '../../../../shared/widgets/app_confirm_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../gudang/presentation/providers/persediaan_providers.dart';
 import '../../../pengadaan/presentation/widgets/urgensi_selector_widget.dart';
 import '../../data/models/amprah_model.dart';
 import '../providers/distribusi_provider.dart';
@@ -26,10 +28,11 @@ class FormPengajuanAmprahScreen extends ConsumerStatefulWidget {
 }
 class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahScreen> {
   final _formKey = GlobalKey<FormState>();
+  int? _selectedGudangId;
+  int _gudangDropdownVersion = 0;
   String _urgensi = 'REGULER';
   final List<AmprahCartDraftItem> _cartItems = [];
   final _catatanController = TextEditingController();
-
   /// Mengisi keranjang dengan barang awal (bila ada) agar pengguna tidak perlu memilih ulang.
   @override
   void initState() {
@@ -53,11 +56,16 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
 
   /// Membuka bottom sheet katalog barang; barang yang dipilih ditambahkan ke keranjang atau jumlahnya bertambah bila sudah ada.
   void _openBarangPicker() {
+    final gudangs = ref.read(masterGudangListProvider).asData?.value;
+    final selectedGudang = gudangs?.where((g) => g.id == _selectedGudangId).firstOrNull;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => BarangAmprahPickerSheet(
+        gudangId: _selectedGudangId,
+        namaGudang: selectedGudang?.nama,
         onBarangSelected: (barang) {
           setState(() {
             final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
@@ -87,6 +95,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     final notifier = ref.read(amprahActionProvider.notifier);
 
     final ok = await notifier.submitAmprah(
+      gudangId: _selectedGudangId,
       urgensi: _urgensi,
       catatan: _catatanController.text.trim(),
       items: _cartItems,
@@ -110,7 +119,11 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
     final canAjukan = user?.canAjukanAmprah ?? false;
     final actionState = ref.watch(amprahActionProvider);
     final totalQty = _cartItems.fold<int>(0, (sum, i) => sum + i.jumlah);
-
+    final gudangListAsync = ref.watch(masterGudangListProvider);
+    final gudangs = gudangListAsync.asData?.value;
+    if (gudangs != null && _selectedGudangId == null && gudangs.isNotEmpty) {
+      _selectedGudangId = gudangs.first.id;
+    }
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -179,6 +192,112 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                       ),
                       const SizedBox(height: 18),
 
+                      // Warehouse Selection Card
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Gudang Tujuan Logistik *',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            gudangListAsync.when(
+                              data: (gudangList) {
+                                return DropdownButtonFormField<int>(
+                                  key: ValueKey('gudang_dropdown_${_selectedGudangId}_$_gudangDropdownVersion'),
+                                  initialValue: _selectedGudangId,
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: AppColors.border),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: AppColors.border),
+                                    ),
+                                    prefixIcon: const Icon(LucideIcons.warehouse, size: 18, color: AppColors.primaryPurple),
+                                  ),
+                                  hint: const Text('Pilih gudang logistik...', style: TextStyle(fontSize: 13)),
+                                  items: gudangList.map((g) {
+                                    return DropdownMenuItem<int>(
+                                      value: g.id,
+                                      child: Text(
+                                        g.nama,
+                                        style: const TextStyle(fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (newVal) async {
+                                    if (newVal == null || newVal == _selectedGudangId) return;
+                                    if (_cartItems.isNotEmpty) {
+                                      final confirmed = await AppConfirmDialog.show(
+                                        context,
+                                        title: 'Konfirmasi Ubah Gudang',
+                                        message:
+                                            'Mengubah gudang logistik akan mengosongkan keranjang barang karena ketersediaan stok terikat pada gudang pilihan. Lanjutkan?',
+                                        confirmLabel: 'Ya, Lanjutkan',
+                                      );
+                                      if (!mounted) return;
+                                      if (confirmed) {
+                                        setState(() {
+                                          _cartItems.clear();
+                                          _selectedGudangId = newVal;
+                                          _gudangDropdownVersion++;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _gudangDropdownVersion++;
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        _selectedGudangId = newVal;
+                                        _gudangDropdownVersion++;
+                                      });
+                                    }
+                                  },
+                                  validator: (v) => v == null ? 'Pilih gudang tujuan logistik' : null,
+                                );
+                              },
+                              loading: () => DropdownButtonFormField<int>(
+                                items: const [],
+                                onChanged: null,
+                                isExpanded: true,
+                                hint: const Text('Memuat daftar gudang...', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(color: AppColors.border),
+                                  ),
+                                  prefixIcon: const Icon(LucideIcons.warehouse, size: 18, color: AppColors.primaryPurple),
+                                ),
+                              ),
+                              error: (err, _) => Text(
+                                'Gagal memuat daftar gudang: $err',
+                                style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
                       // Urgensi Selector
                       UrgensiSelectorWidget(
                         selectedUrgensi: _urgensi,
