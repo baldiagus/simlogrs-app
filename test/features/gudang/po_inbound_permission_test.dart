@@ -18,7 +18,10 @@ class FakeGudangRepository implements GudangRepository {
   bool getPoInboundListCalled = false;
 
   @override
-  Future<List<PoInboundHeaderModel>> getPoInboundList() async {
+  Future<List<PoInboundHeaderModel>> getPoInboundList({
+    String? status,
+    String? search,
+  }) async {
     getPoInboundListCalled = true;
     return const [];
   }

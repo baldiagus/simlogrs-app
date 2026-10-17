@@ -3,18 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_error_view.dart';
+import '../../../../shared/widgets/app_filter_chip_bar.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/status_badge.dart';
 import '../../../gudang/data/models/po_inbound_model.dart';
 import '../../../gudang/presentation/providers/inbound_provider.dart';
-
 /// Tab "Penerimaan Inbound" pada Hub Pengadaan.
 class PengadaanHubInboundTab extends ConsumerWidget {
   final AsyncValue<List<PoInboundHeaderModel>> inboundAsync;
   final String query;
+  final String filter;
   final ValueChanged<String> onQueryChanged;
+  final ValueChanged<String> onFilterSelected;
   final bool canReceiveInbound;
   final ValueChanged<PoInboundHeaderModel> onTerima;
 
@@ -22,7 +24,9 @@ class PengadaanHubInboundTab extends ConsumerWidget {
     super.key,
     required this.inboundAsync,
     required this.query,
+    required this.filter,
     required this.onQueryChanged,
+    required this.onFilterSelected,
     required this.canReceiveInbound,
     required this.onTerima,
   });
@@ -36,10 +40,28 @@ class PengadaanHubInboundTab extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: AppColors.surface,
-          child: AppSearchBar(
-            hint: 'Cari kode PO atau nama rekanan pemasok...',
-            onChanged: onQueryChanged,
-            onClear: () => onQueryChanged(''),
+          child: Column(
+            children: [
+              AppSearchBar(
+                hint: 'Cari kode PO atau nama rekanan pemasok...',
+                onChanged: onQueryChanged,
+                onClear: () => onQueryChanged(''),
+              ),
+              const SizedBox(height: 8),
+              AppFilterChipBar<String>(
+                padding: EdgeInsets.zero,
+                selected: filter,
+                onSelected: onFilterSelected,
+                options: const [
+                  AppFilterOption(label: 'Semua Status', value: 'SEMUA'),
+                  AppFilterOption(label: 'Siap Diterima', value: 'DIKIRIM_VENDOR'),
+                  AppFilterOption(label: 'Diterima Sebagian', value: 'DITERIMA_SEBAGIAN'),
+                  AppFilterOption(label: 'Diterima Lengkap', value: 'DITERIMA_LENGKAP'),
+                  AppFilterOption(label: 'Menunggu Dikirim', value: 'DITERBITKAN'),
+                  AppFilterOption(label: 'Dibatalkan', value: 'DIBATALKAN'),
+                ],
+              ),
+            ],
           ),
         ),
         const Divider(height: 1, color: AppColors.border),
@@ -66,6 +88,11 @@ class PengadaanHubInboundTab extends ConsumerWidget {
   /// atau menampilkan tampilan kosong bila tidak ada hasil.
   Widget _buildList(List<PoInboundHeaderModel> list) {
     var filtered = list;
+    if (filter != 'SEMUA') {
+      filtered = filtered
+          .where((po) => po.status.toUpperCase() == filter.toUpperCase())
+          .toList();
+    }
     if (query.isNotEmpty) {
       filtered = filtered.where((po) {
         final matchKode = po.kodePo.toLowerCase().contains(query);
@@ -82,7 +109,7 @@ class PengadaanHubInboundTab extends ConsumerWidget {
           child: EmptyStateView(
             title: 'Tidak Ada Antrean Inbound',
             message:
-                'Semua barang pesanan PO telah diterima atau belum ada pengiriman aktif.',
+                'Belum ada dokumen PO inbound yang sesuai dengan kriteria filter atau pencarian.',
             icon: LucideIcons.packageCheck,
           ),
         ),

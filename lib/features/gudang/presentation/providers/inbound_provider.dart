@@ -6,6 +6,10 @@ import '../../data/models/po_inbound_model.dart';
 import '../../data/repositories/gudang_repository.dart';
 import 'gudang_provider.dart';
 
+/// Filter status untuk antrean PO inbound.
+final inboundStatusFilterProvider =
+    StateProvider.autoDispose<String>((ref) => 'SEMUA');
+
 /// Daftar PO yang siap diterima (inbound). Kosong bila user tidak punya izin/peran penerimaan gudang.
 final daftarPoInboundProvider =
     FutureProvider.autoDispose<List<PoInboundHeaderModel>>((ref) async {
@@ -22,8 +26,11 @@ final daftarPoInboundProvider =
     return [];
   }
 
+  final status = ref.watch(inboundStatusFilterProvider);
   final repository = ref.watch(gudangRepositoryProvider);
-  return await repository.getPoInboundList();
+  return await repository.getPoInboundList(
+    status: status == 'SEMUA' ? null : status,
+  );
 });
 
 /// State aksi penerimaan/penolakan inbound: status loading plus pesan error/sukses untuk UI.

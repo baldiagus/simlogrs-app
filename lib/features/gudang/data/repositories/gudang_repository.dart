@@ -54,9 +54,18 @@ class GudangRepository {
   }
 
   /// Mengambil daftar PO inbound yang perlu diproses gudang.
-  Future<List<PoInboundHeaderModel>> getPoInboundList() async {
+  Future<List<PoInboundHeaderModel>> getPoInboundList({
+    String? status,
+    String? search,
+  }) async {
     try {
-      final response = await _client.dio.get('/gudang/po-inbound');
+      final response = await _client.dio.get(
+        '/gudang/po-inbound',
+        queryParameters: {
+          if (status != null && status.isNotEmpty) 'status': status,
+          if (search != null && search.isNotEmpty) 'search': search,
+        },
+      );
       final data = response.data;
       if (data is Map<String, dynamic> && data['data'] is List) {
         return (data['data'] as List)

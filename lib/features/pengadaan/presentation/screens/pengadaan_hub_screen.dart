@@ -103,7 +103,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
         ref.watch(poActionableCountProvider).valueOrNull ?? 0;
     final actions = PengadaanHubActions(ref);
     final poFilter = ref.watch(poStatusFilterProvider);
-
+    final inboundFilter = ref.watch(inboundStatusFilterProvider);
     final tabKeys = _resolveTabKeys(user);
     if (_tabController.length != tabKeys.length) {
       final oldIndex = _tabController.index.clamp(0, tabKeys.length - 1);
@@ -235,8 +235,11 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
               HubTab.inbound => PengadaanHubInboundTab(
                   inboundAsync: ref.watch(daftarPoInboundProvider),
                   query: _inboundQuery,
+                  filter: inboundFilter,
                   onQueryChanged: (val) =>
                       setState(() => _inboundQuery = val.trim().toLowerCase()),
+                  onFilterSelected: (val) =>
+                      ref.read(inboundStatusFilterProvider.notifier).state = val,
                   canReceiveInbound: user?.canReceiveInbound ?? false,
                   onTerima: (item) => actions.terimaInbound(context, item),
                 ),
