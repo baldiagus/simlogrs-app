@@ -24,10 +24,17 @@ class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier 
 class FakeAmprahApprovalRepository implements DistribusiRepository {
   final String status;
   final bool canTutupSisa;
+  final bool canCancel;
+  final int? diajukanOleh;
   final List<String> approvalCalls = [];
   List<Map<String, int>>? lastApprovedItems;
   int? tutupSisaId;
-  FakeAmprahApprovalRepository(this.status, {this.canTutupSisa = false});
+  FakeAmprahApprovalRepository(
+    this.status, {
+    this.canTutupSisa = false,
+    this.canCancel = false,
+    this.diajukanOleh,
+  });
 
   @override
   Future<List<AmprahHeaderModel>> getDaftarAmprah({String? status, String? urgensi}) async {
@@ -41,8 +48,9 @@ class FakeAmprahApprovalRepository implements DistribusiRepository {
         tanggalPermintaan: '2026-10-06',
         urgensi: 'REGULER',
         status: this.status,
-        canCancel: false,
+        canCancel: canCancel,
         canTutupSisa: canTutupSisa,
+        diajukanOleh: diajukanOleh,
         jumlahItem: 1,
         items: const [
           AmprahDetailItemModel(
@@ -71,8 +79,9 @@ class FakeAmprahApprovalRepository implements DistribusiRepository {
       tanggalPermintaan: '2026-10-06',
       urgensi: 'REGULER',
       status: status,
-      canCancel: false,
+      canCancel: canCancel,
       canTutupSisa: canTutupSisa,
+      diajukanOleh: diajukanOleh,
       jumlahItem: 1,
       items: const [
         AmprahDetailItemModel(
@@ -443,5 +452,17 @@ void main() {
       capturedRef.read(amprahActionProvider).successMessage,
       'Sisa barang terhutang telah ditutup.',
     );
+  });
+
+  testWidgets('DetailAmprahScreen does not render Batalkan Permintaan Amprah for Karu when submitted by petugas_unit', (tester) async {
+    final repo = FakeAmprahApprovalRepository(
+      'DIAJUKAN',
+      canCancel: true,
+      diajukanOleh: _petugasUnit.id,
+    );
+    await tester.pumpWidget(_buildDetail(_karu, repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Permintaan Amprah'), findsNothing);
   });
 }

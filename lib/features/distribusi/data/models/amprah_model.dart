@@ -50,6 +50,37 @@ class BarangAmprahKatalogModel {
       bestGudangStok: (json['best_gudang_stok'] as num?)?.toInt(),
     );
   }
+  BarangAmprahKatalogModel copyWith({
+    int? stokTersedia,
+    int? id,
+    String? kode,
+    String? nama,
+    String? spesifikasi,
+    String? tipe,
+    String? tipeLabel,
+    String? kategori,
+    String? satuan,
+    String? merek,
+    int? bestGudangId,
+    String? bestGudangNama,
+    int? bestGudangStok,
+  }) {
+    return BarangAmprahKatalogModel(
+      id: id ?? this.id,
+      kode: kode ?? this.kode,
+      nama: nama ?? this.nama,
+      spesifikasi: spesifikasi ?? this.spesifikasi,
+      tipe: tipe ?? this.tipe,
+      tipeLabel: tipeLabel ?? this.tipeLabel,
+      kategori: kategori ?? this.kategori,
+      satuan: satuan ?? this.satuan,
+      merek: merek ?? this.merek,
+      stokTersedia: stokTersedia ?? this.stokTersedia,
+      bestGudangId: bestGudangId ?? this.bestGudangId,
+      bestGudangNama: bestGudangNama ?? this.bestGudangNama,
+      bestGudangStok: bestGudangStok ?? this.bestGudangStok,
+    );
+  }
 }
 
 class AmprahDetailItemModel {
@@ -126,6 +157,7 @@ class AmprahHeaderModel {
   final bool canTutupSisa;
   final int jumlahItem;
   final List<AmprahDetailItemModel> items;
+  final int? diajukanOleh;
   const AmprahHeaderModel({
     required this.id,
     required this.kode,
@@ -140,6 +172,7 @@ class AmprahHeaderModel {
     this.canTutupSisa = false,
     required this.jumlahItem,
     required this.items,
+    this.diajukanOleh,
   });
 
   /// True bila permintaan berurgensi CITO (darurat) sehingga perlu diprioritaskan di UI.
@@ -184,6 +217,7 @@ class AmprahHeaderModel {
               ?.map((e) => AmprahDetailItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      diajukanOleh: (json['diajukan_oleh'] as num?)?.toInt(),
     );
   }
 }

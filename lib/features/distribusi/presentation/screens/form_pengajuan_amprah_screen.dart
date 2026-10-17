@@ -67,6 +67,15 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
         gudangId: _selectedGudangId,
         namaGudang: selectedGudang?.nama,
         onBarangSelected: (barang) async {
+          final targetGudang = (barang.bestGudangId != null &&
+                  barang.bestGudangStok != null &&
+                  barang.bestGudangStok! > 0)
+              ? barang.bestGudangId
+              : _selectedGudangId;
+          final resolvedBarang = (barang.bestGudangId == targetGudang &&
+                  barang.bestGudangStok != null)
+              ? barang.copyWith(stokTersedia: barang.bestGudangStok)
+              : barang;
           if (barang.bestGudangId != null &&
               barang.bestGudangStok != null &&
               barang.bestGudangStok! > 0 &&
@@ -75,7 +84,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
               setState(() {
                 _selectedGudangId = barang.bestGudangId;
                 _gudangDropdownVersion++;
-                _cartItems.add(AmprahCartDraftItem(barang: barang));
+                _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
               });
               AppToast.info(context, 'Gudang tujuan otomatis dialihkan ke ${barang.bestGudangNama ?? "gudang penyedia"}.');
             } else {
@@ -93,7 +102,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                   _cartItems.clear();
                   _selectedGudangId = barang.bestGudangId;
                   _gudangDropdownVersion++;
-                  _cartItems.add(AmprahCartDraftItem(barang: barang));
+                  _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
                 });
                 AppToast.info(context, 'Gudang tujuan dialihkan ke ${barang.bestGudangNama}.');
               }
@@ -104,7 +113,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
               if (idx >= 0) {
                 _cartItems[idx].jumlah += 1;
               } else {
-                _cartItems.add(AmprahCartDraftItem(barang: barang));
+                _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
               }
             });
           }

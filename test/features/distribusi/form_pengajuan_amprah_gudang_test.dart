@@ -318,7 +318,8 @@ void main() {
 
     expect(find.text('Gudang Logistik Umum'), findsOneWidget);
     expect(find.text('Kertas HVS A4'), findsOneWidget);
-
+    expect(find.text('Stok Gudang: 50 Rim'), findsOneWidget);
+    expect(find.text('Stok Gudang: 0 Rim'), findsNothing);
     await tester.pump(const Duration(seconds: 4));
   });
 
