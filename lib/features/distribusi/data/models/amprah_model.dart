@@ -9,6 +9,9 @@ class BarangAmprahKatalogModel {
   final String satuan;
   final String merek;
   final int stokTersedia;
+  final int? bestGudangId;
+  final String? bestGudangNama;
+  final int? bestGudangStok;
 
   const BarangAmprahKatalogModel({
     required this.id,
@@ -21,6 +24,9 @@ class BarangAmprahKatalogModel {
     required this.satuan,
     required this.merek,
     required this.stokTersedia,
+    this.bestGudangId,
+    this.bestGudangNama,
+    this.bestGudangStok,
   });
 
   /// Membangun model katalog barang dari respons JSON API, dengan nilai default aman
@@ -39,6 +45,9 @@ class BarangAmprahKatalogModel {
       stokTersedia: json['stok_tersedia'] is int
           ? json['stok_tersedia'] as int
           : int.tryParse(json['stok_tersedia']?.toString() ?? '') ?? 0,
+      bestGudangId: (json['best_gudang_id'] as num?)?.toInt(),
+      bestGudangNama: json['best_gudang_nama']?.toString(),
+      bestGudangStok: (json['best_gudang_stok'] as num?)?.toInt(),
     );
   }
 }

@@ -71,6 +71,21 @@ void main() {
     stokTersedia: 20,
   );
 
+  const itemInOtherWarehouse = BarangAmprahKatalogModel(
+    id: 102,
+    kode: 'LOG-KTS-01',
+    nama: 'Kertas HVS A4',
+    tipe: 'HABIS_PAKAI',
+    tipeLabel: 'ATK',
+    kategori: 'ATK',
+    satuan: 'Rim',
+    merek: 'PaperOne',
+    stokTersedia: 0,
+    bestGudangId: 2,
+    bestGudangNama: 'Gudang Logistik Umum',
+    bestGudangStok: 50,
+  );
+
   testWidgets('renders warehouse dropdown with master gudang options', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
@@ -260,5 +275,116 @@ void main() {
     // Cart is emptied
     expect(find.text('Spuit 3cc Terumo'), findsNothing);
     expect(find.text('Belum Ada Barang Dipilih'), findsOneWidget);
+  });
+
+  testWidgets('selecting item with bestGudangId when cart is empty automatically updates selected warehouse and adds item', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeNotifier = FakeAmprahActionNotifier();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+          masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          katalogAmprahProvider.overrideWith((ref, params) => Future.value([itemInOtherWarehouse])),
+          amprahActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: FormPengajuanAmprahScreen(),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gudang Farmasi Utama'), findsOneWidget);
+    expect(find.text('Belum Ada Barang Dipilih'), findsOneWidget);
+
+    final pickerBtn = find.text('Pilih dari Katalog');
+    await tester.ensureVisible(pickerBtn);
+    await tester.tap(pickerBtn);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tersedia 50 Rim di Gudang Logistik Umum'), findsOneWidget);
+
+    await tester.tap(find.text('Kertas HVS A4'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gudang Logistik Umum'), findsOneWidget);
+    expect(find.text('Kertas HVS A4'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('selecting item from different warehouse when cart is not empty displays confirmation dialog to switch warehouse and reset cart', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeNotifier = FakeAmprahActionNotifier();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+          masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          katalogAmprahProvider.overrideWith((ref, params) => Future.value([itemInOtherWarehouse])),
+          amprahActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: FormPengajuanAmprahScreen(initialBarang: item1),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Spuit 3cc Terumo'), findsOneWidget);
+    expect(find.text('Gudang Farmasi Utama'), findsOneWidget);
+
+    final pickerBtn = find.text('Tambah');
+    await tester.ensureVisible(pickerBtn);
+    await tester.tap(pickerBtn);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Kertas HVS A4'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ganti Gudang Tujuan?'), findsOneWidget);
+    expect(
+      find.text('Komoditas Kertas HVS A4 tersedia di Gudang Logistik Umum. Pengajuan amprah dalam satu dokumen harus ditujukan ke satu gudang yang sama. Ganti gudang tujuan dan mulai daftar baru?'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Spuit 3cc Terumo'), findsOneWidget);
+    expect(find.text('Kertas HVS A4'), findsNothing);
+    expect(find.text('Gudang Farmasi Utama'), findsOneWidget);
+
+    await tester.tap(pickerBtn);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kertas HVS A4'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ganti Gudang Tujuan?'), findsOneWidget);
+    await tester.tap(find.text('Ya, Ganti Gudang'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gudang Logistik Umum'), findsOneWidget);
+    expect(find.text('Spuit 3cc Terumo'), findsNothing);
+    expect(find.text('Kertas HVS A4'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4));
   });
 }

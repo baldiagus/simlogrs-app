@@ -142,8 +142,8 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                     return InkWell(
                       // Kirim barang terpilih ke pemanggil lalu tutup sheet.
                       onTap: () {
-                        widget.onBarangSelected(b);
                         Navigator.pop(context);
+                        widget.onBarangSelected(b);
                       },
                       borderRadius: BorderRadius.circular(12),
                         child: Padding(
@@ -205,16 +205,36 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                       style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      hasStok
-                                          ? 'Stok Tersedia: ${b.stokTersedia} ${b.satuan}'
-                                          : 'Stok Kosong (Dicatat sebagai Backorder)',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: hasStok ? AppColors.success : const Color(0xFFEA580C),
+                                    if (b.stokTersedia > 0)
+                                      Text(
+                                        'Stok Tersedia: ${b.stokTersedia} ${b.satuan}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.success,
+                                        ),
+                                      )
+                                    else if (b.stokTersedia == 0 &&
+                                        b.bestGudangNama != null &&
+                                        b.bestGudangStok != null &&
+                                        b.bestGudangStok! > 0)
+                                      Text(
+                                        'Tersedia ${b.bestGudangStok} ${b.satuan} di ${b.bestGudangNama}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.tintBlue,
+                                        ),
+                                      )
+                                    else
+                                      const Text(
+                                        'Stok Kosong (Dicatat sebagai Backorder)',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.tintOrange,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),

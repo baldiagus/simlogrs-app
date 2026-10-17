@@ -66,15 +66,48 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       builder: (ctx) => BarangAmprahPickerSheet(
         gudangId: _selectedGudangId,
         namaGudang: selectedGudang?.nama,
-        onBarangSelected: (barang) {
-          setState(() {
-            final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
-            if (idx >= 0) {
-              _cartItems[idx].jumlah += 1;
+        onBarangSelected: (barang) async {
+          if (barang.bestGudangId != null &&
+              barang.bestGudangStok != null &&
+              barang.bestGudangStok! > 0 &&
+              barang.bestGudangId != _selectedGudangId) {
+            if (_cartItems.isEmpty) {
+              setState(() {
+                _selectedGudangId = barang.bestGudangId;
+                _gudangDropdownVersion++;
+                _cartItems.add(AmprahCartDraftItem(barang: barang));
+              });
+              AppToast.info(context, 'Gudang tujuan otomatis dialihkan ke ${barang.bestGudangNama ?? "gudang penyedia"}.');
             } else {
-              _cartItems.add(AmprahCartDraftItem(barang: barang));
+              final confirmed = await AppConfirmDialog.show(
+                context,
+                title: 'Ganti Gudang Tujuan?',
+                message:
+                    'Komoditas ${barang.nama} tersedia di ${barang.bestGudangNama}. Pengajuan amprah dalam satu dokumen harus ditujukan ke satu gudang yang sama. Ganti gudang tujuan dan mulai daftar baru?',
+                confirmLabel: 'Ya, Ganti Gudang',
+                confirmColor: AppColors.primaryPurple,
+                icon: LucideIcons.arrowRightLeft,
+              );
+              if (confirmed && mounted) {
+                setState(() {
+                  _cartItems.clear();
+                  _selectedGudangId = barang.bestGudangId;
+                  _gudangDropdownVersion++;
+                  _cartItems.add(AmprahCartDraftItem(barang: barang));
+                });
+                AppToast.info(context, 'Gudang tujuan dialihkan ke ${barang.bestGudangNama}.');
+              }
             }
-          });
+          } else {
+            setState(() {
+              final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
+              if (idx >= 0) {
+                _cartItems[idx].jumlah += 1;
+              } else {
+                _cartItems.add(AmprahCartDraftItem(barang: barang));
+              }
+            });
+          }
         },
       ),
     );
