@@ -102,6 +102,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
     final actionablePoCount =
         ref.watch(poActionableCountProvider).valueOrNull ?? 0;
     final actions = PengadaanHubActions(ref);
+    final poFilter = ref.watch(poStatusFilterProvider);
 
     final tabKeys = _resolveTabKeys(user);
     if (_tabController.length != tabKeys.length) {
@@ -223,8 +224,11 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
               HubTab.po => PengadaanHubPoTab(
                   poListAsync: ref.watch(poListProvider),
                   query: _poQuery,
+                  filter: poFilter,
                   onQueryChanged: (val) =>
                       setState(() => _poQuery = val.trim().toLowerCase()),
+                  onFilterSelected: (val) =>
+                      ref.read(poStatusFilterProvider.notifier).state = val,
                   canManagePo: canManagePo,
                   onUpdateKirim: (po) => actions.confirmUpdateKirimPo(context, po),
                 ),

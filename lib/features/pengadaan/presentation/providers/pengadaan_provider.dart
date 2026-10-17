@@ -130,8 +130,8 @@ final pemasokListProvider = FutureProvider.autoDispose<List<PemasokOptionModel>>
   return repository.getDaftarPemasok();
 });
 
-/// Menyimpan filter status PO yang aktif; bawaan DITERBITKAN karena itu yang perlu ditindaklanjuti.
-final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'DITERBITKAN');
+/// Menyimpan filter status PO yang aktif; bawaan SEMUA untuk menampilkan seluruh status PO.
+final poStatusFilterProvider = StateProvider.autoDispose<String>((ref) => 'SEMUA');
 /// Menyimpan kata kunci pencarian PO.
 final poSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 

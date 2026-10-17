@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
+import 'package:simlog_mobile/shared/widgets/app_filter_chip_bar.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import 'approval_po_card.dart';
 import '../../data/models/po_model.dart';
@@ -14,7 +15,9 @@ import '../providers/pengadaan_provider.dart';
 class PengadaanHubPoTab extends ConsumerWidget {
   final AsyncValue<List<PesananPembelianModel>> poListAsync;
   final String query;
+  final String filter;
   final ValueChanged<String> onQueryChanged;
+  final ValueChanged<String> onFilterSelected;
   final bool canManagePo;
   final ValueChanged<PesananPembelianModel> onUpdateKirim;
 
@@ -22,7 +25,9 @@ class PengadaanHubPoTab extends ConsumerWidget {
     super.key,
     required this.poListAsync,
     required this.query,
+    required this.filter,
     required this.onQueryChanged,
+    required this.onFilterSelected,
     required this.canManagePo,
     required this.onUpdateKirim,
   });
@@ -36,10 +41,28 @@ class PengadaanHubPoTab extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: AppColors.surface,
-          child: AppSearchBar(
-            hint: 'Cari kode PO, rekanan vendor, atau kode PR...',
-            onChanged: onQueryChanged,
-            onClear: () => onQueryChanged(''),
+          child: Column(
+            children: [
+              AppSearchBar(
+                hint: 'Cari kode PO, rekanan vendor, atau kode PR...',
+                onChanged: onQueryChanged,
+                onClear: () => onQueryChanged(''),
+              ),
+              const SizedBox(height: 8),
+              AppFilterChipBar<String>(
+                padding: EdgeInsets.zero,
+                selected: filter,
+                onSelected: onFilterSelected,
+                options: const [
+                  AppFilterOption(label: 'Semua Status', value: 'SEMUA'),
+                  AppFilterOption(label: 'Perlu Dikirim', value: 'DITERBITKAN'),
+                  AppFilterOption(label: 'Dikirim Vendor', value: 'DIKIRIM_VENDOR'),
+                  AppFilterOption(label: 'Diterima Sebagian', value: 'DITERIMA_SEBAGIAN'),
+                  AppFilterOption(label: 'Diterima Lengkap', value: 'DITERIMA_LENGKAP'),
+                  AppFilterOption(label: 'Dibatalkan', value: 'DIBATALKAN'),
+                ],
+              ),
+            ],
           ),
         ),
         const Divider(height: 1, color: AppColors.border),
@@ -83,7 +106,7 @@ class PengadaanHubPoTab extends ConsumerWidget {
           child: EmptyStateView(
             title: 'Tidak Ada Dokumen PO',
             message:
-                'Belum ada Purchase Order yang aktif atau sesuai dengan kriteria pencarian.',
+                'Belum ada Purchase Order yang sesuai dengan kriteria filter atau pencarian.',
             icon: LucideIcons.shoppingBag,
           ),
         ),
