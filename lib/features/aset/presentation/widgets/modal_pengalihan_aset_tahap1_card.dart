@@ -4,25 +4,29 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/aset_tersedia_model.dart';
 
-/// Tahap 1 form pengalihan aset: lokasi tujuan terkunci dan pilihan aset sumber.
+/// Tahap 1 form pengalihan aset: lokasi tujuan terkunci dan pilihan 2-step aset sumber (komoditas & fasilitas).
 class ModalPengalihanAsetTahap1Card extends StatelessWidget {
   final String lokasiTujuanUser;
   final bool isAsetPreselected;
+  final String? selectedKomoditas;
   final AsetTersediaModel? chosenAset;
   final AsyncValue<List<AsetTersediaModel>> katalogAsync;
-  final void Function(List<AsetTersediaModel> asets, int? id) onAsetChanged;
+  final ValueChanged<String?> onKomoditasChanged;
+  final void Function(AsetTersediaModel aset, int count) onFacilityChanged;
 
-  /// Membuat kartu tahap 1 dengan data lokasi tujuan, aset terpilih, katalog, dan callback pilihan aset.
+  /// Membuat kartu tahap 1 dengan data lokasi tujuan, komoditas, fasilitas, dan aset terpilih.
   const ModalPengalihanAsetTahap1Card({
     super.key,
     required this.lokasiTujuanUser,
     required this.isAsetPreselected,
+    required this.selectedKomoditas,
     required this.chosenAset,
     required this.katalogAsync,
-    required this.onAsetChanged,
+    required this.onKomoditasChanged,
+    required this.onFacilityChanged,
   });
 
-  /// Membangun kartu tahap 1: lokasi tujuan terkunci milik user dan dropdown/info aset sumber dari katalog.
+  /// Membangun kartu tahap 1: lokasi tujuan terkunci dan pemilih 2-step komoditas serta fasilitas asal.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -93,14 +97,100 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
                     ),
                   );
                 }
+
+                final uniqueKomoditas =
+                    asets.map((a) => a.namaKomoditas).toSet().toList();
+
+                final matchingAssets = selectedKomoditas != null
+                    ? asets
+                        .where((a) =>
+                            a.namaKomoditas.trim().toLowerCase() ==
+                            selectedKomoditas!.trim().toLowerCase())
+                        .toList()
+                    : <AsetTersediaModel>[];
+
+                final Map<String, List<AsetTersediaModel>> facilityMap = {};
+                for (final a in matchingAssets) {
+                  final key =
+                      '${a.tipePenyedia}_${a.penyediaId ?? a.namaPenyedia}';
+                  facilityMap.putIfAbsent(key, () => []).add(a);
+                }
+
+                final currentFacilityKey = chosenAset != null
+                    ? '${chosenAset!.tipePenyedia}_${chosenAset!.penyediaId ?? chosenAset!.namaPenyedia}'
+                    : null;
+                final validFacilityKey =
+                    facilityMap.containsKey(currentFacilityKey)
+                        ? currentFacilityKey
+                        : null;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _AsetAsalDropdown(
-                      asets: asets,
-                      chosenAset: chosenAset,
-                      onChanged: (val) => onAsetChanged(asets, val),
+                    // Step 1: select asset commodity
+                    DropdownButtonFormField<String>(
+                      key: const Key('dropdown_komoditas_aset'),
+                      isExpanded: true,
+                      initialValue: selectedKomoditas,
+                      decoration: const InputDecoration(
+                        labelText: 'Pilih Komoditas Aset *',
+                        prefixIcon: Icon(LucideIcons.armchair, size: 18),
+                      ),
+                      items: uniqueKomoditas.map((k) {
+                        return DropdownMenuItem<String>(
+                          value: k,
+                          child: Text(
+                            k,
+                            style: const TextStyle(fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: onKomoditasChanged,
+                      validator: (v) =>
+                          v == null ? 'Pilih komoditas aset' : null,
                     ),
+                    const SizedBox(height: 12),
+
+                    // Step 2: select origin provider facility
+                    DropdownButtonFormField<String>(
+                      key: const Key('dropdown_penyedia_asal_aset'),
+                      isExpanded: true,
+                      initialValue: validFacilityKey,
+                      decoration: const InputDecoration(
+                        labelText: 'Fasilitas Asal Penyedia (Sumber) *',
+                        prefixIcon: Icon(LucideIcons.building, size: 18),
+                      ),
+                      hint: selectedKomoditas == null
+                          ? const Text('Pilih komoditas aset terlebih dahulu')
+                          : null,
+                      items: selectedKomoditas == null
+                          ? const []
+                          : facilityMap.entries.map((entry) {
+                              final facilityAssets = entry.value;
+                              final firstAset = facilityAssets.first;
+                              final count = facilityAssets.length;
+                              return DropdownMenuItem<String>(
+                                value: entry.key,
+                                child: Text(
+                                  '${firstAset.namaPenyedia} (${firstAset.tipePenyedia}) - $count unit',
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                      onChanged: selectedKomoditas == null
+                          ? null
+                          : (key) {
+                              if (key != null && facilityMap.containsKey(key)) {
+                                final items = facilityMap[key]!;
+                                onFacilityChanged(items.first, items.length);
+                              }
+                            },
+                      validator: (v) =>
+                          v == null ? 'Pilih fasilitas asal' : null,
+                    ),
+
                     if (chosenAset != null) ...[
                       const SizedBox(height: 10),
                       _ChosenAsetInfo(
@@ -120,97 +210,6 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-/// Dropdown pemilih aset fisik asal (sumber) pada tahap 1.
-class _AsetAsalDropdown extends StatelessWidget {
-  final List<AsetTersediaModel> asets;
-  final AsetTersediaModel? chosenAset;
-  final ValueChanged<int?> onChanged;
-
-  /// Membuat dropdown aset asal dengan daftar aset dan callback perubahan pilihan.
-  const _AsetAsalDropdown({
-    required this.asets,
-    required this.chosenAset,
-    required this.onChanged,
-  });
-
-  /// Membangun dropdown pemilihan aset fisik asal dari katalog fasilitas lain.
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      key: const Key('dropdown_aset_asal'),
-      isExpanded: true,
-      initialValue: chosenAset?.id,
-      decoration: const InputDecoration(
-        labelText: 'Pilih Aset dari Fasilitas Lain (Sumber) *',
-        prefixIcon: Icon(LucideIcons.armchair, size: 18),
-      ),
-      selectedItemBuilder: (context) {
-        return asets.map((a) {
-          return Text(
-            '${a.namaKomoditas} (${a.kodeAset}) - ${a.namaPenyedia}',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            overflow: TextOverflow.ellipsis,
-          );
-        }).toList();
-      },
-      items: asets.map((a) {
-        return DropdownMenuItem<int>(
-          value: a.id,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        a.namaKomoditas,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: AppColors.tintVioletBg,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        a.tipePenyedia,
-                        style: const TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryPurple),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${a.kodeAset} • ${a.namaPenyedia}',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-      onChanged: onChanged,
     );
   }
 }

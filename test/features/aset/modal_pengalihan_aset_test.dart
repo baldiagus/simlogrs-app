@@ -112,7 +112,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('ModalPengalihanAsetSheet renders standalone dropdown selector when opened without initial asset', (tester) async {
+  testWidgets('ModalPengalihanAsetSheet renders 2-step asset picker (commodity and origin provider facility) when opened without initial asset', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -140,14 +140,26 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Verify standalone asset dropdown is rendered
-    final dropdownFinder = find.byKey(const Key('dropdown_aset_asal'));
-    expect(dropdownFinder, findsOneWidget);
+    // Verify 2-step dropdowns exist
+    final komoditasDropdown = find.byKey(const Key('dropdown_komoditas_aset'));
+    final facilityDropdown = find.byKey(const Key('dropdown_penyedia_asal_aset'));
+    expect(komoditasDropdown, findsOneWidget);
+    expect(facilityDropdown, findsOneWidget);
 
-    // Select asset
-    await tester.tap(dropdownFinder);
+    // Verify hint before commodity selection
+    expect(find.text('Pilih komoditas aset terlebih dahulu'), findsOneWidget);
+
+    // Step 1: Select commodity
+    await tester.tap(komoditasDropdown);
     await tester.pumpAndSettle();
-    await tester.tap(find.textContaining('Bed Pasien Elektrik').last);
+    await tester.tap(find.text('Bed Pasien Elektrik').last);
+    await tester.pumpAndSettle();
+
+    // Step 2: Select origin provider facility (shows facility + item count)
+    await tester.tap(facilityDropdown);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Instalasi Gawat Darurat (IGD) (RUANGAN) - 1 unit'), findsOneWidget);
+    await tester.tap(find.textContaining('Instalasi Gawat Darurat (IGD) (RUANGAN) - 1 unit').last);
     await tester.pumpAndSettle();
 
     // Fill reason and submit
@@ -252,6 +264,119 @@ void main() {
     expect(fakeNotifier.ajukanCalled, isTrue);
     expect(fakeNotifier.lastPayload?['jumlah'], 3);
     expect(fakeNotifier.lastPayload?['aset_ids'], [101, 102, 103]);
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('ModalPengalihanAsetSheet 2-step selection displays facility item count and clamps quantity when switching facility', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeNotifier = FakePengalihanActionNotifier();
+
+    const testAsetIgd2 = AsetTersediaModel(
+      id: 102,
+      kodeAset: 'AST-IGD-002',
+      nomorSeri: 'SN-BED-002',
+      namaKomoditas: 'Bed Pasien Elektrik',
+      tipePenyedia: 'RUANGAN',
+      penyediaId: 3,
+      namaPenyedia: 'Instalasi Gawat Darurat (IGD)',
+      kategori: 'Medis',
+      satuan: 'Unit',
+      merek: 'Paramount',
+      kondisi: 'BAIK',
+      lokasiLengkap: 'Ruang Resusitasi IGD',
+    );
+
+    const testAsetMelati = AsetTersediaModel(
+      id: 201,
+      kodeAset: 'AST-MLT-001',
+      nomorSeri: 'SN-BED-MLT',
+      namaKomoditas: 'Bed Pasien Elektrik',
+      tipePenyedia: 'RUANGAN',
+      penyediaId: 7,
+      namaPenyedia: 'Ruang Melati',
+      kategori: 'Medis',
+      satuan: 'Unit',
+      merek: 'Paramount',
+      kondisi: 'BAIK',
+      lokasiLengkap: 'Kamar 1 Melati',
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+          katalogAsetPengalihanProvider('').overrideWith(
+              (ref) => Future.value([testAset, testAsetIgd2, testAsetMelati])),
+          katalogAsetTersediaProvider('').overrideWith(
+              (ref) => Future.value([testAset, testAsetIgd2, testAsetMelati])),
+          pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: ModalPengalihanAsetSheet(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Step 1: Select commodity
+    await tester.tap(find.byKey(const Key('dropdown_komoditas_aset')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bed Pasien Elektrik').last);
+    await tester.pumpAndSettle();
+
+    // Step 2: Open facility dropdown and verify item counts per facility
+    final facilityDropdown = find.byKey(const Key('dropdown_penyedia_asal_aset'));
+    await tester.tap(facilityDropdown);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Instalasi Gawat Darurat (IGD) (RUANGAN) - 2 unit'),
+        findsOneWidget);
+    expect(find.textContaining('Ruang Melati (RUANGAN) - 1 unit'), findsOneWidget);
+
+    // Pick IGD (2 units)
+    await tester.tap(
+        find.textContaining('Instalasi Gawat Darurat (IGD) (RUANGAN) - 2 unit').last);
+    await tester.pumpAndSettle();
+
+    // Increment quantity to 2
+    final plusBtn = find.byIcon(LucideIcons.plus);
+    await tester.tap(plusBtn);
+    await tester.pumpAndSettle();
+    expect(find.text('2'), findsOneWidget);
+
+    // Switch facility to Ruang Melati (only 1 unit available)
+    await tester.tap(facilityDropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Ruang Melati (RUANGAN) - 1 unit').last);
+    await tester.pumpAndSettle();
+
+    // Quantity should be clamped to 1
+    expect(find.text('1'), findsWidgets);
+
+    // Fill reason and submit
+    await tester.enterText(
+      find.byKey(const Key('field_alasan_pengalihan')),
+      'Relokasi dari Ruang Melati',
+    );
+    await tester.pumpAndSettle();
+
+    final submitBtn = find.text('Ajukan Pengalihan Aset');
+    await tester.ensureVisible(submitBtn);
+    await tester.tap(submitBtn);
+    await tester.pumpAndSettle();
+
+    expect(fakeNotifier.ajukanCalled, isTrue);
+    expect(fakeNotifier.lastPayload?['jumlah'], 1);
+    expect(fakeNotifier.lastPayload?['aset_ids'], [201]);
     await tester.pump(const Duration(seconds: 4));
   });
 }

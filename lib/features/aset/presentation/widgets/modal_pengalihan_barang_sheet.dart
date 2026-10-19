@@ -217,7 +217,21 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                                 ),
                               );
                             }).toList(),
-                            onChanged: (val) => setState(() => _selectedBarangId = val),
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedBarangId = val;
+                                if (_selectedBarangId == null) {
+                                  _selectedGudangAsalId = null;
+                                } else if (_selectedGudangAsalId != null) {
+                                  final stock = ref.read(stokTersediaGudangProvider(
+                                    (barangId: _selectedBarangId!, gudangId: _selectedGudangAsalId!),
+                                  )).valueOrNull ?? 0;
+                                  if (stock <= 0) {
+                                    _selectedGudangAsalId = null;
+                                  }
+                                }
+                              });
+                            },
                             validator: (v) => v == null ? 'Pilih komoditas barang' : null,
                           );
                         },
@@ -226,36 +240,112 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                       ),
                       const SizedBox(height: 12),
 
-                      // Dropdown Gudang Asal Penyedia (Eksklusi Gudang Sendiri)
-                      gudangsAsync.when(
-                        data: (gudangs) {
-                          final userGudangId = user?.gudang?.id;
-                          final availableGudangs = gudangs.where((g) => g.id != userGudangId).toList();
-                          return DropdownButtonFormField<int>(
-                            key: const Key('dropdown_gudang_asal_barang'),
-                            isExpanded: true,
-                            initialValue: _selectedGudangAsalId,
-                            decoration: const InputDecoration(
-                              labelText: 'Gudang Asal Penyedia (Sumber) *',
-                              prefixIcon: Icon(LucideIcons.warehouse, size: 18),
-                            ),
-                            items: availableGudangs.map((g) {
-                              return DropdownMenuItem<int>(
-                                value: g.id,
-                                child: Text(
-                                  g.nama,
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
+                      // Dropdown Gudang Asal Penyedia (Eksklusi Gudang Sendiri & Hanya Gudang Berstok)
+                      if (_selectedBarangId == null)
+                        DropdownButtonFormField<int>(
+                          key: const Key('dropdown_gudang_asal_barang'),
+                          isExpanded: true,
+                          initialValue: null,
+                          decoration: const InputDecoration(
+                            labelText: 'Gudang Asal Penyedia (Sumber) *',
+                            prefixIcon: Icon(LucideIcons.warehouse, size: 18),
+                          ),
+                          hint: const Text('Pilih komoditas barang terlebih dahulu'),
+                          items: const [],
+                          onChanged: null,
+                          validator: (v) => v == null ? 'Pilih gudang asal penyedia' : null,
+                        )
+                      else
+                        gudangsAsync.when(
+                          data: (gudangs) {
+                            final userGudangId = user?.gudang?.id;
+                            final availableGudangs =
+                                gudangs.where((g) => g.id != userGudangId).toList();
+
+                            final stockMap = <int, int>{};
+                            for (final g in availableGudangs) {
+                              final stockState = ref.watch(stokTersediaGudangProvider(
+                                  (barangId: _selectedBarangId!, gudangId: g.id)));
+                              stockMap[g.id] = stockState.valueOrNull ?? 0;
+                            }
+
+                            final eligibleGudangs = availableGudangs
+                                .where((g) => (stockMap[g.id] ?? 0) > 0)
+                                .toList();
+
+                            if (_selectedGudangAsalId != null &&
+                                !eligibleGudangs.any((g) => g.id == _selectedGudangAsalId)) {
+                              _selectedGudangAsalId = null;
+                            }
+
+                            if (eligibleGudangs.isEmpty) {
+                              return DropdownButtonFormField<int>(
+                                key: const Key('dropdown_gudang_asal_barang'),
+                                isExpanded: true,
+                                initialValue: null,
+                                decoration: const InputDecoration(
+                                  labelText: 'Gudang Asal Penyedia (Sumber) *',
+                                  prefixIcon: Icon(LucideIcons.warehouse, size: 18),
                                 ),
+                                hint: const Text('Tidak ada gudang dengan stok tersedia'),
+                                items: const [],
+                                onChanged: null,
+                                validator: (v) => v == null ? 'Pilih gudang asal penyedia' : null,
                               );
-                            }).toList(),
-                            onChanged: (val) => setState(() => _selectedGudangAsalId = val),
-                            validator: (v) => v == null ? 'Pilih gudang asal penyedia' : null,
-                          );
-                        },
-                        loading: () => const LinearProgressIndicator(),
-                        error: (_, __) => const Text('Gagal memuat gudang asal'),
-                      ),
+                            }
+
+                            return DropdownButtonFormField<int>(
+                              key: const Key('dropdown_gudang_asal_barang'),
+                              isExpanded: true,
+                              initialValue: _selectedGudangAsalId,
+                              decoration: const InputDecoration(
+                                labelText: 'Gudang Asal Penyedia (Sumber) *',
+                                prefixIcon: Icon(LucideIcons.warehouse, size: 18),
+                              ),
+                              selectedItemBuilder: (context) {
+                                return eligibleGudangs.map((g) {
+                                  final stock = stockMap[g.id] ?? 0;
+                                  return Text(
+                                    '${g.nama} ($stock unit)',
+                                    style: const TextStyle(fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                }).toList();
+                              },
+                              items: eligibleGudangs.map((g) {
+                                final stock = stockMap[g.id] ?? 0;
+                                return DropdownMenuItem<int>(
+                                  value: g.id,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          g.nama,
+                                          style: const TextStyle(fontSize: 12),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '$stock unit',
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) =>
+                                  setState(() => _selectedGudangAsalId = val),
+                              validator: (v) =>
+                                  v == null ? 'Pilih gudang asal penyedia' : null,
+                            );
+                          },
+                          loading: () => const LinearProgressIndicator(),
+                          error: (_, __) =>
+                              const Text('Gagal memuat gudang asal'),
+                        ),
                     ],
                   ),
                 ),

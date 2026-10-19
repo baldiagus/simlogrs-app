@@ -44,6 +44,7 @@ class _ModalPengalihanAsetSheetState
   final _formKey = GlobalKey<FormState>();
   final _alasanController = TextEditingController();
   final _catatanController = TextEditingController();
+  String? _selectedKomoditas;
   AsetTersediaModel? _chosenAset;
   int _quantity = 1;
 
@@ -52,6 +53,7 @@ class _ModalPengalihanAsetSheetState
   void initState() {
     super.initState();
     _chosenAset = widget.aset;
+    _selectedKomoditas = widget.aset?.namaKomoditas;
   }
 
   /// Melepas controller teks saat sheet ditutup agar tidak bocor memori.
@@ -147,17 +149,19 @@ class _ModalPengalihanAsetSheetState
     }
   }
 
-  /// Menyimpan aset asal terpilih lalu membatasi jumlah agar tidak melebihi stok aset sejenis di penyedia yang sama.
-  void _onAsetChanged(List<AsetTersediaModel> asets, int? val) {
+  /// Menyimpan pilihan komoditas aset dan mereset pilihan fasilitas serta kuantitas.
+  void _onKomoditasChanged(String? val) {
     setState(() {
-      _chosenAset = asets.firstWhere((a) => a.id == val);
-      final count = asets
-          .where((a) =>
-              a.namaKomoditas.trim().toLowerCase() ==
-                  _chosenAset!.namaKomoditas.trim().toLowerCase() &&
-              a.tipePenyedia == _chosenAset!.tipePenyedia &&
-              a.penyediaId == _chosenAset!.penyediaId)
-          .length;
+      _selectedKomoditas = val;
+      _chosenAset = null;
+      _quantity = 1;
+    });
+  }
+
+  /// Menyimpan aset dari fasilitas terpilih lalu membatasi jumlah agar tidak melebihi stok yang tersedia.
+  void _onFacilityChanged(AsetTersediaModel aset, int count) {
+    setState(() {
+      _chosenAset = aset;
       _quantity = _quantity.clamp(1, count > 0 ? count : 1);
     });
   }
@@ -222,9 +226,11 @@ class _ModalPengalihanAsetSheetState
                 ModalPengalihanAsetTahap1Card(
                   lokasiTujuanUser: lokasiTujuanUser,
                   isAsetPreselected: widget.aset != null,
+                  selectedKomoditas: _selectedKomoditas,
                   chosenAset: _chosenAset,
                   katalogAsync: katalogAsync,
-                  onAsetChanged: _onAsetChanged,
+                  onKomoditasChanged: _onKomoditasChanged,
+                  onFacilityChanged: _onFacilityChanged,
                 ),
                 const SizedBox(height: 14),
 

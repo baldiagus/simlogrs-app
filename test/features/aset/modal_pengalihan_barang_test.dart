@@ -88,6 +88,7 @@ void main() {
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testGudangUser)),
           masterBarangListProvider.overrideWith((ref) => Future.value(dummyBarangs)),
           masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          stokTersediaGudangProvider((barangId: 2, gudangId: 2)).overrideWith((ref) => Future.value(0)),
           stokTersediaGudangProvider((barangId: 2, gudangId: 3)).overrideWith((ref) => Future.value(26)),
           pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
         ],
@@ -112,26 +113,16 @@ void main() {
     final submitBtn = find.text('Ajukan Pengalihan Barang');
     expect(submitBtn, findsOneWidget);
 
+    // Before barang is picked, warehouse dropdown is disabled with hint
+    final dropdownFinder = find.byKey(const Key('dropdown_gudang_asal_barang'));
+    expect(dropdownFinder, findsOneWidget);
+    expect(find.text('Pilih komoditas barang terlebih dahulu'), findsOneWidget);
+
     // Fill reason
     await tester.enterText(
       find.byKey(const Key('field_alasan_barang')),
       'Kebutuhan mendesak restok kertas di gudang sentral',
     );
-    await tester.pumpAndSettle();
-
-    // Tap submit (will trigger validation error for origin warehouse if not picked)
-    await tester.tap(submitBtn);
-    await tester.pumpAndSettle();
-
-    // Select origin warehouse from dropdown
-    final dropdownFinder = find.byKey(const Key('dropdown_gudang_asal_barang'));
-    expect(dropdownFinder, findsOneWidget);
-    await tester.tap(dropdownFinder);
-    await tester.pumpAndSettle();
-
-    // Tap Gudang ATK
-    final optionGudangAtk = find.text('Gudang ATK & Cetakan').last;
-    await tester.tap(optionGudangAtk);
     await tester.pumpAndSettle();
 
     // Select barang from dropdown
@@ -141,6 +132,19 @@ void main() {
     await tester.pumpAndSettle();
     final optionKertas = find.textContaining('Kertas A4').last;
     await tester.tap(optionKertas);
+    await tester.pumpAndSettle();
+
+    // Now warehouse dropdown is enabled and filtered to only warehouses with stock > 0
+    await tester.tap(dropdownFinder);
+    await tester.pumpAndSettle();
+
+    // Gudang ATK (stock 26) is available, while Gudang IPSRS (stock 0) is filtered out
+    expect(find.text('Gudang ATK & Cetakan'), findsWidgets);
+    expect(find.text('Gudang Suku Cadang IPSRS'), findsNothing);
+
+    // Tap Gudang ATK
+    final optionGudangAtk = find.text('Gudang ATK & Cetakan').last;
+    await tester.tap(optionGudangAtk);
     await tester.pumpAndSettle();
 
     // Verify stock availability text appears
@@ -156,7 +160,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('3'), findsOneWidget);
 
-    // Tap submit again
+    // Tap submit
     await tester.ensureVisible(submitBtn);
     await tester.tap(submitBtn);
     await tester.pumpAndSettle();
@@ -194,15 +198,16 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Select origin warehouse & barang
-    await tester.tap(find.byKey(const Key('dropdown_gudang_asal_barang')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Gudang ATK & Cetakan').last);
-    await tester.pumpAndSettle();
-
+    // Select barang first
     await tester.tap(find.byKey(const Key('dropdown_barang_logistik')));
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Kertas A4').last);
+    await tester.pumpAndSettle();
+
+    // Select origin warehouse
+    await tester.tap(find.byKey(const Key('dropdown_gudang_asal_barang')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gudang ATK & Cetakan').last);
     await tester.pumpAndSettle();
 
     // Enter quantity 25 via stepper text field (exceeding stock of 10)
@@ -214,5 +219,82 @@ void main() {
     // Should be clamped to max 10
     expect(find.text('10'), findsOneWidget);
     await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('ModalPengalihanBarangSheet resets origin warehouse when changing to barang with no stock', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    const secondBarang = MasterBarangItemModel(
+      id: 5,
+      kode: 'BRG-2026-005',
+      nama: 'Tinta Printer Epson',
+      tipe: 'HABIS_PAKAI',
+      tipeLabel: 'Habis Pakai',
+      kategori: 'ATK',
+      satuan: 'Botol',
+      simbolSatuan: 'Btl',
+      merek: 'Epson',
+      pemasok: 'PT Supplier',
+      hargaBeliTerakhir: 75000,
+      hargaEstimasi: 75000,
+      stokMinimum: 2,
+      stokMaksimum: 20,
+      titikPesan: 5,
+      status: 'AKTIF',
+      stokGudang: 5,
+      stokRuangan: 0,
+      totalAset: 0,
+    );
+
+    final fakeNotifier = FakePengalihanActionNotifier();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testGudangUser)),
+          masterBarangListProvider.overrideWith((ref) => Future.value([...dummyBarangs, secondBarang])),
+          masterGudangListProvider.overrideWith((ref) => Future.value(dummyGudangs)),
+          stokTersediaGudangProvider((barangId: 2, gudangId: 3)).overrideWith((ref) => Future.value(15)),
+          stokTersediaGudangProvider((barangId: 5, gudangId: 3)).overrideWith((ref) => Future.value(0)),
+          stokTersediaGudangProvider((barangId: 5, gudangId: 2)).overrideWith((ref) => Future.value(5)),
+          pengalihanActionProvider.overrideWith((ref) => fakeNotifier),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: ModalPengalihanBarangSheet(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Select Kertas A4
+    await tester.tap(find.byKey(const Key('dropdown_barang_logistik')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Kertas A4').last);
+    await tester.pumpAndSettle();
+
+    // Select Gudang ATK
+    await tester.tap(find.byKey(const Key('dropdown_gudang_asal_barang')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gudang ATK & Cetakan').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Stok tersedia di gudang asal: 15 unit'), findsOneWidget);
+
+    // Switch barang to Tinta Printer Epson (which has 0 stock in Gudang ATK)
+    await tester.tap(find.byKey(const Key('dropdown_barang_logistik')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Tinta Printer Epson').last);
+    await tester.pumpAndSettle();
+
+    // Origin warehouse selection should have been reset (no longer showing stock for Gudang ATK)
+    expect(find.textContaining('Stok tersedia di gudang asal: 15 unit'), findsNothing);
   });
 }

@@ -71,11 +71,15 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    // Verify TabBar is non-scrollable and tabs are distributed evenly
+    final TabBar tabBar = tester.widget(find.byType(TabBar));
+    expect(tabBar.isScrollable, isFalse);
+    expect(tabBar.tabAlignment, isNull);
+
     // Verify tabs exist
     expect(find.text('Aktif'), findsOneWidget);
     expect(find.text('Otorisasi'), findsOneWidget);
     expect(find.text('Riwayat'), findsOneWidget);
-
     // Verify transfer item details
     expect(find.text('TRF-202610-050'), findsOneWidget);
     expect(find.text('Ventilator Hamilton C1'), findsOneWidget);
