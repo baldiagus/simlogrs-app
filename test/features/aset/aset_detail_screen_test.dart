@@ -323,4 +323,104 @@ void main() {
     expect(find.textContaining('Direktorat & Manajemen Eksekutif'), findsOneWidget);
     expect(find.textContaining('PINJ-2026-009'), findsOneWidget);
   });
+
+  testWidgets('AsetDetailScreen hides Pengalihan / Mutasi Aset button for role teknisi', (tester) async {
+    const userTeknisi = UserModel(
+      id: 12,
+      name: 'Teknisi Joko',
+      email: 'teknisi@simlogrs.local',
+      roles: ['teknisi'],
+      permissions: ['page_TeknisiDashboard'],
+      unit: UnitModel(id: 2, nama: 'Instalasi Pemeliharaan Sarana RS', kode: 'IPSRS'),
+    );
+
+    const asetInDireksi = AsetDetailModel(
+      id: 3,
+      kodeAset: 'AST-2026-003',
+      nomorSeri: 'PRINTER-MJN-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'TERSEDIA',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Direktorat & Manajemen Eksekutif',
+      penanggungJawab: 'Direktorat & Manajemen Eksekutif',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 8,
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userTeknisi)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetInDireksi),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pengalihan / Mutasi Aset'), findsNothing);
+  });
+
+  testWidgets('AsetDetailScreen shows Pengalihan / Mutasi Aset button for authorized user (e.g. petugas_unit/karu) when asset is available and not in their unit', (tester) async {
+    const userIgd = UserModel(
+      id: 6,
+      name: 'dr. Pratama, Sp.EM',
+      email: 'kepalaunit@simlogrs.local',
+      roles: ['kepala_unit'],
+      permissions: ['page_KepalaUnitDashboard'],
+      unit: UnitModel(id: 1, nama: 'Instalasi Gawat Darurat', kode: 'IGD'),
+    );
+
+    const asetInDireksi = AsetDetailModel(
+      id: 3,
+      kodeAset: 'AST-2026-003',
+      nomorSeri: 'PRINTER-MJN-1',
+      namaKomoditas: 'Printer Epson L3210',
+      kategori: 'Elektronik & Komputer',
+      merek: 'Epson',
+      spesifikasi: 'All-in-one printer',
+      status: 'TERSEDIA',
+      kondisi: 'BAIK',
+      lokasiTercatat: 'Direktorat & Manajemen Eksekutif',
+      penanggungJawab: 'Direktorat & Manajemen Eksekutif',
+      nilaiPerolehan: 2500000,
+      tanggalPerolehan: '2026-09-20',
+      totalRiwayatServis: 0,
+      unitId: 8,
+    );
+
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(userIgd)),
+        ],
+        child: const MaterialApp(
+          home: AsetDetailScreen(initialAset: asetInDireksi),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pengalihan / Mutasi Aset'), findsOneWidget);
+  });
 }

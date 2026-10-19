@@ -19,6 +19,7 @@ class AsetDetailActionSection extends StatelessWidget {
   final bool canPinjam;
   final bool canLaporRusak;
   final bool canPerpanjang;
+  final bool canPengalihan;
   final bool isActionLoading;
   final VoidCallback onPerpanjang;
   final VoidCallback onPengembalian;
@@ -33,6 +34,7 @@ class AsetDetailActionSection extends StatelessWidget {
     required this.canPinjam,
     required this.canLaporRusak,
     this.canPerpanjang = false,
+    this.canPengalihan = false,
     required this.isActionLoading,
     required this.onPerpanjang,
     required this.onPengembalian,
@@ -122,9 +124,7 @@ class AsetDetailActionSection extends StatelessWidget {
 
         // Tombol Lapor Kerusakan ke IPSRS (Hanya untuk non-teknisi / pemohon ruangan)
         // Tombol Pengalihan / Mutasi Aset (Meminta aset dari fasilitas lain masuk ke unit kerja Anda)
-        if ((!isOwnedByCurrentUserLocation || isGlobalAdmin) &&
-            aset.isTersedia &&
-            !aset.isDipinjam) ...[
+        if (canPengalihan) ...[
           OutlinedButton.icon(
             onPressed: () => _ajukanPengalihan(context),
             style: OutlinedButton.styleFrom(

@@ -16,6 +16,7 @@ import '../../data/models/aset_detail_model.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
+import '../utils/pengalihan_access.dart';
 
 /// Halaman profil aset fisik beserta riwayat dan aksi sirkulasi.
 class AsetDetailScreen extends ConsumerStatefulWidget {
@@ -232,6 +233,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
                 canPinjam: access.canPinjam,
                 canLaporRusak: access.canLaporRusak,
                 canPerpanjang: user?.canPerpanjangPeminjaman ?? false,
+                canPengalihan: access.canPengalihan,
                 isActionLoading: actionState.isLoading,
                 onPerpanjang: () => _showPerpanjangModal(currentAset),
                 onPengembalian: _showPengembalianModal,
@@ -251,6 +253,7 @@ class _AsetDetailAccess {
   final bool isProviderOwner;
   final bool canPinjam;
   final bool canLaporRusak;
+  final bool canPengalihan;
 
   /// Membuat objek hak akses dengan nilai yang sudah ditentukan.
   const _AsetDetailAccess({
@@ -259,6 +262,7 @@ class _AsetDetailAccess {
     required this.isProviderOwner,
     required this.canPinjam,
     required this.canLaporRusak,
+    required this.canPengalihan,
   });
 
   /// Menghitung hak akses pengguna (pinjam, lapor rusak, pemilik) terhadap
@@ -302,6 +306,11 @@ class _AsetDetailAccess {
         currentAset.isTersedia &&
         !currentAset.isRusak &&
         !currentAset.isSedangDalamProsesPinjam;
+    final canPengalihan = !isTeknisi &&
+        canCreatePengalihan(user, 'ASET') &&
+        (!isOwnedByCurrentUserLocation || isGlobalAdmin) &&
+        currentAset.isTersedia &&
+        !currentAset.isDipinjam;
 
     return _AsetDetailAccess(
       isOwnedByCurrentUserLocation: isOwnedByCurrentUserLocation,
@@ -310,6 +319,7 @@ class _AsetDetailAccess {
           isGlobalAdmin || isOwnedByCurrentUserLocation || user == null,
       canPinjam: canPinjam,
       canLaporRusak: canLaporRusak,
+      canPengalihan: canPengalihan,
     );
   }
 }
