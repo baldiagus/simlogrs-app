@@ -46,6 +46,8 @@ class PeminjamanAsetModel {
   final int jumlahAset;
   final Map<String, dynamic>? asetPreview;
   final List<PeminjamanItemAset> items;
+  final int? diajukanOleh;
+  final bool canCancel;
 
   /// Membuat model peminjaman aset; [catatan] dan [asetPreview] opsional.
   const PeminjamanAsetModel({
@@ -64,6 +66,8 @@ class PeminjamanAsetModel {
     required this.jumlahAset,
     this.asetPreview,
     required this.items,
+    this.diajukanOleh,
+    this.canCancel = false,
   });
 
   /// True bila status peminjaman DIAJUKAN (menunggu persetujuan).
@@ -104,6 +108,10 @@ class PeminjamanAsetModel {
               ?.map((e) => PeminjamanItemAset.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      diajukanOleh: json['diajukan_oleh'] is int
+          ? json['diajukan_oleh'] as int
+          : int.tryParse(json['diajukan_oleh']?.toString() ?? ''),
+      canCancel: json['can_cancel'] == true,
     );
   }
 }

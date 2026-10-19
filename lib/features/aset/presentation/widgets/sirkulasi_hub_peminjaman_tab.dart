@@ -82,7 +82,11 @@ class SirkulasiHubPeminjamanTab extends ConsumerWidget {
                     ? () => onExtend(context, item)
                     : null,
                 onReturnTap: null,
-                onCancelTap: item.isDiajukan
+                onCancelTap: item.isDiajukan &&
+                        (item.canCancel ||
+                            user?.isSuperAdmin == true ||
+                            (item.diajukanOleh != null &&
+                                item.diajukanOleh == user?.id))
                     ? () => _batalkan(context, ref, item)
                     : null,
               );
