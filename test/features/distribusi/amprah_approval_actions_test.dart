@@ -465,4 +465,36 @@ void main() {
 
     expect(find.text('Batalkan Permintaan Amprah'), findsNothing);
   });
+
+  testWidgets('DetailAmprahScreen does not render Batalkan Permintaan Amprah for petugas_unit when submitted by karu', (tester) async {
+    final repo = FakeAmprahApprovalRepository('DIAJUKAN', canCancel: true, diajukanOleh: _karu.id);
+    await tester.pumpWidget(_buildDetail(_petugasUnit, repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Permintaan Amprah'), findsNothing);
+  });
+
+  testWidgets('DetailAmprahScreen does not render Batalkan Permintaan Amprah for petugas_unit when status is DISETUJUI_KARU', (tester) async {
+    final repo = FakeAmprahApprovalRepository('DISETUJUI_KARU', canCancel: true, diajukanOleh: _petugasUnit.id);
+    await tester.pumpWidget(_buildDetail(_petugasUnit, repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Permintaan Amprah'), findsNothing);
+  });
+
+  testWidgets('DetailAmprahScreen does not render Batalkan Permintaan Amprah for petugas_unit when submitted by other staff', (tester) async {
+    final repo = FakeAmprahApprovalRepository('DIAJUKAN', canCancel: true, diajukanOleh: 99);
+    await tester.pumpWidget(_buildDetail(_petugasUnit, repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Permintaan Amprah'), findsNothing);
+  });
+
+  testWidgets('DetailAmprahScreen renders Batalkan Permintaan Amprah for petugas_unit creator while DIAJUKAN', (tester) async {
+    final repo = FakeAmprahApprovalRepository('DIAJUKAN', canCancel: true, diajukanOleh: _petugasUnit.id);
+    await tester.pumpWidget(_buildDetail(_petugasUnit, repo));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batalkan Permintaan Amprah'), findsOneWidget);
+  });
 }

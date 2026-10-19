@@ -47,7 +47,11 @@ class DetailAmprahScreen extends ConsumerWidget {
       body: detailAsync.when(
         data: (amprah) {
           final isKaru = user?.isKaru == true || user?.hasRole('kepala_unit') == true;
-          final isDisubmitOrangLain = isKaru && amprah.diajukanOleh != null && amprah.diajukanOleh != user?.id;
+          final isPetugasUnit = user?.hasRole('petugas_unit') == true;
+          final isPembuat = amprah.diajukanOleh != null && amprah.diajukanOleh == user?.id;
+          final canBatalkan = amprah.canCancel &&
+              (user?.isSuperAdmin == true ||
+                  (isPembuat && !isKaru && !(isPetugasUnit && amprah.isDisetujuiKaru)));
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -456,7 +460,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                   ],
 
                   // Batal Action button if canCancel
-                  if (amprah.canCancel && !isDisubmitOrangLain) ...[
+                  if (canBatalkan) ...[
                     CustomButton(
                       text: 'Batalkan Permintaan Amprah',
                       backgroundColor: const Color(0xFFFEF2F2),
