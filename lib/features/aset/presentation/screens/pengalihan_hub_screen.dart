@@ -38,6 +38,17 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     _canApprove =
         hasOtorisasiPengalihanAccess(ref.read(authStateProvider).user);
     _tabController = TabController(length: _canApprove ? 3 : 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final user = ref.read(authStateProvider).user;
+      final isWarehouseOrAdmin = user?.isGudangUser == true ||
+          user?.isAdminLogistik == true ||
+          user?.isSuperAdmin == true ||
+          user?.gudang != null;
+      if (!isWarehouseOrAdmin) {
+        ref.read(selectedKategoriPengalihanProvider.notifier).state = 'ASET';
+      }
+    });
   }
 
   /// Membuang [TabController] saat state dilepas agar tidak bocor memori.
@@ -87,11 +98,13 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
 
     final countOtorisasi =
         ref.watch(countOtorisasiPengalihanProvider).valueOrNull ?? 0;
-    final selectedKategori = ref.watch(selectedKategoriPengalihanProvider);
     final isWarehouseOrAdmin = user?.isGudangUser == true ||
         user?.isAdminLogistik == true ||
         user?.isSuperAdmin == true ||
         user?.gudang != null;
+    final selectedKategori = isWarehouseOrAdmin
+        ? ref.watch(selectedKategoriPengalihanProvider)
+        : 'ASET';
     final isAset = selectedKategori == 'ASET';
 
     return Scaffold(
@@ -226,9 +239,15 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
   /// Membangun isi tab: daftar pengalihan, tampilan kosong, loading, atau error.
   Widget _buildTabContent(String tab, int countOtorisasi) {
     final user = ref.watch(authStateProvider).user;
-    final asyncData = ref.watch(daftarPengalihanProvider(tab));
-    final selectedKategori = ref.watch(selectedKategoriPengalihanProvider);
+    final isWarehouseOrAdmin = user?.isGudangUser == true ||
+        user?.isAdminLogistik == true ||
+        user?.isSuperAdmin == true ||
+        user?.gudang != null;
+    final selectedKategori = isWarehouseOrAdmin
+        ? ref.watch(selectedKategoriPengalihanProvider)
+        : 'ASET';
     final isAset = selectedKategori == 'ASET';
+    final asyncData = ref.watch(daftarPengalihanProvider(tab));
     return asyncData.when(
       data: (list) {
         if (list.isEmpty) {

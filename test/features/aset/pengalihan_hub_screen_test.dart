@@ -93,4 +93,38 @@ void main() {
     // Verify dynamic FAB for ASET category
     expect(find.text('Ajukan Pengalihan Aset'), findsOneWidget);
   });
+
+  testWidgets('PengalihanHubScreen isolates Karu to ASET even if selectedKategoriPengalihanProvider is BARANG', (tester) async {
+    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(testKaruUser)),
+          selectedKategoriPengalihanProvider.overrideWith((ref) => 'BARANG'),
+          daftarPengalihanProvider('aktif').overrideWith((ref) => Future.value(dummyPengalihan)),
+          daftarPengalihanProvider('otorisasi').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
+          daftarPengalihanProvider('riwayat').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
+        ],
+        child: const MaterialApp(
+          home: PengalihanHubScreen(),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Title must stay 'Pengalihan Aset RS' and not 'Pengalihan Barang Gudang'
+    expect(find.text('Pengalihan Aset RS'), findsOneWidget);
+    expect(find.text('Pengalihan Barang Gudang'), findsNothing);
+
+    // Category switcher must not be shown for Karu
+    expect(find.text('Aset Fisik'), findsNothing);
+    expect(find.text('Barang Gudang'), findsNothing);
+  });
 }
