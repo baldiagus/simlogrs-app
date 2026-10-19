@@ -113,7 +113,7 @@ void main() {
     );
   }
 
-  testWidgets('MainShellScreen renders Karu navigation (Beranda, Amprah, Profil)', (tester) async {
+  testWidgets('MainShellScreen renders Karu navigation (Beranda, Amprah, Sirkulasi, Profil)', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -128,13 +128,19 @@ void main() {
     expect(find.text('Beranda'), findsOneWidget);
     expect(find.text('Approval'), findsNothing);
     expect(find.text('Amprah'), findsOneWidget);
+    expect(find.text('Sirkulasi'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('IPSRS'), findsNothing);
 
-    // Tap Amprah tab (index 2)
+    // Tap Amprah tab (index 1)
     await tester.tap(find.text('Amprah'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(AmprahHubScreen), findsOneWidget);
+
+    // Tap Sirkulasi tab (index 2)
+    await tester.tap(find.text('Sirkulasi'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(SirkulasiAsetHubScreen), findsOneWidget);
   });
 
   testWidgets('MainShellScreen renders Petugas Unit navigation (Beranda, Amprah, Sirkulasi, Profil)', (tester) async {

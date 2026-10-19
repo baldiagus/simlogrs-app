@@ -412,21 +412,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
       );
     }
 
-    // 4. Ruangan Pelayanan: Kepala Unit (Karu) vs Petugas Unit
-    if (user?.isKaru == true) {
-      return _ShellNavConfig(
-        screens: [
-          homeScreen,
-          const AmprahHubScreen(),
-          profileScreen,
-        ],
-        navItems: [
-          const BottomNavItem(icon: LucideIcons.home, label: 'Beranda'),
-          const BottomNavItem(icon: LucideIcons.fileSpreadsheet, label: 'Amprah'),
-          const BottomNavItem(icon: LucideIcons.user, label: 'Profil'),
-        ],
-      );
-    }
+    // 4. Ruangan Pelayanan: Kepala Unit (Karu) dan Petugas Unit / Staf Ruangan
 
     // Default: Petugas Unit / Staf Ruangan
     return _ShellNavConfig(
