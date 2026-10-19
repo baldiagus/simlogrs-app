@@ -66,46 +66,42 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
       builder: (ctx) => BarangAmprahPickerSheet(
         gudangId: _selectedGudangId,
         namaGudang: selectedGudang?.nama,
-        onBarangSelected: (barang) async {
-          final targetGudang = (barang.bestGudangId != null &&
-                  barang.bestGudangStok != null &&
-                  barang.bestGudangStok! > 0)
-              ? barang.bestGudangId
-              : _selectedGudangId;
-          final resolvedBarang = (barang.bestGudangId == targetGudang &&
-                  barang.bestGudangStok != null)
-              ? barang.copyWith(stokTersedia: barang.bestGudangStok)
-              : barang;
-          if (barang.bestGudangId != null &&
+        onBarangSelected: (barang) {
+          if (_cartItems.isEmpty &&
+              barang.bestGudangId != null &&
               barang.bestGudangStok != null &&
               barang.bestGudangStok! > 0 &&
               barang.bestGudangId != _selectedGudangId) {
-            if (_cartItems.isEmpty) {
-              setState(() {
-                _selectedGudangId = barang.bestGudangId;
-                _gudangDropdownVersion++;
-                _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
-              });
-              AppToast.info(context, 'Gudang tujuan otomatis dialihkan ke ${barang.bestGudangNama ?? "gudang penyedia"}.');
-            } else {
-              final confirmed = await AppConfirmDialog.show(
-                context,
-                title: 'Ganti Gudang Tujuan?',
-                message:
-                    'Komoditas ${barang.nama} tersedia di ${barang.bestGudangNama}. Pengajuan amprah dalam satu dokumen harus ditujukan ke satu gudang yang sama. Ganti gudang tujuan dan mulai daftar baru?',
-                confirmLabel: 'Ya, Ganti Gudang',
-                confirmColor: AppColors.primaryPurple,
-                icon: LucideIcons.arrowRightLeft,
-              );
-              if (confirmed && mounted) {
-                setState(() {
-                  _cartItems.clear();
-                  _selectedGudangId = barang.bestGudangId;
-                  _gudangDropdownVersion++;
-                  _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
-                });
-                AppToast.info(context, 'Gudang tujuan dialihkan ke ${barang.bestGudangNama}.');
+            setState(() {
+              _selectedGudangId = barang.bestGudangId;
+              _gudangDropdownVersion++;
+              _cartItems.add(AmprahCartDraftItem(
+                barang: barang.copyWith(stokTersedia: barang.bestGudangStok),
+              ));
+            });
+            AppToast.info(
+              context,
+              'Gudang tujuan otomatis dialihkan ke ${barang.bestGudangNama ?? "gudang penyedia"}.',
+            );
+          } else if (_cartItems.isNotEmpty) {
+            setState(() {
+              final idx = _cartItems.indexWhere((e) => e.barang.id == barang.id);
+              if (idx >= 0) {
+                _cartItems[idx].jumlah += 1;
+              } else {
+                _cartItems.add(AmprahCartDraftItem(barang: barang));
               }
+            });
+            if (barang.stokTersedia <= 0) {
+              AppToast.info(
+                context,
+                '${barang.nama} ditambahkan ke keranjang (dicatat sebagai hutang gudang/backorder).',
+              );
+            } else {
+              AppToast.success(
+                context,
+                '${barang.nama} berhasil ditambahkan ke keranjang.',
+              );
             }
           } else {
             setState(() {
@@ -113,7 +109,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
               if (idx >= 0) {
                 _cartItems[idx].jumlah += 1;
               } else {
-                _cartItems.add(AmprahCartDraftItem(barang: resolvedBarang));
+                _cartItems.add(AmprahCartDraftItem(barang: barang));
               }
             });
           }

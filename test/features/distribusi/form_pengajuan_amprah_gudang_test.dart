@@ -323,7 +323,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('selecting item from different warehouse when cart is not empty displays confirmation dialog to switch warehouse and reset cart', (tester) async {
+  testWidgets('selecting item from different warehouse when cart is not empty adds it to the cart without clearing, keeping both items in cart and retaining the selected warehouse', (tester) async {
     tester.view.physicalSize = const Size(400, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -360,31 +360,18 @@ void main() {
     await tester.tap(find.text('Kertas HVS A4'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ganti Gudang Tujuan?'), findsOneWidget);
-    expect(
-      find.text('Komoditas Kertas HVS A4 tersedia di Gudang Logistik Umum. Pengajuan amprah dalam satu dokumen harus ditujukan ke satu gudang yang sama. Ganti gudang tujuan dan mulai daftar baru?'),
-      findsOneWidget,
-    );
+    // Confirmation dialog is not displayed
+    expect(find.text('Ganti Gudang Tujuan?'), findsNothing);
 
-    await tester.tap(find.text('Batal'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Spuit 3cc Terumo'), findsOneWidget);
-    expect(find.text('Kertas HVS A4'), findsNothing);
+    // Selected warehouse is retained
     expect(find.text('Gudang Farmasi Utama'), findsOneWidget);
 
-    await tester.tap(pickerBtn);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Kertas HVS A4'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Ganti Gudang Tujuan?'), findsOneWidget);
-    await tester.tap(find.text('Ya, Ganti Gudang'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gudang Logistik Umum'), findsOneWidget);
-    expect(find.text('Spuit 3cc Terumo'), findsNothing);
+    // Both items are present in cart without clearing
+    expect(find.text('Spuit 3cc Terumo'), findsOneWidget);
     expect(find.text('Kertas HVS A4'), findsOneWidget);
+
+    // Added item reflects stock in selected warehouse (0)
+    expect(find.text('Stok Gudang: 0 Rim'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 4));
   });
