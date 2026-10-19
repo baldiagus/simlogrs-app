@@ -9,7 +9,6 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/tiket_maintenance_provider.dart';
 import '../widgets/tiket_card_item.dart';
-import 'detail_tiket_screen.dart';
 import 'lapor_cepat_screen.dart';
 
 class LaporRusakHubScreen extends ConsumerStatefulWidget {
@@ -53,6 +52,18 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
   /// Membangun tampilan _LaporRusakHubScreenState.
   @override
   Widget build(BuildContext context) {
+    final params = _resolveParams();
+    final tiketListAsync = ref.watch(daftarTiketUnitProvider(params));
+    final allList = tiketListAsync.valueOrNull ?? [];
+    final activeCount = allList.where((t) {
+      final st = t.status.toUpperCase();
+      return st != 'SELESAI' && st != 'DIBATALKAN';
+    }).length;
+    final riwayatCount = allList.where((t) {
+      final st = t.status.toUpperCase();
+      return st == 'SELESAI' || st == 'DIBATALKAN';
+    }).length;
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -69,17 +80,52 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
+          isScrollable: false,
           labelPadding: const EdgeInsets.symmetric(horizontal: 4),
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          tabs: const [
-            Tab(text: 'Laporan Aktif'),
-            Tab(text: 'Riwayat Selesai'),
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Flexible(
+                    child: Text(
+                      'Laporan Aktif',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (activeCount > 0) ...[
+                    const SizedBox(width: 6),
+                    _buildTabBadge(activeCount),
+                  ],
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Flexible(
+                    child: Text(
+                      'Riwayat Selesai',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (riwayatCount > 0) ...[
+                    const SizedBox(width: 6),
+                    _buildTabBadge(riwayatCount),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -105,7 +151,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
           // Toolbar Search & Filter Prioritas
           Container(
             color: AppColors.surface,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -114,7 +160,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
                   onChanged: (v) => setState(() => _searchKeyword = v.trim()),
                   onClear: () => setState(() => _searchKeyword = ''),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -164,7 +210,7 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
       borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected ? pillColor : AppColors.surfaceSecondary,
           borderRadius: BorderRadius.circular(20),
@@ -180,6 +226,26 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Badge jumlah tiket pada tab; disembunyikan saat jumlah 0.
+  Widget _buildTabBadge(int count) {
+    if (count <= 0) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.tintVioletBg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: AppColors.primaryPurple,
         ),
       ),
     );
@@ -225,26 +291,12 @@ class _LaporRusakHubScreenState extends ConsumerState<LaporRusakHubScreen>
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 90),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 96),
             itemCount: list.length,
             itemBuilder: (context, index) {
               final tiket = list[index];
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DetailTiketScreen(
-                        tiketId: tiket.id,
-                        kodeTiket: tiket.kode,
-                      ),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: TiketCardItem(
-                  item: tiket,
-                ),
+              return TiketCardItem(
+                item: tiket,
               );
             },
           );

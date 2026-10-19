@@ -115,6 +115,12 @@ void main() {
     expect(find.text('Laporan Aktif'), findsOneWidget);
     expect(find.text('Riwayat Selesai'), findsOneWidget);
 
+    // TabBar has isScrollable: false for balanced layout across full screen width
+    final TabBar tabBar = tester.widget(find.byType(TabBar));
+    expect(tabBar.isScrollable, isFalse);
+
+    // Badge count pills: 1 active ticket and 1 completed ticket
+    expect(find.text('1'), findsNWidgets(2));
     // Tab 1 (Aktif): Shows MNT-202610-001, hides MNT-202610-002
     expect(find.text('MNT-202610-001'), findsOneWidget);
     expect(find.text('MNT-202610-002'), findsNothing);
@@ -127,6 +133,15 @@ void main() {
     expect(find.text('MNT-202610-002'), findsOneWidget);
     expect(find.text('MNT-202610-001'), findsNothing);
 
+    // Switch back to Tab 1 (Laporan Aktif)
+    await tester.tap(find.text('Laporan Aktif'));
+    await tester.pumpAndSettle();
+    expect(find.text('MNT-202610-001'), findsOneWidget);
+    expect(find.text('MNT-202610-002'), findsNothing);
+
+    // Switch back to Tab 2 to test completed ticket navigation
+    await tester.tap(find.text('Riwayat Selesai'));
+    await tester.pumpAndSettle();
     // Tap ticket item -> navigates to DetailTiketScreen
     await tester.tap(find.text('MNT-202610-002'));
     await tester.pumpAndSettle();
