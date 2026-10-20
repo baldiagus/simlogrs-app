@@ -15,6 +15,21 @@ bool hasOtorisasiPengalihanAccess(UserModel? user) {
       (user?.can('update_layanan_unit::pengalihan::aset') ?? false);
 }
 
+/// Apakah user berhak mengakses fitur pengalihan barang gudang (hanya gudang logistik / admin).
+bool canAccessPengalihanBarang(UserModel? user) {
+  if (user == null) return false;
+  if (user.isSuperAdmin || user.isAdminLogistik) return true;
+  // Peran ruangan/unit (Karu, staf ruangan, dsb) tidak berhak atas pengalihan barang gudang
+  if (user.hasRole('kepala_unit') || user.hasRole('petugas_unit') || user.isKaru) {
+    return false;
+  }
+  return user.isGudangUser ||
+      user.hasRole('kepala_gudang') ||
+      user.hasRole('petugas_gudang') ||
+      user.can('view_any_gudang_stok::pengalihan::barang') ||
+      user.can('create_gudang_stok::pengalihan::barang');
+}
+
 /// Apakah user boleh mengajukan pengalihan untuk [kategori] ('ASET'/'BARANG').
 bool canCreatePengalihan(UserModel? user, String kategori) {
   final isFieldTeknisi = (user?.hasRole('teknisi') ?? false) &&
@@ -24,11 +39,10 @@ bool canCreatePengalihan(UserModel? user, String kategori) {
           user?.isSuperAdmin == true ||
           user?.isAdminLogistik == true ||
           user?.isGudangUser == true);
-  final canCreateBarang = user?.isGudangUser == true ||
-      user?.isKepalaGudang == true ||
-      user?.isPetugasGudang == true ||
-      user?.isAdminLogistik == true ||
-      user?.isSuperAdmin == true ||
-      user?.gudang != null;
+  final canCreateBarang = canAccessPengalihanBarang(user) &&
+      (user?.isSuperAdmin == true ||
+          user?.isAdminLogistik == true ||
+          user?.isGudangUser == true ||
+          (user?.can('create_gudang_stok::pengalihan::barang') ?? false));
   return kategori == 'ASET' ? canCreateAset : canCreateBarang;
 }

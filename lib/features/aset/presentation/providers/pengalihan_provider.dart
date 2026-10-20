@@ -6,6 +6,7 @@ import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/pengalihan_model.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../../data/repositories/pengalihan_repository.dart';
+import '../utils/pengalihan_access.dart';
 
 /// Provider [PengalihanRepository] untuk operasi data pengalihan via klien HTTP bersama.
 final pengalihanRepositoryProvider = Provider<PengalihanRepository>((ref) {
@@ -19,11 +20,7 @@ final selectedKategoriPengalihanProvider = StateProvider<String>((ref) => 'ASET'
 /// Resolusi kategori pengalihan: pengguna ruangan (Karu/staf) selalu ASET, gudang/admin mengikuti pilihan toggle.
 String resolveKategoriPengalihan(Ref ref) {
   final user = ref.watch(authStateProvider).user;
-  final isWarehouseOrAdmin = user?.isGudangUser == true ||
-      user?.isAdminLogistik == true ||
-      user?.isSuperAdmin == true ||
-      user?.gudang != null;
-  return isWarehouseOrAdmin
+  return canAccessPengalihanBarang(user)
       ? ref.watch(selectedKategoriPengalihanProvider)
       : 'ASET';
 }

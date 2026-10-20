@@ -41,11 +41,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final user = ref.read(authStateProvider).user;
-      final isWarehouseOrAdmin = user?.isGudangUser == true ||
-          user?.isAdminLogistik == true ||
-          user?.isSuperAdmin == true ||
-          user?.gudang != null;
-      if (!isWarehouseOrAdmin) {
+      if (!canAccessPengalihanBarang(user)) {
         ref.read(selectedKategoriPengalihanProvider.notifier).state = 'ASET';
       }
     });
@@ -98,11 +94,8 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
 
     final countOtorisasi =
         ref.watch(countOtorisasiPengalihanProvider).valueOrNull ?? 0;
-    final isWarehouseOrAdmin = user?.isGudangUser == true ||
-        user?.isAdminLogistik == true ||
-        user?.isSuperAdmin == true ||
-        user?.gudang != null;
-    final selectedKategori = isWarehouseOrAdmin
+    final canBarang = canAccessPengalihanBarang(user);
+    final selectedKategori = canBarang
         ? ref.watch(selectedKategoriPengalihanProvider)
         : 'ASET';
     final isAset = selectedKategori == 'ASET';
@@ -168,7 +161,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
             ),
       body: Column(
         children: [
-          if (isWarehouseOrAdmin) _buildKategoriSelector(selectedKategori),
+          if (canBarang) _buildKategoriSelector(selectedKategori),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -239,11 +232,8 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
   /// Membangun isi tab: daftar pengalihan, tampilan kosong, loading, atau error.
   Widget _buildTabContent(String tab, int countOtorisasi) {
     final user = ref.watch(authStateProvider).user;
-    final isWarehouseOrAdmin = user?.isGudangUser == true ||
-        user?.isAdminLogistik == true ||
-        user?.isSuperAdmin == true ||
-        user?.gudang != null;
-    final selectedKategori = isWarehouseOrAdmin
+    final canBarang = canAccessPengalihanBarang(user);
+    final selectedKategori = canBarang
         ? ref.watch(selectedKategoriPengalihanProvider)
         : 'ASET';
     final isAset = selectedKategori == 'ASET';

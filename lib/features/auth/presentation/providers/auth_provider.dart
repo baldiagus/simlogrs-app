@@ -93,6 +93,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         deviceName: deviceName,
       );
+      _clearUserCaches();
       state = AuthState.authenticated(user);
       _syncFcmTokenInBackground();
     } on ApiException catch (e) {
@@ -131,6 +132,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     _tokenRefreshSub?.cancel();
     _tokenRefreshSub = null;
+    _clearUserCaches();
     state = AuthState.unauthenticated();
     try {
       await _ref.read(fcmTokenRepositoryProvider).deleteToken();
@@ -138,7 +140,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Abaikan error saat menghapus token FCM di backend
     }
     await _repository.logout();
-    _clearUserCaches();
   }
 
   /// Meminta izin notifikasi, mengambil token FCM, menyinkronkannya ke backend, lalu memantau refresh token.
