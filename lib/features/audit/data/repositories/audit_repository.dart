@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
@@ -263,7 +265,10 @@ class AuditRepository {
     try {
       final files = <MultipartFile>[];
       for (final f in berkas) {
-        files.add(MultipartFile.fromBytes(await f.readAsBytes(), filename: f.name));
+        final part = (!kIsWeb && f.path.isNotEmpty && File(f.path).existsSync())
+            ? await MultipartFile.fromFile(f.path, filename: f.name)
+            : MultipartFile.fromBytes(await f.readAsBytes(), filename: f.name);
+        files.add(part);
       }
       final response = await _client.dio.post(
         '/audit/temuan-capa/$id/bukti',

@@ -47,7 +47,13 @@ android {
                 storeFile = file(keystoreProperties.getProperty("storeFile") ?: "")
                 storePassword = keystoreProperties.getProperty("storePassword")
             } else {
-                // Fallback to debug keystore for development builds
+                val isReleaseTask = gradle.startParameter.taskNames.any {
+                    it.contains("Release", ignoreCase = true)
+                }
+                if (isReleaseTask) {
+                    throw GradleException("Berkas android/key.properties wajib tersedia untuk build rilis.")
+                }
+                // Fallback ke debug keystore hanya untuk pengembangan non-rilis
                 val debugSigning = signingConfigs.getByName("debug")
                 keyAlias = debugSigning.keyAlias
                 keyPassword = debugSigning.keyPassword

@@ -242,15 +242,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
     final Widget layar;
     switch (target) {
       case NotificationTarget.approvalPr:
+        if (!(user?.canApprovePrMeja1 == true || user?.canManagePo == true || user?.isManajemen == true || user?.isAuditor == true)) return;
         layar = const PengadaanHubScreen(initialTab: HubTab.pr);
         break;
       case NotificationTarget.approvalAmprah:
+        if (!(user?.canApproveAmprahMeja1 == true || user?.canApproveAmprahMeja2 == true || user?.canAjukanAmprah == true || user?.isManajemen == true || user?.isAuditor == true)) return;
         layar = const AmprahHubScreen();
         break;
       case NotificationTarget.antreanPicking:
+        if (user?.canPickingDistribusi != true) return;
         layar = const PickingDistribusiScreen();
         break;
       case NotificationTarget.inboundPo:
+        if (!(user?.canReceiveInbound == true || user?.hasPersediaanAccess == true)) return;
         layar = const InboundPoListScreen();
         break;
       case NotificationTarget.riwayatPr:
@@ -285,12 +289,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> with WidgetsB
         layar = const PengalihanHubScreen();
         break;
       case NotificationTarget.otorisasiPenyesuaian:
+        if (user?.hasPersediaanAccess != true) return;
         layar = const OtorisasiPenyesuaianScreen();
         break;
       case NotificationTarget.capaAuditee:
+        if (user?.hasCapaAccess != true) return;
         layar = const TemuanCapaScreen();
         break;
       case NotificationTarget.capaAuditor:
+        if (user?.hasAuditAccess != true) return;
         layar = const AuditSpiHubScreen(initialTab: 3);
         break;
       case NotificationTarget.inbox:

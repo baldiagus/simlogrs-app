@@ -55,20 +55,34 @@ class MainActivity : FlutterActivity() {
     private fun checkRootEnvironment(): Boolean {
         val rootPaths = arrayOf(
             "/system/app/Superuser.apk",
+            "/system/app/SuperSU.apk",
             "/sbin/su",
             "/system/bin/su",
             "/system/xbin/su",
+            "/system/xbin/daemonsu",
             "/data/local/xbin/su",
             "/data/local/bin/su",
             "/system/sd/xbin/su",
             "/system/bin/failsafe/su",
             "/data/local/su",
-            "/su/bin/su"
+            "/su/bin/su",
+            "/sbin/.magisk",
+            "/data/adb/magisk",
+            "/data/adb/ksu",
+            "/data/adb/ap"
         )
         for (path in rootPaths) {
             if (File(path).exists()) return true
         }
         val buildTags = Build.TAGS
-        return buildTags != null && buildTags.contains("test-keys")
+        if (buildTags != null && buildTags.contains("test-keys")) return true
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("/system/xbin/which", "su"))
+            val hasSu = process.inputStream.bufferedReader().readLine() != null
+            process.destroy()
+            hasSu
+        } catch (_: Exception) {
+            false
+        }
     }
 }

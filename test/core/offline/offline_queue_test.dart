@@ -50,4 +50,16 @@ void main() {
     await prefs.setString(OfflineQueue.kunci, '{bukan json list');
     expect(q.count, 0);
   });
+
+  test('clear menghapus seluruh antrean mutasi tersimpan', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final q = OfflineQueue(prefs);
+    await q.enqueue('lapor_cepat', {'x': 1});
+    await q.enqueue('hitung_fisik', {'y': 2});
+    expect(q.count, 2);
+
+    await q.clear();
+    expect(q.count, 0);
+    expect(q.daftar(), isEmpty);
+  });
 }

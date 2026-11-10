@@ -120,6 +120,11 @@ class OfflineQueue {
         .toList());
   }
 
+  /// Menghapus seluruh mutasi tersimpan dari antrean (mis. saat sesi pengguna berakhir).
+  Future<void> clear() async {
+    await _prefs.remove(kunci);
+  }
+
   /// Jumlah mutasi yang menunggu dikirim.
   int get count => _baca().length;
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +38,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   /// Memvalidasi form lalu memanggil login lewat authStateProvider.
   void _submit() {
+    if (!kDebugMode && ref.read(isDeviceRootedProvider).value == true) {
+      AppToast.error(context, 'Akses ditolak pada perangkat dengan status root.');
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       ref.read(authStateProvider.notifier).login(
             email: _emailController.text.trim(),
@@ -122,17 +127,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                                 child: const Text('Keluar Aplikasi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                               ),
-                              const SizedBox(width: 6),
-                              ElevatedButton(
-                                onPressed: () => setState(() => _dismissRootWarning = true),
-                                style: ElevatedButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                  backgroundColor: AppColors.danger,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              if (kDebugMode) ...[
+                                const SizedBox(width: 6),
+                                ElevatedButton(
+                                  onPressed: () => setState(() => _dismissRootWarning = true),
+                                  style: ElevatedButton.styleFrom(
+                                    visualDensity: VisualDensity.compact,
+                                    backgroundColor: AppColors.danger,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  ),
+                                  child: const Text('Pahami Risiko', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                                 ),
-                                child: const Text('Pahami Risiko', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-                              ),
+                              ],
                             ],
                           ),
                         ],
@@ -296,52 +303,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Account Quick Preset Hints
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(LucideIcons.info, size: 16, color: AppColors.primaryPurple),
-                            SizedBox(width: 8),
-                            Text(
-                              'Akun Percobaan Cepat:',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                  // Account Quick Preset Hints (hanya tersedia pada mode debug)
+                  if (kDebugMode)
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(LucideIcons.info, size: 16, color: AppColors.primaryPurple),
+                              SizedBox(width: 8),
+                              Text(
+                                'Akun Percobaan Cepat:',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            _buildRoleChip('Super Admin', 'superadmin@simlogrs.local'),
-                            _buildRoleChip('Admin Logistik', 'adminlogistik@simlogrs.local'),
-                            _buildRoleChip('Kepala Gudang', 'kepalagudang@simlogrs.local'),
-                            _buildRoleChip('Petugas Gudang', 'petugasgudang@simlogrs.local'),
-                            _buildRoleChip('Pengadaan', 'pengadaan@simlogrs.local'),
-                            _buildRoleChip('Karu IGD', 'kepalaunit@simlogrs.local'),
-                            _buildRoleChip('Petugas Unit', 'petugasunit@simlogrs.local'),
-                            _buildRoleChip('Kepala Teknisi', 'karu_ipsrs@simlogrs.local'),
-                            _buildRoleChip('Teknisi IPSRS', 'teknisi@simlogrs.local'),
-                            _buildRoleChip('Manajemen', 'manajemen@simlogrs.local'),
-                            _buildRoleChip('Auditor SPI', 'auditor@simlogrs.local'),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _buildRoleChip('Super Admin', 'superadmin@simlogrs.local'),
+                              _buildRoleChip('Admin Logistik', 'adminlogistik@simlogrs.local'),
+                              _buildRoleChip('Kepala Gudang', 'kepalagudang@simlogrs.local'),
+                              _buildRoleChip('Petugas Gudang', 'petugasgudang@simlogrs.local'),
+                              _buildRoleChip('Pengadaan', 'pengadaan@simlogrs.local'),
+                              _buildRoleChip('Karu IGD', 'kepalaunit@simlogrs.local'),
+                              _buildRoleChip('Petugas Unit', 'petugasunit@simlogrs.local'),
+                              _buildRoleChip('Kepala Teknisi', 'karu_ipsrs@simlogrs.local'),
+                              _buildRoleChip('Teknisi IPSRS', 'teknisi@simlogrs.local'),
+                              _buildRoleChip('Manajemen', 'manajemen@simlogrs.local'),
+                              _buildRoleChip('Auditor SPI', 'auditor@simlogrs.local'),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -355,6 +363,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget _buildRoleChip(String label, String email) {
     return InkWell(
       onTap: () {
+        if (!kDebugMode) return;
         ref.read(authStateProvider.notifier).clearError();
         setState(() {
           _emailController.text = email;

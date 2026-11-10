@@ -42,17 +42,21 @@ class DioClient {
     // SSL Certificate Pinning opsional untuk lingkungan produksi via --dart-define=SSL_FINGERPRINT=...
     const sslFingerprint = String.fromEnvironment('SSL_FINGERPRINT', defaultValue: '');
     if (!kIsWeb && sslFingerprint.isNotEmpty) {
+      final expected = sslFingerprint.toUpperCase().replaceAll(':', '').replaceAll(' ', '');
       dio.httpClientAdapter = IOHttpClientAdapter(
-        /// Membuat HttpClient yang hanya menerima sertifikat dengan fingerprint SHA-256 sesuai SSL_FINGERPRINT.
+        /// Membuat HttpClient dengan SecurityContext tanpa root CA sistem agar setiap sertifikat divalidasi terhadap SSL_FINGERPRINT.
         createHttpClient: () {
-          final client = HttpClient();
-          /// Callback sertifikat tak tepercaya: terima hanya bila sidik jari SHA-256 cocok dengan yang diharapkan.
+          final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
           client.badCertificateCallback = (X509Certificate cert, String host, int port) {
             final digest = sha256.convert(cert.der).toString().toUpperCase();
-            final expected = sslFingerprint.toUpperCase().replaceAll(':', '').replaceAll(' ', '');
             return digest == expected;
           };
           return client;
+        },
+        validateCertificate: (X509Certificate? cert, String host, int port) {
+          if (cert == null) return false;
+          final digest = sha256.convert(cert.der).toString().toUpperCase();
+          return digest == expected;
         },
       );
     }

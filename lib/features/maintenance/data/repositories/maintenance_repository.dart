@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
@@ -204,13 +206,15 @@ class MaintenanceRepository {
     try {
       FormData? formData;
       if (foto != null) {
-        final bytes = await foto.readAsBytes();
+        final part = (!kIsWeb && foto.path.isNotEmpty && File(foto.path).existsSync())
+            ? await MultipartFile.fromFile(foto.path, filename: foto.name)
+            : MultipartFile.fromBytes(await foto.readAsBytes(), filename: foto.name);
         formData = FormData.fromMap({
           if (asetId != null) 'aset_id': asetId,
           if (kodeAset != null && kodeAset.isNotEmpty) 'kode_aset': kodeAset.trim(),
           'deskripsi_masalah': deskripsiMasalah.trim(),
           'prioritas': prioritas,
-          'foto': MultipartFile.fromBytes(bytes, filename: foto.name),
+          'foto': part,
         });
       }
 
@@ -252,7 +256,9 @@ class MaintenanceRepository {
     try {
       FormData? formData;
       if (foto != null) {
-        final bytes = await foto.readAsBytes();
+        final part = (!kIsWeb && foto.path.isNotEmpty && File(foto.path).existsSync())
+            ? await MultipartFile.fromFile(foto.path, filename: foto.name)
+            : MultipartFile.fromBytes(await foto.readAsBytes(), filename: foto.name);
         final map = <String, dynamic>{
           'diagnosa': diagnosa.trim(),
           'tindakan': tindakan.trim(),
@@ -260,7 +266,7 @@ class MaintenanceRepository {
           if (jamMulai != null) 'jam_mulai': jamMulai,
           if (jamSelesai != null) 'jam_selesai': jamSelesai,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan.trim(),
-          'foto': MultipartFile.fromBytes(bytes, filename: foto.name),
+          'foto': part,
         };
         if (spareparts != null && spareparts.isNotEmpty) {
           for (var i = 0; i < spareparts.length; i++) {

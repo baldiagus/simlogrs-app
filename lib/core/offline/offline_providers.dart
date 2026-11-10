@@ -69,6 +69,13 @@ class OfflineQueueNotifier extends StateNotifier<int> {
     if (mounted) state = service.queue.count;
     return gagal;
   }
+
+  /// Mengosongkan seluruh antrean offline saat pergantian sesi pengguna.
+  Future<void> clear() async {
+    final queue = await _ref.read(offlineQueueProvider.future);
+    await queue.clear();
+    if (mounted) state = 0;
+  }
 }
 
 /// Provider jumlah antrean offline beserta aksi enqueue dan flush.

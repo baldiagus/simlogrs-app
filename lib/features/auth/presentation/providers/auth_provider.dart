@@ -8,6 +8,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/offline/offline_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../pengadaan/presentation/providers/approval_provider.dart';
 import '../../../audit/presentation/providers/audit_provider.dart';
@@ -219,6 +220,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _ref.invalidate(selectedKategoriPengalihanProvider);
       _ref.invalidate(daftarPengalihanProvider);
       _ref.invalidate(countOtorisasiPengalihanProvider);
+      unawaited(_ref.read(offlineQueueProvider.future).then((q) => q.clear()).catchError((_) {}));
+      _ref.invalidate(offlineQueueCountProvider);
     } catch (_) {
       // Abaikan jika provider belum pernah diinisialisasi
     }
