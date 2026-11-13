@@ -22,17 +22,23 @@ class GudangRepository {
         },
       );
       final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is List) {
+      if (data is Map<String, dynamic> &&
+          data['sukses'] == true &&
+          data['data'] is List) {
         return (data['data'] as List)
             .map((item) => RakModel.fromJson(item as Map<String, dynamic>))
             .toList();
       }
-      return [];
+      throw ApiException(message: 'Format daftar rak gudang tidak valid');
     } on DioException catch (e) {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
       throw ApiException(message: e.message ?? 'Gagal memuat daftar rak gudang');
+    } on FormatException {
+      throw ApiException(message: 'Format daftar rak gudang tidak valid');
+    } on TypeError {
+      throw ApiException(message: 'Format daftar rak gudang tidak valid');
     }
   }
 
@@ -87,6 +93,7 @@ class GudangRepository {
   /// Mengirim penerimaan barang untuk PO [poId] berdasarkan surat jalan dan item yang diterima.
   Future<Map<String, dynamic>> submitPenerimaanPo({
     required int poId,
+    required int gudangId,
     required String nomorSuratJalan,
     String? catatan,
     required List<Map<String, dynamic>> items,
@@ -96,6 +103,7 @@ class GudangRepository {
         '/gudang/penerimaan-po',
         data: {
           'pesanan_pembelian_id': poId,
+          'gudang_id': gudangId,
           'nomor_surat_jalan': nomorSuratJalan,
           if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
           'items': items,

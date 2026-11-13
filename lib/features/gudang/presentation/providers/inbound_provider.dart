@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_response.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
@@ -38,11 +39,13 @@ class InboundActionState {
   final bool isLoading;
   final String? errorMessage;
   final String? successMessage;
+  final int? statusCode;
 
   const InboundActionState({
     this.isLoading = false,
     this.errorMessage,
     this.successMessage,
+    this.statusCode,
   });
 }
 
@@ -59,10 +62,15 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
   /// dan meng-invalidate daftar PO, rak, PR, serta ringkasan dashboard.
   Future<bool> submitPenerimaan({
     required int poId,
+    required int gudangId,
     required String nomorSuratJalan,
     String? catatan,
     required List<InboundItemDraft> items,
   }) async {
+    if (gudangId <= 0) {
+      state = const InboundActionState(errorMessage: 'Pilih gudang penerima yang valid.');
+      return false;
+    }
     final validItems = items.where((i) => i.jumlahDiterima > 0).toList();
     if (validItems.isEmpty) {
       state = const InboundActionState(
@@ -91,6 +99,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
       final payload = validItems.map((e) => e.toJson()).toList();
       final res = await _repository.submitPenerimaanPo(
         poId: poId,
+        gudangId: gudangId,
         nomorSuratJalan: nomorSuratJalan.trim(),
         catatan: catatan?.trim(),
         items: payload,
@@ -104,13 +113,15 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
 
       _ref.invalidate(daftarPoInboundProvider);
       _ref.invalidate(daftarRakProvider);
+      _ref.invalidate(rakPenerimaanProvider(gudangId));
       _ref.invalidate(daftarPrProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
       state = InboundActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: e is ApiException ? e.message : e.toString(),
+        statusCode: e is ApiException ? e.statusCode : null,
       );
       return false;
     }

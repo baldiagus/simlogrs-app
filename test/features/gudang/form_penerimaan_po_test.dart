@@ -8,6 +8,7 @@ import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:simlog_mobile/features/gudang/presentation/providers/gudang_provider.dart';
 import 'package:simlog_mobile/features/gudang/presentation/screens/form_penerimaan_po_screen.dart';
+import 'package:simlog_mobile/features/master/presentation/providers/master_barang_provider.dart';
 import 'package:simlog_mobile/shared/widgets/app_quantity_stepper.dart';
 import 'package:simlog_mobile/shared/widgets/custom_button.dart';
 
@@ -61,6 +62,7 @@ void main() {
     email: 'gudang@simlogrs.local',
     roles: ['petugas_gudang'],
     permissions: ['create_gudang_stok::penerimaan::po'],
+    gudang: GudangModel(id: 1, nama: 'Gudang Utama'),
   );
 
   testWidgets('FormPenerimaanPoScreen displays clean item card and reactive total format', (tester) async {
@@ -75,7 +77,8 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(gudangUser)),
-          daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
+          rakPenerimaanProvider(1).overrideWith((ref) => Future.value(mockRaks)),
+          masterGudangListProvider.overrideWith((ref) async => [const GudangModel(id: 1, nama: 'Gudang Utama')]),
         ],
         child: const MaterialApp(
           home: FormPenerimaanPoScreen(po: mockPo),
@@ -97,6 +100,8 @@ void main() {
     // Tap '-' button on stepper to decrease quantity
     final minusButton = find.byIcon(LucideIcons.minus).first;
     expect(minusButton, findsOneWidget);
+    await tester.ensureVisible(minusButton);
+    await tester.pumpAndSettle();
     await tester.tap(minusButton);
     await tester.pumpAndSettle();
 
@@ -115,7 +120,8 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(gudangUser)),
-          daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
+          rakPenerimaanProvider(1).overrideWith((ref) => Future.value(mockRaks)),
+          masterGudangListProvider.overrideWith((ref) async => [const GudangModel(id: 1, nama: 'Gudang Utama')]),
         ],
         child: const MaterialApp(
           home: FormPenerimaanPoScreen(po: mockPo),
@@ -140,7 +146,8 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
-          daftarRakProvider.overrideWith((ref) => Future.value(mockRaks)),
+          rakPenerimaanProvider(1).overrideWith((ref) => Future.value(mockRaks)),
+          masterGudangListProvider.overrideWith((ref) async => [const GudangModel(id: 1, nama: 'Gudang Utama')]),
         ],
         child: const MaterialApp(home: FormPenerimaanPoScreen(po: mockPo)),
       ),
@@ -225,6 +232,7 @@ void main() {
       email: 'v@simlogrs.local',
       roles: ['auditor'],
       permissions: [],
+      gudang: GudangModel(id: 1, nama: 'Gudang Utama'),
     );
     await pumpForm(tester, viewer);
     expect(find.text('Tolak Kiriman Vendor'), findsNothing);

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/data/models/user_model.dart';
+import '../../../master/presentation/providers/master_barang_provider.dart';
+import '../../data/models/rak_model.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
@@ -35,6 +38,19 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
 
   late final List<InboundItemDraft> _itemDrafts;
   final _dateFormat = DateFormat('yyyy-MM-dd');
+  int? _selectedGudangId;
+
+  bool _canChooseGudang(UserModel? user) =>
+      user != null && (user.hasRole('super_admin') || user.hasRole('admin_logistik'));
+
+  int? _targetGudangId(UserModel? user) =>
+      user?.gudang?.id ?? (_canChooseGudang(user) ? _selectedGudangId : null);
+
+  void _clearRackSelections() {
+    for (final draft in _itemDrafts) {
+      draft.lokasiGudangId = null;
+    }
+  }
 
   /// Menyiapkan draft penerimaan untuk tiap item PO saat form pertama kali dibuka.
   @override
@@ -50,6 +66,19 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
         lokasiGudangId: null,
       );
     }).toList();
+    ref.listenManual<AuthState>(authStateProvider, (previous, next) {
+      final before = previous?.user;
+      final after = next.user;
+      if ((before?.id, before?.gudang?.id, _canChooseGudang(before)) ==
+          (after?.id, after?.gudang?.id, _canChooseGudang(after))) {
+        return;
+      }
+      ref.invalidate(masterGudangListProvider);
+      setState(() {
+        _selectedGudangId = null;
+        _clearRackSelections();
+      });
+    });
   }
 
   /// Membuang controller input agar tidak bocor memori.
@@ -87,6 +116,18 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       AppToast.error(context, 'PO belum dikirim oleh vendor, penerimaan fisik belum dapat diproses.');
       return;
     }
+    final gudangId = _targetGudangId(user);
+    final gudangs = ref.read(masterGudangListProvider);
+    if (gudangId == null || gudangs.isLoading || gudangs.hasError ||
+        !(gudangs.asData?.value.any((g) => g.id == gudangId) ?? false)) {
+      AppToast.error(context, 'Pilih gudang penerima yang aktif sebelum menyimpan.');
+      return;
+    }
+    final racks = ref.read(rakPenerimaanProvider(gudangId));
+    if (racks.isLoading || racks.hasError || (racks.asData?.value.isEmpty ?? true)) {
+      AppToast.error(context, 'Opsi rak belum tersedia. Muat ulang rak gudang penerima.');
+      return;
+    }
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -102,8 +143,9 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
           AppToast.error(context, 'Nomor batch fisik wajib diisi untuk komoditas ${draft.poItem.namaBarang}.');
           return;
         }
-        if (draft.lokasiGudangId == null) {
-          AppToast.error(context, 'Rak simpan gudang wajib dipilih untuk komoditas ${draft.poItem.namaBarang}.');
+        if (!racks.requireValue.any((r) => r.id == draft.lokasiGudangId &&
+            r.gudangId == gudangId && r.status == 'AKTIF')) {
+          AppToast.error(context, 'Pilih rak aktif di gudang penerima untuk komoditas ${draft.poItem.namaBarang}.');
           return;
         }
       }
@@ -112,6 +154,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     final notifier = ref.read(inboundActionProvider.notifier);
     final ok = await notifier.submitPenerimaan(
       poId: widget.po.id,
+      gudangId: gudangId,
       nomorSuratJalan: _suratJalanController.text.trim(),
       catatan: _catatanController.text.trim(),
       items: _itemDrafts,
@@ -124,6 +167,10 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       AppToast.success(context, state.successMessage ?? 'Penerimaan berhasil disimpan.');
       Navigator.pop(context, true);
     } else {
+      if (state.statusCode == 422) {
+        ref.invalidate(rakPenerimaanProvider(gudangId));
+        ref.invalidate(masterGudangListProvider);
+      }
       AppToast.error(context, state.errorMessage ?? 'Gagal memproses penerimaan.');
     }
   }
@@ -140,14 +187,85 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     }
   }
 
+  Widget _allocationStatus(String message, {VoidCallback? retry, String? retryLabel}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(message, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        if (retry != null)
+          TextButton(onPressed: retry, child: Text(retryLabel!)),
+      ],
+    );
+  }
+
+  Widget _buildGudangContext(UserModel? user, AsyncValue<List<GudangModel>> gudangs) {
+    if (user?.gudang == null && !_canChooseGudang(user)) {
+      return _allocationStatus('Penugasan gudang belum tersedia. Hubungi administrator.');
+    }
+    void retry() => ref.invalidate(masterGudangListProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Gudang Penerima', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        if (user?.gudang != null)
+          Text('${user!.gudang!.nama} (sesuai penugasan akun)'),
+        if (gudangs.isLoading)
+          _allocationStatus('Memuat gudang penerima...')
+        else if (gudangs.hasError)
+          _allocationStatus('Gagal memuat gudang penerima.', retry: retry, retryLabel: 'Coba lagi gudang')
+        else if (gudangs.requireValue.isEmpty)
+          _allocationStatus('Tidak ada gudang aktif tersedia.', retry: retry, retryLabel: 'Coba lagi gudang')
+        else if (user?.gudang != null &&
+            !gudangs.requireValue.any((g) => g.id == user!.gudang!.id))
+          _allocationStatus('Gudang penugasan tidak aktif atau tidak tersedia. Hubungi administrator.',
+              retry: retry, retryLabel: 'Coba lagi gudang')
+        else if (user?.gudang == null)
+          SizedBox(
+            key: const ValueKey('gudang-penerimaan-selector'),
+            child: DropdownButtonFormField<int>(
+              key: ValueKey('gudang-$_selectedGudangId-${gudangs.requireValue.map((g) => g.id).join(',')}'),
+              initialValue: gudangs.requireValue.any((g) => g.id == _selectedGudangId) ? _selectedGudangId : null,
+              isExpanded: true,
+              hint: const Text('Pilih gudang penerima'),
+              items: gudangs.requireValue.map((g) => DropdownMenuItem(
+                value: g.id,
+                child: Text(g.nama, maxLines: 1, overflow: TextOverflow.ellipsis),
+              )).toList(),
+              onChanged: (value) {
+                if (value == _selectedGudangId) return;
+                setState(() {
+                  _selectedGudangId = value;
+                  _clearRackSelections();
+                });
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
   /// Menyusun UI form penerimaan: info PO, surat jalan, daftar draft item (batch, rak, kuantitas), dan tombol simpan/tolak.
   @override
   Widget build(BuildContext context) {
-    final rakListAsync = ref.watch(daftarRakProvider);
+    final user = ref.watch(authStateProvider).user;
+    final gudangs = ref.watch(masterGudangListProvider);
+    final gudangId = _targetGudangId(user);
+    final validGudang = gudangId != null && !gudangs.isLoading && !gudangs.hasError &&
+        (gudangs.asData?.value.any((g) => g.id == gudangId) ?? false);
+    final rakListAsync = validGudang
+        ? ref.watch(rakPenerimaanProvider(gudangId))
+        : const AsyncValue<List<RakModel>>.data([]);
+    final validRacks = !rakListAsync.isLoading && !rakListAsync.hasError &&
+        (rakListAsync.asData?.value.isNotEmpty ?? false);
+    final canSave = validGudang && validRacks && _itemDrafts.where((d) => d.jumlahDiterima > 0).every(
+      (d) => rakListAsync.requireValue.any((r) =>
+          r.id == d.lokasiGudangId && r.gudangId == gudangId && r.status == 'AKTIF'),
+    );
     final actionState = ref.watch(inboundActionProvider);
     final totalDiterima = _itemDrafts.fold<int>(0, (sum, i) => sum + i.jumlahDiterima);
     final totalJenisDiterima = _itemDrafts.where((i) => i.jumlahDiterima > 0).length;
-    final canReceive = ref.watch(authStateProvider).user?.canReceiveInbound ?? false;
+    final canReceive = user?.canReceiveInbound ?? false;
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
@@ -222,6 +340,8 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                         ),
                       ),
                       const SizedBox(height: 18),
+                      _buildGudangContext(user, gudangs),
+                      const SizedBox(height: 18),
 
                       // Surat Jalan Input
                       const Text(
@@ -284,6 +404,8 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                         return InboundItemDraftTile(
                           draft: draft,
                           rakListAsync: rakListAsync,
+                          rakUnavailableMessage: validGudang ? null : 'Pilih gudang penerima yang aktif terlebih dahulu.',
+                          onRetryRak: validGudang ? () => ref.invalidate(rakPenerimaanProvider(gudangId)) : null,
                           onPickExpiredDate: () => _pickExpiredDate(draft),
                           onRakChanged: (val) {
                             setState(() {
@@ -368,7 +490,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                                 isLoading: actionState.isLoading,
                                 backgroundColor: AppColors.primaryPurple,
                                 icon: const Icon(LucideIcons.checkCheck, size: 16, color: Colors.white),
-                                onPressed: _submit,
+                                onPressed: canSave ? _submit : null,
                               ),
                             ),
                           ],

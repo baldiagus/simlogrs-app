@@ -15,6 +15,8 @@ class InboundItemDraftTile extends StatelessWidget {
   final ValueChanged<int> onQuantityChanged;
   final ValueChanged<int>? onRusakChanged;
   final ValueChanged<String>? onBatchChanged;
+  final VoidCallback? onRetryRak;
+  final String? rakUnavailableMessage;
 
   const InboundItemDraftTile({
     super.key,
@@ -25,16 +27,13 @@ class InboundItemDraftTile extends StatelessWidget {
     required this.onQuantityChanged,
     this.onRusakChanged,
     this.onBatchChanged,
+    this.onRetryRak,
+    this.rakUnavailableMessage,
   });
 
   /// Membangun form draft item penerimaan; pilihan rak diambil dari [rakListAsync].
   @override
   Widget build(BuildContext context) {
-    if (draft.jumlahRusak > draft.jumlahDiterima) {
-      draft.jumlahRusak = draft.jumlahDiterima;
-    } else if (draft.jumlahRusak < 0) {
-      draft.jumlahRusak = 0;
-    }
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -246,40 +245,55 @@ class InboundItemDraftTile extends StatelessWidget {
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
-              rakListAsync.when(
-                data: (raks) {
-                  if (draft.lokasiGudangId == null && raks.isNotEmpty) {
-                    draft.lokasiGudangId = raks.first.id;
-                  }
-                  return DropdownButtonFormField<int>(
-                    initialValue: draft.lokasiGudangId,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    ),
-                    items: raks.map((r) {
-                      return DropdownMenuItem<int>(
-                        value: r.id,
-                        child: Text(
-                          '${r.kode} (${r.nama})',
-                          style: const TextStyle(fontSize: 12),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+              if (rakUnavailableMessage != null)
+                Text(rakUnavailableMessage!, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary))
+              else
+                rakListAsync.when(
+                  skipLoadingOnRefresh: false,
+                  data: (raks) {
+                    if (raks.isEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Tidak ada rak aktif di gudang penerima.', style: TextStyle(fontSize: 11)),
+                          if (onRetryRak != null)
+                            TextButton(onPressed: onRetryRak, child: const Text('Coba lagi rak')),
+                        ],
                       );
-                    }).toList(),
-                    onChanged: onRakChanged,
-                  );
-                },
-                loading: () => const SizedBox(
-                  height: 44,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    }
+                    final selected = raks.any((r) => r.id == draft.lokasiGudangId) ? draft.lokasiGudangId : null;
+                    return DropdownButtonFormField<int>(
+                      key: ValueKey('rak-$selected-${raks.map((r) => r.id).join(',')}'),
+                      initialValue: selected,
+                      isExpanded: true,
+                      hint: const Text('Pilih rak simpan', style: TextStyle(fontSize: 12)),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                      items: raks.map((r) {
+                        return DropdownMenuItem<int>(
+                          value: r.id,
+                          child: Text(
+                            '${r.kode} (${r.nama})',
+                            style: const TextStyle(fontSize: 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: onRakChanged,
+                    );
+                  },
+                  loading: () => const Text('Memuat rak gudang...', style: TextStyle(fontSize: 11)),
+                  error: (_, __) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Gagal memuat rak gudang.', style: TextStyle(fontSize: 11, color: AppColors.danger)),
+                      if (onRetryRak != null)
+                        TextButton(onPressed: onRetryRak, child: const Text('Coba lagi rak')),
+                    ],
+                  ),
                 ),
-                error: (_, __) => const Text(
-                  'Gagal memuat rak',
-                  style: TextStyle(fontSize: 11, color: AppColors.danger),
-                ),
-              ),
             ],
           ),
         ],
