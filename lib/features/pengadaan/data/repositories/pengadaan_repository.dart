@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/models/pagination_meta.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/master_barang_model.dart';
@@ -11,29 +12,55 @@ class PengadaanRepository {
   /// Membuat repository dengan [DioClient] untuk memanggil API pengadaan.
   PengadaanRepository(this._client);
 
-  /// Mengambil katalog barang dari server, dapat difilter kata kunci [cari] dan jenis barang [tipe].
-  Future<List<MasterBarangModel>> getKatalogBarang({String? cari, String? tipe}) async {
+  /// Mengambil satu halaman katalog aktif, difilter nama/kode dan tipe barang.
+  Future<PagedResponse<MasterBarangModel>> getKatalogBarang({
+    String? cari,
+    String? tipe,
+    int page = 1,
+    int perHalaman = 50,
+  }) async {
     try {
+      final query = cari?.trim();
       final response = await _client.dio.get(
         '/master/barang',
         queryParameters: {
-          if (cari != null && cari.isNotEmpty) 'cari': cari,
+          if (query != null && query.isNotEmpty) 'cari': query,
           if (tipe != null && tipe.isNotEmpty) 'tipe': tipe,
+          'page': page,
+          'per_halaman': perHalaman,
         },
       );
 
-      final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is List) {
-        return (data['data'] as List)
-            .map((e) => MasterBarangModel.fromJson(e as Map<String, dynamic>))
-            .toList();
+      final body = response.data;
+      final data = body is Map<String, dynamic> ? body['data'] : null;
+      final items = data is Map<String, dynamic> ? data['items'] : null;
+      final meta = data is Map<String, dynamic> ? data['paginasi'] : null;
+      if (body is! Map<String, dynamic> ||
+          body['sukses'] != true ||
+          items is! List ||
+          !items.every((item) => item is Map<String, dynamic>) ||
+          meta is! Map<String, dynamic> ||
+          meta['total'] is! int || meta['total'] < 0 ||
+          meta['per_halaman'] is! int || meta['per_halaman'] < 1 ||
+          meta['halaman_ini'] is! int || meta['halaman_ini'] < 1 ||
+          meta['total_halaman'] is! int || meta['total_halaman'] < 1) {
+        throw ApiException(message: 'Format respons katalog barang tidak valid');
       }
-      return [];
+      return PagedResponse(
+        items: items
+            .map((item) => MasterBarangModel.fromJson(item as Map<String, dynamic>))
+            .toList(),
+        meta: PaginationMeta.fromJson(meta),
+      );
     } on DioException catch (e) {
       if (e.error is ApiException) {
         throw e.error as ApiException;
       }
       throw ApiException(message: e.message ?? 'Gagal memuat katalog barang');
+    } on FormatException {
+      throw ApiException(message: 'Format respons katalog barang tidak valid');
+    } on TypeError {
+      throw ApiException(message: 'Format respons katalog barang tidak valid');
     }
   }
 

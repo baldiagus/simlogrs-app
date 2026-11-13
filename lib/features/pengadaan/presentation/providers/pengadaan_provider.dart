@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/models/pagination_meta.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import 'approval_provider.dart';
@@ -35,12 +36,66 @@ class KatalogBarangParams {
   int get hashCode => Object.hash(query, tipe);
 }
 
-/// Memuat katalog barang berdasarkan kata kunci dan tipe; otomatis dibuang saat tidak dipakai.
-final katalogBarangProvider =
-    FutureProvider.autoDispose.family<List<MasterBarangModel>, KatalogBarangParams>((ref, params) async {
-  final repository = ref.watch(pengadaanRepositoryProvider);
-  return await repository.getKatalogBarang(cari: params.query, tipe: params.tipe);
-});
+/// Daftar katalog per query/tipe; respons lama tidak boleh menimpa refresh terbaru.
+class KatalogBarangNotifier extends StateNotifier<PagedListState<MasterBarangModel>> {
+  final PengadaanRepository _repository;
+  final KatalogBarangParams _params;
+  int _generation = 0;
+
+  KatalogBarangNotifier(this._repository, this._params)
+      : super(const PagedListState<MasterBarangModel>.initial()) {
+    refresh();
+  }
+
+  Future<void> refresh() async {
+    if (!mounted) return;
+    final generation = ++_generation;
+    state = const PagedListState<MasterBarangModel>.initial();
+    await _load(1, generation);
+  }
+
+  Future<void> loadMore() async {
+    if (!mounted || state.isLoading || state.isLoadingMore || !state.hasMore) return;
+    state = state.copyWith(isLoadingMore: true, clearError: true);
+    await _load(state.page + 1, _generation);
+  }
+
+  Future<void> _load(int page, int generation) async {
+    try {
+      final response = await _repository.getKatalogBarang(
+        cari: _params.query,
+        tipe: _params.tipe,
+        page: page,
+      );
+      if (!mounted || generation != _generation) return;
+      final byId = {
+        for (final item in state.items) item.id: item,
+        for (final item in response.items) item.id: item,
+      };
+      state = state.copyWith(
+        items: byId.values.toList(),
+        page: response.meta.halamanIni,
+        hasMore: response.meta.hasMore,
+        isLoading: false,
+        isLoadingMore: false,
+        clearError: true,
+      );
+    } catch (e) {
+      if (!mounted || generation != _generation) return;
+      state = state.copyWith(
+        isLoading: false,
+        isLoadingMore: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+}
+
+/// State katalog berhalaman, terisolasi menurut kata kunci dan tipe barang.
+final katalogBarangProvider = StateNotifierProvider.autoDispose.family<
+    KatalogBarangNotifier, PagedListState<MasterBarangModel>, KatalogBarangParams>(
+  (ref, params) => KatalogBarangNotifier(ref.watch(pengadaanRepositoryProvider), params),
+);
 
 /// Memuat daftar PR untuk layar riwayat dan hub pengadaan.
 final daftarPrProvider = FutureProvider.autoDispose<List<PrHeaderModel>>((ref) async {

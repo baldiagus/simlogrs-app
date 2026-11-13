@@ -7,6 +7,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
+import '../../../../shared/widgets/app_paged_list_view.dart';
 import '../../data/models/master_barang_model.dart';
 import '../providers/pengadaan_provider.dart';
 
@@ -31,9 +32,9 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
   /// lengkap dengan status memuat, error, dan kosong.
   @override
   Widget build(BuildContext context) {
-    final katalogAsync = ref.watch(
-      katalogBarangProvider(KatalogBarangParams(query: _query, tipe: widget.filterTipe)),
-    );
+    final params = KatalogBarangParams(query: _query, tipe: widget.filterTipe);
+    final katalog = ref.watch(katalogBarangProvider(params));
+    final notifier = ref.read(katalogBarangProvider(params).notifier);
     return Container(
       height: MediaQuery.of(context).size.height * 0.82,
       decoration: const BoxDecoration(
@@ -60,14 +61,18 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.filterTipe == 'SPAREPART'
-                      ? 'Katalog Suku Cadang'
-                      : 'Katalog Master Barang',
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                Expanded(
+                  child: Text(
+                    widget.filterTipe == 'SPAREPART'
+                        ? 'Katalog Suku Cadang'
+                        : 'Katalog Master Barang',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -85,8 +90,11 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AppSearchBar(
-              hint: 'Cari nama barang, kode SKU, atau spesifikasi...',
-              onChanged: (v) => setState(() => _query = v.trim()),
+              hint: 'Cari nama barang atau kode SKU...',
+              onChanged: (v) {
+                if (!mounted || ModalRoute.of(context)?.isCurrent == false) return;
+                setState(() => _query = v.trim());
+              },
               onClear: () => setState(() => _query = ''),
             ),
           ),
@@ -95,12 +103,19 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
 
           // Catalog List
           Expanded(
-            child: katalogAsync.when(
-              // Menyaring daftar katalog sesuai tipe barang lalu menampilkannya.
-              data: (list) {
+            child: Builder(
+              builder: (context) {
+                if (katalog.isLoading) return const AppLoadingView();
+                if (katalog.errorMessage != null && katalog.items.isEmpty) {
+                  return AppErrorView(
+                    title: 'Gagal Memuat Katalog',
+                    error: katalog.errorMessage,
+                    onRetry: notifier.refresh,
+                  );
+                }
                 final effectiveList = widget.filterTipe != null
-                    ? list.where((b) => b.tipe.toUpperCase() == widget.filterTipe!.toUpperCase()).toList()
-                    : list;
+                    ? katalog.items.where((b) => b.tipe.toUpperCase() == widget.filterTipe!.toUpperCase()).toList()
+                    : katalog.items;
 
                 if (effectiveList.isEmpty) {
                   return EmptyStateView(
@@ -114,17 +129,24 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                   );
                 }
 
-                return ListView.separated(
+                return Column(
+                  children: [
+                    Expanded(
+                      child: AppPagedListView<MasterBarangModel>(
+                  items: effectiveList,
+                  hasMore: katalog.hasMore,
+                  isLoadingMore: katalog.isLoadingMore,
+                  onLoadMore: () {
+                    if (katalog.errorMessage == null) notifier.loadMore();
+                  },
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  itemCount: effectiveList.length,
                   separatorBuilder: (_, __) => const Divider(
                     height: 1,
                     color: AppColors.border,
                     indent: 48,
                   ),
                   // Membangun satu baris barang katalog yang dapat dipilih.
-                  itemBuilder: (context, index) {
-                    final b = effectiveList[index];
+                  itemBuilder: (context, index, b) {
                     final isSparepart = widget.filterTipe == 'SPAREPART';
                     final isOutOfStock = b.stok <= 0;
 
@@ -232,16 +254,17 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                       ),
                     );
                   },
+                      ),
+                    ),
+                    if (katalog.errorMessage != null)
+                      TextButton.icon(
+                        onPressed: notifier.loadMore,
+                        icon: const Icon(LucideIcons.refreshCw, size: 16),
+                        label: const Text('Gagal memuat halaman berikutnya. Coba Lagi'),
+                      ),
+                  ],
                 );
               },
-              loading: () => const AppLoadingView(),
-              error: (err, _) => AppErrorView(
-                title: 'Gagal Memuat Katalog',
-                error: err,
-                onRetry: () => ref.refresh(
-                  katalogBarangProvider(KatalogBarangParams(query: _query, tipe: widget.filterTipe)),
-                ),
-              ),
             ),
           ),
         ],

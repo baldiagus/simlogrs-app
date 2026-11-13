@@ -55,37 +55,124 @@ class _FakeAdapter implements HttpClientAdapter {
 
 void main() {
   group('PengadaanRepository.getKatalogBarang', () {
-    test('parse JSON ke MasterBarangModel dan kirim filter tidak kosong', () async {
+    test('parse item, metadata halaman, dan kirim query serta filter', () async {
       final (repo, adapter) = _buat(200, {
         'sukses': true,
-        'data': [
-          {
-            'id': '7',
-            'kode': 'BRG-007',
-            'nama': 'Kertas A4',
-            'tipe': 'SPAREPART',
-            'harga_estimasi': '45000',
-            'stok_gudang': 12,
+        'data': {
+          'items': [
+            {
+              'id': '7',
+              'kode': 'BRG-007',
+              'nama': 'Kertas A4',
+              'spesifikasi': '80 gsm',
+              'tipe': 'SPAREPART',
+              'kategori': 'ATK',
+              'satuan': 'Rim',
+              'merek': 'Sinar',
+              'harga_estimasi': '45000',
+              'stok_gudang': 12,
+            },
+          ],
+          'paginasi': {
+            'total': 51,
+            'per_halaman': 25,
+            'halaman_ini': 2,
+            'total_halaman': 3,
           },
-        ],
+        },
       });
 
-      final hasil = await repo.getKatalogBarang(cari: 'kertas', tipe: '');
+      final hasil = await repo.getKatalogBarang(
+        cari: '  kertas  ',
+        tipe: 'SPAREPART',
+        page: 2,
+        perHalaman: 25,
+      );
 
-      expect(hasil, hasLength(1));
-      expect(hasil.first.id, 7);
-      expect(hasil.first.nama, 'Kertas A4');
-      expect(hasil.first.tipeLabel, 'Suku Cadang IPSRS');
-      expect(hasil.first.hargaEstimasi, 45000.0);
-      expect(hasil.first.stok, 12);
+      expect(hasil.items, hasLength(1));
+      final barang = hasil.items.single;
+      expect(barang.id, 7);
+      expect(barang.kode, 'BRG-007');
+      expect(barang.nama, 'Kertas A4');
+      expect(barang.spesifikasi, '80 gsm');
+      expect(barang.tipe, 'SPAREPART');
+      expect(barang.tipeLabel, 'Suku Cadang IPSRS');
+      expect(barang.kategori, 'ATK');
+      expect(barang.satuan, 'Rim');
+      expect(barang.merek, 'Sinar');
+      expect(barang.hargaEstimasi, 45000.0);
+      expect(barang.stok, 12);
+      expect(hasil.meta.total, 51);
+      expect(hasil.meta.perHalaman, 25);
+      expect(hasil.meta.halamanIni, 2);
+      expect(hasil.meta.totalHalaman, 3);
+      expect(hasil.meta.hasMore, isTrue);
       expect(adapter.last!.path, '/master/barang');
-      expect(adapter.last!.queryParameters, {'cari': 'kertas'});
+      expect(adapter.last!.queryParameters, {
+        'cari': 'kertas',
+        'tipe': 'SPAREPART',
+        'page': 2,
+        'per_halaman': 25,
+      });
     });
+
+    test('katalog kosong sah tetap memiliki metadata dan parameter bawaan', () async {
+      final (repo, adapter) = _buat(200, {
+        'sukses': true,
+        'data': {
+          'items': [],
+          'paginasi': {
+            'total': 0,
+            'per_halaman': 50,
+            'halaman_ini': 1,
+            'total_halaman': 1,
+          },
+        },
+      });
+
+      final hasil = await repo.getKatalogBarang(cari: '   ', tipe: '');
+
+      expect(hasil.items, isEmpty);
+      expect(hasil.meta.total, 0);
+      expect(hasil.meta.halamanIni, 1);
+      expect(hasil.meta.perHalaman, 50);
+      expect(hasil.meta.hasMore, isFalse);
+      expect(adapter.last!.queryParameters, {'page': 1, 'per_halaman': 50});
+    });
+
+    final paginasi = {
+      'total': 0,
+      'per_halaman': 50,
+      'halaman_ini': 1,
+      'total_halaman': 1,
+    };
+    final malformed = <String, Object?>{
+      'data hilang': null,
+      'format list lama': [],
+      'items hilang': {'paginasi': paginasi},
+      'items bukan list': {'items': {}, 'paginasi': paginasi},
+      'item bukan objek': {'items': ['rusak'], 'paginasi': paginasi},
+      'item tanpa id': {'items': [{'nama': 'Rusak'}], 'paginasi': paginasi},
+      'metadata hilang': {'items': []},
+      'metadata bukan objek': {'items': [], 'paginasi': []},
+      'metadata tidak lengkap': {'items': [], 'paginasi': {'total': 0}},
+      'metadata bukan angka': {
+        'items': [],
+        'paginasi': {...paginasi, 'halaman_ini': 'rusak'},
+      },
+    };
+    for (final entry in malformed.entries) {
+      test('${entry.key} melempar ApiException, bukan katalog kosong', () async {
+        final (repo, _) = _buat(200, {'sukses': true, 'data': entry.value});
+
+        await expectLater(repo.getKatalogBarang(), throwsA(isA<ApiException>()));
+      });
+    }
 
     test('lempar ApiException dengan pesan server saat status 500', () async {
       final (repo, _) = _buat(500, {'sukses': false, 'pesan': 'Katalog sedang dipelihara'});
 
-      expect(
+      await expectLater(
         repo.getKatalogBarang(),
         throwsA(isA<ApiException>()
             .having((e) => e.message, 'message', 'Katalog sedang dipelihara')
