@@ -11,24 +11,28 @@ class InboundItemDraftTile extends StatelessWidget {
   final InboundItemDraft draft;
   final AsyncValue<List<RakModel>> rakListAsync;
   final VoidCallback onPickExpiredDate;
-  final ValueChanged<int?> onRakChanged;
+  final VoidCallback onPickRak;
   final ValueChanged<int> onQuantityChanged;
   final ValueChanged<int>? onRusakChanged;
   final ValueChanged<String>? onBatchChanged;
   final VoidCallback? onRetryRak;
   final String? rakUnavailableMessage;
+  final int? gudangPenerimaId;
+  final String? namaGudangPenerima;
 
   const InboundItemDraftTile({
     super.key,
     required this.draft,
     required this.rakListAsync,
     required this.onPickExpiredDate,
-    required this.onRakChanged,
+    required this.onPickRak,
     required this.onQuantityChanged,
     this.onRusakChanged,
     this.onBatchChanged,
     this.onRetryRak,
     this.rakUnavailableMessage,
+    this.gudangPenerimaId,
+    this.namaGudangPenerima,
   });
 
   /// Membangun form draft item penerimaan; pilihan rak diambil dari [rakListAsync].
@@ -261,27 +265,49 @@ class InboundItemDraftTile extends StatelessWidget {
                         ],
                       );
                     }
-                    final selected = raks.any((r) => r.id == draft.lokasiGudangId) ? draft.lokasiGudangId : null;
-                    return DropdownButtonFormField<int>(
-                      key: ValueKey('rak-$selected-${raks.map((r) => r.id).join(',')}'),
-                      initialValue: selected,
-                      isExpanded: true,
-                      hint: const Text('Pilih rak simpan', style: TextStyle(fontSize: 12)),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      ),
-                      items: raks.map((r) {
-                        return DropdownMenuItem<int>(
-                          value: r.id,
-                          child: Text(
-                            '${r.kode} (${r.nama})',
-                            style: const TextStyle(fontSize: 12),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    final index = raks.indexWhere((r) => r.id == draft.lokasiGudangId);
+                    final selected = index < 0 ? null : raks[index];
+                    var warehouseName = selected?.namaGudang.trim() ?? '';
+                    if ((warehouseName.isEmpty || warehouseName == '-') &&
+                        selected?.gudangId == gudangPenerimaId) {
+                      warehouseName = namaGudangPenerima?.trim() ?? '';
+                    }
+                    return Semantics(
+                      button: true,
+                      child: InkWell(
+                        key: ValueKey('pilih-rak-${draft.poItem.id}'),
+                        onTap: onPickRak,
+                        borderRadius: BorderRadius.circular(12),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           ),
-                        );
-                      }).toList(),
-                      onChanged: onRakChanged,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      selected == null ? 'Pilih rak simpan' : '${selected.kode} (${selected.nama})',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    if (selected != null)
+                                      Text(
+                                        warehouseName.isEmpty || warehouseName == '-'
+                                            ? 'Informasi gudang belum tersedia'
+                                            : 'Gudang: $warehouseName',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   },
                   loading: () => const Text('Memuat rak gudang...', style: TextStyle(fontSize: 11)),

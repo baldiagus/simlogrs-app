@@ -11,6 +11,7 @@ import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../widgets/inbound_item_draft_tile.dart';
 import '../widgets/modal_tolak_penerimaan_sheet.dart';
+import '../widgets/rak_picker_bottom_sheet.dart';
 import '../../data/models/po_inbound_model.dart';
 import '../providers/gudang_provider.dart';
 import '../providers/inbound_provider.dart';
@@ -39,6 +40,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
   late final List<InboundItemDraft> _itemDrafts;
   final _dateFormat = DateFormat('yyyy-MM-dd');
   int? _selectedGudangId;
+  int _rackContextGeneration = 0;
 
   bool _canChooseGudang(UserModel? user) =>
       user != null && (user.hasRole('super_admin') || user.hasRole('admin_logistik'));
@@ -47,9 +49,53 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
       user?.gudang?.id ?? (_canChooseGudang(user) ? _selectedGudangId : null);
 
   void _clearRackSelections() {
+    _rackContextGeneration++;
     for (final draft in _itemDrafts) {
       draft.lokasiGudangId = null;
     }
+  }
+
+  Future<void> _pickRak(InboundItemDraft draft) async {
+    final user = ref.read(authStateProvider).user;
+    final gudangId = _targetGudangId(user);
+    final gudangs = ref.read(masterGudangListProvider);
+    if (user == null || !user.canReceiveInbound || gudangId == null ||
+        gudangs.isLoading || gudangs.hasError) {
+      return;
+    }
+    final index = gudangs.requireValue.indexWhere((g) => g.id == gudangId);
+    if (index < 0) return;
+    final racks = ref.read(rakPenerimaanProvider(gudangId));
+    if (racks.isLoading || racks.hasError || racks.requireValue.isEmpty) return;
+    final generation = _rackContextGeneration;
+    final selected = await showModalBottomSheet<RakModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => RakPickerBottomSheet(
+        gudangId: gudangId,
+        namaGudang: gudangs.requireValue[index].nama,
+        selectedRackId: draft.lokasiGudangId,
+      ),
+    );
+    if (!mounted || selected == null) return;
+    final currentUser = ref.read(authStateProvider).user;
+    if (generation != _rackContextGeneration || currentUser?.id != user.id ||
+        currentUser?.canReceiveInbound != true || _targetGudangId(currentUser) != gudangId) {
+      AppToast.info(context, 'Konteks gudang berubah. Silakan pilih rak kembali.');
+      return;
+    }
+    final currentGudangs = ref.read(masterGudangListProvider);
+    final currentRacks = ref.read(rakPenerimaanProvider(gudangId));
+    if (currentGudangs.isLoading || currentGudangs.hasError ||
+        !(currentGudangs.asData?.value.any((g) => g.id == gudangId) ?? false) ||
+        currentRacks.isLoading || currentRacks.hasError ||
+        !(currentRacks.asData?.value.any((r) => r.id == selected.id &&
+            r.gudangId == gudangId && r.status == 'AKTIF') ?? false)) {
+      AppToast.info(context, 'Daftar rak berubah. Silakan pilih rak aktif kembali.');
+      return;
+    }
+    setState(() => draft.lokasiGudangId = selected.id);
   }
 
   /// Menyiapkan draft penerimaan untuk tiap item PO saat form pertama kali dibuka.
@@ -404,14 +450,14 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                         return InboundItemDraftTile(
                           draft: draft,
                           rakListAsync: rakListAsync,
+                          gudangPenerimaId: gudangId,
+                          namaGudangPenerima: validGudang
+                              ? gudangs.requireValue.firstWhere((g) => g.id == gudangId).nama
+                              : null,
                           rakUnavailableMessage: validGudang ? null : 'Pilih gudang penerima yang aktif terlebih dahulu.',
                           onRetryRak: validGudang ? () => ref.invalidate(rakPenerimaanProvider(gudangId)) : null,
                           onPickExpiredDate: () => _pickExpiredDate(draft),
-                          onRakChanged: (val) {
-                            setState(() {
-                              draft.lokasiGudangId = val;
-                            });
-                          },
+                          onPickRak: () => _pickRak(draft),
                           onQuantityChanged: (val) {
                             setState(() {
                               draft.jumlahDiterima = val;

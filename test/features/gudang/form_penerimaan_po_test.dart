@@ -135,7 +135,8 @@ void main() {
     expect(find.text('Total Diterima:'), findsOneWidget);
   });
 
-  Future<void> pumpForm(WidgetTester tester, UserModel user) async {
+  Future<void> pumpForm(WidgetTester tester, UserModel user,
+      {Future<List<RakModel>> Function()? loadRacks}) async {
     tester.view.physicalSize = const Size(360, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -146,7 +147,9 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
-          rakPenerimaanProvider(1).overrideWith((ref) => Future.value(mockRaks)),
+          rakPenerimaanProvider(1).overrideWith(
+            (ref) async => loadRacks == null ? mockRaks : await loadRacks(),
+          ),
           masterGudangListProvider.overrideWith((ref) async => [const GudangModel(id: 1, nama: 'Gudang Utama')]),
         ],
         child: const MaterialApp(home: FormPenerimaanPoScreen(po: mockPo)),
@@ -154,6 +157,60 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('rack search selects a warehouse-labelled value; cancel and reopen clear only the query', (tester) async {
+    var rackLoads = 0;
+    await pumpForm(tester, gudangUser, loadRacks: () async {
+      rackLoads++;
+      return mockRaks;
+    });
+    final rackField = find.byKey(const ValueKey('pilih-rak-1'));
+    final search = find.byWidgetPredicate(
+      (widget) => widget is TextField &&
+          widget.decoration?.hintText == 'Cari kode atau nama rak...',
+    );
+    const rackLabel = 'BIN-C1 (Bin C1 - Rak Medis Lantai 1)';
+    await tester.ensureVisible(rackField);
+    await tester.tap(rackField);
+    await tester.pumpAndSettle();
+    expect(find.text('Pilih Rak Simpan'), findsOneWidget);
+    expect(find.text('Gudang Penerima: Gudang Utama'), findsOneWidget);
+    await tester.enterText(search, '  bIn  ');
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: rackField, matching: find.text('Pilih rak simpan')), findsOneWidget);
+    expect(find.text(rackLabel), findsOneWidget);
+    expect(find.text('Gudang: Gudang Utama'), findsOneWidget);
+    await tester.ensureVisible(find.text(rackLabel));
+    await tester.tap(find.text(rackLabel));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: rackField, matching: find.text(rackLabel)), findsOneWidget);
+    expect(find.descendant(of: rackField, matching: find.text('Gudang: Gudang Utama')), findsOneWidget);
+
+    await tester.ensureVisible(rackField);
+    await tester.tap(rackField);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(search).controller!.text, isEmpty);
+    await tester.enterText(search, 'tidak-ada-rak');
+    await tester.pumpAndSettle();
+    expect(find.text('Rak Tidak Ditemukan'), findsOneWidget);
+    expect(find.descendant(of: rackField, matching: find.text(rackLabel)), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: rackField, matching: find.text(rackLabel)), findsOneWidget);
+    expect(find.descendant(of: rackField, matching: find.text('Gudang: Gudang Utama')), findsOneWidget);
+
+    await tester.ensureVisible(rackField);
+    await tester.tap(rackField);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(search).controller!.text, isEmpty);
+    expect(find.text('Rak Tidak Ditemukan'), findsNothing);
+    expect(find.text(rackLabel), findsWidgets);
+    expect(rackLoads, 1);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: rackField, matching: find.text(rackLabel)), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Stepper Jumlah Rusak tampil dengan label satuan dan teks stok bersih reaktif', (tester) async {
     await pumpForm(tester, gudangUser);

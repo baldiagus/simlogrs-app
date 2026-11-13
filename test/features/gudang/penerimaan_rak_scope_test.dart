@@ -72,7 +72,7 @@ class _Repository implements GudangRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 Finder get _save => find.widgetWithText(CustomButton, 'Simpan ke Stok Gudang');
-Finder get _rackDropdown => find.descendant(of: find.byType(InboundItemDraftTile), matching: find.byType(DropdownButtonFormField<int>));
+Finder _rackField([int itemId = 1]) => find.byKey(ValueKey('pilih-rak-$itemId'));
 Finder get _targetDropdown => find.byKey(const ValueKey('gudang-penerimaan-selector'));
 Future<void> _choose(WidgetTester tester, Finder dropdown, String text) async {
   await tester.ensureVisible(dropdown);
@@ -81,14 +81,46 @@ Future<void> _choose(WidgetTester tester, Finder dropdown, String text) async {
   await tester.tap(find.text(text).last);
   await tester.pumpAndSettle();
 }
+Future<void> _openRack(WidgetTester tester, {int itemId = 1}) async {
+  await tester.ensureVisible(_rackField(itemId));
+  await tester.tap(_rackField(itemId));
+  await tester.pumpAndSettle();
+}
+
+Finder _input(String hint) => find.byWidgetPredicate(
+  (w) => w is TextField && w.decoration?.hintText == hint,
+);
+
+Finder _item(int itemId) => find.ancestor(
+  of: _rackField(itemId),
+  matching: find.byType(InboundItemDraftTile),
+);
+
+Future<void> _setQuantity(WidgetTester tester, int itemId, String value) async {
+  final field = find.descendant(
+    of: find.descendant(of: _item(itemId), matching: find.byType(AppQuantityStepper)).first,
+    matching: find.byType(TextField),
+  );
+  await tester.ensureVisible(field);
+  await tester.enterText(field, value);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _dismissSheet(WidgetTester tester) async {
+  await tester.binding.handlePopRoute();
+  await tester.pumpAndSettle();
+}
 Future<void> _enter(WidgetTester tester, String hint, String value) async {
-  final field = find.byWidgetPredicate((w) => w is TextField && w.decoration?.hintText == hint);
+  final field = _input(hint);
   await tester.ensureVisible(field);
   await tester.enterText(field, value);
   await tester.pump();
+  // AppSearchBar memakai debounce 300 ms; majukan agar filter rak diterapkan.
+  await tester.pump(const Duration(milliseconds: 350));
 }
 Future<void> _pump(WidgetTester tester, _Repository repository, UserModel user,
-  {Future<List<GudangModel>> Function()? warehouses, _Auth? auth, double width = 400}) async {
+  {Future<List<GudangModel>> Function()? warehouses, _Auth? auth, double width = 400,
+  PoInboundHeaderModel po = _po}) async {
   tester.view.physicalSize = Size(width, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(() { tester.view.resetPhysicalSize(); tester.view.resetDevicePixelRatio(); });
@@ -96,7 +128,7 @@ Future<void> _pump(WidgetTester tester, _Repository repository, UserModel user,
     authStateProvider.overrideWith((ref) => auth ?? _Auth(user)),
     gudangRepositoryProvider.overrideWithValue(repository),
     masterGudangListProvider.overrideWith((ref) async => warehouses == null ? _warehouses : await warehouses()),
-  ], child: const MaterialApp(home: FormPenerimaanPoScreen(po: _po))));
+  ], child: MaterialApp(home: FormPenerimaanPoScreen(po: po))));
   await tester.pump();
   await tester.pump();
 }
@@ -109,14 +141,13 @@ void main() {
     expect(repo.targets, [1]);
     expect(find.text('Pilih rak simpan'), findsOneWidget);
     expect(tester.widget<CustomButton>(_save).onPressed, isNull);
-    await tester.ensureVisible(_rackDropdown);
-    await tester.tap(_rackDropdown);
-    await tester.pumpAndSettle();
+    await _openRack(tester);
     expect(find.text('RAK-11 (Rak 11)'), findsWidgets);
     expect(find.text('RAK-12 (Rak 12)'), findsWidgets);
     expect(find.text('RAK-21 (Rak 21)'), findsNothing);
     expect(find.text('RAK-13 (Rak 13)'), findsNothing);
     expect(tester.takeException(), isNull);
+    await _dismissSheet(tester);
   });
 
   for (final role in ['super_admin', 'admin_logistik']) {
@@ -149,7 +180,7 @@ void main() {
     await _pump(tester, repo, _user(role: 'super_admin', warehouse: null));
     await tester.pumpAndSettle();
     await _choose(tester, _targetDropdown, 'Gudang Medis');
-    await _choose(tester, _rackDropdown, 'RAK-11 (Rak 11)');
+    await _choose(tester, _rackField(), 'RAK-11 (Rak 11)');
     await _enter(tester, 'misal: B-1234', 'BATCH-TETAP');
     await _enter(tester, 'misal: SJ/PT-SLM/2026/089', 'SJ-TETAP');
     await _enter(tester, 'Kondisi segel kardus, nama kurir, atau ekspedisi...', 'CATATAN-TETAP');
@@ -158,29 +189,26 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    final date = tester.widget<InboundItemDraftTile>(find.byType(InboundItemDraftTile)).draft.tanggalKedaluwarsa;
-    final quantity = find.byType(AppQuantityStepper).first;
-    await tester.ensureVisible(quantity);
-    await tester.enterText(find.descendant(of: quantity, matching: find.byType(TextField)), '0');
-    await tester.pumpAndSettle();
+    final date = tester.widget<Text>(
+      find.descendant(of: _item(1), matching: find.textContaining(RegExp(r'^\d{4}-\d{2}-\d{2}$'))),
+    ).data!;
+    await _setQuantity(tester, 1, '0');
     await _choose(tester, _targetDropdown, 'Gudang Umum');
-    final draft = tester.widget<InboundItemDraftTile>(find.byType(InboundItemDraftTile)).draft;
-    expect(draft.lokasiGudangId, isNull);
-    expect(draft.jumlahDiterima, 0);
-    expect(draft.nomorBatch, 'BATCH-TETAP');
-    expect(draft.tanggalKedaluwarsa, date);
-    expect(date, isNotNull);
+    expect(find.descendant(of: _rackField(), matching: find.text('Pilih rak simpan')), findsOneWidget);
+    expect(find.descendant(of: _item(1), matching: find.text('Stok bersih: 0 Box')), findsOneWidget);
+    expect(find.text('BATCH-TETAP'), findsOneWidget);
+    expect(find.text(date), findsOneWidget);
     expect(find.text('SJ-TETAP'), findsOneWidget);
     expect(find.text('CATATAN-TETAP'), findsOneWidget);
-    await tester.ensureVisible(quantity);
-    await tester.enterText(find.descendant(of: quantity, matching: find.byType(TextField)), '2');
-    await tester.pumpAndSettle();
+    await _setQuantity(tester, 1, '2');
     expect(tester.widget<CustomButton>(_save).onPressed, isNull);
-    await _choose(tester, _rackDropdown, 'RAK-21 (Rak 21)');
+    await _choose(tester, _rackField(), 'RAK-21 (Rak 21)');
     await tester.tap(_save);
     await tester.pumpAndSettle();
     expect(repo.submittedTarget, 2);
     expect(repo.submittedItems!.single['jumlah_diterima'], 2);
+    expect(repo.submittedItems!.single['nomor_batch'], 'BATCH-TETAP');
+    expect(repo.submittedItems!.single['tanggal_kedaluwarsa'], date);
     await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
   });
@@ -190,14 +218,13 @@ void main() {
     final auth = _Auth(_user());
     await _pump(tester, repo, _user(), auth: auth);
     await tester.pumpAndSettle();
-    await _choose(tester, _rackDropdown, 'RAK-11 (Rak 11)');
+    await _choose(tester, _rackField(), 'RAK-11 (Rak 11)');
     await _enter(tester, 'misal: B-1234', 'BATCH-AKUN');
     auth.changeUser(_user(id: 2, warehouse: 2));
     await tester.pumpAndSettle();
-    final draft = tester.widget<InboundItemDraftTile>(find.byType(InboundItemDraftTile)).draft;
-    expect(draft.lokasiGudangId, isNull);
-    expect(draft.nomorBatch, 'BATCH-AKUN');
-    expect(draft.jumlahDiterima, 5);
+    expect(find.descendant(of: _rackField(), matching: find.text('Pilih rak simpan')), findsOneWidget);
+    expect(find.text('BATCH-AKUN'), findsOneWidget);
+    expect(find.text('Stok bersih: 5 Box'), findsOneWidget);
     expect(repo.targets.last, 2);
   });
 
@@ -223,7 +250,7 @@ void main() {
         await tester.ensureVisible(find.text('Coba lagi rak'));
         await tester.tap(find.text('Coba lagi rak'));
         await tester.pumpAndSettle();
-        expect(_rackDropdown, findsOneWidget);
+        expect(_rackField(), findsOneWidget);
       }
     });
     testWidgets('warehouse $state prevents rack loading and submit', (tester) async {
@@ -251,6 +278,139 @@ void main() {
     expect(repo.submissions, 0);
   });
 
+  testWidgets('searched rack updates only its opening item and keeps two drafts independent', (tester) async {
+    final repo = _Repository();
+    final po = PoInboundHeaderModel(
+      id: _po.id, kodePo: _po.kodePo, pemasok: _po.pemasok,
+      tanggalPo: _po.tanggalPo, status: _po.status, totalItem: 2,
+      items: [
+        _po.items.first,
+        const PoInboundItemModel(
+          id: 2, barangId: 2, kodeBarang: 'BRG-2', namaBarang: 'Masker',
+          satuan: 'Box', jumlahDipesan: 4, jumlahSudahDiterima: 0,
+          sisaKebutuhan: 4, hargaSatuan: 200,
+        ),
+      ],
+    );
+    await _pump(tester, repo, _user(), po: po);
+    await tester.pumpAndSettle();
+    await _enter(tester, 'misal: SJ/PT-SLM/2026/089', 'SJ-DUA-ITEM');
+    await _enter(tester, 'Kondisi segel kardus, nama kurir, atau ekspedisi...', 'CATATAN-DUA-ITEM');
+    for (final id in [1, 2]) {
+      final batch = find.descendant(of: _item(id), matching: _input('misal: B-1234'));
+      await tester.ensureVisible(batch);
+      await tester.enterText(batch, 'BATCH-$id');
+      await _setQuantity(tester, id, '${id + 1}');
+    }
+    await _openRack(tester, itemId: 2);
+    expect(find.text('Gudang Penerima: Gudang Medis'), findsOneWidget);
+    await _enter(tester, 'Cari kode atau nama rak...', '  rAk 12  ');
+    await tester.pumpAndSettle();
+    expect(find.text('RAK-11 (Rak 11)'), findsNothing);
+    expect(find.text('Gudang: Gudang 1'), findsOneWidget);
+    await tester.tap(find.text('RAK-12 (Rak 12)'));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: _rackField(2), matching: find.text('RAK-12 (Rak 12)')), findsOneWidget);
+    expect(find.descendant(of: _rackField(2), matching: find.text('Gudang: Gudang 1')), findsOneWidget);
+    expect(find.descendant(of: _rackField(1), matching: find.text('Pilih rak simpan')), findsOneWidget);
+    expect(tester.widget<CustomButton>(_save).onPressed, isNull);
+    await _choose(tester, _rackField(1), 'RAK-11 (Rak 11)');
+    expect(find.descendant(of: _rackField(2), matching: find.text('RAK-12 (Rak 12)')), findsOneWidget);
+    expect(repo.targets, [1]);
+    await tester.tap(_save);
+    await tester.pumpAndSettle();
+    expect(repo.submittedItems, [
+      containsPair('lokasi_gudang_id', 11),
+      containsPair('lokasi_gudang_id', 12),
+    ]);
+    expect(repo.submittedItems!.map((item) => item['jumlah_diterima']), [2, 3]);
+    expect(repo.submittedItems!.map((item) => item['nomor_batch']), ['BATCH-1', 'BATCH-2']);
+    expect(find.text('SJ-DUA-ITEM'), findsOneWidget);
+    expect(find.text('CATATAN-DUA-ITEM'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final change in ['target', 'account']) {
+    testWidgets('$change changes while sheet is open reject old results even after returning to original context', (tester) async {
+      final repo = _Repository();
+      final auth = _Auth(_user());
+      await _pump(tester, repo, _user(), auth: auth);
+      await tester.pumpAndSettle();
+      await _enter(tester, 'misal: B-1234', 'BATCH-KONTEKS');
+      await _enter(tester, 'misal: SJ/PT-SLM/2026/089', 'SJ-KONTEKS');
+      await _enter(tester, 'Kondisi segel kardus, nama kurir, atau ekspedisi...', 'CATATAN-KONTEKS');
+      await _setQuantity(tester, 1, '3');
+      await _choose(tester, _rackField(), 'RAK-11 (Rak 11)');
+      await _openRack(tester);
+      await _enter(tester, 'Cari kode atau nama rak...', 'RAK-12');
+      await tester.pumpAndSettle();
+      final refreshed = Completer<List<RakModel>>();
+      repo.load = () => refreshed.future;
+      auth.changeUser(change == 'target' ? _user(warehouse: 2) : _user(id: 2));
+      await tester.pump();
+      auth.changeUser(_user());
+      await tester.pump();
+      refreshed.complete(repo.racks);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('RAK-12 (Rak 12)'));
+      await tester.tap(find.text('RAK-12 (Rak 12)'));
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: _rackField(), matching: find.text('Pilih rak simpan')), findsOneWidget);
+      expect(tester.widget<CustomButton>(_save).onPressed, isNull);
+      expect(find.text('Stok bersih: 3 Box'), findsOneWidget);
+      expect(find.text('BATCH-KONTEKS'), findsOneWidget);
+      expect(find.text('SJ-KONTEKS'), findsOneWidget);
+      expect(find.text('CATATAN-KONTEKS'), findsOneWidget);
+      expect(repo.submissions, 0);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final change in ['inactive', 'moved', 'missing']) {
+    testWidgets('refreshed $change rack cannot be selected or submitted from an open sheet', (tester) async {
+      final repo = _Repository();
+      await _pump(tester, repo, _user());
+      await tester.pumpAndSettle();
+      await _enter(tester, 'misal: SJ/PT-SLM/2026/089', 'SJ-REFRESH');
+      await _enter(tester, 'misal: B-1234', 'BATCH-REFRESH');
+      await _choose(tester, _rackField(), 'RAK-11 (Rak 11)');
+      expect(tester.widget<CustomButton>(_save).onPressed, isNotNull);
+      await _openRack(tester);
+      final refreshed = Completer<List<RakModel>>();
+      repo.load = () => refreshed.future;
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(FormPenerimaanPoScreen)),
+      );
+      container.invalidate(rakPenerimaanProvider(1));
+      await tester.pump();
+      await tester.pump();
+      expect(repo.submissions, 0);
+      refreshed.complete([
+        _rack(12, 1),
+        if (change == 'inactive') _rack(11, 1, status: 'NONAKTIF'),
+        if (change == 'moved') _rack(11, 2),
+      ]);
+      await tester.pumpAndSettle();
+      expect(find.text('RAK-11 (Rak 11)'), findsNothing);
+      expect(find.text('RAK-12 (Rak 12)'), findsOneWidget);
+      await _dismissSheet(tester);
+      expect(find.text('Pilih rak simpan'), findsOneWidget);
+      expect(tester.widget<CustomButton>(_save).onPressed, isNull);
+      await tester.tap(_save);
+      await tester.pump();
+      expect(repo.submissions, 0);
+      expect(find.text('BATCH-REFRESH'), findsOneWidget);
+      expect(find.text('Stok bersih: 5 Box'), findsOneWidget);
+      await _choose(tester, _rackField(), 'RAK-12 (Rak 12)');
+      expect(tester.widget<CustomButton>(_save).onPressed, isNotNull);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('422 refreshes warehouses and racks, preserves input and rejects stale selection', (tester) async {
     final repo = _Repository();
     var warehouseLoads = 0;
@@ -259,7 +419,7 @@ void main() {
     await _enter(tester, 'misal: SJ/PT-SLM/2026/089', 'SJ-422');
     await _enter(tester, 'Kondisi segel kardus, nama kurir, atau ekspedisi...', 'CATATAN-422');
     await _enter(tester, 'misal: B-1234', 'BATCH-422');
-    await _choose(tester, _rackDropdown, 'RAK-11 (Rak 11)');
+    await _choose(tester, _rackField(), 'RAK-11 (Rak 11)');
     repo.racks = [_rack(12, 1)];
     await tester.tap(_save);
     await tester.pumpAndSettle();
@@ -270,12 +430,10 @@ void main() {
     expect(find.text('CATATAN-422'), findsOneWidget);
     expect(find.text('BATCH-422'), findsOneWidget);
     expect(find.text('Pilih rak simpan'), findsOneWidget);
-    final draft = tester.widget<InboundItemDraftTile>(find.byType(InboundItemDraftTile)).draft;
-    expect(draft.jumlahDiterima, 5);
-    expect(draft.lokasiGudangId, 11); // Stale ID is not silently mutated during build.
+    expect(find.text('Stok bersih: 5 Box'), findsOneWidget);
     expect(tester.widget<CustomButton>(_save).onPressed, isNull);
     expect(repo.submissions, 1);
-    await _choose(tester, _rackDropdown, 'RAK-12 (Rak 12)');
+    await _choose(tester, _rackField(), 'RAK-12 (Rak 12)');
     expect(tester.widget<CustomButton>(_save).onPressed, isNotNull);
     expect(tester.takeException(), isNull);
     await tester.pump(const Duration(seconds: 4));
