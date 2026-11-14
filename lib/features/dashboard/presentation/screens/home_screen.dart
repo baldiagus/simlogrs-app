@@ -14,7 +14,7 @@ import '../views/dashboard_eksekutif_view.dart';
 import '../views/dashboard_gudang_view.dart';
 import '../views/dashboard_ipsrs_view.dart';
 import '../views/dashboard_ruangan_view.dart';
-import '../widgets/user_top_bar.dart';
+import '../../../../shared/widgets/user_top_bar.dart';
 
 class HomeScreen extends ConsumerWidget {
   final ValueChanged<int>? onNavigateTab;

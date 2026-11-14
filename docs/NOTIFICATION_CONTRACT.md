@@ -11,6 +11,8 @@ WAJIB mengikutinya. Perubahan kontrak diubah di sini dahulu.
 - Pemicu transaksi memakai **Model Observer** (satu kali untuk jalur web Livewire maupun API).
 - Pelaku aksi tidak menerima notifikasi atas aksinya sendiri.
 - Penerima = pihak yang sama yang melihat dokumen itu di antrean (aturan visibilitas `ApprovalController`).
+- Inbox mobile dibuka melalui **Beranda → ikon lonceng Notifikasi**. Seluruh tampilan Beranda per peran, termasuk header saat loading/error dashboard, memakai `lib/shared/widgets/user_top_bar.dart`; jangan membuat salinan header dashboard tanpa akses inbox.
+- Badge lonceng menampilkan jumlah belum dibaca dari `belumDibacaProvider`, disinkronkan melalui endpoint `/notifikasi`. Membuka inbox tidak mensyaratkan izin push/FCM aktif.
 
 ## 2. Endpoint API (prefix `/api/v1`, `auth:sanctum`)
 

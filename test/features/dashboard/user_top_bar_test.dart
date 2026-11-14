@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
-import 'package:simlog_mobile/features/dashboard/presentation/widgets/user_top_bar.dart';
+import 'package:simlog_mobile/shared/widgets/user_top_bar.dart';
+import 'package:simlog_mobile/features/notifikasi/presentation/providers/notifikasi_provider.dart';
 
 class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier {
   MockAuthNotifier(UserModel user) : super(AuthState.authenticated(user));
@@ -39,6 +40,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(testUser)),
+          belumDibacaSinkronProvider.overrideWith((ref) => Future<void>.value()),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -85,6 +87,7 @@ void main() {
       ProviderScope(
         overrides: [
           authStateProvider.overrideWith((ref) => MockAuthNotifier(adminLogistikUser)),
+          belumDibacaSinkronProvider.overrideWith((ref) => Future<void>.value()),
         ],
         child: const MaterialApp(
           home: Scaffold(

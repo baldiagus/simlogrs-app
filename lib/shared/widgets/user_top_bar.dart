@@ -66,7 +66,10 @@ class UserTopBar extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 2,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   const Text(
                     'Selamat Bertugas,',
@@ -76,12 +79,9 @@ class UserTopBar extends ConsumerWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: ValueListenableBuilder<FcmStatus>(
-                      valueListenable: PushNotificationService.instance.fcmStatus,
-                      builder: (context, status, _) => _FcmStatusLabel(status: status),
-                    ),
+                  ValueListenableBuilder<FcmStatus>(
+                    valueListenable: PushNotificationService.instance.fcmStatus,
+                    builder: (context, status, _) => _FcmStatusLabel(status: status),
                   ),
                 ],
               ),

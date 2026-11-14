@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simlog_mobile/core/models/pagination_meta.dart';
+import 'package:simlog_mobile/features/notifikasi/data/repositories/notifikasi_repository.dart';
+import 'package:simlog_mobile/features/notifikasi/presentation/screens/notifikasi_screen.dart';
 import 'package:simlog_mobile/features/pengadaan/data/models/approval_item_model.dart';
 import 'package:simlog_mobile/features/pengadaan/presentation/providers/approval_provider.dart';
 import 'package:simlog_mobile/features/aset/data/models/pengalihan_model.dart';
@@ -36,6 +39,14 @@ class MockAuthNotifier extends StateNotifier<AuthState> implements AuthNotifier 
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _InboxRepository extends Fake implements NotifikasiRepository {
+  @override
+  Future<NotifikasiPage> getDaftar({
+    int page = 1,
+    bool hanyaBelumDibaca = false,
+  }) async => NotifikasiPage(halaman: PagedResponse.empty(), belumDibaca: 0);
 }
 
 void main() {
@@ -98,6 +109,7 @@ void main() {
     return ProviderScope(
       overrides: [
         authStateProvider.overrideWith((ref) => MockAuthNotifier(user)),
+        notifikasiRepositoryProvider.overrideWithValue(_InboxRepository()),
         dashboardSummaryProvider.overrideWith((ref) => Future.value(dummySummary)),
         approvalPendingProvider.overrideWith((ref) => Future.value(const ApprovalPendingResponse(prList: [], amprahList: [], totalPr: 0, totalAmprah: 0))),
         daftarPengalihanProvider('aktif').overrideWith((ref) => Future.value(<PengalihanItemModel>[])),
@@ -114,6 +126,27 @@ void main() {
         home: HomeScreen(),
       ),
     );
+  }
+
+  for (final user in [karuUser, gudangUser, teknisiUser, manajemenUser, superadminUser]) {
+    testWidgets('${user.roles.first}: lonceng membuka inbox dari Beranda sebenarnya', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(createWidgetForUser(user));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Notifikasi'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NotifikasiScreen), findsOneWidget);
+      expect(find.text('Belum ada notifikasi'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byTooltip('Notifikasi'), findsOneWidget);
+    });
   }
 
   testWidgets('HomeScreen routes Karu user to DashboardRuanganView', (tester) async {

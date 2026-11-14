@@ -16,7 +16,7 @@ import '../widgets/live_activity_feed.dart';
 import '../widgets/master_shortcut_section.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/gudang_shortcut_grid.dart';
-import '../widgets/user_top_bar.dart';
+import '../../../../shared/widgets/user_top_bar.dart';
 
 class DashboardEksekutifView extends ConsumerWidget {
   final DashboardSummaryModel summary;
