@@ -40,6 +40,7 @@ void main() {
       ),
       peminjamanAktif: PeminjamanAktifInfo(
         peminjamanId: 10,
+        peminjamanDetailId: 11,
         kodePinjam: 'PJM-2026-0044',
         unitPeminjam: 'Instalasi Gawat Darurat',
         tanggalKembaliRencana: '2026-10-01',
