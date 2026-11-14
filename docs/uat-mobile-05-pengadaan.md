@@ -35,21 +35,27 @@
 * **Kode Kasus Uji**: `UAT-MOB-BUY-02`
 * **Tujuan**: Memvalidasi modal pembuatan PO, penetapan vendor, tanggal estimasi kirim, syarat pembayaran, dan negosiasi harga satuan.
 * **Langkah-langkah Pengujian**:
-  1. Pada kartu PR berstatus `DISETUJUI`, tekan tombol ungu **Terbitkan PO (Pesanan Pembelian)**.
+  1. Buka **Hub Pengadaan & PO → Permintaan (PR)**. Pada PR berstatus `DITERUSKAN_KE_PENGADAAN`, tekan **Terbitkan PO**.
   2. Pada lembar formulir bawah (*bottom sheet*):
-     - Pilih **Rekanan / Vendor Pemasok** dari daftar dropdown (misal: *PT Sumber Makmur Logistik*).
+     - Ketuk **Rekanan / Vendor Pemasok** untuk membuka **Pilih Rekanan / Vendor**.
+     - Cari sebagian nama atau kode vendor (termasuk 1–3 karakter, huruf campuran, dan spasi awal/akhir), lalu pilih hasil yang sesuai.
+     - Buka kembali pemilih, ubah pencarian lalu tutup/Back: pilihan sebelumnya dan seluruh draft harus tetap utuh. Tombol **Hapus teks** mengembalikan semua opsi.
      - Tentukan **Estimasi Tanggal Kirim** menggunakan DatePicker.
      - Pilih **Syarat Pembayaran**: `TEMPO_30_HARI`, `TEMPO_60_HARI`, atau `TUNAI`.
      - Masukkan catatan pesanan: *"Pengiriman dilakukan pada jam kerja gudang sentral"*.
      - Pada baris komoditas barang, masukkan harga satuan negosiasi (misal: `Rp 45.000`).
   3. Perhatikan kalkulasi **Total Biaya PO** di bagian bawah yang terakumulasi otomatis.
-  4. Tekan tombol **Terbitkan PO Sekarang**.
+  4. Pada data UAT terisolasi, tekan **Konfirmasi Terbitkan PO**. Untuk smoke check pada data operasional, berhenti sebelum konfirmasi.
 * **Kriteria Keberhasilan (Primary Path)**:
   - Dokumen PO resmi berhasil diterbitkan dengan format nomor kode `PO-YYYY-XXX` (HTTP 201).
   - Status PR induk otomatis berganti menjadi `DIPROSES`.
   - Sistem merekonsiliasi barang secara akurat tanpa terjadi kolisi controller antar item.
+  - Nama/kode vendor terpilih tampil di form; pencarian tidak mengubah harga, estimasi kirim, syarat bayar, atau catatan.
+  - Vendor bernama sama tetap dapat dibedakan melalui kode; PO menggunakan ID vendor yang dipilih.
 * **Kriteria Pengecualian (Business Logic Guard)**:
   - Sistem menolak penerbitan PO jika ada item dengan harga $\le 0$ atau kuantitas melebihi yang disetujui pada PR.
+  - Vendor wajib dipilih. Jika daftar sedang dimuat, gagal, atau pilihan hilang setelah daftar diperbarui, ID lama tidak boleh dikirim.
+  - Bedakan kegagalan memuat vendor (dengan **Coba Lagi**), **Belum ada vendor aktif**, dan **Vendor tidak ditemukan**.
 * **Hasil Pengujian**: [ &nbsp;&nbsp; ] Lolos &nbsp;&nbsp;&nbsp; [ &nbsp;&nbsp; ] Gagal &nbsp;&nbsp;&nbsp; Catatan: ........................................
 
 ---

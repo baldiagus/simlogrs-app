@@ -4,12 +4,15 @@ import '../../../../core/utils/app_formatters.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_toast.dart';
+import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../data/models/approval_item_model.dart';
+import '../../data/models/po_model.dart';
 import '../providers/approval_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../gudang/presentation/providers/inbound_provider.dart';
 import '../providers/pengadaan_provider.dart';
+import 'pemasok_picker_bottom_sheet.dart';
 
 class TerbitkanPoSheet extends ConsumerStatefulWidget {
   final ApprovalItemModel prItem;
@@ -65,6 +68,34 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
     super.dispose();
   }
 
+  PemasokOptionModel? _findPemasok(int? id) {
+    final vendors = ref.read(pemasokListProvider);
+    if (id == null || id <= 0 || vendors.isLoading || vendors.hasError) return null;
+    for (final vendor in vendors.asData?.value ?? const <PemasokOptionModel>[]) {
+      if (vendor.id == id) return vendor;
+    }
+    return null;
+  }
+
+  Future<void> _choosePemasok() async {
+    FocusScope.of(context).unfocus();
+    final id = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PemasokPickerBottomSheet(
+        selectedPemasokId: _selectedPemasokId,
+      ),
+    );
+    if (!mounted || id == null) return;
+    if (_findPemasok(id) == null) {
+      AppToast.error(context, 'Vendor tidak tersedia. Pilih kembali.');
+      return;
+    }
+    setState(() => _selectedPemasokId = id);
+  }
+
   /// Menghitung total nilai PO dari harga satuan dikali jumlah tiap item.
   double _calculateTotal() {
     double total = 0;
@@ -81,6 +112,10 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
   Future<void> _submitPo() async {
     if (_selectedPemasokId == null) {
       AppToast.error(context, 'Pilih rekanan / vendor pemasok terlebih dahulu.');
+      return;
+    }
+    if (_findPemasok(_selectedPemasokId) == null) {
+      AppToast.error(context, 'Daftar vendor belum siap atau pilihan tidak tersedia. Pilih kembali.');
       return;
     }
 
@@ -200,23 +235,39 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                   const Text('Rekanan / Vendor Pemasok *', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                   const SizedBox(height: 6),
                   pemasokAsync.when(
-                    // Membangun dropdown pilihan pemasok dari daftar vendor.
+                    skipLoadingOnRefresh: false,
                     data: (vendors) {
-                      return DropdownButtonFormField<int>(
-                        initialValue: _selectedPemasokId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Pilih vendor rekanan...'),
-                        items: vendors.map((v) {
-                          return DropdownMenuItem(
-                            value: v.id,
-                            child: Text('${v.nama} (${v.kode})', style: const TextStyle(fontSize: 13)),
-                          );
-                        }).toList(),
-                        onChanged: (val) => setState(() => _selectedPemasokId = val),
+                      final selected = _findPemasok(_selectedPemasokId);
+                      return Semantics(
+                        button: true,
+                        label: 'Rekanan / Vendor Pemasok',
+                        child: InkWell(
+                          onTap: _isLoading ? null : _choosePemasok,
+                          borderRadius: BorderRadius.circular(8),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              suffixIcon: const Icon(LucideIcons.search, size: 18),
+                              errorText: _selectedPemasokId != null && selected == null
+                                  ? 'Vendor tidak tersedia. Pilih kembali.'
+                                  : null,
+                            ),
+                            child: Text(
+                              selected == null
+                                  ? 'Pilih vendor rekanan...'
+                                  : '${selected.nama} (${selected.kode})',
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ),
                       );
                     },
                     loading: () => const LinearProgressIndicator(),
-                    error: (err, _) => Text('Gagal memuat vendor: $err', style: const TextStyle(color: AppColors.danger)),
+                    error: (err, _) => AppErrorView(
+                      title: 'Gagal Memuat Vendor',
+                      error: err,
+                      onRetry: () => ref.invalidate(pemasokListProvider),
+                    ),
                   ),
                   const SizedBox(height: 14),
 

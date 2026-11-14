@@ -33,26 +33,29 @@
 
 ---
 
-### Skenario 2: Approval Center (Otorisasi PR dan Penerbitan PO)
+### Skenario 2: Hub Pengadaan & PO (Otorisasi PR dan Penerbitan PO)
 * **Kode Kasus Uji**: `UAT-MOB-ADM-02`
 * **Tujuan**: Menguji kemampuan Super Admin dalam mengesahkan PR dan menerbitkan PO langsung dari gawai mobile.
 * **Langkah-langkah Pengujian**:
-  1. Ketuk tab **Approval** pada bottom navigation bar (Tab 1).
-  2. Pada Tab 1 **Pengadaan (PR)**, pilih salah satu PR berstatus `DIAJUKAN`.
+  1. Buka **Hub Pengadaan & PO → Permintaan (PR)**.
+  2. Pilih salah satu PR yang dapat disetujui sesuai status dan hak akses akun.
   3. Tekan tombol **Setujui** $\rightarrow$ masukkan catatan opsional $\rightarrow$ tekan **Ya, Setujui**.
-  4. Buka kembali PR yang telah disetujui $\rightarrow$ tekan tombol **Terbitkan PO (Pesanan Pembelian)**.
+  4. Untuk penerbitan, buka PR berstatus `DITERUSKAN_KE_PENGADAAN`, lalu tekan **Terbitkan PO**.
   5. Pada bottom sheet yang muncul:
-     - Pilih Rekanan / Vendor Pemasok dari dropdown.
+     - Ketuk **Rekanan / Vendor Pemasok**, cari sebagian nama/kode pada **Pilih Rekanan / Vendor**, lalu pilih hasil yang sesuai.
+     - Coba mengubah pencarian lalu tutup/Back: vendor dan draft sebelumnya tetap tersimpan. **Hapus teks** mengembalikan seluruh opsi.
      - Pilih Estimasi Tanggal Kirim dan Syarat Bayar (misal: *TEMPO_30_HARI*).
      - Masukkan harga negosiasi satuan per item barang.
-  6. Tekan tombol **Terbitkan PO Sekarang**.
-  7. Beralih ke Tab 2 **Pesanan (PO)** pada Approval Center.
+  6. Pada data UAT terisolasi, tekan **Konfirmasi Terbitkan PO**. Untuk smoke check data operasional, berhenti sebelum konfirmasi.
+  7. Beralih ke tab **Pesanan (PO)** pada Hub Pengadaan & PO.
 * **Kriteria Keberhasilan (Primary Path)**:
   - PR berhasil disetujui dan status berganti menjadi `DISETUJUI` / `DIPROSES`.
   - Formulir PO menghitung total biaya secara atomik tanpa kolisi antar baris item.
+  - Nama/kode pilihan tampil di form; vendor bernama sama dibedakan melalui kode dan ID yang benar.
   - PO berhasil terbit dengan status `DITERBITKAN` (HTTP 201) dan langsung tercantum di Tab 2 Pesanan PO.
 * **Kriteria Pengecualian (Exception Path)**:
   - Jika harga satuan diisi $\le 0$, muncul notifikasi validasi: *"Harga satuan untuk ... wajib lebih dari 0"*.
+  - ID vendor lama tidak dikirim ketika daftar sedang dimuat, gagal, atau pilihan hilang setelah refresh; pilih ulang vendor yang tersedia.
 * **Hasil Pengujian**: [ &nbsp;&nbsp; ] Lolos &nbsp;&nbsp;&nbsp; [ &nbsp;&nbsp; ] Gagal &nbsp;&nbsp;&nbsp; Catatan: ........................................
 
 ---
