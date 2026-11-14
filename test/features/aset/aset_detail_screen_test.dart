@@ -73,8 +73,14 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
+      ProviderScope(
+        overrides: [
+          authStateProvider.overrideWith((ref) => MockAuthNotifier(
+            const UserModel(id: 1, name: 'Admin', email: 'admin@example.test',
+                roles: ['super_admin'], permissions: []),
+          )),
+        ],
+        child: const MaterialApp(
           home: AsetDetailScreen(initialAset: detail),
         ),
       ),
@@ -227,6 +233,8 @@ void main() {
       tanggalPerolehan: '2026-09-20',
       totalRiwayatServis: 0,
       unitId: 8, // Origin: Direksi
+      tipePenyedia: 'RUANGAN',
+      penyediaId: 8,
       peminjamanAktif: PeminjamanAktifInfo(
         peminjamanId: 10,
         kodePinjam: 'PINJ-2026-002',
@@ -258,6 +266,7 @@ void main() {
     expect(find.text('Lapor Kerusakan Alat (IPSRS)'), findsOneWidget);
     // Cannot borrow an already borrowed asset
     expect(find.text('Ajukan Peminjaman Aset'), findsNothing);
+    expect(find.text('Kembalikan Fisik'), findsNothing);
   });
 
   testWidgets('AsetDetailScreen hides Ajukan Peminjaman and shows banner if asset has pending loan request by another unit', (tester) async {

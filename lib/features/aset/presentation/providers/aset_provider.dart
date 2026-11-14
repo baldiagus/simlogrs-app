@@ -5,6 +5,7 @@ import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'peminjaman_provider.dart';
+import '../utils/aset_error_message.dart';
 /// Provider [AsetRepository] untuk operasi data aset via klien HTTP bersama.
 final asetRepositoryProvider = Provider<AsetRepository>((ref) {
   final client = ref.watch(dioClientProvider);
@@ -60,7 +61,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return null;
     }
@@ -84,7 +85,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }
@@ -121,7 +122,7 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }

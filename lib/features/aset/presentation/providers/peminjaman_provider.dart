@@ -6,6 +6,7 @@ import '../../data/repositories/aset_repository.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
 import 'aset_provider.dart';
+import '../utils/aset_error_message.dart';
 /// Katalog aset yang tersedia untuk dipinjam, difilter dengan kata kunci pencarian.
 final katalogAsetTersediaProvider =
     FutureProvider.autoDispose.family<List<AsetTersediaModel>, String>((ref, query) async {
@@ -115,7 +116,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     } catch (e) {
       state = PeminjamanActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }
@@ -137,7 +138,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     } catch (e) {
       state = PeminjamanActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }
@@ -167,7 +168,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     } catch (e) {
       state = PeminjamanActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }
@@ -209,7 +210,7 @@ class PeminjamanActionNotifier extends StateNotifier<PeminjamanActionState> {
     } catch (e) {
       state = PeminjamanActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: asetErrorMessage(e),
       );
       return false;
     }

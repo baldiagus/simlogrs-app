@@ -6,6 +6,7 @@ import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../../data/models/peminjaman_aset_model.dart';
 import '../providers/peminjaman_provider.dart';
+import '../utils/aset_error_message.dart';
 import 'sirkulasi_hub_common_widgets.dart';
 import 'sirkulasi_hub_otorisasi_card.dart';
 
@@ -60,7 +61,7 @@ class SirkulasiHubOtorisasiTab extends ConsumerWidget {
       },
       loading: () => const AppLoadingView(),
       error: (err, _) => AppErrorView(
-          error: err,
+          error: asetErrorMessage(err),
           onRetry: () => ref.invalidate(daftarApprovalPeminjamanProvider)),
     );
   }

@@ -17,6 +17,8 @@ import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/aset_provider.dart';
 import '../utils/pengalihan_access.dart';
+import '../utils/aset_error_message.dart';
+import '../../../../shared/widgets/app_toast.dart';
 
 /// Halaman profil aset fisik beserta riwayat dan aksi sirkulasi.
 class AsetDetailScreen extends ConsumerStatefulWidget {
@@ -73,7 +75,7 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
+          _errorMessage = asetErrorMessage(e);
           _isLoading = false;
         });
       }
@@ -102,6 +104,8 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
   void _showPengembalianModal() {
     if (_aset == null) return;
     final currentAset = _aset!;
+    final user = ref.read(authStateProvider).user;
+    if (!_AsetDetailAccess.resolve(currentAset, user).isProviderOwner) return;
     final peminjamanId = currentAset.peminjamanAktif?.peminjamanId;
     if (peminjamanId == null) return;
     ModalPengembalianAsetSheet.show(
@@ -123,6 +127,10 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
       setState(() {
         _aset = updated;
       });
+    }
+    if (updated == null && mounted) {
+      AppToast.error(context,
+          ref.read(asetActionProvider).errorMessage ?? 'Terjadi kendala. Silakan coba lagi.');
     }
   }
 
@@ -312,11 +320,17 @@ class _AsetDetailAccess {
         currentAset.isTersedia &&
         !currentAset.isDipinjam;
 
+    // Lokasi dan penanggung jawab dapat menunjuk peminjam, bukan penyedia asal.
+    final isProviderOwner = currentAset.penyediaId != null &&
+        ((currentAset.tipePenyedia == 'RUANGAN' &&
+                user?.unit?.id == currentAset.penyediaId) ||
+            (currentAset.tipePenyedia == 'GUDANG' &&
+                user?.gudang?.id == currentAset.penyediaId));
+
     return _AsetDetailAccess(
       isOwnedByCurrentUserLocation: isOwnedByCurrentUserLocation,
       isGlobalAdmin: isGlobalAdmin,
-      isProviderOwner:
-          isGlobalAdmin || isOwnedByCurrentUserLocation || user == null,
+      isProviderOwner: isGlobalAdmin || (!isTeknisi && isProviderOwner),
       canPinjam: canPinjam,
       canLaporRusak: canLaporRusak,
       canPengalihan: canPengalihan,

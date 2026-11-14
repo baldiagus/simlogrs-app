@@ -42,6 +42,8 @@ Status proyek: **Selesai (Production Ready)** — 542 pengujian otomatis lolos, 
 - **Katalog Aset Terpadu**: Profil lengkap aset medis dan non-medis beserta QR code, riwayat servis, mutasi, dan histori peminjaman.
 - **Scanner QR Terintegrasi**: Pindai label fisik aset langsung menggunakan kamera gawai.
 - **Sirkulasi Peminjaman**: Pengajuan pinjam alat antar-ruangan/gudang, persetujuan Kepala Ruangan, perpanjangan masa pinjam, hingga verifikasi pengembalian fisik.
+- **Hak Pengembalian dari Profil/Scan QR**: Aksi pengembalian hanya tersedia bagi penyedia asal aset dan admin; peminjam menyerahkan fisik aset untuk inspeksi. Identitas penyedia yang tidak lengkap tidak memberikan hak pengembalian.
+- **Pesan Error Aset**: Scan QR, profil, dan alur peminjaman menampilkan pesan sederhana sesuai penyebab (akses, sesi, aset tidak ditemukan, koneksi, atau gangguan sistem), tanpa detail exception API.
 - **Pengalihan & Mutasi Fisik**: Pemindahan permanen kepemilikan aset ruangan atau redistribusi barang antar-gudang logistik dengan sistem isolasi RBAC ketat.
 
 ### 4. Distribusi & Amprah Ruangan

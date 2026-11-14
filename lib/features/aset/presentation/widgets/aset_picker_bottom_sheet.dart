@@ -8,6 +8,7 @@ import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../data/models/aset_tersedia_model.dart';
 import '../providers/peminjaman_provider.dart';
+import '../utils/aset_error_message.dart';
 
 /// Bottom sheet untuk mencari dan memilih aset tersedia dari katalog.
 class AsetPickerBottomSheet extends ConsumerStatefulWidget {
@@ -202,7 +203,7 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
               loading: () => const AppLoadingView(),
               error: (err, _) => AppErrorView(
                 title: 'Gagal Memuat Katalog Aset',
-                error: err,
+                error: asetErrorMessage(err),
                 onRetry: () => ref.refresh(katalogAsetTersediaProvider(_query)),
               ),
             ),
