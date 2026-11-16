@@ -119,7 +119,7 @@ void main() {
           home: Scaffold(
             body: AppErrorView(
               title: 'Koneksi Terputus',
-              error: 'ApiException: Server timeout',
+              error: Exception('SQL private detail'),
               onRetry: () => retried = true,
             ),
           ),
@@ -127,7 +127,8 @@ void main() {
       );
 
       expect(find.text('Koneksi Terputus'), findsOneWidget);
-      expect(find.text('Server timeout'), findsOneWidget);
+      expect(find.textContaining('SQL private detail'), findsNothing);
+      expect(find.textContaining('memuat data'), findsOneWidget);
       await tester.tap(find.text('Coba Lagi'));
       expect(retried, isTrue);
     });

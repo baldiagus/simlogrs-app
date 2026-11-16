@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -57,7 +58,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
       AppToast.success(context, 'SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.');
     } catch (e) {
       if (!mounted) return;
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'menerbitkan SPK preventif'));
     }
   }
 
@@ -85,7 +86,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
         child: detailAsync.when(
           loading: () => const AppLoadingView(),
           error: (err, _) => AppErrorView(
-            error: err,
+            error: userErrorMessage(err, action: 'memuat rekam medis aset'),
             onRetry: () => ref.refresh(rekamMedisDetailProvider(widget.asetId)),
           ),
           data: (data) {

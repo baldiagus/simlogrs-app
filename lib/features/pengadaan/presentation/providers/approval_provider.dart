@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/api_response.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
@@ -90,7 +90,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
-      final msg = e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', '');
+      final msg = userErrorMessage(e, action: 'memproses persetujuan pengadaan');
       state = ApprovalActionState(
         isLoading: false,
         errorMessage: msg,
@@ -134,7 +134,7 @@ class ApprovalActionNotifier extends StateNotifier<ApprovalActionState> {
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {
-      final msg = e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', '');
+      final msg = userErrorMessage(e, action: 'memproses persetujuan amprah');
       state = ApprovalActionState(
         isLoading: false,
         errorMessage: msg,

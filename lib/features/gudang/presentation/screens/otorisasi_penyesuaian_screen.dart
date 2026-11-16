@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/app_formatters.dart';
@@ -50,7 +51,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       AppToast.success(context, 'Penyesuaian stok ${adj.kode} berhasil disahkan.');
     } catch (e) {
       if (!mounted) return;
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'mengesahkan penyesuaian stok'));
     }
   }
   /// Meminta catatan alasan lewat dialog lalu menolak penyesuaian [adj].
@@ -107,7 +108,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       AppToast.success(context, 'Penyesuaian stok ${adj.kode} telah ditolak.');
     } catch (e) {
       if (!mounted) return;
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'menolak penyesuaian stok'));
     }
   }
 
@@ -188,7 +189,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
               child: penyesuaianAsync.when(
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
-                  error: err,
+                  error: userErrorMessage(err, action: 'memuat penyesuaian stok'),
                   onRetry: () => ref.refresh(otorisasiPenyesuaianListProvider),
                 ),
                 data: (items) {

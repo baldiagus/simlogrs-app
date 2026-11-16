@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
@@ -29,7 +30,7 @@ class TrailDetailSheet extends ConsumerWidget {
             return const AppLoadingView();
           }
           if (snap.hasError || snap.data == null) {
-            return Center(child: Text('Gagal memuat detail log: ${snap.error}'));
+            return Center(child: Text(userErrorMessage(snap.error, action: 'memuat detail log audit')));
           }
 
           final log = snap.data!;

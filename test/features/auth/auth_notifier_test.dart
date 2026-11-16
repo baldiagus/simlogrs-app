@@ -33,7 +33,8 @@ void main() {
 
     var state = container.read(authStateProvider);
     expect(state.status, AuthStatus.unauthenticated);
-    expect(state.errorMessage, contains('Kombinasi email atau kata sandi tidak valid.'));
+    expect(state.errorMessage, isNot(contains('Kombinasi email atau kata sandi tidak valid.')));
+    expect(state.errorMessage, contains('masuk ke akun'));
 
     // Test clearError resets the errorMessage
     notifier.clearError();

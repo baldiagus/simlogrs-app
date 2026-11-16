@@ -226,7 +226,8 @@ void main() {
         ],
       }
     ]);
-    expect(find.textContaining('PO uji tidak diterbitkan.'), findsOneWidget);
+    expect(find.text('Ada data yang belum lengkap atau tidak sesuai. Periksa kembali isian Anda.'), findsOneWidget);
+    expect(find.textContaining('PO uji tidak diterbitkan.'), findsNothing);
     expect(find.text('52000'), findsOneWidget);
     expect(find.text('CV Sumber Makmur (VND-B)'), findsOneWidget);
     await tester.pump(const Duration(seconds: 4));

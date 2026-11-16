@@ -247,7 +247,8 @@ void main() {
     pending.completeError(ApiException(message: 'Koneksi terputus'));
     await tester.pumpAndSettle();
     expect(find.text('Gagal Memuat Rak'), findsOneWidget);
-    expect(find.textContaining('Koneksi terputus'), findsOneWidget);
+    expect(find.text('Terjadi kendala saat memuat rak gudang. Silakan coba lagi.'), findsOneWidget);
+    expect(find.textContaining('Koneksi terputus'), findsNothing);
     expect(find.text('Rak Tidak Ditemukan'), findsNothing);
 
     repository.load = () async => [_rack(1, 'A', 'Pulih')];

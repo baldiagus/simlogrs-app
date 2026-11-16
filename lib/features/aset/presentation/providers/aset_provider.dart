@@ -122,7 +122,10 @@ class AsetActionNotifier extends StateNotifier<AsetActionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: asetErrorMessage(e),
+        errorMessage: asetErrorMessage(
+          e,
+          context: AsetErrorContext.konfirmasiPengembalian,
+        ),
       );
       return false;
     }

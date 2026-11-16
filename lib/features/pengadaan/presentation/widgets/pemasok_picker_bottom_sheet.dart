@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -41,7 +42,7 @@ class _PemasokPickerBottomSheetState
       return SingleChildScrollView(
         child: AppErrorView(
           title: 'Gagal Memuat Vendor',
-          error: vendors.error,
+          error: userErrorMessage(vendors.error, action: 'memuat daftar pemasok'),
           onRetry: () => ref.invalidate(pemasokListProvider),
         ),
       );

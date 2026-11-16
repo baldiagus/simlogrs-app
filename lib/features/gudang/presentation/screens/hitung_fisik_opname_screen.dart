@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +94,7 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
       }
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'menyimpan hasil hitung fisik'));
     }
   }
 

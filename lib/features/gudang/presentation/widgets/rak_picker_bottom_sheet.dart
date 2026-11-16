@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -57,7 +58,7 @@ class _RakPickerBottomSheetState extends ConsumerState<RakPickerBottomSheet> {
       return SingleChildScrollView(
         child: AppErrorView(
           title: 'Gagal Memuat Rak',
-          error: racks.error,
+          error: userErrorMessage(racks.error, action: 'memuat rak gudang'),
           onRetry: () => ref.invalidate(rakPenerimaanProvider(widget.gudangId)),
         ),
       );

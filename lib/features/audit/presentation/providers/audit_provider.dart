@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../data/models/audit_models.dart';
@@ -83,7 +84,7 @@ class AuditTrailNotifier extends StateNotifier<PagedListState<AuditTrailItemMode
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat log audit'),
       );
     }
   }
@@ -109,7 +110,7 @@ class AuditTrailNotifier extends StateNotifier<PagedListState<AuditTrailItemMode
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat log audit berikutnya'),
       );
     }
   }
@@ -133,7 +134,7 @@ class AuditTrailNotifier extends StateNotifier<PagedListState<AuditTrailItemMode
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat log audit'),
       );
     }
   }

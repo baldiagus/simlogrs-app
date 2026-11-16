@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -178,7 +179,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'mengajukan amprah'),
       );
       return false;
     }
@@ -201,7 +202,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'membatalkan amprah'),
       );
       return false;
     }
@@ -226,7 +227,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menjalankan picking FEFO'),
       );
       return false;
     }
@@ -252,7 +253,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'mengonfirmasi penerimaan SPPB'),
       );
       return false;
     }
@@ -287,7 +288,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'memproses persetujuan amprah'),
       );
       return false;
     }
@@ -310,7 +311,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     } catch (e) {
       state = AmprahActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menutup sisa amprah'),
       );
       return false;
     }

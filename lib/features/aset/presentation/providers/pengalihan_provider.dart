@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/api_response.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
@@ -91,7 +91,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     } catch (e) {
       state = PengalihanActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'mengajukan pengalihan aset'),
       );
       return false;
     }
@@ -112,7 +112,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     } catch (e) {
       state = PengalihanActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'mengajukan pengalihan barang'),
       );
       return false;
     }
@@ -144,7 +144,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     } catch (e) {
       state = PengalihanActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'memproses otorisasi pengalihan'),
       );
       return false;
     }
@@ -168,7 +168,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     } catch (e) {
       state = PengalihanActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menyelesaikan serah terima pengalihan'),
       );
       return false;
     }
@@ -192,7 +192,7 @@ class PengalihanActionNotifier extends StateNotifier<PengalihanActionState> {
     } catch (e) {
       state = PengalihanActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'membatalkan pengalihan'),
       );
       return false;
     }

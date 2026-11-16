@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -328,7 +329,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                 ),
                               ),
                               error: (err, _) => Text(
-                                'Gagal memuat daftar gudang: $err',
+                                userErrorMessage(err, action: 'memuat daftar gudang'),
                                 style: const TextStyle(fontSize: 12, color: AppColors.danger),
                               ),
                             ),

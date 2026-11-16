@@ -1,19 +1,19 @@
-import '../../../../core/network/api_response.dart';
+import '../../../../core/network/user_error_message.dart';
+
+enum AsetErrorContext { umum, konfirmasiPengembalian }
 
 /// Pesan aman untuk pengguna pada alur aset; detail exception tetap untuk log.
-String asetErrorMessage(Object error) {
-  if (error is ApiException) {
-    if (error.statusCode == 403) return 'Anda tidak memiliki akses.';
-    if (error.statusCode == 401) {
-      return 'Sesi Anda telah berakhir. Silakan masuk kembali.';
-    }
-    if (error.statusCode == 404) return 'Aset tidak ditemukan.';
-    if (error.isNetworkError) {
-      return 'Tidak dapat terhubung. Periksa koneksi internet Anda.';
-    }
-    if (error.statusCode == 422) {
-      return 'Data tidak valid. Periksa kembali isian Anda.';
-    }
-  }
-  return 'Terjadi kendala. Silakan coba lagi.';
+String asetErrorMessage(
+  Object error, {
+  AsetErrorContext context = AsetErrorContext.umum,
+}) {
+  return userErrorMessage(
+    error,
+    notFoundMessage: 'Aset tidak ditemukan.',
+    forbiddenMessage: context == AsetErrorContext.konfirmasiPengembalian
+        ? 'Anda tidak berwenang mengonfirmasi pengembalian aset ini. '
+            'Konfirmasi hanya dapat dilakukan oleh petugas dari ruangan atau '
+            'gudang penyedia asal aset, atau admin yang berwenang.'
+        : null,
+  );
 }

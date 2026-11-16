@@ -318,8 +318,9 @@ void main() {
 
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    // Toast error harus muncul dengan pesan dari backend
-    expect(find.text('Kata sandi saat ini tidak sesuai.'), findsOneWidget);
+    // Detail exception tidak boleh diteruskan ke toast.
+    expect(find.text('Kata sandi saat ini tidak sesuai.'), findsNothing);
+    expect(find.textContaining('mengubah kata sandi'), findsOneWidget);
     expect(mockAuth.gantiPasswordWajibCalled, isTrue);
 
     // Habiskan durasi toast agar tidak ada timer yang tertinggal

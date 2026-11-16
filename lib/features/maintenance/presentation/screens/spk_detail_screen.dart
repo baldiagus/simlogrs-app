@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -307,7 +308,7 @@ class SpkDetailScreen extends ConsumerWidget {
         loading: () => const AppLoadingView(),
         error: (err, _) => AppErrorView(
           title: 'Gagal Memuat Detail SPK',
-          error: err,
+          error: userErrorMessage(err, action: 'memuat detail SPK'),
           onRetry: () => ref.invalidate(spkDetailProvider(spkId)),
         ),
       ),

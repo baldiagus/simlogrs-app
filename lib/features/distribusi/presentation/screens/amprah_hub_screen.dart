@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -217,7 +218,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
                     loading: () => const AppLoadingView(),
                     error: (err, _) => AppErrorView(
                       title: 'Gagal Memuat Daftar Amprah',
-                      error: err,
+                      error: userErrorMessage(err, action: 'memuat daftar amprah'),
                       onRetry: () => ref.invalidate(daftarAmprahProvider),
                     ),
                   ),
@@ -284,7 +285,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
               loading: () => const AppLoadingView(),
               error: (err, _) => AppErrorView(
                 title: 'Gagal Memuat SPPB Masuk',
-                error: err,
+                error: userErrorMessage(err, action: 'memuat SPPB masuk'),
                 onRetry: () => ref.invalidate(sppbInboundProvider),
               ),
             ),

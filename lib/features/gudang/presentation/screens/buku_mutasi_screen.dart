@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -80,7 +81,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
               child: mutasiAsync.when(
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
-                  error: err,
+                  error: userErrorMessage(err, action: 'memuat buku mutasi'),
                   onRetry: () => ref.refresh(bukuMutasiListProvider),
                 ),
                 data: (items) {

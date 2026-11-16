@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -80,7 +81,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
               child: katalogAsync.when(
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
-                  error: err,
+                  error: userErrorMessage(err, action: 'memuat katalog rekam medis aset'),
                   onRetry: () => ref.refresh(rekamMedisKatalogProvider),
                 ),
                 data: (items) {

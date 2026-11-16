@@ -253,8 +253,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                           Text(
                             isPermission
                                 ? 'Aplikasi memerlukan izin akses kamera untuk memindai QR Code aset fisik.'
-                                : (error.errorDetails?.message ??
-                                    error.errorCode.name),
+                                : 'Kamera belum dapat digunakan. Tutup aplikasi lain yang menggunakan kamera, lalu coba lagi.',
                             style: const TextStyle(
                                 color: Colors.white70, fontSize: 12),
                             textAlign: TextAlign.center,

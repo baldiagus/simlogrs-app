@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -490,7 +491,7 @@ class DetailAmprahScreen extends ConsumerWidget {
         loading: () => const AppLoadingView(),
         error: (err, _) => AppErrorView(
           title: 'Gagal Memuat Detail Amprah',
-          error: err,
+          error: userErrorMessage(err, action: 'memuat detail amprah'),
           onRetry: () => ref.invalidate(detailAmprahProvider(amprahId)),
         ),
       ),

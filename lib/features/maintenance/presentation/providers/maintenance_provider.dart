@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../../../core/providers/core_providers.dart';
@@ -52,7 +53,7 @@ class SpkPagedNotifier extends StateNotifier<PagedListState<SpkHeaderModel>> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat daftar SPK'),
       );
     }
   }
@@ -77,7 +78,7 @@ class SpkPagedNotifier extends StateNotifier<PagedListState<SpkHeaderModel>> {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat daftar SPK berikutnya'),
       );
     }
   }
@@ -159,7 +160,7 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
     } catch (e) {
       state = LembarKerjaState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menyimpan lembar kerja'),
       );
       return false;
     }

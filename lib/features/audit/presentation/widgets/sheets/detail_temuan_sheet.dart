@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,7 +103,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
       }
     } catch (e) {
       if (mounted) {
-        AppToast.error(context, 'Gagal mengirimkan tindak lanjut: $e');
+        AppToast.error(context, userErrorMessage(e, action: 'mengirimkan tindak lanjut'));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -149,7 +150,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
         }
       }
     } catch (e) {
-      if (mounted) AppToast.error(context, 'Gagal mengambil berkas: $e');
+      if (mounted) AppToast.error(context, userErrorMessage(e, action: 'mengambil berkas'));
     }
   }
 
@@ -177,7 +178,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
       }
     } catch (e) {
       if (mounted) {
-        AppToast.error(context, 'Gagal menyimpan evaluasi: $e');
+        AppToast.error(context, userErrorMessage(e, action: 'menyimpan evaluasi'));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../core/models/pagination_meta.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -85,7 +86,7 @@ class KatalogBarangNotifier extends StateNotifier<PagedListState<MasterBarangMod
       state = state.copyWith(
         isLoading: false,
         isLoadingMore: false,
-        errorMessage: e.toString(),
+        errorMessage: userErrorMessage(e, action: 'memuat katalog barang'),
       );
     }
   }
@@ -165,7 +166,7 @@ class PrSubmissionNotifier extends StateNotifier<PrSubmissionState> {
     } catch (e) {
       state = PrSubmissionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'mengajukan permintaan pengadaan'),
       );
       return false;
     }
@@ -280,7 +281,7 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
     } catch (e) {
       state = PoActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menerbitkan pesanan pembelian'),
       );
       return false;
     }
@@ -308,7 +309,7 @@ class PoActionNotifier extends StateNotifier<PoActionState> {
     } catch (e) {
       state = PoActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'memperbarui status pengiriman pesanan'),
       );
       return false;
     }

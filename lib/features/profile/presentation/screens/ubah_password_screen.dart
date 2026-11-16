@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -83,11 +84,7 @@ class _UbahPasswordScreenState extends ConsumerState<UbahPasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final pesan = e
-            .toString()
-            .replaceAll('ApiException: ', '')
-            .replaceAll('Exception: ', '');
-        AppToast.error(context, pesan);
+        AppToast.error(context, userErrorMessage(e, action: 'mengubah kata sandi'));
       }
     } finally {
       if (mounted) {

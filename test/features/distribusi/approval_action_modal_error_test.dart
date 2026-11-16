@@ -57,10 +57,15 @@ void main() {
     await tester.tap(btn);
     await tester.pumpAndSettle();
 
-    // Verify error toast message appears
+    // Show safe permission guidance without exposing server detail.
+    expect(
+      find.text('Anda tidak memiliki izin untuk melakukan tindakan ini. '
+          'Hubungi admin untuk memeriksa hak akses Anda.'),
+      findsOneWidget,
+    );
     expect(
       find.textContaining('Anda hanya berhak mengesahkan permintaan unit ruangan sendiri.'),
-      findsOneWidget,
+      findsNothing,
     );
 
     // Advance timer to let toast dismiss cleanly

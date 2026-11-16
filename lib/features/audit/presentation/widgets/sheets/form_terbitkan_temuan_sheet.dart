@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -83,7 +84,7 @@ class _FormTerbitkanTemuanSheetState
       }
     } catch (e) {
       if (mounted) {
-        AppToast.error(context, 'Gagal mendaftarkan temuan: $e');
+        AppToast.error(context, userErrorMessage(e, action: 'mendaftarkan temuan'));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

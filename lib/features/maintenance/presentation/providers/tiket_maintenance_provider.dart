@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/tiket_maintenance_model.dart';
 import '../../data/models/teknisi_option_model.dart';
@@ -99,7 +100,7 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
     } catch (e) {
       state = TiketActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'membatalkan laporan kerusakan'),
       );
       return false;
     }
@@ -139,7 +140,7 @@ class TiketActionNotifier extends StateNotifier<TiketActionState> {
     } catch (e) {
       state = TiketActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menugaskan tiket kepada teknisi'),
       );
       return false;
     }

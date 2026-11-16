@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../core/offline/offline_providers.dart';
 import '../../../../core/offline/offline_queue.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -81,7 +82,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      AppToast.error(context, 'Gagal mengambil foto: $e');
+      AppToast.error(context, userErrorMessage(e, action: 'mengambil foto'));
     }
   }
 
@@ -146,7 +147,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
       }
       if (!mounted) return;
       setState(() => _isSending = false);
-      AppToast.error(context, e.toString().replaceAll('ApiException: ', ''));
+      AppToast.error(context, userErrorMessage(e, action: 'mengirim laporan kerusakan'));
     }
   }
 

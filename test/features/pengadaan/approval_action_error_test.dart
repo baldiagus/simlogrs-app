@@ -19,7 +19,7 @@ class FakeApprovalRepository extends Fake implements ApprovalRepository {
 }
 
 void main() {
-  test('ApprovalActionNotifier extracts clean ApiException message on 403 Forbidden', () async {
+  test('ApprovalActionNotifier shows safe forbidden copy without server detail', () async {
     final container = ProviderContainer(
       overrides: [
         approvalRepositoryProvider.overrideWithValue(FakeApprovalRepository()),
@@ -34,8 +34,10 @@ void main() {
     final state = container.read(approvalActionProvider);
     expect(
       state.errorMessage,
-      'Anda hanya berhak mengesahkan atau menolak permintaan pengadaan dari unit ruangan Anda sendiri.',
+      'Anda tidak memiliki izin untuk melakukan tindakan ini. Hubungi admin untuk memeriksa hak akses Anda.',
     );
+    expect(state.errorMessage, isNot(contains('unit ruangan Anda sendiri')));
+    expect(state.errorMessage, isNot(contains('ApiException')));
   });
 
   test('approveAmprah mengirim aksi setujui/tolak beserta catatan ke repository', () async {

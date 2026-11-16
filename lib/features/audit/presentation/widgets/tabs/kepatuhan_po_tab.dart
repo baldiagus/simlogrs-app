@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -109,7 +110,7 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
             loading: () => const AppLoadingView(),
             error: (err, _) => AppErrorView(
               title: 'Gagal Memuat Kepatuhan PO',
-              error: err,
+              error: userErrorMessage(err, action: 'memuat kepatuhan PO'),
               onRetry: () => ref.refresh(kepatuhanPengadaanProvider),
             ),
           ),

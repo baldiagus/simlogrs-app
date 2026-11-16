@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/app_formatters.dart';
@@ -122,7 +123,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
               child: fefoAsync.when(
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
-                  error: err,
+                  error: userErrorMessage(err, action: 'memuat pemantauan FEFO'),
                   onRetry: () => ref.refresh(fefoMonitoringProvider),
                 ),
                 data: (data) {

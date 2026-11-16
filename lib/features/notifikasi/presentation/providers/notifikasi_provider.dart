@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../core/models/pagination_meta.dart';
 import '../../data/models/notifikasi_model.dart';
 import '../../data/repositories/notifikasi_repository.dart';
@@ -48,7 +49,7 @@ class NotifikasiListNotifier extends StateNotifier<PagedListState<NotifikasiMode
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      state = state.copyWith(isLoading: false, errorMessage: userErrorMessage(e, action: 'memuat notifikasi'));
     }
   }
 
@@ -67,7 +68,7 @@ class NotifikasiListNotifier extends StateNotifier<PagedListState<NotifikasiMode
         isLoadingMore: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoadingMore: false, errorMessage: e.toString());
+      state = state.copyWith(isLoadingMore: false, errorMessage: userErrorMessage(e, action: 'memuat notifikasi berikutnya'));
     }
   }
 
@@ -84,7 +85,7 @@ class NotifikasiListNotifier extends StateNotifier<PagedListState<NotifikasiMode
         clearError: true,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      state = state.copyWith(isLoading: false, errorMessage: userErrorMessage(e, action: 'memperbarui notifikasi'));
     }
   }
 

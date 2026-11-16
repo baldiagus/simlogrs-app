@@ -7,7 +7,7 @@ import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../core/network/api_response.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../core/offline/offline_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../pengadaan/presentation/providers/approval_provider.dart';
@@ -97,10 +97,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _clearUserCaches();
       state = AuthState.authenticated(user);
       _syncFcmTokenInBackground();
-    } on ApiException catch (e) {
-      state = AuthState.unauthenticated(e.message);
     } catch (e) {
-      state = AuthState.unauthenticated(e.toString());
+      state = AuthState.unauthenticated(
+        userErrorMessage(e, action: 'masuk ke akun'),
+      );
     }
   }
   /// Mengganti password wajib; error dilempar ke pemanggil agar UI bisa menampilkannya.

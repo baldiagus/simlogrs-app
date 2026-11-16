@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/app_formatters.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -265,7 +266,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                     loading: () => const LinearProgressIndicator(),
                     error: (err, _) => AppErrorView(
                       title: 'Gagal Memuat Vendor',
-                      error: err,
+                      error: userErrorMessage(err, action: 'memuat daftar pemasok'),
                       onRetry: () => ref.invalidate(pemasokListProvider),
                     ),
                   ),

@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -68,7 +69,7 @@ class DetailRakScreen extends ConsumerWidget {
         loading: () => const AppLoadingView(),
         error: (error, _) => AppErrorView(
           title: 'Gagal Memuat Detail Rak',
-          error: error,
+          error: userErrorMessage(error, action: 'memuat detail rak'),
           onRetry: () => ref.invalidate(detailRakProvider(rakId)),
         ),
         data: (detail) {

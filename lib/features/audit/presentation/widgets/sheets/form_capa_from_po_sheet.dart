@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -71,7 +72,7 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
       }
     } catch (e) {
       if (mounted) {
-        AppToast.error(context, 'Gagal menerbitkan CAPA: $e');
+        AppToast.error(context, userErrorMessage(e, action: 'menerbitkan CAPA'));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

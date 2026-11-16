@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/network/user_error_message.dart';
 import '../../../../shared/widgets/app_error_view.dart';
 import '../../../../shared/widgets/app_loading_view.dart';
 import '../../../../shared/widgets/app_toast.dart';
@@ -266,7 +267,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
       loading: () =>
           const AppLoadingView(message: 'Memuat data pengalihan aset...'),
       error: (err, _) => AppErrorView(
-        error: err.toString().replaceAll('ApiException: ', ''),
+        error: userErrorMessage(err, action: 'memuat daftar pengalihan aset'),
         onRetry: () => ref.invalidate(daftarPengalihanProvider(tab)),
       ),
     );

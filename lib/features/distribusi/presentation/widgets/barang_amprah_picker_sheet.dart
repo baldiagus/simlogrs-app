@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -272,7 +273,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
               loading: () => const AppLoadingView(),
               error: (err, _) => AppErrorView(
                 title: 'Gagal Memuat Katalog',
-                error: err,
+                error: userErrorMessage(err, action: 'memuat katalog barang amprah'),
                 // Muat ulang katalog dengan kata kunci saat ini setelah gagal.
                 onRetry: () => ref.refresh(katalogAmprahProvider(params)),
               ),

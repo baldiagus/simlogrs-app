@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/inisiasi_opname_sheet.dart';
@@ -85,7 +86,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
           loading: () => const AppLoadingView(),
           error: (err, _) => AppErrorView(
             title: 'Gagal Memuat Sesi Opname',
-            error: err,
+            error: userErrorMessage(err, action: 'memuat sesi opname'),
             onRetry: () => ref.refresh(stockOpnameListProvider),
           ),
           data: (sessions) {

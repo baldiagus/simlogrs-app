@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -54,7 +55,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
       AppToast.success(context, 'SPK ${res['kode_spk'] ?? ''} berhasil diterbitkan dan ditugaskan.');
     } catch (e) {
       if (!mounted) return;
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'menerbitkan SPK preventif'));
     }
   }
   /// Membangun tampilan _JadwalPreventifScreenState.
@@ -131,7 +132,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
               child: jadwalAsync.when(
                 loading: () => const AppLoadingView(),
                 error: (err, _) => AppErrorView(
-                  error: err,
+                  error: userErrorMessage(err, action: 'memuat jadwal preventif'),
                   onRetry: () => ref.refresh(jadwalPreventifListProvider),
                 ),
                 data: (items) {

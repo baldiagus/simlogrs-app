@@ -171,7 +171,10 @@ void main() {
     expect(repo.submitted!['gudang_id'], 10);
     expect(repo.submitted!['items'], hasLength(1));
     expect(container.read(inboundActionProvider).statusCode, 422);
-    expect(container.read(inboundActionProvider).errorMessage, contains('Rak sudah tidak aktif'));
+    expect(container.read(inboundActionProvider).errorMessage,
+      'Ada data yang belum lengkap atau tidak sesuai. Periksa kembali isian Anda.');
+    expect(container.read(inboundActionProvider).errorMessage,
+      isNot(contains('Rak sudah tidak aktif')));
     expect(draft.nomorBatch, 'BATCH-UJI');
     expect(draft.jumlahDiterima, 2);
     expect(draft.lokasiGudangId, 11);

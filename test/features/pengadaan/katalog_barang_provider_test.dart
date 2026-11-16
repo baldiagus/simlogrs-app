@@ -135,7 +135,8 @@ void main() {
     expect(state.items.map((item) => item.id), [1, 2]);
     expect(state.page, 1);
     expect(state.hasMore, isTrue);
-    expect(state.errorMessage, contains('Halaman gagal'));
+    expect(state.errorMessage, 'Terjadi kendala saat memuat katalog barang. Silakan coba lagi.');
+    expect(state.errorMessage, isNot(contains('Halaman gagal')));
     expect(state.isLoadingMore, isFalse);
 
     final retry = notifier.loadMore();
@@ -156,7 +157,8 @@ void main() {
     await tester.pump();
     expect(container.read(provider).items, isEmpty);
     expect(container.read(provider).isLoading, isFalse);
-    expect(container.read(provider).errorMessage, contains('Katalog gagal'));
+    expect(container.read(provider).errorMessage, 'Terjadi kendala saat memuat katalog barang. Silakan coba lagi.');
+    expect(container.read(provider).errorMessage, isNot(contains('Katalog gagal')));
 
     final retry = container.read(provider.notifier).refresh();
     expect(container.read(provider).isLoading, isTrue);

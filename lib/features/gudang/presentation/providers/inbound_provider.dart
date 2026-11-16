@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -120,7 +121,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
     } catch (e) {
       state = InboundActionState(
         isLoading: false,
-        errorMessage: e is ApiException ? e.message : e.toString(),
+        errorMessage: userErrorMessage(e, action: 'menyimpan penerimaan barang'),
         statusCode: e is ApiException ? e.statusCode : null,
       );
       return false;
@@ -154,7 +155,7 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
     } catch (e) {
       state = InboundActionState(
         isLoading: false,
-        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+        errorMessage: userErrorMessage(e, action: 'menolak kiriman vendor'),
       );
       return false;
     }

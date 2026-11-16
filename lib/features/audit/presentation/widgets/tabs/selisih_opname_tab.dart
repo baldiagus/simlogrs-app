@@ -1,3 +1,4 @@
+import '../../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -63,7 +64,7 @@ class SelisihOpnameTab extends ConsumerWidget {
       loading: () => const AppLoadingView(),
       error: (err, _) => AppErrorView(
         title: 'Gagal Memuat Selisih Opname',
-        error: err,
+        error: userErrorMessage(err, action: 'memuat selisih opname'),
         onRetry: () => ref.refresh(selisihOpnameProvider),
       ),
     );

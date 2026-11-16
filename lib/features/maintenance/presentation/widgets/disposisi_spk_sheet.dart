@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -228,7 +229,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                 },
                 loading: () => const LinearProgressIndicator(),
                 error: (err, _) => Text(
-                  'Gagal memuat daftar teknisi: $err',
+                  userErrorMessage(err, action: 'memuat daftar teknisi'),
                   style: const TextStyle(color: AppColors.danger, fontSize: 11),
                 ),
               ),

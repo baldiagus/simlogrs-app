@@ -1,3 +1,4 @@
+import '../../../../core/network/user_error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -100,7 +101,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      AppToast.error(context, e.toString());
+      AppToast.error(context, userErrorMessage(e, action: 'memulai sesi opname'));
     }
   }
 
