@@ -175,10 +175,19 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
     }
   }
 
-  /// Membangun toast di bawah status bar dengan ikon, pesan maksimal dua baris, dan gestur untuk menutup.
+  /// Membangun toast dengan teks utuh dan area gulir bila pesan melebihi ruang layar.
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.paddingOf(context).top;
+    final media = MediaQuery.of(context);
+    final topPadding = media.padding.top;
+    final bottomInset = media.viewInsets.bottom > media.padding.bottom
+        ? media.viewInsets.bottom
+        : media.padding.bottom;
+    // Sisakan padding (12) dan border (1.2) di kedua sisi vertikal kartu.
+    final maxTextHeight =
+        ((media.size.height - topPadding - bottomInset - 10) / 2 -
+                2 * (12 + 1.2))
+            .clamp(0.0, double.infinity);
     final (bg, border, textColor, iconColor, icon) = _resolveTheme();
 
     return Positioned(
@@ -213,20 +222,24 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
                   ],
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(icon, color: iconColor, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        widget.message,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                          height: 1.3,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxTextHeight),
+                        child: SingleChildScrollView(
+                          child: Text(
+                            widget.message,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                              height: 1.3,
+                            ),
+                          ),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 6),
