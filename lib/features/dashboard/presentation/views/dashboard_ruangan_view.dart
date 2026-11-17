@@ -94,7 +94,6 @@ class DashboardRuanganView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
             );
           },
-          onRakGudangTap: () {},
           showTemuanCapa: showCapa,
           temuanCapaCount: capaCount,
           onTemuanCapaTap: () {

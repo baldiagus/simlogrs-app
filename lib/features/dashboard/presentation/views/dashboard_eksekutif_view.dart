@@ -76,7 +76,6 @@ class DashboardEksekutifView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
             );
           },
-          onRakGudangTap: () {},
           onAmprahTap: () {
             Navigator.push(
               context,

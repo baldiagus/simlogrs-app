@@ -14,7 +14,6 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../providers/persediaan_providers.dart';
-import '../providers/gudang_provider.dart';
 
 /// Layar hub stock opname: daftar sesi opname dan pintu masuk memulai opname baru atau menghitung fisik.
 class StockOpnameHubScreen extends ConsumerStatefulWidget {
@@ -49,7 +48,6 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
       ref.invalidate(otorisasiPenyesuaianListProvider);
       ref.invalidate(bukuMutasiListProvider);
       ref.invalidate(fefoMonitoringProvider);
-      ref.invalidate(daftarRakProvider);
       ref.invalidate(dashboardSummaryProvider);
     });
   }

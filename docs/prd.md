@@ -9,7 +9,7 @@
 
 SIMLOG RS Non-Medis Mobile adalah aplikasi pendamping (*companion app*) berbasis **Flutter** untuk sistem ERP Logistik Rumah Sakit v2 (`simlog-fix2`). Aplikasi ini dirancang khusus untuk memfasilitasi operasional bergerak (*mobile fieldwork*) di lingkungan rumah sakit:
 1. **Persetujuan Cepat (Fast-Approval)**: Kepala Ruangan (Karu), Kepala Unit, Pejabat Pengadaan, dan Manajemen dapat meninjau serta menyetujui dokumen Permintaan Pengadaan (PR) dan Amprah Ruangan (Permintaan Distribusi) secara seketika (*instant swipe/tap approval*).
-2. **Manajemen & Monitoring Rak Gudang**: Petugas gudang dan staf dapat meninjau daftar rak penyimpanan (*storage rack*), memilih salah satu rak, dan melihat daftar lengkap aset fisik serta barang/stok batch yang tersimpan di dalam rak tersebut secara real-time.
+2. **Penerimaan PO & Alokasi Rak**: Petugas gudang memilih rak penyimpanan sesuai gudang penerima pada form Penerimaan PO. Halaman penelusuran **Daftar Rak** dan **Detail Rak** beserta pintasan navigasinya dihapus; data rak dan endpoint backend tetap dipertahankan.
 3. **Sirkulasi Aset Cepat (QR Asset Tracking)**: Perawat dan pengelola aset dapat memindai QR code fisik sarana medis/non-medis untuk melacak riwayat lokasi, status peminjaman aktif, konfirmasi serah terima fisik, dan inspeksi fisik pengembalian.
 4. **Pemeliharaan Sarana Tanggap (IPSRS Fieldwork & Lapor Rusak)**: Pelaporan kerusakan fisik fasilitas langsung dari kamera HP (*lapor cepat dengan bukti foto kompresi*), penerimaan Surat Perintah Kerja (SPK) oleh teknisi di lapangan, serta pencatatan lembar kerja dan pemakaian suku cadang berbasis FEFO.
 
@@ -82,7 +82,7 @@ Seluruh tampilan antarmuka Flutter wajib mengikuti panduan visual pada `desain.m
 3. **Quick Action Grid (2x2)**:
    - 4 kartu aksi modular dengan *category icon tint*:
      1. **Approval Cepat** (Icon Check-Circle Violet) &rarr; Menuju antrean PR & Amprah.
-     2. **Daftar Rak Gudang** (Icon Boxes/Archive Blue) &rarr; Menampilkan daftar rak gudang serta rincian aset dan stok barang di setiap rak.
+     2. **Penerimaan PO** (Icon Boxes/Archive Blue) &rarr; Membuka penerimaan barang PO beserta pemilihan rak tujuan.
      3. **Scan QR Aset** (Icon QrCode Orange) &rarr; Membuka scanner sirkulasi & info aset.
      4. **Lapor Rusak IPSRS** (Icon Wrench Teal) &rarr; Membuka form foto kamera pelaporan kerusakan.
 4. **Activity List (Live Feed)**:
@@ -109,7 +109,7 @@ Sesuai filosofi sistem first-principles `build-your-own-x`, arsitektur Flutter d
 - Domain entities murni bebas dependensi UI:
   - `User`, `UnitRef`, `GudangRef`
   - `PermintaanPengadaanItem`, `PermintaanDistribusiItem`
-  - `RakItem`, `BarangRakItem`, `AsetRakItem`
+  - Model rak untuk pilihan lokasi pada Penerimaan PO; model khusus inventaris halaman rak tidak diperlukan.
   - `AsetDetail`, `PeminjamanAktif`
   - `SpkItem`, `LogMaintenanceEntry`, `SparepartUsage`
 - Menggunakan `freezed` atau data class immutable dengan pemetaan `fromJson` / `toJson` bertipe ketat (*null-safe*).
@@ -194,26 +194,13 @@ Aplikasi mobile mengintegrasikan 5 kontroler API resmi dari backend Laravel:
     - Meja 1: Status `DIAJUKAN` &rarr; Disetujui Karu menjadi `DISETUJUI_KARU` (Permission: `update_layanan_unit::approval::karu`).
     - Meja 2: Status `DISETUJUI_KARU` &rarr; Disetujui Gudang menjadi `DISETUJUI_GUDANG` (Permission: `update_gudang_stok::distribusi::approval`).
 
-### 5.3 Modul Rak Gudang & Inventaris Ruang Simpan (`/api/v1/gudang/*`)
-- **Daftar Rak Gudang (`GET /api/v1/gudang/rak`)**:
+### 5.3 Data Rak untuk Penerimaan PO (`/api/v1/gudang/*`)
+- **Pilihan Rak (`GET /api/v1/gudang/rak`)** tetap digunakan pada form Penerimaan PO, bukan halaman penelusuran rak tersendiri.
   - Parameter kueri opsional: `gudang_id` (filter ID gudang spesifik), `cari` (kata kunci pencarian kode/nama rak).
-  - Response: Daftar seluruh rak penyimpanan (`lokasi_gudang`) di gudang aktif:
-    - `id`: ID lokasi rak.
-    - `kode`: Kode rak penyimpanan (contoh: `RAK-ATK-01`, `RAK-ALKES-02`).
-    - `nama`: Nama deskriptif rak (contoh: `Rak ATK Sentral Lantai 1`).
-    - `gudang_id` & `nama_gudang`: Identitas gudang induk.
-    - `total_barang`: Agregat jumlah jenis barang/SKU yang tersimpan di rak.
-    - `total_aset`: Agregat jumlah unit fisik sarana/aset yang berada di rak.
-  - Tampilan UI: Card list modular dengan badge kapasitas, ikon ruang simpan, dan navigasi sentuh menuju detail rak.
-- **Detail Rak: Inventaris Barang & Aset (`GET /api/v1/gudang/rak/{id}`)**:
-  - Menampilkan informasi lengkap satu rak spesifik ketika diklik oleh pengguna, dengan antarmuka 2 tab utama:
-    1. **Tab 1: Daftar Barang & Stok Batch**:
-       - Menampilkan seluruh item logistik/barang yang tersimpan di rak tersebut.
-       - Rincian per item: Nama barang, kode barang, kategori, satuan, nomor batch, tanggal kedaluwarsa (*expired date*), status kedaluwarsa, dan jumlah kuantitas stok fisik saat ini.
-    2. **Tab 2: Daftar Aset Fisik**:
-       - Menampilkan seluruh peralatan/sarana fisik rumah sakit yang ditempatkan pada rak tersebut.
-       - Rincian per aset: Kode aset (`AST-...`), nama aset/sarana, merk & model, nomor seri, status ketersediaan (`TERSEDIA`, `DIPINJAM`, `DALAM_MAINTENANCE`), dan kondisi fisik (`BAIK`, `RUSAK_RINGAN`, `RUSAK_BERAT`).
-  - Fitur Filter & Pencarian: Pencarian cepat (*real-time search bar*) di dalam rak untuk menemukan barang atau aset tertentu secara instan.
+  - Data pilihan mencakup `id`, `kode`, `nama`, `gudang_id`, `nama_gudang`, dan status rak untuk menentukan lokasi penerimaan yang valid.
+  - Pemilih rak mempertahankan pencarian kode/nama dan membatasi opsi ke gudang penerima; perubahan gudang menghapus pilihan rak lama yang tidak sesuai.
+- **Batas penghapusan UI**: Halaman **Daftar Rak Gudang** dan **Detail Rak**, tab inventaris barang/aset, serta navigasi khusus kedua halaman dihapus dari klien mobile.
+- **Kontrak backend dipertahankan**: `GET /api/v1/gudang/rak` dan `GET /api/v1/gudang/rak/{id}` tidak dihapus atau diubah oleh penghapusan halaman. Endpoint detail tidak lagi memiliki halaman penelusuran khusus di klien mobile.
 
 ### 5.4 Modul Sirkulasi Aset & Scanner QR (`/api/v1/aset/*`)
 - **Pindai QR Aset (`POST /api/v1/aset/scan-qr`)**:
@@ -369,6 +356,6 @@ lib/
 | **M1: Core & Auth** | Setup Dio, Secure Storage, Theme `desain.md`, Login Screen, `auth/me` | Berhasil login dengan akun seeded (`kepalaunit@simlogrs.local`), menyimpan Bearer token, dan memuat profil dinamis. |
 | **M2: Dashboard & Shell** | Floating Bottom Nav, Hero Gradient Card, 2x2 Quick Action, Activity Feed | Dashboard menampilkan metrik riil dari API tanpa 1 pun data dummy; navigasi responsif. |
 | **M3: Approval Center** | Tab PR & Amprah, Swipe/Button Approve & Reject, Modal Catatan | Karu / Admin Logistik dapat mengesahkan permohonan; status backend berubah seketika di database. |
-| **M4: Manajemen Rak Gudang** | Daftar Rak Gudang, Detail Rak, Tab Barang & Stok Batch, Tab Aset Fisik | Pengguna dapat melihat daftar rak gudang, memilih salah satu rak, dan melihat daftar lengkap barang beserta aset di rak tersebut. |
+| **M4: Alokasi Rak Penerimaan PO** | Pemilihan dan pencarian rak pada form Penerimaan PO; tanpa halaman Daftar Rak/Detail Rak | Rak tujuan sesuai gudang penerima tetap dapat dipilih; pintasan dan halaman penelusuran rak tidak tersedia; endpoint backend rak tetap dipertahankan. |
 | **M5: Aset & Sirkulasi** | Scan QR Aset, Info Lokasi & Status, Serah Terima Fisik, Pengembalian | Scanner mengenali kode aset; serah terima dan inspeksi fisik berhasil mengupdate status di backend. |
 | **M6: IPSRS Fieldwork** | Lapor Cepat (Upload Foto Kamera), Daftar SPK Teknisi, Lembar Kerja & Suku Cadang | Laporan menerbitkan tiket `MNT-...`; teknisi mengisi lembar kerja dan memotong stok suku cadang secara FEFO. |

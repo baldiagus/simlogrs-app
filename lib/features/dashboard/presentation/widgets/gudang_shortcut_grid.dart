@@ -7,7 +7,6 @@ import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 
 class GudangShortcutGrid extends ConsumerWidget {
   const GudangShortcutGrid({super.key});
@@ -101,10 +100,10 @@ class GudangShortcutGrid extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: canOtorisasi
-                    ? _buildGudangMiniCard(
+              if (canOtorisasi) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildGudangMiniCard(
                         context: context,
                         title: 'Otorisasi Selisih',
                         subtitle: 'Penyesuaian saldo',
@@ -115,20 +114,9 @@ class GudangShortcutGrid extends ConsumerWidget {
                           context,
                           MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
                         ),
-                      )
-                    : _buildGudangMiniCard(
-                        context: context,
-                        title: 'Tata Letak Rak',
-                        subtitle: 'Lokasi bin & rak fisik',
-                        icon: LucideIcons.archive,
-                        iconColor: AppColors.tintBlue,
-                        bgColor: AppColors.tintBlueBg,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
-                        ),
-                      ),
-              ),
+                  ),
+                ),
+              ],
             ],
           ),
         ],

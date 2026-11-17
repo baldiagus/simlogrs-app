@@ -35,11 +35,10 @@ class QuickActionGrid extends StatelessWidget {
   final VoidCallback? onStockOpnameTap;
   final VoidCallback onApprovalTap;
   final VoidCallback? onPengadaanTap;
-  final VoidCallback onRakGudangTap;
   final VoidCallback onAsetTap;
   final VoidCallback onLaporRusakTap;
   final VoidCallback? onInboundTap;
-  final VoidCallback? onAmprahTap;
+  final VoidCallback onAmprahTap;
   final VoidCallback? onPickingTap;
   final VoidCallback? onSpkTap;
   final VoidCallback? onLembarKerjaTap;
@@ -73,11 +72,10 @@ class QuickActionGrid extends StatelessWidget {
     this.onPaguRealisasiTap,
     required this.onApprovalTap,
     this.onPengadaanTap,
-    required this.onRakGudangTap,
     required this.onAsetTap,
     required this.onLaporRusakTap,
     this.onInboundTap,
-    this.onAmprahTap,
+    required this.onAmprahTap,
     this.onPickingTap,
     this.onSpkTap,
     this.onLembarKerjaTap,
@@ -107,7 +105,7 @@ class QuickActionGrid extends StatelessWidget {
           icon: LucideIcons.boxes,
           bgColor: AppColors.tintBlueBg,
           iconColor: AppColors.tintBlue,
-          onTap: onAmprahTap ?? onRakGudangTap,
+          onTap: onAmprahTap,
         ),
         _QuickActionItem(
           title: 'Sirkulasi Aset',

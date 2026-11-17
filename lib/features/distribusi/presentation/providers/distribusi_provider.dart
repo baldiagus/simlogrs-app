@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../gudang/presentation/providers/gudang_provider.dart';
 import '../../../master/presentation/providers/register_aset_provider.dart';
 import '../../../aset/presentation/providers/peminjaman_provider.dart';
 import '../../data/models/amprah_model.dart';
@@ -208,7 +207,7 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
     }
   }
 
-  /// Menjalankan picking FEFO untuk permintaan [permintaanId] dan me-refresh antrean, SPPB, rak, dan dashboard; true bila berhasil.
+  /// Menjalankan picking FEFO untuk permintaan [permintaanId] dan me-refresh antrean, SPPB, dan dashboard; true bila berhasil.
   Future<bool> eksekusiPicking(int permintaanId) async {
     state = const AmprahActionState(isLoading: true);
     try {
@@ -221,7 +220,6 @@ class AmprahActionNotifier extends StateNotifier<AmprahActionState> {
 
       _ref.invalidate(antreanPickingProvider);
       _ref.invalidate(sppbInboundProvider);
-      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

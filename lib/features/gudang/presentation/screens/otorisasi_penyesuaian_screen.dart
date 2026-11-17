@@ -17,7 +17,6 @@ import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/penyesuaian_stok_model.dart';
 import '../../data/repositories/persediaan_repository.dart';
 import '../providers/persediaan_providers.dart';
-import '../providers/gudang_provider.dart';
 /// Layar otorisasi penyesuaian stok: pengesahan atau penolakan selisih hasil opname oleh pengguna berwenang.
 class OtorisasiPenyesuaianScreen extends ConsumerStatefulWidget {
   const OtorisasiPenyesuaianScreen({super.key});
@@ -46,7 +45,6 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
       ref.invalidate(otorisasiPenyesuaianListProvider);
       ref.invalidate(bukuMutasiListProvider);
       ref.invalidate(fefoMonitoringProvider);
-      ref.invalidate(daftarRakProvider);
       ref.invalidate(dashboardSummaryProvider);
       AppToast.success(context, 'Penyesuaian stok ${adj.kode} berhasil disahkan.');
     } catch (e) {

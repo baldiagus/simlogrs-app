@@ -344,7 +344,7 @@ Struktur layar `HomeScreen` (`lib/features/dashboard/presentation/screens/home_s
    - Sub-info: Rincian `PR Menunggu` vs `Amprah Menunggu`.
 3. **Quick Action Grid 2x2 (`desain.md` Sec 5.3)**:
    - **Kartu 1 (Approval Cepat)**: Icon CheckSquare Violet (`AppColors.tintVioletBg`), judul *"Approval Cepat"*, subtitle dinamis jumlah antrean menanti.
-   - **Kartu 2 (Daftar Rak Gudang)**: Icon Archive/Boxes Blue (`AppColors.tintBlueBg`), judul *"Daftar Rak Gudang"*, subtitle *"Stok & Aset per Rak"*.
+   - **Kartu 2 (Penerimaan PO)**: Icon Archive/Boxes Blue (`AppColors.tintBlueBg`), judul *"Penerimaan PO"*, membuka alur penerimaan barang beserta pilihan rak tujuan; jangan tampilkan pintasan Daftar Rak Gudang.
    - **Kartu 3 (Scan QR Aset)**: Icon QrCode Orange (`AppColors.tintOrangeBg`), judul *"Sirkulasi Aset"*, subtitle *"Serah Terima & Cek"*.
    - **Kartu 4 (Lapor Kerusakan)**: Icon Wrench Teal (`AppColors.tintTealBg`), judul *"Lapor Rusak"*, subtitle *"IPSRS Fieldwork"*.
 4. **Live Activity Feed (`desain.md` Sec 5.4)**:
@@ -373,20 +373,12 @@ Struktur layar `HomeScreen` (`lib/features/dashboard/presentation/screens/home_s
 
 ---
 
-### Fase 6: Modul Manajemen Rak Gudang & Inventaris Ruang Simpan
+### Fase 6: Pilihan Rak pada Penerimaan PO (Tanpa Halaman Penelusuran Rak)
 
-1. Layar Daftar Rak Gudang (`DaftarRakScreen`):
-   - Memuat data real-time dari `GET /api/v1/gudang/rak`.
-   - Menampilkan list/grid kartu rak penyimpanan (`lokasi_gudang`).
-   - Setiap kartu rak memuat: Kode rak (`kode`), nama deskriptif (`nama`), nama gudang induk, jumlah jenis barang (`total_barang`), dan jumlah aset fisik (`total_aset`).
-   - Input pencarian di bagian atas untuk memfilter rak berdasarkan kode atau nama.
-2. Layar Detail Rak (`DetailRakScreen`):
-   - Dibuka saat pengguna memilih salah satu rak (`GET /api/v1/gudang/rak/{id}`).
-   - Header menampilkan info rak (kode rak, nama, gudang induk, dan ringkasan total item).
-   - Dilengkapi 2 Tab Konten (`TabBar`):
-     - **Tab 1 (Barang & Stok Batch)**: Menampilkan seluruh item logistik di rak tersebut beserta nama barang, kode SKU, kategori, nomor batch, tanggal kedaluwarsa, jumlah stok aktual, dan satuan.
-     - **Tab 2 (Aset Fisik)**: Menampilkan seluruh sarana/peralatan fisik di rak tersebut beserta kode aset (`AST-...`), nama aset, merk, nomor seri, kondisi fisik, dan status ketersediaan.
-   - Filter pencarian cepat (*in-shelf search*) untuk memfilter daftar barang atau aset di rak secara instan.
+1. Hapus halaman `DaftarRakScreen` dan `DetailRakScreen`, rute, pintasan dashboard, serta dependensi yang hanya digunakan oleh kedua halaman tersebut. Jangan membuat pengganti halaman penelusuran rak atau tab inventaris rak.
+2. Pertahankan pemilih rak pada form Penerimaan PO, termasuk pencarian kode/nama rak, informasi gudang, status loading/error/kosong, dan pembatasan opsi sesuai gudang penerima. Pergantian gudang tidak boleh mempertahankan pilihan rak yang tidak sesuai.
+3. Pertahankan model, repository, dan provider data rak yang masih dipakai alur penerimaan PO. Hapus hanya dependensi khusus halaman yang tidak memiliki pemakai lain.
+4. Endpoint backend `GET /api/v1/gudang/rak` dan `GET /api/v1/gudang/rak/{id}` tetap tersedia dan tidak diubah oleh penghapusan UI ini; endpoint daftar tetap mendukung pilihan rak penerimaan.
 ---
 
 ### Fase 7: Modul Sirkulasi Aset & Scanner QR

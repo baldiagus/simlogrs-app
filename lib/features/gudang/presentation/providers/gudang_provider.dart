@@ -3,7 +3,6 @@ import '../../../../core/network/api_response.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../data/models/rak_model.dart';
-import '../../data/models/aset_rak_model.dart';
 import '../../data/repositories/gudang_repository.dart';
 
 /// Provider repository gudang; membungkus akses API gudang memakai DioClient bersama.
@@ -12,17 +11,7 @@ final gudangRepositoryProvider = Provider<GudangRepository>((ref) {
   return GudangRepository(client);
 });
 
-/// Kata kunci pencarian rak; berubah memicu pemuatan ulang [daftarRakProvider].
-final rakSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
-
-/// Daftar rak gudang, difilter berdasarkan [rakSearchQueryProvider].
-final daftarRakProvider = FutureProvider.autoDispose<List<RakModel>>((ref) async {
-  final repository = ref.watch(gudangRepositoryProvider);
-  final query = ref.watch(rakSearchQueryProvider);
-  return await repository.getDaftarRak(cari: query);
-});
-
-/// Opsi rak penerimaan terikat gudang dan sesi, bukan filter denah rak umum.
+/// Opsi rak penerimaan terikat gudang dan sesi pengguna.
 final rakPenerimaanProvider =
     FutureProvider.autoDispose.family<List<RakModel>, int>((ref, gudangId) async {
   final user = ref.watch(authStateProvider).user;
@@ -40,11 +29,4 @@ final rakPenerimaanProvider =
   return racks
       .where((rack) => rack.gudangId == gudangId && rack.status == 'AKTIF')
       .toList();
-});
-
-/// Detail satu rak (beserta isi stoknya) berdasarkan ID rak.
-final detailRakProvider =
-    FutureProvider.autoDispose.family<RakDetailModel, int>((ref, id) async {
-  final repository = ref.watch(gudangRepositoryProvider);
-  return await repository.getDetailRak(id);
 });

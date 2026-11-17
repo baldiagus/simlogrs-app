@@ -10,7 +10,7 @@
 * **Wewenang Khusus di Mobile**:
   - Penanggung jawab alokasi dan pengawasan distribusi komoditas gudang sentral.
   - Otorisator Meja 2 dokumen Amprah Ruangan (`DISETUJUI_GUDANG` / `DITOLAK`).
-  - Pengawas sirkulasi aset rumah sakit, pemantauan rak simpan, dan kontrol serapan anggaran logistik.
+  - Pengawas sirkulasi aset rumah sakit, alokasi rak penerimaan PO, dan kontrol serapan anggaran logistik.
 
 ---
 
@@ -33,20 +33,19 @@
 
 ---
 
-### Skenario 2: Inspeksi Fisik Rak Gudang Sentral & Sebaran Komoditas
+### Skenario 2: Penghapusan Penelusuran Rak & Pilihan Rak Penerimaan PO
 * **Kode Kasus Uji**: `UAT-MOB-LOG-02`
-* **Tujuan**: Memvalidasi kemampuan inspeksi denah rak, saldo batch aktif, dan status kedaluwarsa secara visual di depan rak.
+* **Tujuan**: Memastikan halaman penelusuran rak dihapus tanpa menghilangkan pemilihan rak pada penerimaan PO.
 * **Langkah-langkah Pengujian**:
-  1. Pada Beranda, ketuk kartu aksi cepat **Daftar Rak Gudang**.
-  2. Gunakan kolom pencarian untuk mencari rak (misal: `RAK A`).
-  3. Pilih salah satu rak (misal: *RAK A Utama - Gudang Sentral*).
-  4. Amati Tab 1 **Stok Batch Barang**:
-     - Periksa nama barang, nomor batch, sisa stok fisik, dan badge status kedaluwarsa (*AMAN*, *MENDEKATI_KADALUWARSA*, *KADALUWARSA*).
-  5. Beralih ke Tab 2 **Aset Fisik**:
-     - Periksa sarana fisik yang tersimpan di rak tersebut beserta nomor seri dan kondisi (*BAIK* / *RUSAK*).
+  1. Pada Beranda, pastikan kartu **Daftar Rak Gudang** tidak tersedia dan tidak ada navigasi ke halaman **Detail Rak**.
+  2. Buka **Penerimaan PO**, pilih PO yang dapat diterima, lalu tentukan gudang penerima sesuai wewenang akun.
+  3. Buka pemilih rak pada item penerimaan dan cari rak berdasarkan kode atau nama.
+  4. Pilih rak aktif milik gudang penerima; pastikan pilihan tampil kembali pada form.
+  5. Jika akun dapat mengganti gudang penerima, ganti gudang dan pastikan pilihan rak lama yang tidak sesuai dihapus serta opsi mengikuti gudang baru.
 * **Kriteria Keberhasilan (Primary Path)**:
-  - Layar `DaftarRakScreen` dan `DetailRakScreen` memuat seluruh struktur rak secara real-time.
-  - Jumlah fisik barang dan aset di dalam rak sesuai dengan saldo buku kartu stok.
+  - Halaman Daftar Rak dan Detail Rak beserta pintasannya tidak tersedia di aplikasi mobile.
+  - Pemilih rak penerimaan PO tetap memuat data, mendukung pencarian, dan membatasi pilihan sesuai gudang penerima.
+  - Penghapusan UI tidak menghapus atau mengubah kontrak endpoint backend `GET /api/v1/gudang/rak` dan `GET /api/v1/gudang/rak/{id}`.
 * **Hasil Pengujian**: [ &nbsp;&nbsp; ] Lolos &nbsp;&nbsp;&nbsp; [ &nbsp;&nbsp; ] Gagal &nbsp;&nbsp;&nbsp; Catatan: ........................................
 
 ---

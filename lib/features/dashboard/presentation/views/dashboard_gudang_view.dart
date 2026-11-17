@@ -11,7 +11,6 @@ import '../../../aset/presentation/screens/sirkulasi_aset_hub_screen.dart';
 import '../../../distribusi/presentation/screens/amprah_hub_screen.dart';
 import '../../../maintenance/presentation/screens/lapor_rusak_hub_screen.dart';
 import '../../../distribusi/presentation/screens/picking_distribusi_screen.dart';
-import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
 import '../../../gudang/presentation/screens/inbound_po_list_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
 import '../../../pengadaan/presentation/screens/pengadaan_hub_screen.dart';
@@ -97,12 +96,6 @@ class DashboardGudangView extends ConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const InboundPoListScreen()),
-            );
-          },
-          onRakGudangTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
             );
           },
           onStockOpnameTap: () {
