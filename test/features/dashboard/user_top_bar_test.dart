@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simlog_mobile/core/notifications/push_notification_service.dart';
 import 'package:simlog_mobile/features/auth/data/models/user_model.dart';
 import 'package:simlog_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:simlog_mobile/shared/widgets/user_top_bar.dart';
@@ -106,5 +107,72 @@ void main() {
     expect(find.text('Sentral RS'), findsOneWidget);
     expect(find.text('Selamat Bertugas,'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('UserTopBar hides every FCM status and keeps the unread bell reactive', (tester) async {
+    final fcmStatus = PushNotificationService.instance.fcmStatus;
+    final previousStatus = fcmStatus.value;
+    addTearDown(() => fcmStatus.value = previousStatus);
+    final container = ProviderContainer(
+      overrides: [
+        authStateProvider.overrideWith((ref) => MockAuthNotifier(
+          const UserModel(
+            id: 1,
+            name: 'Pengguna Uji',
+            email: 'uji@simlogrs.local',
+            username: 'uji',
+            roles: ['manajemen'],
+            permissions: [],
+          ),
+        )),
+        belumDibacaSinkronProvider.overrideWith((ref) => Future<void>.value()),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(body: UserTopBar()),
+        ),
+      ),
+    );
+
+    for (final status in FcmStatus.values) {
+      fcmStatus.value = status;
+      container.read(belumDibacaProvider.notifier).state = 7;
+      await tester.pump();
+
+      for (final label in const [
+        'FCM Aktif',
+        'FCM Tidak Tersedia',
+        'Token Belum Terdaftar',
+        'Izin Ditolak',
+        'FCM Belum Siap',
+      ]) {
+        expect(find.text(label), findsNothing, reason: 'FCM status: $status');
+      }
+      expect(find.byType(ValueListenableBuilder<FcmStatus>), findsNothing);
+      expect(find.text('Selamat Bertugas,'), findsOneWidget);
+      expect(find.text('7'), findsOneWidget);
+      final bell = tester.widget<IconButton>(
+        find.byWidgetPredicate(
+          (widget) => widget is IconButton && widget.tooltip == 'Notifikasi',
+        ),
+      );
+      expect(bell.onPressed, isNotNull);
+      expect(find.byTooltip('Keluar'), findsOneWidget);
+
+      container.read(belumDibacaProvider.notifier).state = 100;
+      await tester.pump();
+      expect(find.text('99+'), findsOneWidget);
+      expect(find.text('7'), findsNothing);
+
+      container.read(belumDibacaProvider.notifier).state = 0;
+      await tester.pump();
+      expect(find.text('99+'), findsNothing);
+      expect(find.byTooltip('Notifikasi'), findsOneWidget);
+    }
   });
 }

@@ -82,6 +82,7 @@ void main() {
     expect(find.text('Otorisasi dan monitoring redistribusi antar fasilitas logistik'), findsOneWidget);
 
     // Tap the banner to navigate
+    await tester.ensureVisible(find.text('Pengalihan & Mutasi Aset / Barang'));
     await tester.tap(find.text('Pengalihan & Mutasi Aset / Barang'));
     await tester.pumpAndSettle();
 
@@ -124,6 +125,7 @@ void main() {
     expect(find.text('Pengajuan dan serah terima redistribusi fisik logistik'), findsOneWidget);
 
     // Tap the banner to navigate
+    await tester.ensureVisible(find.text('Pengalihan & Mutasi Aset / Barang'));
     await tester.tap(find.text('Pengalihan & Mutasi Aset / Barang'));
     await tester.pumpAndSettle();
 

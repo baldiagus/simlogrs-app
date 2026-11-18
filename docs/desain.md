@@ -16,13 +16,13 @@ Dokumen spesifikasi desain ini diekstraksi dan dirancang berdasarkan referensi v
 
 ### 2.1 Primary & Accent
 - **Primary / Accent Purple**: `#5B50E6` / `#6355F6` (Tombol aksi utama, ikon navigasi aktif, badge transfer)
-- **Primary Gradient**: `linear-gradient(135deg, #635BF7 0%, #766EF8 50%, #9084FA 100%)` (Total Balance & Available Balance cards)
+- **Primary Gradient**: `#5145CD → #5B50D8 → #6554D6`; teks di atas gradien memakai putih opak agar tetap terbaca.
 - **Secondary Gradient Accent**: `linear-gradient(180deg, rgba(238, 237, 254, 0.7) 0%, rgba(255, 255, 255, 1) 100%)`
 
 ### 2.2 Functional & Semantics
-- **Success / Positive**: `#10B981` (Teks pemasukan, mutasi masuk `+ 50,000 IQD`, tren pengeluaran positif)
-- **Danger / Negative**: `#EF4444` (Teks pengeluaran/penarikan `- 50,000 IQD`)
-- **Warning / Pending**: `#F59E0B` (Badge status transaksi *Pending*)
+- **Success / Positive**: `#047857`.
+- **Danger / Negative**: `#B91C1C`.
+- **Warning / Pending**: `#92400E`.
 - **Category Icon Tints**:
   - Blue/Indigo: `bg-blue-50 text-blue-600` (Send Money / Bank Transfer)
   - Orange/Peach: `bg-orange-50 text-orange-600` (Request Money)
@@ -33,22 +33,38 @@ Dokumen spesifikasi desain ini diekstraksi dan dirancang berdasarkan referensi v
 - **Background App Canvas**: `#F7F8FC` atau `#F4F5FA`
 - **Surface / Card Background**: `#FFFFFF`
 - **Surface Secondary / Pill**: `#F1F3F9`
-- **Text Primary (Headings, Amount)**: `#0F172A` / `#1E293B`
-- **Text Secondary (Subtitles, Meta)**: `#64748B` / `#94A3B8`
+- **Text Primary**: `#0F172A` untuk judul, isi utama, dan nilai penting.
+- **Text Secondary**: `#526179` untuk deskripsi dan metadata; **Text Muted**: `#596880` untuk hint/keterangan nonutama. Jangan menurunkan opacity teks untuk membentuk hierarki.
 - **Border / Divider**: `#EDF0F7`
 
 ---
 
 ## 3. Tipografi (Typography)
 
-- **Font Family**: Modern Sans-Serif (`Inter`, `Plus Jakarta Sans`, atau sistem native `-apple-system, BlinkMacSystemFont, "SF Pro Display"`).
-- **Scale**:
-  - **Display / Balances**: 28px – 32px | Bold / SemiBold | Line-height: 1.2
-  - **Header H1 / Title**: 18px – 20px | SemiBold | Line-height: 1.3
-  - **Subheading / Section Title**: 15px – 16px | SemiBold | Line-height: 1.4
-  - **Body Text**: 14px | Regular & Medium | Line-height: 1.5
-  - **Captions / Meta / Timestamps**: 11px – 12px | Regular & Medium | Line-height: 1.4
-  - **Button / Chip Text**: 13px – 14px | SemiBold / Medium
+- **Font lokal**: Plus Jakarta Sans, bobot 400/500/600/700; JetBrains Mono dengan bobot sama untuk kode aset/transaksi. Aset dan lisensi OFL berada di `assets/fonts/`; tidak memerlukan layanan font internet.
+- **Sumber style**: `AppTheme.lightTheme.textTheme`; halaman memakai style semantik dari tema, bukan skala lokal kedua.
+
+| Style | Penggunaan | Ukuran / weight | Tinggi baris |
+|---|---|---|---|
+| displayLarge | KPI | 32 / 700 | 1.15 |
+| headlineMedium | Login/judul besar | 22 / 700 | 1.25 |
+| titleLarge | Halaman/dialog | 18 / 700 | 1.3 |
+| titleMedium | Bagian | 16 / 600 | 1.35 |
+| titleSmall | Kartu/item | 14 / 600 | 1.4 |
+| bodyLarge | Isi/input | 14 / 400 | 1.5 |
+| bodyMedium | Deskripsi | 13 / 400 | 1.45 |
+| bodySmall | Metadata | 12 / 400 | 1.4 |
+| labelLarge | Tombol | 14 / 600 | 1.3 |
+| labelMedium | Tab/filter | 12 / 600 | 1.3 |
+| labelSmall | Badge | 12 / 600 | 1.25 |
+
+- `copyWith` hanya untuk perbedaan bermakna (warna status, kode monospace, emphasis). Stiker QR cetak boleh memakai ukuran khusus agar cocok dengan bidang cetak.
+- Target kontras pasangan teks/latar: 4.5:1 untuk teks biasa, 3:1 untuk teks besar. Status tetap memiliki label/ikon, bukan warna saja. Teks putih memakai latar aksen/semantik gelap; warna kategori harus diuji bersama latarnya.
+- Judul penting boleh dua baris; badge dipindah/dibungkus bila ruang tidak cukup. Jangan mematikan text scaling atau memakai pengecilan otomatis untuk menutupi overflow.
+- Verifikasi pada lebar 360/390/768/desktop dan text scaling 100/150/200%; baseline screenshot lama dipertahankan terpisah.
+- Pemeriksaan browser: login telah dilihat pada viewport 360×800, 390×844, 768×1024, dan 1280×900; pilihan akun membungkus ke baris berikutnya pada layar sempit. Ini bukan bukti visual seluruh halaman atau text scaling 200%.
+- Keadaan kosong dapat digulir saat tinggi konten melebihi ruang tersedia. Hero mengukur kebutuhan judul/aksi dan nilai sub-metrik: angka pendek tetap sejajar pada 343/390px; nominal panjang memakai breakdown selebar kartu tanpa ellipsis. Jangan menentukan fallback dari lebar viewport tanpa menghitung padding.
+- Verifikasi otomatis migrasi: 13 pengujian kontras, badge status, dan navigasi dashboard lulus. `flutter analyze --no-pub` tanpa error/warning; masih melaporkan 122 info lint (`prefer_const_constructors` dan `avoid_relative_lib_imports`).
 
 ---
 
