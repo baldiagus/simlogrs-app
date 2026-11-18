@@ -136,11 +136,7 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isSelected ? AppColors.surface : AppColors.textSecondary, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
         ),
       ),
     );
@@ -161,82 +157,63 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
+                Text(
                   po.kode,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
-                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'JetBrains Mono'),
                 ),
-              ),
-              const SizedBox(width: 8),
               if (po.isCompliant)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                      color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(6)),
-                  child: const Text('PATUH',
-                      style: TextStyle(
-                          color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 10)),
+                      color: AppColors.success.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(6)),
+                  child: Text('PATUH',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.success)),
                 )
               else
-                Flexible(
-                  child: Wrap(
+                  Wrap(
                     spacing: 4,
                     alignment: WrapAlignment.end,
                     children: po.anomaliTags.map((tag) {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(4)),
+                            color: AppColors.danger.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(4)),
                         child: Text(
                           tag,
-                          style: const TextStyle(
-                              color: AppColors.danger, fontWeight: FontWeight.w700, fontSize: 9),
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger),
                         ),
                       );
                     }).toList(),
                   ),
-                ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             'Rekanan / Vendor: ${po.pemasok}',
-            style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 2),
           Text(
             po.prKode != null
                 ? 'Dasar PR: ${po.prKode} (${po.prUnit ?? "-"})'
                 : 'Dasar PR: [Diterbitkan Tanpa PR]',
-            style: TextStyle(
-              fontSize: 12,
-              color: po.prKode != null ? AppColors.textSecondary : AppColors.danger,
-              fontWeight: po.prKode != null ? FontWeight.normal : FontWeight.w700,
-            ),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: po.prKode != null ? AppColors.textSecondary : AppColors.danger, fontWeight: po.prKode != null ? FontWeight.normal : FontWeight.w700),
           ),
           const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
+                Text(
                   'Nilai PO: ${AppFormatters.rupiah(po.totalBiaya)}',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.tintBlue),
-                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.tintBlue),
                 ),
-              ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 4),
               Text(
                 'Estimasi: ${po.estimasiTanggalKirim}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -247,8 +224,8 @@ class _KepatuhanPoTabState extends ConsumerState<KepatuhanPoTab> {
               child: OutlinedButton.icon(
                 onPressed: () => widget.onTerbitkanCapa(po),
                 icon: const Icon(LucideIcons.shieldAlert, size: 14, color: AppColors.danger),
-                label: const Text('Terbitkan Temuan CAPA',
-                    style: TextStyle(color: AppColors.danger, fontSize: 12)),
+                label: Text('Terbitkan Temuan CAPA',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.danger),
                   visualDensity: VisualDensity.compact,

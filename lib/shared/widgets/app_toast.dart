@@ -175,7 +175,7 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
     }
   }
 
-  /// Membangun toast di bawah status bar dengan ikon, pesan maksimal dua baris, dan gestur untuk menutup.
+  /// Membangun toast dengan pesan lengkap yang dapat digulir dan gestur tutup.
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top;
@@ -212,26 +212,29 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
                     ),
                   ],
                 ),
-                child: Row(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                  ),
+                  child: SingleChildScrollView(
+                    primary: false,
+                    child: Row(
                   children: [
                     Icon(icon, color: iconColor, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         widget.message,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: textColor,
-                          height: 1.3,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Icon(LucideIcons.x, size: 14, color: textColor.withValues(alpha: 0.5)),
                   ],
+                ),
+                  ),
                 ),
               ),
             ),

@@ -103,11 +103,44 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
     }
   }
 
-  /// Membangun stepper dengan tombol minus, field angka, dan tombol plus yang dinonaktifkan secara visual di batas min/max.
+  /// Menyesuaikan lebar input dengan digit/skala teks; kontrol turun bila sempit.
   @override
   Widget build(BuildContext context) {
     final canDecrease = widget.value > widget.min;
     final canIncrease = widget.max == null || widget.value < widget.max!;
+    final textStyle = Theme.of(context).textTheme.titleSmall;
+
+    final decreaseButton = IconButton(
+      tooltip: 'Kurangi jumlah',
+      onPressed: canDecrease
+          ? () {
+              final newVal = widget.value - 1;
+              _controller.text = '$newVal';
+              widget.onChanged(newVal);
+            }
+          : null,
+      icon: const Icon(LucideIcons.minus, size: 14),
+      color: AppColors.textPrimary,
+      disabledColor: AppColors.textMuted,
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      padding: const EdgeInsets.all(8),
+    );
+    final increaseButton = IconButton(
+      tooltip: 'Tambah jumlah',
+      onPressed: () {
+        if (canIncrease) {
+          final newVal = widget.value + 1;
+          _controller.text = '$newVal';
+          widget.onChanged(newVal);
+        } else {
+          widget.onMaxReached?.call();
+        }
+      },
+      icon: const Icon(LucideIcons.plus, size: 14),
+      color: canIncrease ? AppColors.textPrimary : AppColors.textMuted,
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      padding: const EdgeInsets.all(8),
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -115,78 +148,65 @@ class _AppQuantityStepperState extends State<AppQuantityStepper> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          InkWell(
-            onTap: canDecrease
-                ? () {
-                    final newVal = widget.value - 1;
-                    _controller.text = '$newVal';
-                    widget.onChanged(newVal);
-                  }
-                : null,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
-              child: Icon(
-                LucideIcons.minus,
-                size: 14,
-                color: canDecrease ? AppColors.textPrimary : AppColors.textMuted,
-              ),
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _controller,
+        builder: (context, value, _) {
+          final painter = TextPainter(
+            text: TextSpan(
+              text: value.text.isEmpty ? '${widget.min}' : value.text,
+              style: textStyle,
             ),
-          ),
-          Container(
-            constraints: const BoxConstraints(minWidth: 42, maxWidth: 64),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            alignment: Alignment.center,
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 6),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-              ),
-              onChanged: _handleTextChanged,
-              onSubmitted: (_) => _commitValue(),
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              if (canIncrease) {
-                final newVal = widget.value + 1;
-                _controller.text = '$newVal';
-                widget.onChanged(newVal);
-              } else {
-                widget.onMaxReached?.call();
+            textDirection: Directionality.of(context),
+            textScaler: MediaQuery.textScalerOf(context),
+          )..layout();
+          final inputWidth = (painter.width + 20).clamp(42.0, double.infinity).toDouble();
+          painter.dispose();
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final stackControls = constraints.maxWidth < inputWidth + 88;
+              final field = SizedBox(
+                width: stackControls ? constraints.maxWidth : inputWidth,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  textAlign: TextAlign.center,
+                  style: textStyle,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  onChanged: _handleTextChanged,
+                  onSubmitted: (_) => _commitValue(),
+                ),
+              );
+              if (stackControls) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    field,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(child: decreaseButton),
+                        Flexible(child: increaseButton),
+                      ],
+                    ),
+                  ],
+                );
               }
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [decreaseButton, field, increaseButton],
+              );
             },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
-              child: Icon(
-                LucideIcons.plus,
-                size: 14,
-                color: canIncrease ? AppColors.textPrimary : AppColors.textMuted,
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

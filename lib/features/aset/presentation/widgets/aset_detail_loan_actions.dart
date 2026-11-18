@@ -32,22 +32,24 @@ class AsetDetailLoanActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (canPerpanjang || isProviderOwner)
-          Row(
+          LayoutBuilder(builder: (context, constraints) {
+            final paired = canPerpanjang && isProviderOwner;
+            final width = paired && constraints.maxWidth >= 440 * MediaQuery.textScalerOf(context).scale(1)
+                ? (constraints.maxWidth - 10) / 2 : constraints.maxWidth;
+            return Wrap(
+            spacing: 10,
+            runSpacing: 10,
             children: [
               if (canPerpanjang)
-                Expanded(
-                  flex: isProviderOwner ? 2 : 1,
+                SizedBox(
+                  width: width,
                   child: OutlinedButton.icon(
                     onPressed: onPerpanjang,
                     icon: const Icon(LucideIcons.calendarPlus,
                         size: 16, color: AppColors.primaryPurple),
-                    label: const Text(
+                    label: Text(
                       'Perpanjang',
-                      style: TextStyle(
-                          color: AppColors.primaryPurple,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700),
-                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
@@ -58,20 +60,20 @@ class AsetDetailLoanActions extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (canPerpanjang && isProviderOwner) const SizedBox(width: 10),
               if (isProviderOwner)
-                Expanded(
-                  flex: canPerpanjang ? 3 : 1,
+                SizedBox(
+                  width: width,
                   child: CustomButton(
                     text: 'Kembalikan Fisik',
                     icon: const Icon(LucideIcons.packageCheck,
-                        size: 18, color: Colors.white),
+                        size: 18, color: AppColors.surface),
                     isLoading: isActionLoading,
                     onPressed: onPengembalian,
                   ),
                 ),
             ],
-          ),
+            );
+          }),
         if (!isProviderOwner) ...[
           if (canPerpanjang) const SizedBox(height: 8),
           Container(
@@ -89,8 +91,7 @@ class AsetDetailLoanActions extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Peminjam menyerahkan fisik aset ke unit ${aset.namaPenyedia} untuk proses inspeksi pengembalian resmi.',
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                   ),
                 ),
               ],
@@ -130,24 +131,16 @@ class AsetDetailProsesPinjamNotice extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Sedang Dalam Proses Peminjaman',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.tintOrange,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.tintOrange),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   aset.antreanPeminjaman != null
                       ? 'Aset ini sedang diajukan peminjaman oleh ${aset.antreanPeminjaman!['unit_peminjam']} (${aset.antreanPeminjaman!['kode_pinjam']}) dengan status ${aset.antreanPeminjaman!['status']}.'
                       : 'Aset ini sedang dalam antrean proses peminjaman unit lain dan belum dapat dipinjam.',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    height: 1.3,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),

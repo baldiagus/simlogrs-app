@@ -120,10 +120,9 @@ class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaan
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Tolak Pengiriman Fisik',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
                         ),
@@ -131,7 +130,7 @@ class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaan
                       const SizedBox(height: 2),
                       Text(
                         '${widget.po.kodePo} • ${widget.po.pemasok}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                       ),
                     ],
                   ),
@@ -146,9 +145,9 @@ class _ModalTolakPenerimaanSheetState extends ConsumerState<ModalTolakPenerimaan
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.danger.withValues(alpha: 0.2)),
               ),
-              child: const Text(
+              child: Text(
                 'Penolakan ini menerbitkan Surat Penolakan Barang (Berita Acara) dengan dampak stok 0. Vendor berkewajiban mengirimkan barang pengganti.',
-                style: TextStyle(fontSize: 11, color: AppColors.danger, height: 1.3),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger, height: 1.3),
               ),
             ),
             const SizedBox(height: 16),

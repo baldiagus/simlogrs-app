@@ -93,27 +93,30 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Terbitkan Temuan CAPA',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              Expanded(child: Text('Terbitkan Temuan CAPA',
+                  style: Theme.of(context).textTheme.titleMedium)),
               IconButton(icon: const Icon(LucideIcons.x, size: 18), tooltip: 'Tutup', onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 12),
           Text('Objek Audit: PO ${widget.po.kode} - ${widget.po.pemasok}',
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono')),
           const SizedBox(height: 12),
-          const Text('Tingkat Risiko *',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+          Text('Tingkat Risiko *',
+              style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
             initialValue: _risiko,
+            isExpanded: true,
+            itemHeight: null,
             decoration: const InputDecoration(isDense: true, border: OutlineInputBorder()),
             items: const [
               DropdownMenuItem(value: 'Mayor', child: Text('Mayor (14 Hari)')),
@@ -132,8 +135,8 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
             },
           ),
           const SizedBox(height: 12),
-          const Text('Ringkasan Temuan & Ketidaksesuaian *',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+          Text('Ringkasan Temuan & Ketidaksesuaian *',
+              style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 4),
           TextField(
             controller: _ringkasanCtrl,
@@ -151,12 +154,13 @@ class _FormCapaFromPoSheetState extends ConsumerState<FormCapaFromPoSheet> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Simpan ke Register CAPA',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                      child: CircularProgressIndicator(color: AppColors.surface, strokeWidth: 2))
+                  : Text('Simpan ke Register CAPA',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.surface)),
             ),
           ),
         ],
+      ),
       ),
     );
   }

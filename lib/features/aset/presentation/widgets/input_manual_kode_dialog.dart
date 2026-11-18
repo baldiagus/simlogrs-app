@@ -16,21 +16,21 @@ class InputManualKodeDialog extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(LucideIcons.keyboard, color: AppColors.primaryPurple, size: 20),
             SizedBox(width: 10),
             Text('Input Kode Aset',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Ketik kode aset atau nomor seri untuk mencari data:',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -56,7 +56,7 @@ class InputManualKodeDialog extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
             ),
             child: const Text('Cari Aset'),
           ),

@@ -60,12 +60,14 @@ class SppbCardItem extends StatelessWidget {
                         children: [
                           const Icon(LucideIcons.truck, size: 14, color: AppColors.tintBlue),
                           const SizedBox(width: 4),
-                          Text(
-                            item.kode,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.tintBlue,
+                          Flexible(
+                            child: Text(
+                              item.kode,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.tintBlue,
+                                fontFamily: 'JetBrains Mono',
+                              ),
                             ),
                           ),
                         ],
@@ -79,8 +81,7 @@ class SppbCardItem extends StatelessWidget {
                 // Asal Gudang & Tujuan
                 Text(
                   'Dikirim ke ${item.unit}',
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   ),
@@ -93,8 +94,7 @@ class SppbCardItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Kurir: ${item.pengirim}',
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -105,10 +105,10 @@ class SppbCardItem extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
-                    Text(
+                    Flexible(child: Text(
                       AppFormatters.tanggalString(item.tanggalKirim),
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                    ),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                    )),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -119,7 +119,7 @@ class SppbCardItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Asal: ${item.gudang}',
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -146,11 +146,11 @@ class SppbCardItem extends StatelessWidget {
                         children: [
                           Text(
                             '${item.totalItem} Item Barang Dikirim:',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                           ),
-                          const Text(
+                          Text(
                             'Status: Menuju Ruangan',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.tintBlue),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.tintBlue),
                           ),
                         ],
                       ),
@@ -164,14 +164,14 @@ class SppbCardItem extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   '• ${d.namaBarang} (Batch: ${d.nomorBatch})',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(
+                              Flexible(child: Text(
                                 '${d.jumlahDikirim} ${d.satuan}',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                              ),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              )),
                             ],
                           ),
                         );

@@ -68,8 +68,10 @@ class SpkDetailScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              alignment: WrapAlignment.spaceBetween,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -79,10 +81,10 @@ class SpkDetailScreen extends ConsumerWidget {
                                   ),
                                   child: Text(
                                     spk.kodeSpk,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                      color: AppColors.surface,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 13,
+                                      fontFamily: 'JetBrains Mono',
                                     ),
                                   ),
                                 ),
@@ -92,16 +94,15 @@ class SpkDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 12),
                             Text(
                               spk.aset.nama,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
+                              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                                color: AppColors.surface,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Kode Aset: ${spk.aset.kodeAset} • Lokasi: ${spk.aset.lokasi}',
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                             ),
                           ],
                         ),
@@ -122,10 +123,10 @@ class SpkDetailScreen extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                Flexible(child: Text(
                                   'Tiket: ${spk.tiket.kode}',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                                ),
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontFamily: 'JetBrains Mono'),
+                                )),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                   decoration: BoxDecoration(
@@ -136,12 +137,11 @@ class SpkDetailScreen extends ConsumerWidget {
                                   ),
                                   child: Text(
                                     spk.tiket.prioritas,
-                                    style: TextStyle(
-                                      fontSize: 10,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                       fontWeight: FontWeight.w800,
                                       color: spk.tiket.isCito
-                                          ? AppColors.danger
-                                          : (spk.tiket.isTinggi ? AppColors.warning : AppColors.tintBlue),
+                                      ? AppColors.danger
+                                      : (spk.tiket.isTinggi ? AppColors.warning : AppColors.tintBlue),
                                     ),
                                   ),
                                 ),
@@ -150,13 +150,13 @@ class SpkDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Text(
                               spk.tiket.deskripsiMasalah,
-                              style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.4),
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textPrimary, height: 1.4),
                             ),
                             if (spk.tiket.pelapor != null) ...[
                               const SizedBox(height: 8),
                               Text(
                                 'Pelapor: ${spk.tiket.pelapor}',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                               ),
                             ],
                             if (spk.tiket.fotoUrl != null && spk.tiket.fotoUrl!.isNotEmpty) ...[
@@ -187,7 +187,7 @@ class SpkDetailScreen extends ConsumerWidget {
                                     Expanded(
                                       child: Text(
                                         'Instruksi: ${spk.instruksiKhusus}',
-                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ),
                                   ],
@@ -204,10 +204,10 @@ class SpkDetailScreen extends ConsumerWidget {
                         children: [
                           const Icon(LucideIcons.clipboardList, size: 18, color: AppColors.primaryPurple),
                           const SizedBox(width: 8),
-                          Text(
+                          Flexible(child: Text(
                             'Riwayat Pengerjaan & Suku Cadang (${spk.riwayatLog.length})',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                          ),
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          )),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -220,15 +220,15 @@ class SpkDetailScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: AppColors.border),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               'Belum ada lembar kerja yang dicatat untuk SPK ini.',
-                              style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted, fontStyle: FontStyle.italic),
                             ),
                           ),
                         )
                       else
-                        ...spk.riwayatLog.map((log) => _buildLogCard(log)),
+                        ...spk.riwayatLog.map((log) => _buildLogCard(context, log)),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -290,12 +290,12 @@ class SpkDetailScreen extends ConsumerWidget {
                           children: [
                             const Icon(LucideIcons.eye, size: 16, color: AppColors.textSecondary),
                             const SizedBox(width: 8),
-                            Text(
+                            Flexible(child: Text(
                               isAuditor
                                   ? 'Mode Audit SPI (Hanya Lihat - Read-Only)'
                                   : 'Mode Pengawasan Eksekutif (Hanya Lihat - Read-Only)',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                            ),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                            )),
                           ],
                         ),
                       ),
@@ -316,7 +316,7 @@ class SpkDetailScreen extends ConsumerWidget {
   }
 
   /// Kartu satu entri log pengerjaan SPK.
-  Widget _buildLogCard(SpkLogModel log) {
+  Widget _buildLogCard(BuildContext context, SpkLogModel log) {
     Color hasilBg = const Color(0xFFECFDF5);
     Color hasilColor = AppColors.success;
     if (log.hasil == 'PENDING') {
@@ -341,21 +341,21 @@ class SpkDetailScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Flexible(child: Text(
                 'Oleh: ${log.teknisi ?? 'Teknisi'}',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              )),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: hasilBg, borderRadius: BorderRadius.circular(6)),
-                child: Text(log.hasil, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: hasilColor)),
+                child: Text(log.hasil, style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w800, color: hasilColor)),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          Text('Diagnosa: ${log.diagnosa}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text('Diagnosa: ${log.diagnosa}', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           const SizedBox(height: 4),
-          Text('Tindakan: ${log.tindakan}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          Text('Tindakan: ${log.tindakan}', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
           if (log.sukuCadang.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
@@ -364,12 +364,12 @@ class SpkDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Suku Cadang Terpakai (FEFO):', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                  Text('Suku Cadang Terpakai (FEFO):', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   ...log.sukuCadang.map(
                     (sc) => Text(
                       '• ${sc.barang} (x${sc.jumlah})',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
                 ],

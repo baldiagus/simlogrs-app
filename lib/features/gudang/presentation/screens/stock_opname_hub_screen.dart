@@ -75,7 +75,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
               icon: const Icon(LucideIcons.plus, size: 20),
-              label: const Text('Inisiasi Opname', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Inisiasi Opname', style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
               onPressed: _openInisiasiModal,
             )
           : null,
@@ -135,10 +135,9 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                                 Flexible(
                                   child: Text(
                                     op.kode,
-                                    style: const TextStyle(
-                                      fontSize: 14,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w800,
-                                      fontFamily: 'monospace',
+                                      fontFamily: 'JetBrains Mono',
                                       color: AppColors.textPrimary,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -154,18 +153,18 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                       const SizedBox(height: 10),
                       Text(
                         op.gudangNama,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Tanggal: ${op.tanggalOpname} • Inisiasi: ${op.petugasInisiasi}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                       ),
                       if (op.catatan != '-') ...[
                         const SizedBox(height: 4),
                         Text(
                           op.catatan,
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary, fontStyle: FontStyle.italic),
                         ),
                       ],
                       const Divider(color: AppColors.border, height: 18),
@@ -181,7 +180,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                                 Flexible(
                                   child: Text(
                                     '${op.totalItem} Item (${op.totalTerhitung} Terhitung)',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -192,12 +191,12 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                           if (op.totalSelisih > 0)
                             Text(
                               '${op.totalSelisih} Batch Selisih',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.danger),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.danger),
                             )
                           else
-                            const Text(
+                            Text(
                               'Cocok (0 Selisih)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.success),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.success),
                             ),
                         ],
                       ),

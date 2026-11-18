@@ -21,7 +21,8 @@ class EmptyStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,21 +43,13 @@ class EmptyStateView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary,
-                height: 1.4,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
             if (action != null) ...[
@@ -65,6 +58,7 @@ class EmptyStateView extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }

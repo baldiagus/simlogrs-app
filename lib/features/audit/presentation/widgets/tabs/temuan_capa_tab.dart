@@ -73,15 +73,16 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
                 },
               ),
               const SizedBox(height: 8),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: DropdownButton<String?>(
+                    DropdownButton<String?>(
                       isExpanded: true,
+                      itemHeight: null,
                       value: _capaStatus,
-                      hint: const Text('Semua Status', style: TextStyle(fontSize: 11)),
+                      hint: Text('Semua Status', style: Theme.of(context).textTheme.bodySmall),
                       underline: const SizedBox.shrink(),
-                      style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.bodySmall,
                       items: const [
                         DropdownMenuItem(value: null, child: Text('Semua Status')),
                         DropdownMenuItem(value: 'In Progress', child: Text('In Progress')),
@@ -99,15 +100,13 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
                         );
                       },
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButton<String?>(
+                    DropdownButton<String?>(
                       isExpanded: true,
+                      itemHeight: null,
                       value: _capaRisiko,
-                      hint: const Text('Semua Risiko', style: TextStyle(fontSize: 11)),
+                      hint: Text('Semua Risiko', style: Theme.of(context).textTheme.bodySmall),
                       underline: const SizedBox.shrink(),
-                      style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.bodySmall,
                       items: const [
                         DropdownMenuItem(value: null, child: Text('Semua Risiko')),
                         DropdownMenuItem(value: 'Mayor', child: Text('Mayor')),
@@ -125,7 +124,6 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
                         );
                       },
                     ),
-                  ),
                 ],
               ),
             ],
@@ -184,7 +182,7 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
     switch (temuan.statusCapa) {
       case 'Closed':
         statusColor = AppColors.success;
-        statusBg = const Color(0xFFECFDF5);
+        statusBg = AppColors.success.withValues(alpha: 0.08);
         break;
       case 'In Review':
         statusColor = AppColors.tintViolet;
@@ -192,7 +190,7 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
         break;
       default:
         statusColor = temuan.isOverdue ? AppColors.danger : AppColors.warning;
-        statusBg = temuan.isOverdue ? const Color(0xFFFEF2F2) : const Color(0xFFFFFBEB);
+        statusBg = temuan.isOverdue ? AppColors.danger.withValues(alpha: 0.08) : AppColors.warning.withValues(alpha: 0.08);
     }
 
     return InkWell(
@@ -212,24 +210,15 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
+                        Text(
                           temuan.kode,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                              color: AppColors.textPrimary),
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono'),
                         ),
-                      ),
-                      const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
@@ -239,22 +228,16 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
                         ),
                         child: Text(
                           temuan.tingkatRisiko,
-                          style: TextStyle(
-                              color: riskColor, fontWeight: FontWeight.w700, fontSize: 9),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: riskColor),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration:
                       BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(6)),
                   child: Text(
                     temuan.statusCapa,
-                    style: TextStyle(
-                        color: statusColor, fontWeight: FontWeight.w800, fontSize: 10),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: statusColor),
                   ),
                 ),
               ],
@@ -262,42 +245,37 @@ class _TemuanCapaTabState extends ConsumerState<TemuanCapaTab> {
             const SizedBox(height: 8),
             Text(
               temuan.objekAudit,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 4),
             Text(
               temuan.ringkasan,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                const Icon(LucideIcons.calendar, size: 12, color: AppColors.textMuted),
+                const Icon(LucideIcons.calendar, size: 12, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(
                   'Due: ${temuan.dueDateCapa}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: temuan.isOverdue ? FontWeight.w700 : FontWeight.normal,
-                    color: temuan.isOverdue ? AppColors.danger : AppColors.textMuted,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: temuan.isOverdue ? AppColors.danger : AppColors.textMuted, fontWeight: temuan.isOverdue ? FontWeight.w700 : FontWeight.normal),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
+                  Text(
                     temuan.unit != '-'
                         ? 'Unit: ${temuan.unit}'
                         : (temuan.gudang != null && temuan.gudang != '-'
                             ? 'Gudang: ${temuan.gudang}'
                             : 'Sentral'),
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
               ],
             ),
           ],

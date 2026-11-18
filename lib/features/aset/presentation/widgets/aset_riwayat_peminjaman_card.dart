@@ -36,7 +36,7 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Row(
                     children: [
                       Icon(LucideIcons.history, size: 16, color: AppColors.primaryPurple),
@@ -44,11 +44,7 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Histori Sirkulasi (Peminjaman)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -69,13 +65,9 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                       ),
                       child: Text(
                         '${riwayat.length}x Dipinjam',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: riwayat.isNotEmpty
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: riwayat.isNotEmpty
                               ? AppColors.primaryPurple
-                              : AppColors.textSecondary,
-                        ),
+                              : AppColors.textSecondary),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -105,12 +97,7 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               latest.kodePeminjaman,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                fontFamily: 'monospace',
-                                color: AppColors.primaryPurple,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -121,28 +108,24 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         'Peminjam: ${latest.unitPeminjam} (${latest.peminjam})',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                        maxLines: 1,
+                        style: Theme.of(context).textTheme.labelMedium,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Masa Pinjam: ${latest.tanggalPinjam} s/d ${latest.tanggalKembaliRencana}',
                         style:
-                            const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                            Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 8),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Transaksi Terakhir',
                             style:
-                                TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                           ),
                           Flexible(
                             child: Row(
@@ -151,11 +134,7 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     'Buka Buku Sirkulasi Lengkap',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primaryPurple,
-                                    ),
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -178,14 +157,14 @@ class AsetRiwayatPeminjamanCard extends StatelessWidget {
                   color: AppColors.canvas,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(LucideIcons.checkCircle2, size: 16, color: AppColors.success),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Belum ada riwayat peminjaman fisik. Ketuk untuk membuka sirkulasi...',
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                     SizedBox(width: 8),

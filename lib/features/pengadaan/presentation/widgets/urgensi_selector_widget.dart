@@ -17,10 +17,9 @@ class UrgensiSelectorWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Tingkat Urgensi Pengadaan',
-          style: TextStyle(
-            fontSize: 13,
+          style: Theme.of(context).textTheme.titleSmall!.copyWith(
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
@@ -28,11 +27,11 @@ class UrgensiSelectorWidget extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            _buildChip('REGULER', 'Reguler', AppColors.primaryPurple, AppColors.tintVioletBg),
+            _buildChip(context, 'REGULER', 'Reguler', AppColors.primaryPurple, AppColors.tintVioletBg),
             const SizedBox(width: 8),
-            _buildChip('MENDESAK', 'Mendesak', AppColors.warning, const Color(0xFFFFFBEB)),
+            _buildChip(context, 'MENDESAK', 'Mendesak', AppColors.warning, const Color(0xFFFFFBEB)),
             const SizedBox(width: 8),
-            _buildChip('CITO', 'CITO (Darurat)', AppColors.danger, const Color(0xFFFEF2F2)),
+            _buildChip(context, 'CITO', 'CITO (Darurat)', AppColors.danger, const Color(0xFFFEF2F2)),
           ],
         ),
       ],
@@ -40,7 +39,7 @@ class UrgensiSelectorWidget extends StatelessWidget {
   }
 
   /// Membangun satu chip pilihan urgensi dengan warna aktif bila sedang terpilih.
-  Widget _buildChip(String value, String label, Color activeColor, Color activeBg) {
+  Widget _buildChip(BuildContext context, String value, String label, Color activeColor, Color activeBg) {
     final isSelected = selectedUrgensi.toUpperCase() == value;
 
     return Expanded(
@@ -60,8 +59,7 @@ class UrgensiSelectorWidget extends StatelessWidget {
           child: Center(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
+              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected ? activeColor : AppColors.textSecondary,
               ),

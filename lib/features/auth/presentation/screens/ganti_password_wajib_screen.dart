@@ -70,16 +70,12 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
       child: Scaffold(
         backgroundColor: AppColors.canvas,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           elevation: 0,
           automaticallyImplyLeading: false,
-          title: const Text(
+          title: Text(
             'Ganti Kata Sandi Wajib',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           actions: [
             IconButton(
@@ -105,7 +101,7 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
                       ),
-                      child: const Row(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(LucideIcons.shieldAlert, size: 20, color: AppColors.warning),
@@ -113,11 +109,7 @@ class _GantiPasswordWajibScreenState extends ConsumerState<GantiPasswordWajibScr
                           Expanded(
                             child: Text(
                               'Kata sandi Anda telah direset atau mewajibkan pembaruan demi keamanan. Silakan tentukan kata sandi baru untuk melanjutkan.',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textPrimary,
-                                height: 1.4,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),
                         ],

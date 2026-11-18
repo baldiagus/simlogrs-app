@@ -195,17 +195,14 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        Wrap(
+                                          alignment: WrapAlignment.spaceBetween,
+                                          spacing: 8,
+                                          runSpacing: 6,
                                           children: [
                                             Text(
                                               item.kode,
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.textSecondary,
-                                                fontFamily: 'monospace',
-                                              ),
+                                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                             ),
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -215,11 +212,7 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                               ),
                                               child: Text(
                                                 item.tipeLabel,
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: tipeColor,
-                                                ),
+                                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: tipeColor),
                                               ),
                                             ),
                                           ],
@@ -227,18 +220,12 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           item.nama,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.titleSmall,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           '${item.kategori} • ${item.merek}',
-                                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                         ),
                                       ],
                                     ),
@@ -246,33 +233,28 @@ class _MasterBarangScreenState extends ConsumerState<MasterBarangScreen> {
                                 ],
                               ),
                               const Divider(color: AppColors.border, height: 18),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                spacing: 8,
+                                runSpacing: 6,
                                 children: [
                                   Text(
                                     AppFormatters.rupiah(item.hargaEstimasi),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
-                                    ),
+                                    style: Theme.of(context).textTheme.labelMedium,
                                   ),
                                   Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
+                                      Flexible(child: Text(
                                         isAset
                                             ? (item.stokGudang > 0
                                                 ? '${item.totalAset} Terdaftar • ${item.stokGudang} di Gudang'
                                                 : '${item.totalAset} Unit Fisik')
                                             : 'Total: ${item.totalStokFisik} ${item.simbolSatuan}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w800,
-                                          color: (isAset && item.totalAset == 0 && item.stokGudang == 0) || (!isAset && item.isHabis)
+                                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: (isAset && item.totalAset == 0 && item.stokGudang == 0) || (!isAset && item.isHabis)
                                               ? AppColors.danger
-                                              : (item.isPerluPesan ? AppColors.warning : AppColors.success),
-                                        ),
-                                      ),
+                                              : (item.isPerluPesan ? AppColors.warning : AppColors.success)),
+                                      )),
                                       const SizedBox(width: 4),
                                       const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
                                     ],

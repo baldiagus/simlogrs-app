@@ -42,20 +42,14 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
                     color: AppColors.tintVioletBg,
                     borderRadius: BorderRadius.circular(8)),
                 child: Text(item.kode,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryPurple)),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono')),
               ),
               StatusBadge(status: item.status),
             ],
           ),
           const SizedBox(height: 10),
           Text(item.namaAset,
-              style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
+              style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 6),
 
           // 1. Asset Code Pill Badge
@@ -67,12 +61,7 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
             ),
             child: Text(
               item.kodeAset,
-              style: const TextStyle(
-                fontFamily: 'JetBrains Mono',
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryPurple,
-              ),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
             ),
           ),
           const SizedBox(height: 6),
@@ -89,11 +78,7 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Pemohon: ${item.unitPeminjam} (${item.pengaju})',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    height: 1.35,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               ),
             ],
@@ -108,9 +93,7 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Jadwal: ${AppFormatters.tanggalString(item.tanggalPinjam)} s/d ${AppFormatters.tanggalString(item.tanggalKembaliRencana)}',
-                  style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               ),
             ],
@@ -132,19 +115,13 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(top: 1.5),
-                    child: Icon(LucideIcons.fileText, size: 12, color: AppColors.textMuted),
+                    child: Icon(LucideIcons.fileText, size: 12, color: AppColors.textSecondary),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Keperluan: ${item.keperluan}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary,
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
                 ],
@@ -157,29 +134,36 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
 
           // Action buttons
           if (item.isDiajukan)
-            Row(
+            LayoutBuilder(builder: (context, constraints) {
+              final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+                  ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+              return Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                Expanded(
+                SizedBox(
+                  width: width,
                   child: OutlinedButton(
                     onPressed: () => onAksi('tolak'),
                     style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFFCA5A5))),
-                    child: const Text('Tolak',
-                        style: TextStyle(color: AppColors.danger)),
+                    child: Text('Tolak',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.danger)),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                SizedBox(
+                  width: width,
                   child: ElevatedButton(
                     onPressed: () => onAksi('setujui'),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.success,
-                        foregroundColor: Colors.white),
+                        foregroundColor: AppColors.surface),
                     child: const Text('Setujui Pinjam'),
                   ),
                 ),
               ],
-            )
+              );
+            })
           else if (item.isDisetujui)
             SizedBox(
               width: double.infinity,
@@ -187,7 +171,7 @@ class SirkulasiHubOtorisasiCard extends StatelessWidget {
                 onPressed: () => onAksi('serah_terima'),
                 style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryPurple,
-                    foregroundColor: Colors.white),
+                    foregroundColor: AppColors.surface),
                 icon: const Icon(LucideIcons.arrowRightLeft, size: 16),
                 label: const Text('Serah Terima Fisik ke Peminjam'),
               ),

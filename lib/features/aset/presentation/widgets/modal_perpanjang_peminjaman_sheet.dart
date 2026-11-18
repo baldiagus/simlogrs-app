@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
 import '../../../../shared/widgets/app_date_picker_field.dart';
@@ -132,9 +133,9 @@ class _ModalPerpanjangPeminjamanSheetState
             onDateSelected: (picked) => setState(() => _selectedDate = picked),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Alasan Perpanjangan (Wajib):',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 6),
           TextField(
@@ -148,7 +149,7 @@ class _ModalPerpanjangPeminjamanSheetState
           CustomButton(
             text: 'Konfirmasi Perpanjang Peminjaman',
             isLoading: _isSubmitting,
-            icon: const Icon(LucideIcons.check, size: 18, color: Colors.white),
+            icon: const Icon(LucideIcons.check, size: 18, color: AppColors.surface),
             onPressed: _submit,
           ),
         ],

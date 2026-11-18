@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/notifications/push_notification_service.dart';
 import '../../features/notifikasi/presentation/providers/notifikasi_provider.dart';
 import '../../features/notifikasi/presentation/screens/notifikasi_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
@@ -29,12 +28,9 @@ class UserTopBar extends ConsumerWidget {
     ref.watch(belumDibacaSinkronProvider);
     final belumDibaca = ref.watch(belumDibacaProvider);
 
-    return Row(
-      children: [
-        // Avatar Bulat 44x44px
-        Container(
-          width: 44,
-          height: 44,
+    final avatar = Container(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             gradient: AppColors.primaryHeroGradient,
             shape: BoxShape.circle,
@@ -48,53 +44,28 @@ class UserTopBar extends ConsumerWidget {
             ],
           ),
           child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
             child: Text(
               initial,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-
-        // Sapaan, Nama Pengguna & Unit Badge (Hirarki 3-Tingkat Mandiri)
-        Expanded(
-          child: Column(
+        );
+    final identity = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 2,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const Text(
-                    'Selamat Bertugas,',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  ValueListenableBuilder<FcmStatus>(
-                    valueListenable: PushNotificationService.instance.fcmStatus,
-                    builder: (context, status, _) => _FcmStatusLabel(status: status),
-                  ),
-                ],
+              Text(
+                'Selamat Bertugas,',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 1.5),
               Text(
                 user?.name ?? 'Pengguna',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 2.5),
               Container(
@@ -105,20 +76,16 @@ class UserTopBar extends ConsumerWidget {
                 ),
                 child: Text(
                   unitBadge,
-                  style: const TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryPurple,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
-          ),
-        ),
-
-        // Lonceng Notifikasi dengan Badge Status
+          );
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         Stack(
           clipBehavior: Clip.none,
           children: [
@@ -148,11 +115,8 @@ class UserTopBar extends ConsumerWidget {
                   alignment: Alignment.center,
                   child: Text(
                     belumDibaca > 99 ? '99+' : '$belumDibaca',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      height: 1.0,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onError,
                     ),
                   ),
                 ),
@@ -174,48 +138,33 @@ class UserTopBar extends ConsumerWidget {
         ),
       ],
     );
-  }
-}
-
-/// Label status FCM berwarna: hijau bila aktif, kuning untuk izin ditolak/token belum terdaftar, abu untuk lainnya.
-class _FcmStatusLabel extends StatelessWidget {
-  final FcmStatus status;
-
-  /// Membuat label status FCM untuk [status].
-  const _FcmStatusLabel({required this.status});
-
-  /// Membangun titik warna dan teks Indonesia singkat sesuai [status].
-  @override
-  Widget build(BuildContext context) {
-    final (String label, MaterialColor warna) = switch (status) {
-      FcmStatus.aktif => ('FCM Aktif', Colors.green),
-      FcmStatus.tokenBelumTerdaftar => ('Token Belum Terdaftar', Colors.amber),
-      FcmStatus.izinDitolak => ('Izin Ditolak', Colors.amber),
-      FcmStatus.tidakTersedia => ('FCM Tidak Tersedia', Colors.grey),
-      FcmStatus.belumDiinisialisasi => ('FCM Belum Siap', Colors.grey),
-    };
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(color: warna.shade600, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: warna.shade800,
-            ),
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final needsReflow = constraints.maxWidth < 280 ||
+            MediaQuery.textScalerOf(context).scale(14) > 18;
+        if (needsReflow) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [avatar, const Spacer(), actions],
+              ),
+              const SizedBox(height: 8),
+              identity,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            avatar,
+            const SizedBox(width: 12),
+            Expanded(child: identity),
+            actions,
+          ],
+        );
+      },
     );
   }
 }
+

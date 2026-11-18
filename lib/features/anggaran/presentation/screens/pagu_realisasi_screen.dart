@@ -94,44 +94,8 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Pagu & Realisasi Anggaran',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-            ),
-            Text(
-              'Screening Pengeluaran Logistik & Suku Cadang',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-            ),
-          ],
-        ),
+        title: const Text('Anggaran'),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectedTahun,
-                isDense: true,
-                items: const [
-                  DropdownMenuItem(value: '2026', child: Text('TA 2026', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700))),
-                  DropdownMenuItem(value: '2025', child: Text('TA 2025', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700))),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    ref.read(selectedTahunAnggaranProvider.notifier).state = val;
-                  }
-                },
-              ),
-            ),
-          ),
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             tooltip: 'Muat ulang',
@@ -146,27 +110,66 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primaryPurple,
           indicatorWeight: 3,
-          tabs: const [
+          tabs: [
             Tab(
-              icon: Icon(LucideIcons.building2, size: 16),
-              text: 'Pengeluaran Ruangan',
+              height: 32 + MediaQuery.textScalerOf(context).scale(14) * 2,
+              child: const Text('Pengeluaran Ruangan'),
             ),
             Tab(
-              icon: Icon(LucideIcons.wrench, size: 16),
-              text: 'Suku Cadang IPSRS',
+              height: 32 + MediaQuery.textScalerOf(context).scale(14) * 2,
+              child: const Text('Suku Cadang IPSRS'),
             ),
           ],
         ),
       ),
       body: screeningAsync.when(
-        data: (data) => Column(
-          children: [
-            // Macro KPI Summary Cards
-            _buildMacroHeader(data.ringkasan, selectedTahun),
-
-            // Tab Views
-            Expanded(
-              child: TabBarView(
+        data: (data) => NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Pagu & Realisasi Anggaran', style: Theme.of(context).textTheme.titleMedium),
+                    Text('Screening Pengeluaran Logistik & Suku Cadang',
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedTahun,
+                isDense: true,
+                items: [
+                  DropdownMenuItem(value: '2026', child: Text('TA 2026', style: Theme.of(context).textTheme.labelMedium)),
+                  DropdownMenuItem(value: '2025', child: Text('TA 2025', style: Theme.of(context).textTheme.labelMedium)),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    ref.read(selectedTahunAnggaranProvider.notifier).state = val;
+                  }
+                },
+              ),
+            ),
+          ),
+              ),
+            ),
+            SliverToBoxAdapter(child: _buildMacroHeader(data.ringkasan, selectedTahun)),
+          ],
+          body: TabBarView(
                 controller: _tabController,
                 children: [
                   AnggaranUnitTab(
@@ -180,8 +183,6 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
                   ),
                 ],
               ),
-            ),
-          ],
         ),
         loading: () => const AppLoadingView(),
         error: (err, _) => AppErrorView(
@@ -200,11 +201,10 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Total Amprah Unit
-          Expanded(
-            child: Container(
+          Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.tintTealBg,
@@ -214,30 +214,25 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Amprah Ruangan', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tintTeal)),
+                      Expanded(child: Text('Amprah Ruangan', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintTeal))),
                       Icon(LucideIcons.truck, size: 14, color: AppColors.tintTeal),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     AppFormatters.rupiah(ringkasan.totalRealisasiDistribusi),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 2),
-                  Text('Distribusi logistik TA $tahun', style: const TextStyle(fontSize: 9, color: AppColors.textSecondary)),
+                  Text('Distribusi logistik TA $tahun', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                 ],
               ),
-            ),
           ),
-          const SizedBox(width: 10),
-          // Total Sparepart IPSRS
-          Expanded(
-            child: Container(
+          const SizedBox(height: 10),
+          Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.tintVioletBg,
@@ -247,25 +242,22 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Sparepart IPSRS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tintViolet)),
+                      Expanded(child: Text('Sparepart IPSRS', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintViolet))),
                       Icon(LucideIcons.wrench, size: 14, color: AppColors.tintViolet),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     AppFormatters.rupiah(ringkasan.totalRealisasiSparepart),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 2),
-                  Text('Servis sarana TA $tahun', style: const TextStyle(fontSize: 9, color: AppColors.textSecondary)),
+                  Text('Servis sarana TA $tahun', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                 ],
               ),
-            ),
           ),
         ],
       ),

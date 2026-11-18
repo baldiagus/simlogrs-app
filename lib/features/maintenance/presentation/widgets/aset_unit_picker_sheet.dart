@@ -57,14 +57,13 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Flexible(child: Text(
                   'Pilih Sarana / Alat Ruangan',
-                  style: TextStyle(
-                    fontSize: 17,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   ),
-                ),
+                )),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(LucideIcons.x, size: 20),
@@ -138,8 +137,7 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
                                 children: [
                                   Text(
                                     a.nama,
-                                    style: const TextStyle(
-                                      fontSize: 13,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.textPrimary,
                                     ),
@@ -157,8 +155,7 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
                                         a.asalPenyedia != null && a.asalPenyedia!.isNotEmpty
                                             ? 'Aset Pinjaman dari: ${a.asalPenyedia}'
                                             : 'Aset Pinjaman',
-                                        style: const TextStyle(
-                                          fontSize: 10,
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                           fontWeight: FontWeight.w600,
                                           color: AppColors.tintOrange,
                                         ),
@@ -168,12 +165,12 @@ class _AsetUnitPickerSheetState extends ConsumerState<AsetUnitPickerSheet> {
                                   const SizedBox(height: 2),
                                   Text(
                                     '${a.kodeAset} • SN: ${a.nomorSeri}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     'Kategori: ${a.kategori} • Kondisi: ${a.kondisi}',
-                                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                                   ),
                                 ],
                               ),

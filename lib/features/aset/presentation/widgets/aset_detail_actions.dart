@@ -112,7 +112,7 @@ class AsetDetailActionSection extends StatelessWidget {
         ] else if (canPinjam) ...[
           CustomButton(
             text: 'Ajukan Peminjaman Aset',
-            icon: const Icon(LucideIcons.repeat, size: 18, color: Colors.white),
+            icon: const Icon(LucideIcons.repeat, size: 18, color: AppColors.surface),
             onPressed: () => _ajukanPeminjaman(context),
           ),
           const SizedBox(height: 10),
@@ -135,12 +135,9 @@ class AsetDetailActionSection extends StatelessWidget {
             ),
             icon: const Icon(LucideIcons.arrowRightLeft,
                 size: 18, color: AppColors.primaryPurple),
-            label: const Text(
+            label: Text(
               'Pengalihan / Mutasi Aset',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryPurple),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple),
             ),
           ),
           const SizedBox(height: 10),
@@ -165,12 +162,9 @@ class AsetDetailActionSection extends StatelessWidget {
             ),
             icon: const Icon(LucideIcons.wrench,
                 size: 18, color: AppColors.danger),
-            label: const Text(
+            label: Text(
               'Lapor Kerusakan Alat (IPSRS)',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.danger),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.danger),
             ),
           ),
           const SizedBox(height: 30),

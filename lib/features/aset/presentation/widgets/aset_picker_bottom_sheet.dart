@@ -60,13 +60,9 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Katalog Aset Siap Pinjam',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -145,12 +141,8 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
                                       Flexible(
                                         child: Text(
                                           aset.namaKomoditas,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          maxLines: 1,
+                                          style: Theme.of(context).textTheme.titleSmall,
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -163,11 +155,7 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
                                         ),
                                         child: Text(
                                           aset.tipePenyedia,
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w800,
-                                            color: aset.isGudang ? AppColors.tintBlue : AppColors.tintOrange,
-                                          ),
+                                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: aset.isGudang ? AppColors.tintBlue : AppColors.tintOrange),
                                         ),
                                       ),
                                     ],
@@ -175,13 +163,13 @@ class _AsetPickerBottomSheetState extends ConsumerState<AsetPickerBottomSheet> {
                                   const SizedBox(height: 2),
                                   Text(
                                     '${aset.kodeAset} • SN: ${aset.nomorSeri}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     'Lokasi: ${aset.lokasiLengkap}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                                    maxLines: 1,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                                    maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],

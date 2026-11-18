@@ -97,11 +97,7 @@ class _ModalPengembalianAsetSheetState
           ),
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? color : AppColors.textSecondary,
-            ),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isSelected ? color : AppColors.textSecondary, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
           ),
         ),
       ),
@@ -151,13 +147,9 @@ class _ModalPengembalianAsetSheetState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Kondisi Fisik Saat Kembali:',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
+            style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
           Row(
@@ -170,13 +162,9 @@ class _ModalPengembalianAsetSheetState
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Catatan Hasil Pemeriksaan:',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
+            style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 6),
           TextField(
@@ -190,7 +178,7 @@ class _ModalPengembalianAsetSheetState
           CustomButton(
             text: 'Konfirmasi Pengembalian Selesai',
             isLoading: _isSubmitting,
-            icon: const Icon(LucideIcons.checkCheck, size: 18, color: Colors.white),
+            icon: const Icon(LucideIcons.checkCheck, size: 18, color: AppColors.surface),
             onPressed: _submit,
           ),
         ],

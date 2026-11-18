@@ -107,16 +107,12 @@ class AppPagedListView<T> extends StatelessWidget {
     }
 
     if (!hasMore && items.length >= 15) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
             'Semua data telah ditampilkan',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
       );

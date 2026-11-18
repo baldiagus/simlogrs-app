@@ -26,11 +26,13 @@ class AsetDetailHeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
-              Flexible(
-                child: Container(
+              Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -39,34 +41,21 @@ class AsetDetailHeroCard extends StatelessWidget {
                   ),
                   child: Text(
                     aset.kodeAset,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      fontFamily: 'monospace',
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
               StatusBadge(status: aset.status),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             aset.namaKomoditas,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.surface),
           ),
           const SizedBox(height: 4),
           Text(
             '${aset.kategori} • Nomor Seri: ${aset.nomorSeri}',
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
           ),
           const SizedBox(height: 14),
           // Quick Action: Lihat Stiker QR Button
@@ -76,22 +65,18 @@ class AsetDetailHeroCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
+                color: AppColors.surface.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(LucideIcons.qrCode, color: Colors.white, size: 16),
+                  Icon(LucideIcons.qrCode, color: AppColors.surface, size: 16),
                   SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       'Lihat Stiker QR Inventaris',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700),
-                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.surface),
                     ),
                   ),
                 ],
@@ -117,7 +102,7 @@ class AsetDetailOverdueBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: AppColors.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
       ),
@@ -130,18 +115,14 @@ class AsetDetailOverdueBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Peminjaman Melebihi Batas Waktu!',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.danger,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.danger),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Rencana kembali: ${loan.tanggalKembaliRencana ?? '-'}. Mohon segera lakukan pengembalian fisik.',
-                  style: const TextStyle(fontSize: 11, color: AppColors.danger),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger),
                 ),
               ],
             ),

@@ -63,20 +63,16 @@ class NotifikasiScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Notifikasi',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
         actions: [
-          TextButton.icon(
+          IconButton(
             onPressed: adaBelumDibaca ? notifier.bacaSemua : null,
-            icon: const Icon(LucideIcons.checkCheck, size: 16),
-            label: const Text('Tandai semua dibaca'),
+            icon: const Icon(LucideIcons.checkCheck, size: 20),
+            tooltip: 'Tandai semua dibaca',
           ),
         ],
       ),
@@ -128,13 +124,7 @@ class _NotifikasiTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.judul,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textPrimary,
-                              fontWeight: belumDibaca ? FontWeight.bold : FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: belumDibaca ? FontWeight.bold : FontWeight.w500),
                           ),
                         ),
                         if (belumDibaca)
@@ -153,14 +143,12 @@ class _NotifikasiTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       item.pesan,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       waktuRelatif(item.dibuatPada),
-                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
                     ),
                   ],
                 ),

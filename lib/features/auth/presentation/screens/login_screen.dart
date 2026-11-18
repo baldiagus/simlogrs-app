@@ -87,7 +87,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(LucideIcons.shieldAlert, size: 20, color: AppColors.danger),
@@ -98,16 +98,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   children: [
                                     Text(
                                       'Peringatan Integritas Perangkat',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.danger,
-                                      ),
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger),
                                     ),
                                     SizedBox(height: 2),
                                     Text(
                                       'Perangkat terdeteksi dalam status root atau memakai OS developer test-keys. Hindari menyimpan data kredensial sensitif di perangkat ini.',
-                                      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                     ),
                                   ],
                                 ),
@@ -115,8 +111,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                          Wrap(
+                            alignment: WrapAlignment.end,
+                            spacing: 6,
+                            runSpacing: 6,
                             children: [
                               TextButton(
                                 onPressed: () => SystemNavigator.pop(),
@@ -125,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   foregroundColor: AppColors.danger,
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 ),
-                                child: const Text('Keluar Aplikasi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                                child: Text('Keluar Aplikasi', style: Theme.of(context).textTheme.labelMedium),
                               ),
                               if (kDebugMode) ...[
                                 const SizedBox(width: 6),
@@ -134,10 +132,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   style: ElevatedButton.styleFrom(
                                     visualDensity: VisualDensity.compact,
                                     backgroundColor: AppColors.danger,
-                                    foregroundColor: Colors.white,
+                                    foregroundColor: AppColors.surface,
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   ),
-                                  child: const Text('Pahami Risiko', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                                  child: Text('Pahami Risiko', style: Theme.of(context).textTheme.labelMedium),
                                 ),
                               ],
                             ],
@@ -159,30 +157,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       child: const Icon(
                         LucideIcons.packageCheck,
-                        color: Colors.white,
+                        color: AppColors.surface,
                         size: 40,
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'SIMLOG RS',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
+                    style: Theme.of(context).textTheme.displayLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Logistik Rumah Sakit Non-Medis v2',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 36),
@@ -207,11 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Expanded(
                             child: Text(
                               authState.errorMessage!,
-                              style: const TextStyle(
-                                color: AppColors.danger,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.danger),
                             ),
                           ),
                         ],
@@ -221,13 +206,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
 
                   // Email Input
-                  const Text(
+                  Text(
                     'Email Pengguna',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -252,13 +233,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 16),
 
                   // Password Input
-                  const Text(
+                  Text(
                     'Kata Sandi',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -298,7 +275,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   CustomButton(
                     text: 'Masuk ke Sistem',
                     isLoading: isLoading,
-                    icon: const Icon(LucideIcons.logIn, size: 18, color: Colors.white),
+                    icon: const Icon(LucideIcons.logIn, size: 18, color: AppColors.surface),
                     onPressed: _submit,
                   ),
                   const SizedBox(height: 24),
@@ -315,16 +292,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(LucideIcons.info, size: 16, color: AppColors.primaryPurple),
                               SizedBox(width: 8),
-                              Text(
-                                'Akun Percobaan Cepat:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              Expanded(
+                                child: Text(
+                                  'Akun Percobaan Cepat:',
+                                  style: Theme.of(context).textTheme.labelMedium,
                                 ),
                               ),
                             ],
@@ -379,11 +354,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primaryPurple,
-          ),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
         ),
       ),
     );

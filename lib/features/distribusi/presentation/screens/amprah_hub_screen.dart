@@ -77,7 +77,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
           indicatorWeight: 3,
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          labelStyle: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
           tabs: [
             const Tab(
               icon: Icon(LucideIcons.fileSpreadsheet, size: 15),
@@ -114,7 +114,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
               icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Ajukan Amprah', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Ajukan Amprah', style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
             )
           : null,
       body: TabBarView(
@@ -313,8 +313,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 11,
+          style: Theme.of(context).textTheme.labelSmall!.copyWith(
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
           ),
@@ -334,7 +333,7 @@ class _AmprahHubScreenState extends ConsumerState<AmprahHubScreen>
       ),
       child: Text(
         '$count',
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.tintBlue),
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.tintBlue),
       ),
     );
   }

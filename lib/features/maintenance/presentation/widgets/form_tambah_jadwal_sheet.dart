@@ -140,9 +140,9 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Pilih Sarana / Aset
-              const Text(
+              Text(
                 'Pilih Sarana / Aset Fisik *',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               katalogAsetAsync.when(
@@ -150,6 +150,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                   return DropdownButtonFormField<int>(
                     initialValue: _selectedAsetId,
                     isExpanded: true,
+                    itemHeight: null,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -160,8 +161,7 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                         value: a.id,
                         child: Text(
                           '${a.kodeAset} • ${a.namaSarana} (${a.lokasi})',
-                          style: const TextStyle(fontSize: 12),
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontFamily: 'JetBrains Mono', color: AppColors.textPrimary),
                         ),
                       );
                     }).toList(),
@@ -172,15 +172,15 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                 loading: () => const LinearProgressIndicator(),
                 error: (err, _) => Text(
                   userErrorMessage(err, action: 'memuat katalog aset'),
-                  style: const TextStyle(color: AppColors.danger, fontSize: 11),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger),
                 ),
               ),
               const SizedBox(height: 14),
 
               // 2. Jenis Pekerjaan Maintenance
-              const Text(
+              Text(
                 'Jenis Pekerjaan Pemeliharaan *',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               TextFormField(
@@ -195,16 +195,24 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
               const SizedBox(height: 14),
 
               // 3. Frekuensi & Interval Waktu
-              const Text(
+              Text(
                 'Frekuensi Servis Berkala *',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
-              Row(
+              LayoutBuilder(builder: (context, constraints) {
+                final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+                    ? constraints.maxWidth : (constraints.maxWidth - 8) / 2;
+                return Wrap(
+                spacing: 8,
+                runSpacing: 10,
                 children: [
-                  const Text('Setiap ', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   SizedBox(
-                    width: 70,
+                    width: constraints.maxWidth,
+                    child: Text('Setiap', style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary)),
+                  ),
+                  SizedBox(
+                    width: width,
                     child: TextFormField(
                       controller: _intervalNilaiCtrl,
                       keyboardType: TextInputType.number,
@@ -216,9 +224,11 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                       validator: (val) => (val == null || val.isEmpty) ? 'Wajib' : null,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
+                  SizedBox(
+                    width: width,
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      itemHeight: null,
                       initialValue: _intervalTipe,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -236,13 +246,14 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                     ),
                   ),
                 ],
-              ),
+                );
+              }),
               const SizedBox(height: 14),
 
               // 4. Tanggal Servis Berikutnya
-              const Text(
+              Text(
                 'Tanggal Servis Perdana / Berikutnya *',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               InkWell(
@@ -255,22 +266,26 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppColors.border),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(LucideIcons.calendar, size: 16, color: AppColors.primaryPurple),
                           const SizedBox(width: 8),
-                          Text(
+                          Flexible(child: Text(
                             AppFormatters.tanggal(_tanggalBerikutnya),
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                          ),
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          )),
                         ],
                       ),
-                      const Text(
+                      Text(
                         'Pilih Tanggal',
-                        style: TextStyle(fontSize: 12, color: AppColors.primaryPurple, fontWeight: FontWeight.w700),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.primaryPurple, fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
@@ -279,9 +294,9 @@ class _FormTambahJadwalSheetState extends ConsumerState<FormTambahJadwalSheet> {
               const SizedBox(height: 14),
 
               // 5. Catatan / Instruksi
-              const Text(
+              Text(
                 'Catatan / Instruksi Kerja (Opsional)',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               TextFormField(

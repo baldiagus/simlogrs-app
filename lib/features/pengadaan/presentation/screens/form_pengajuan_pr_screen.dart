@@ -141,14 +141,13 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Unit Pemohon',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                 ),
                                 Text(
                                   user?.unit?.nama ?? 'Unit Terdaftar',
-                                  style: const TextStyle(
-                                    fontSize: 14,
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                   ),
@@ -168,14 +167,14 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: AppColors.tintTeal.withValues(alpha: 0.3)),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(LucideIcons.shieldCheck, size: 16, color: AppColors.tintTeal),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Jalur Karu: PR langsung disetujui & diteruskan ke Pengadaan tanpa antrean verifikasi.',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tintTeal),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.tintTeal),
                               ),
                             ),
                           ],
@@ -197,11 +196,10 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                         Expanded(
                           child: Row(
                             children: [
-                              const Flexible(
+                              Flexible(
                                 child: Text(
                                   'Daftar Barang',
-                                  style: TextStyle(
-                                    fontSize: 14,
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                   ),
@@ -219,8 +217,7 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                                   ),
                                   child: Text(
                                     '${_cartItems.length} SKU',
-                                    style: const TextStyle(
-                                      fontSize: 11,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.primaryPurple,
                                     ),
@@ -262,18 +259,17 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                               color: AppColors.textMuted,
                             ),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               'Belum Ada Barang Dipilih',
-                              style: TextStyle(
-                                fontSize: 14,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
+                            Text(
                               'Tekan tombol "+ Tambah Barang" untuk memilih dari katalog master.',
-                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 14),
@@ -306,10 +302,9 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                     const SizedBox(height: 20),
 
                     // Catatan Pengajuan
-                    const Text(
+                    Text(
                       'Catatan / Alasan Kebutuhan:',
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -345,14 +340,13 @@ class _FormPengajuanPrScreenState extends ConsumerState<FormPengajuanPrScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             'Total Kebutuhan:',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           ),
                           Text(
                             '$totalQty Barang (${_cartItems.length} Jenis)',
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
                             ),

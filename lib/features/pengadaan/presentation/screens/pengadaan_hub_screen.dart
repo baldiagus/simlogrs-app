@@ -143,7 +143,7 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
           tabs: [
             for (final key in tabKeys)
               switch (key) {
@@ -164,10 +164,10 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
                             ),
                             child: Text(
                               '$actionablePoCount',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                color: AppColors.surface,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ],
@@ -197,8 +197,8 @@ class _PengadaanHubScreenState extends ConsumerState<PengadaanHubScreen>
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
               icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Ajukan PR Baru',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Ajukan PR Baru',
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
             )
           : null,
       body: TabBarView(

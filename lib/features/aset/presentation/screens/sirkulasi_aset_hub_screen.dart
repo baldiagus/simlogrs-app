@@ -186,7 +186,7 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              Theme.of(context).textTheme.labelMedium,
           tabs: [
             SirkulasiHubBadgeTab(
               label: (user?.isKepalaGudang == true ||
@@ -213,10 +213,10 @@ class _SirkulasiAsetHubScreenState extends ConsumerState<SirkulasiAsetHubScreen>
               heroTag: null,
               onPressed: () => _bukaFormPeminjaman(context),
               backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
               icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Pinjam Aset Baru',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Pinjam Aset Baru',
+                  style: Theme.of(context).textTheme.labelLarge),
             )
           : null,
       body: TabBarView(

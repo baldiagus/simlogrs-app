@@ -9,6 +9,7 @@ class AppBottomSheetWrapper extends StatelessWidget {
   final Widget? trailing;
   final EdgeInsetsGeometry? padding;
   final double? maxHeightFactor;
+  final bool fixedHeader;
 
   const AppBottomSheetWrapper({
     super.key,
@@ -18,80 +19,157 @@ class AppBottomSheetWrapper extends StatelessWidget {
     this.trailing,
     this.padding,
     this.maxHeightFactor,
+    this.fixedHeader = false,
   });
 
-  /// Membangun sheet dengan padding mengikuti tinggi keyboard agar konten tidak tertutup, serta batas tinggi opsional lewat maxHeightFactor.
+  /// Membatasi sheet ke ruang di atas keyboard; seluruh isi tetap dapat digulir.
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final content = Container(
-      padding: padding ?? EdgeInsets.fromLTRB(20, 12, 20, bottomInset + 20),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+    final mediaQuery = MediaQuery.of(context);
+    final bottomInset = mediaQuery.viewInsets.bottom;
+    // Existing forms pass a top-level Flexible around their scroll view.
+    // This wrapper now owns the height/scroll constraint, not the caller's flex.
+    final body = switch (child) {
+      Flexible(:final child) => child,
+      _ => child,
+    };
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (title != null)
+          Text(title!, style: Theme.of(context).textTheme.titleMedium),
+        if (subtitle != null) ...[
+          const SizedBox(height: 2),
+          Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ],
+    );
+
+    if (fixedHeader) {
+      final contentPadding = padding ?? EdgeInsets.fromLTRB(
+        20, 16, 20, 20 + mediaQuery.padding.bottom,
+      );
+      return Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: (mediaQuery.size.height - bottomInset - mediaQuery.padding.top)
+                .clamp(0.0, mediaQuery.size.height).toDouble() *
+                (maxHeightFactor ?? 1),
           ),
-          if (title != null) ...[
-            const SizedBox(height: 16),
-            Row(
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        title!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                      Center(child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.border,
+                          borderRadius: BorderRadius.circular(2),
                         ),
+                      )),
+                      const SizedBox(height: 16),
+                      if (trailing == null) heading else Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [Expanded(child: heading), trailing!],
                       ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
-                if (trailing != null) trailing!,
+                const Divider(height: 1),
+                Flexible(
+                  child: SingleChildScrollView(
+                    primary: false,
+                    padding: contentPadding,
+                    child: body,
+                  ),
+                ),
               ],
             ),
-          ],
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-
-    if (maxHeightFactor != null) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * maxHeightFactor!,
+          ),
         ),
-        child: content,
       );
     }
 
-    return content;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: (mediaQuery.size.height - bottomInset - mediaQuery.padding.top)
+              .clamp(0.0, mediaQuery.size.height).toDouble() *
+              (maxHeightFactor ?? 1),
+        ),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: SingleChildScrollView(
+            primary: false,
+            padding: padding ?? EdgeInsets.fromLTRB(
+              20, 12, 20, 20 + mediaQuery.padding.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                if (title != null || subtitle != null || trailing != null) ...[
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (trailing == null) return heading;
+                      if (constraints.maxWidth < 360 ||
+                          mediaQuery.textScaler.scale(14) > 18) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            heading,
+                            const SizedBox(height: 8),
+                            trailing!,
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: heading),
+                          const SizedBox(width: 12),
+                          Flexible(child: trailing!),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 16),
+                body,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

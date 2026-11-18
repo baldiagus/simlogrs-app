@@ -114,10 +114,14 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -136,8 +140,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                                           const SizedBox(width: 4),
                                           Text(
                                             m.jenis,
-                                            style: TextStyle(
-                                              fontSize: 10,
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                               fontWeight: FontWeight.w800,
                                               color: isMasuk ? AppColors.success : AppColors.danger,
                                             ),
@@ -146,16 +149,15 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
+                                    Flexible(child: Text(
                                       m.tanggal,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                    ),
+                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                                    )),
                                   ],
                                 ),
                                 Text(
                                   '${isMasuk ? '+' : '-'}${m.jumlah} ${m.satuan}',
-                                  style: TextStyle(
-                                    fontSize: 14,
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                     fontWeight: FontWeight.w900,
                                     color: isMasuk ? AppColors.success : AppColors.danger,
                                   ),
@@ -165,18 +167,18 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                             const SizedBox(height: 8),
                             Text(
                               m.namaBarang,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Batch: ${m.nomorBatch} • ${m.gudang} (Rak: ${m.lokasiRak})',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                             ),
                             if (m.keterangan != '-') ...[
                               const SizedBox(height: 4),
                               Text(
                                 m.keterangan,
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary, fontStyle: FontStyle.italic),
                               ),
                             ],
                             const Divider(color: AppColors.border, height: 16),
@@ -186,7 +188,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                                 Flexible(
                                   child: Text(
                                     'Saldo: ${m.saldoSebelum} -> ${m.saldoSesudah} ${m.satuan}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -198,7 +200,7 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                                     const SizedBox(width: 4),
                                     Text(
                                       m.petugas,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ],

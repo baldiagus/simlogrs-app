@@ -226,17 +226,15 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        Wrap(
+                                          alignment: WrapAlignment.spaceBetween,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          spacing: 8,
+                                          runSpacing: 6,
                                           children: [
                                             Text(
                                               item.kodeAset,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w800,
-                                                color: AppColors.textPrimary,
-                                                fontFamily: 'monospace',
-                                              ),
+                                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono'),
                                             ),
                                             StatusBadge(status: item.status),
                                           ],
@@ -244,18 +242,12 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           item.namaKomoditas,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.titleSmall,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           'No. Seri: ${item.nomorSeri} • Kondisi: ${item.kondisi.replaceAll('_', ' ')}',
-                                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                         ),
                                       ],
                                     ),
@@ -263,25 +255,21 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
                                 ],
                               ),
                               const Divider(color: AppColors.border, height: 16),
-                              Row(
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   const Icon(LucideIcons.mapPin, size: 13, color: AppColors.textSecondary),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
+                                  Text(
                                       item.lokasiNama,
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
                                   if (item.nilaiPerolehan > 0)
                                     Text(
                                       AppFormatters.rupiah(item.nilaiPerolehan),
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                      style: Theme.of(context).textTheme.labelMedium,
                                     ),
-                                  const SizedBox(width: 4),
                                   const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
                                 ],
                               ),
@@ -322,11 +310,7 @@ class _RegisterAsetScreenState extends ConsumerState<RegisterAsetScreen> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-          ),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isSelected ? AppColors.surface : AppColors.textSecondary, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
         ),
       ),
     );

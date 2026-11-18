@@ -68,8 +68,7 @@ class InboundItemDraftTile extends StatelessWidget {
                   children: [
                     Text(
                       draft.poItem.namaBarang,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -77,7 +76,7 @@ class InboundItemDraftTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${draft.poItem.kodeBarang} • Pesan: ${draft.poItem.jumlahDipesan} ${draft.poItem.satuan} (Sisa: ${draft.poItem.sisaKebutuhan})',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                     ),
                   ],
                 ),
@@ -86,23 +85,18 @@ class InboundItemDraftTile extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          // 2. Baris Satuan & Stepper Qty (Bersih tanpa teks terlipat di kolom sempit)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Keep quantity input separate from its label on narrow item cards.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Text(
+              Text(
                   'Satuan: ${draft.poItem.satuan}',
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 6),
               AppQuantityStepper(
                 value: draft.jumlahDiterima,
                 min: 0,
@@ -114,35 +108,27 @@ class InboundItemDraftTile extends StatelessWidget {
           const SizedBox(height: 12),
 
           // 2b. Jumlah Rusak: 0 <= rusak <= jumlah diterima (sama dengan validasi backend)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
+              Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Jumlah Rusak (${draft.poItem.satuan}):',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Stok bersih: ${draft.jumlahDiterima - draft.jumlahRusak} ${draft.poItem.satuan}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.textMuted,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 6),
               AppQuantityStepper(
                 key: const ValueKey('jumlah-rusak-stepper'),
                 value: draft.jumlahRusak,
@@ -161,17 +147,21 @@ class InboundItemDraftTile extends StatelessWidget {
           const SizedBox(height: 14),
 
           // 3. Form Logistik: Nomor Batch Fisik & Tgl Expired (ED)
-          Row(
+          LayoutBuilder(builder: (context, constraints) {
+            final stacked = constraints.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1);
+            final fieldWidth = stacked ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+            return Wrap(
+            spacing: 10,
+            runSpacing: 12,
             children: [
-              // Nomor Batch Fisik
-              Expanded(
-                flex: 4,
+              SizedBox(
+                width: fieldWidth,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Nomor Batch Fisik *',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
@@ -188,25 +178,24 @@ class InboundItemDraftTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
 
               // Tanggal Expired (ED)
-              Expanded(
-                flex: 3,
+              SizedBox(
+                width: fieldWidth,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Tgl Expired (ED)',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     InkWell(
                       onTap: onPickExpiredDate,
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        constraints: const BoxConstraints(minHeight: 44),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceSecondary,
                           borderRadius: BorderRadius.circular(12),
@@ -217,15 +206,12 @@ class InboundItemDraftTile extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 draft.tanggalKedaluwarsa ?? 'Non-Exp',
-                                style: TextStyle(
-                                  fontSize: 11,
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: draft.tanggalKedaluwarsa != null
-                                      ? AppColors.textPrimary
-                                      : AppColors.textMuted,
+                                  ? AppColors.textPrimary
+                                  : AppColors.textMuted,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const Icon(LucideIcons.calendar, size: 14, color: AppColors.textSecondary),
@@ -237,20 +223,21 @@ class InboundItemDraftTile extends StatelessWidget {
                 ),
               ),
             ],
-          ),
+            );
+          }),
           const SizedBox(height: 12),
 
           // 4. Rak Simpan Gudang (Full Width agar nama rak tidak terpotong)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Rak Simpan Gudang *',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               if (rakUnavailableMessage != null)
-                Text(rakUnavailableMessage!, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary))
+                Text(rakUnavailableMessage!, style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary))
               else
                 rakListAsync.when(
                   skipLoadingOnRefresh: false,
@@ -259,7 +246,7 @@ class InboundItemDraftTile extends StatelessWidget {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Tidak ada rak aktif di gudang penerima.', style: TextStyle(fontSize: 11)),
+                          Text('Tidak ada rak aktif di gudang penerima.', style: Theme.of(context).textTheme.bodySmall),
                           if (onRetryRak != null)
                             TextButton(onPressed: onRetryRak, child: const Text('Coba lagi rak')),
                         ],
@@ -290,14 +277,14 @@ class InboundItemDraftTile extends StatelessWidget {
                                   children: [
                                     Text(
                                       selected == null ? 'Pilih rak simpan' : '${selected.kode} (${selected.nama})',
-                                      style: const TextStyle(fontSize: 12),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontFamily: 'JetBrains Mono', color: AppColors.textPrimary),
                                     ),
                                     if (selected != null)
                                       Text(
                                         warehouseName.isEmpty || warehouseName == '-'
                                             ? 'Informasi gudang belum tersedia'
                                             : 'Gudang: $warehouseName',
-                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                       ),
                                   ],
                                 ),
@@ -310,11 +297,11 @@ class InboundItemDraftTile extends StatelessWidget {
                       ),
                     );
                   },
-                  loading: () => const Text('Memuat rak gudang...', style: TextStyle(fontSize: 11)),
+                  loading: () => Text('Memuat rak gudang...', style: Theme.of(context).textTheme.bodySmall),
                   error: (_, __) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Gagal memuat rak gudang.', style: TextStyle(fontSize: 11, color: AppColors.danger)),
+                      Text('Gagal memuat rak gudang.', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger)),
                       if (onRetryRak != null)
                         TextButton(onPressed: onRetryRak, child: const Text('Coba lagi rak')),
                     ],

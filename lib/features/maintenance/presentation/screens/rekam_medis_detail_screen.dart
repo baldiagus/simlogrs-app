@@ -121,11 +121,10 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                                 ),
                                 child: Text(
                                   id['kode_aset']?.toString() ?? '-',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                    color: AppColors.surface,
                                     fontWeight: FontWeight.w800,
-                                    fontFamily: 'monospace',
+                                    fontFamily: 'JetBrains Mono',
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -138,9 +137,8 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                         const SizedBox(height: 12),
                         Text(
                           id['nama_sarana']?.toString() ?? 'Sarana Medis',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: AppColors.surface,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.5,
                           ),
@@ -148,7 +146,7 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                         const SizedBox(height: 4),
                         Text(
                           'No. Seri: ${id['nomor_seri']} • Merek: ${id['merek']}',
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                         ),
                         const SizedBox(height: 12),
                         Container(
@@ -165,11 +163,11 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                             children: [
                               Text(
                                 'Lokasi: ${id['lokasi']}',
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface,  fontWeight: FontWeight.w600),
                               ),
                               Text(
                                 '${id['total_servis']}x Servis Dicatat',
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface,  fontWeight: FontWeight.w800),
                               ),
                             ],
                           ),
@@ -211,10 +209,9 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                                   Flexible(
                                     child: Text(
                                       'Rekam Servis (${riwayat.length})',
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                         fontWeight: FontWeight.w700,
-                                        color: _selectedTab == 0 ? Colors.white : AppColors.textSecondary,
+                                        color: _selectedTab == 0 ? AppColors.surface : AppColors.textSecondary,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -247,10 +244,9 @@ class _RekamMedisDetailScreenState extends ConsumerState<RekamMedisDetailScreen>
                                   Flexible(
                                     child: Text(
                                       'Preventif (${jadwal.length})',
-                                      style: TextStyle(
-                                        fontSize: 12,
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                         fontWeight: FontWeight.w700,
-                                        color: _selectedTab == 1 ? Colors.white : AppColors.textSecondary,
+                                        color: _selectedTab == 1 ? AppColors.surface : AppColors.textSecondary,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

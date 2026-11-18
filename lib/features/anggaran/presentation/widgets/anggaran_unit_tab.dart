@@ -53,12 +53,12 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
         ),
         Expanded(
           child: filteredUnits.isEmpty
-              ? const Center(
+              ? Center(
                   child: Padding(
                     padding: EdgeInsets.all(24),
                     child: Text(
                       'Tidak ada data unit kerja yang sesuai kriteria.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
                 )
@@ -92,7 +92,10 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -102,64 +105,49 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
                 ),
                 child: Text(
                   item.unitKode.isNotEmpty ? item.unitKode : item.kode,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 10, color: AppColors.tintBlue),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintBlue, fontFamily: 'JetBrains Mono'),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  item.unitNama,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: AppColors.textPrimary),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+                Text(item.unitNama, style: Theme.of(context).textTheme.titleSmall),
             ],
           ),
           const SizedBox(height: 12),
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Amprah Logistik',
-                        style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                    Text('Amprah Logistik',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                     Text(AppFormatters.rupiah(item.bebanDistribusi),
-                        style: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.tintTeal)),
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintTeal)),
                   ],
                 ),
               ),
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sparepart Servis',
-                        style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                    Text('Sparepart Servis',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                     Text(AppFormatters.rupiah(item.bebanSparepart),
-                        style: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.tintViolet)),
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintViolet)),
                   ],
                 ),
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Total Beban Unit',
-                        style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                    Text('Total Beban Unit',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                     Text(AppFormatters.rupiah(item.realisasi),
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary)),
+                        style: Theme.of(context).textTheme.labelMedium),
                   ],
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -170,18 +158,15 @@ class _AnggaranUnitTabState extends ConsumerState<AnggaranUnitTab> {
             child: InkWell(
               onTap: () => widget.onUnitTap(item),
               borderRadius: BorderRadius.circular(6),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(LucideIcons.eye, size: 14, color: AppColors.primaryPurple),
                     SizedBox(width: 4),
-                    Text('Rincian Bukti Fisik',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryPurple)),
+                    Flexible(child: Text('Rincian Bukti Fisik',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple))),
                   ],
                 ),
               ),

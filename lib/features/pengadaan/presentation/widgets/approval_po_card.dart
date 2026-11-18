@@ -48,8 +48,7 @@ class ApprovalPoCard extends StatelessWidget {
             children: [
               Text(
                 po.kode,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800,  color: AppColors.textPrimary, fontFamily: 'JetBrains Mono'),
               ),
               if (po.isDiterbitkan && !isReadOnly)
                 Container(
@@ -58,10 +57,9 @@ class ApprovalPoCard extends StatelessWidget {
                     color: AppColors.tintVioletBg,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Perlu Tindakan',
-                    style: TextStyle(
-                      fontSize: 9,
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                       fontWeight: FontWeight.w800,
                       color: AppColors.primaryPurple,
                     ),
@@ -73,15 +71,14 @@ class ApprovalPoCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Rekanan / Vendor: ${po.namaPemasok}',
-            style: const TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
           ),
           const SizedBox(height: 2),
           Text(
             po.prKode != null
                 ? 'Dasar PR: ${po.prKode} (${po.prUnit ?? "-"})'
                 : 'Dasar PR: Tanpa PR',
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -92,12 +89,11 @@ class ApprovalPoCard extends StatelessWidget {
             children: [
               Text(
                 'Nilai PO: ${AppFormatters.rupiah(po.totalBiaya)}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.tintBlue),
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800,  color: AppColors.tintBlue),
               ),
               Text(
                 'Estimasi: ${po.estimasiTanggalKirim}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
               ),
             ],
           ),
@@ -107,29 +103,24 @@ class ApprovalPoCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${po.totalItem} Komoditas Dipesan:',
-              style: const TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 4),
             ...po.items.map((it) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
+                      Text(
                           '${it.namaBarang} (${it.jumlahDipesan} ${it.satuan})',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textPrimary),
                         ),
-                      ),
                       Text(
                         AppFormatters.rupiah(it.subtotal),
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -142,8 +133,8 @@ class ApprovalPoCard extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onUpdateKirim,
                 icon: const Icon(LucideIcons.truck, size: 16, color: Colors.white),
-                label: const Text('Tandai Dikirim Vendor',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                label: Text('Tandai Dikirim Vendor',
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(color: AppColors.surface, fontWeight: FontWeight.w700)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.tintBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -156,8 +147,8 @@ class ApprovalPoCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                   color: AppColors.canvas, borderRadius: BorderRadius.circular(6)),
-              child: const Text('Mode Pengawasan Eksekutif (Hanya Lihat)',
-                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+              child: Text('Mode Pengawasan Eksekutif (Hanya Lihat)',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted)),
             ),
           ],
         ],

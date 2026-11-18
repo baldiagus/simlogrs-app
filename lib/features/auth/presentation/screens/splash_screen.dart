@@ -78,7 +78,9 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: SafeArea(
-        child: Stack(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
           children: [
             // Center Brand Showcase
             Center(
@@ -100,32 +102,24 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                         child: const Icon(
                           LucideIcons.packageCheck,
-                          color: Colors.white,
+                          color: AppColors.surface,
                           size: 44,
                         ),
                       ),
                       const SizedBox(height: 24),
 
                       // App Name
-                      const Text(
+                      Text(
                         'SIMLOG RS',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                          letterSpacing: -0.5,
-                        ),
+                        style: Theme.of(context).textTheme.displayLarge,
                       ),
                       const SizedBox(height: 6),
 
                       // Tagline / Subtitle
-                      const Text(
+                      Text(
                         'Logistik Rumah Sakit Non-Medis v2',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
-                        ),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -134,10 +128,8 @@ class _SplashScreenState extends State<SplashScreen>
             ),
 
             // Bottom Status & Version Indicator
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 28,
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -154,25 +146,19 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 14),
                   Text(
                     widget.statusText,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 18),
-                  const Text(
+                  Text(
                     'v2.0.0 • Mobile Client',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFFCBD5E1),
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
             ),
           ],
+          ),
         ),
       ),
     );

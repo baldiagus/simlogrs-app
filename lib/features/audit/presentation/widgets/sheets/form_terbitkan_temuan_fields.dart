@@ -11,15 +11,12 @@ class FormTerbitkanTemuanRequiredLabel extends StatelessWidget {
   /// Membangun teks label dengan tanda bintang merah penanda field wajib.
   @override
   Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
+    return Text.rich(
+       TextSpan(
         text: text,
-        style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-            color: AppColors.textPrimary),
-        children: const [
-          TextSpan(text: '*', style: TextStyle(color: AppColors.danger)),
+        style: Theme.of(context).textTheme.labelMedium,
+        children: [
+          TextSpan(text: '*', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.danger)),
         ],
       ),
     );
@@ -27,7 +24,7 @@ class FormTerbitkanTemuanRequiredLabel extends StatelessWidget {
 }
 
 /// Dekorasi input teks dengan border error pada form terbitkan temuan.
-InputDecoration formTerbitkanTemuanTextDecoration(
+InputDecoration formTerbitkanTemuanTextDecoration(BuildContext context,
     {required String hintText, String? counterText}) {
   return InputDecoration(
     counterText: counterText,
@@ -45,7 +42,7 @@ InputDecoration formTerbitkanTemuanTextDecoration(
       borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
     ),
     hintText: hintText,
-    hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+    hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
   );
 }
@@ -60,7 +57,7 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
 
   /// Membuat satu item dropdown risiko dengan titik warna dan label.
   static DropdownMenuItem<String> _item(
-      String value, Color color, String label) {
+      BuildContext context, String value, Color color, String label) {
     return DropdownMenuItem(
       value: value,
       child: Row(
@@ -71,7 +68,7 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 12)),
+          Expanded(child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
         ],
       ),
     );
@@ -82,6 +79,8 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       initialValue: value,
+      isExpanded: true,
+      itemHeight: null,
       decoration: InputDecoration(
         isDense: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -93,9 +92,9 @@ class FormTerbitkanTemuanRisikoDropdown extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
       items: [
-        _item('Mayor', AppColors.danger, 'Mayor (Risiko Kritis / Keuangan)'),
-        _item('Moderat', AppColors.warning, 'Moderat (Ketidakpatuhan SOP)'),
-        _item('Minor', AppColors.tintBlue, 'Minor (Administratif Ringan)'),
+        _item(context, 'Mayor', AppColors.danger, 'Mayor (Risiko Kritis / Keuangan)'),
+        _item(context, 'Moderat', AppColors.warning, 'Moderat (Ketidakpatuhan SOP)'),
+        _item(context, 'Minor', AppColors.tintBlue, 'Minor (Administratif Ringan)'),
       ],
       onChanged: (val) {
         if (val != null) onChanged(val);
@@ -144,8 +143,7 @@ class FormTerbitkanTemuanDateField extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(valueText,
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w600)),
+                      style: Theme.of(context).textTheme.labelMedium),
                 ),
               ],
             ),
@@ -176,12 +174,11 @@ class FormTerbitkanTemuanSubmitButton extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2))
-            : const Icon(LucideIcons.send, size: 16, color: Colors.white),
+                    color: AppColors.surface, strokeWidth: 2))
+            : const Icon(LucideIcons.send, size: 16, color: AppColors.surface),
         label: Text(
             isLoading ? 'Mendaftarkan Temuan...' : 'Daftarkan Temuan ke SPI',
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700)),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.surface)),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryPurple,
           padding: const EdgeInsets.symmetric(vertical: 12),

@@ -121,10 +121,9 @@ class _PemasokPickerBottomSheetState
                   padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text('Pilih Rekanan / Vendor',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700)),
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w700)),
                       ),
                       IconButton(
                         tooltip: 'Tutup',

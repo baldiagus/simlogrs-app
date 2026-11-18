@@ -211,14 +211,13 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Unit Ruangan Pemohon',
-                                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                   ),
                                   Text(
                                     user?.unit?.nama ?? 'Ruangan Pengguna',
-                                    style: const TextStyle(
-                                      fontSize: 14,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.textPrimary,
                                     ),
@@ -242,10 +241,9 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Gudang Tujuan Logistik *',
-                              style: TextStyle(
-                                fontSize: 12,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                               ),
@@ -270,13 +268,13 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                     ),
                                     prefixIcon: const Icon(LucideIcons.warehouse, size: 18, color: AppColors.primaryPurple),
                                   ),
-                                  hint: const Text('Pilih gudang logistik...', style: TextStyle(fontSize: 13)),
+                                  hint: Text('Pilih gudang logistik...', style: Theme.of(context).textTheme.bodyMedium),
                                   items: gudangList.map((g) {
                                     return DropdownMenuItem<int>(
                                       value: g.id,
                                       child: Text(
                                         g.nama,
-                                        style: const TextStyle(fontSize: 13),
+                                        style: Theme.of(context).textTheme.bodyMedium,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     );
@@ -317,7 +315,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                 items: const [],
                                 onChanged: null,
                                 isExpanded: true,
-                                hint: const Text('Memuat daftar gudang...', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis),
+                                hint: Text('Memuat daftar gudang...', style: Theme.of(context).textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
                                 decoration: InputDecoration(
                                   isDense: true,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -330,7 +328,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                               ),
                               error: (err, _) => Text(
                                 userErrorMessage(err, action: 'memuat daftar gudang'),
-                                style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger),
                               ),
                             ),
                           ],
@@ -351,10 +349,10 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                           Expanded(
                             child: Row(
                               children: [
-                                const Flexible(
+                                Flexible(
                                   child: Text(
                                     'Komoditas Diminta',
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -369,7 +367,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                     ),
                                     child: Text(
                                       '${_cartItems.length} SKU',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
                                     ),
                                   ),
                                 ],
@@ -403,14 +401,14 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                             children: [
                               const Icon(LucideIcons.packagePlus, size: 36, color: AppColors.textMuted),
                               const SizedBox(height: 12),
-                              const Text(
+                              Text(
                                 'Belum Ada Barang Dipilih',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 'Pilih komoditas barang habis pakai atau suku cadang dari katalog.',
-                                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 14),
@@ -443,15 +441,12 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         children: [
                                           Text(
                                             cartItem.barang.nama,
-                                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
                                             '${cartItem.barang.kode} • Stok Gudang: ${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: cartItem.barang.stokTersedia > 0 ? AppColors.textSecondary : AppColors.danger,
-                                            ),
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(color: cartItem.barang.stokTersedia > 0 ? AppColors.textSecondary : AppColors.danger, fontFamily: 'JetBrains Mono'),
                                           ),
                                         ],
                                       ),
@@ -467,33 +462,28 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    Expanded(
-                                      child: Column(
+                                    Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Satuan: ${cartItem.barang.satuan}',
-                                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                                           ),
                                           Text(
                                             'Stok Gudang: ${cartItem.barang.stokTersedia} ${cartItem.barang.satuan}',
-                                            style: TextStyle(
-                                              fontSize: 11,
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                               color: cartItem.barang.stokTersedia > 0
-                                                  ? AppColors.textSecondary
-                                                  : const Color(0xFFEA580C),
+                                              ? AppColors.textSecondary
+                                              : AppColors.tintOrange,
                                               fontWeight: FontWeight.w600,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(height: 8),
                                     AppQuantityStepper(
                                       key: const Key('stepper_amprah_item'),
                                       value: cartItem.jumlah,
@@ -525,7 +515,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         Expanded(
                                           child: Text(
                                             'Stok Gudang 0 • Permintaan ${cartItem.jumlah} ${cartItem.barang.satuan} akan dicatat sebagai Backorder (Hutang Gudang)',
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFC2410C)),
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.tintOrange),
                                           ),
                                         ),
                                       ],
@@ -547,7 +537,7 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                                         Expanded(
                                           child: Text(
                                             'Stok Gudang: ${cartItem.barang.stokTersedia} • Selisih ${cartItem.jumlah - cartItem.barang.stokTersedia} ${cartItem.barang.satuan} otomatis dicatat sebagai Backorder',
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFC2410C)),
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.tintOrange),
                                           ),
                                         ),
                                       ],
@@ -561,9 +551,9 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                       const SizedBox(height: 20),
 
                       // Catatan Pengajuan
-                      const Text(
+                      Text(
                         'Catatan Kebutuhan Ruangan:',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 6),
                       TextField(
@@ -597,10 +587,10 @@ class _FormPengajuanAmprahScreenState extends ConsumerState<FormPengajuanAmprahS
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Total Kebutuhan:', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          Text('Total Kebutuhan:', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
                           Text(
                             '$totalQty Barang (${_cartItems.length} Jenis)',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.textPrimary),
                           ),
                         ],
                       ),

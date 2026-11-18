@@ -194,7 +194,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                     color: AppColors.tintTealBg,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(LucideIcons.wrench, color: AppColors.tintTeal, size: 24),
                       SizedBox(width: 12),
@@ -204,8 +204,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                           children: [
                             Text(
                               'IPSRS Quick Fieldwork',
-                              style: TextStyle(
-                                fontSize: 14,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.tintTeal,
                               ),
@@ -213,7 +212,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                             SizedBox(height: 2),
                             Text(
                               'Laporkan kerusakan fisik sarana atau fasilitas rumah sakit secara instan ke tim teknisi.',
-                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -227,10 +226,10 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Identitas Sarana / Kode Aset *',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -249,7 +248,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                         );
                       },
                       icon: const Icon(LucideIcons.list, size: 14),
-                      label: const Text('Pilih dari Ruangan', style: TextStyle(fontSize: 11)),
+                      label: Text('Pilih dari Ruangan', style: Theme.of(context).textTheme.bodySmall),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primaryPurple,
                         visualDensity: VisualDensity.compact,
@@ -301,15 +300,14 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(LucideIcons.alertTriangle, size: 16, color: AppColors.danger),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Aset ini milik unit lain dan tidak sedang dipinjam oleh ruangan Anda. Pelaporan diblokir.',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.danger,
                             ),
@@ -338,8 +336,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                             matched.asalPenyedia != null && matched.asalPenyedia!.isNotEmpty
                                 ? 'Aset Pinjaman dari: ${matched.asalPenyedia}'
                                 : 'Aset Pinjaman',
-                            style: const TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.tintOrange,
                             ),
@@ -352,9 +349,9 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 const SizedBox(height: 18),
 
                 // Prioritas Selector
-                const Text(
+                Text(
                   'Tingkat Urgensi Kerusakan',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -371,9 +368,9 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 const SizedBox(height: 18),
 
                 // Deskripsi Masalah
-                const Text(
+                Text(
                   'Deskripsi Kerusakan Fisik *',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -395,17 +392,17 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Foto Bukti Fisik Kerusakan',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (_pickedImage != null)
                       TextButton(
                         onPressed: () => setState(() => _pickedImage = null),
-                        child: const Text('Hapus Foto', style: TextStyle(color: AppColors.danger, fontSize: 11)),
+                        child: Text('Hapus Foto', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger)),
                       ),
                   ],
                 ),
@@ -423,14 +420,14 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
                       children: [
                         const Icon(LucideIcons.image, size: 36, color: AppColors.textMuted),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Unggah Bukti Foto Kamera',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
+                        Text(
                           'Membantu teknisi mendiagnosa suku cadang yang diperlukan',
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 14),
                         Wrap(
@@ -504,8 +501,7 @@ class _LaporCepatScreenState extends ConsumerState<LaporCepatScreen> {
           child: Center(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
+              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected ? color : AppColors.textSecondary,
               ),

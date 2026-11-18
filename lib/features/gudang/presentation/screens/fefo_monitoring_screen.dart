@@ -188,13 +188,11 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                                       Expanded(
                                         child: Text(
                                           'Batch: ${b.nomorBatch}',
-                                          style: const TextStyle(
-                                            fontSize: 13,
+                                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                             fontWeight: FontWeight.w800,
-                                            fontFamily: 'monospace',
+                                            fontFamily: 'JetBrains Mono',
                                             color: AppColors.textPrimary,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
@@ -209,8 +207,7 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                                   ),
                                   child: Text(
                                     statusText,
-                                    style: TextStyle(
-                                      fontSize: 11,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: fefoColor,
                                     ),
@@ -221,36 +218,33 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
                             const SizedBox(height: 6),
                             Text(
                               b.namaBarang,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               '${b.kategori} • ${b.gudang} (Rak: ${b.lokasiRak})',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                             ),
                             const Divider(color: AppColors.border, height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Expanded(
-                                  child: Row(
+                                Row(
                                     children: [
                                       const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
                                           b.tanggalKedaluwarsa != null ? 'Exp: ${b.tanggalKedaluwarsa}' : 'Tanpa Expired Date',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 8),
+                                const SizedBox(height: 6),
                                 Text(
                                   '${b.jumlah} ${b.satuan} (${AppFormatters.rupiah(b.nilaiTotal)})',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryPurple),
                                 ),
                               ],
                             ),
@@ -281,12 +275,12 @@ class _FefoMonitoringScreenState extends ConsumerState<FefoMonitoringScreen> {
           children: [
             Text(
               value,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w800, color: textColor),
             ),
             const SizedBox(height: 1),
             Text(
               label,
-              style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: textColor.withValues(alpha: 0.8)),
+              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: textColor.withValues(alpha: 0.8)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,

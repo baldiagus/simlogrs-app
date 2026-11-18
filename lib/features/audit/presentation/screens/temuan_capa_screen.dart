@@ -41,9 +41,9 @@ class TemuanCapaScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Temuan & CAPA',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,

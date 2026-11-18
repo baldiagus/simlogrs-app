@@ -198,23 +198,18 @@ class _ModalPengalihanAsetSheetState
                           color: AppColors.primaryPurple, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Form Pengalihan Aset RS',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           SizedBox(height: 2),
                           Text(
                             'Ajukan mutasi permanen aset dari fasilitas lain ke unit kerja Anda',
-                            style: TextStyle(
-                                fontSize: 11, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),

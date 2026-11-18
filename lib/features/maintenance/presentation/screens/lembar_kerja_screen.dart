@@ -182,12 +182,12 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                           children: [
                             Text(
                               widget.spk.aset.nama,
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Kode: ${widget.spk.aset.kodeAset} • Lokasi: ${widget.spk.aset.lokasi}',
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                             ),
                           ],
                         ),
@@ -195,13 +195,19 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                       const SizedBox(height: 18),
 
                       // Jam Kerja Row
-                      Row(
+                      LayoutBuilder(builder: (context, constraints) {
+                        final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+                            ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
+                        return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: width,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Jam Mulai', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                Text('Jam Mulai', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                                 const SizedBox(height: 4),
                                 TextFormField(
                                   controller: _jamMulaiController,
@@ -215,12 +221,12 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                          SizedBox(
+                            width: width,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Jam Selesai', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                Text('Jam Selesai', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                                 const SizedBox(height: 4),
                                 TextFormField(
                                   controller: _jamSelesaiController,
@@ -235,30 +241,35 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                             ),
                           ),
                         ],
-                      ),
+                        );
+                      }),
                       const SizedBox(height: 18),
 
                       // Hasil Selector
-                      const Text(
+                      Text(
                         'Hasil Pengerjaan Teknisi',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          _buildHasilChip('BERHASIL', 'Berhasil', AppColors.success, const Color(0xFFECFDF5)),
-                          const SizedBox(width: 8),
-                          _buildHasilChip('PENDING', 'Pending (Lanjut)', AppColors.warning, const Color(0xFFFFFBEB)),
-                          const SizedBox(width: 8),
-                          _buildHasilChip('GAGAL', 'Gagal', AppColors.danger, const Color(0xFFFEF2F2)),
-                        ],
-                      ),
+                      LayoutBuilder(builder: (context, constraints) {
+                        final width = constraints.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)
+                            ? constraints.maxWidth : (constraints.maxWidth - 16) / 3;
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            SizedBox(width: width, child: _buildHasilChip('BERHASIL', 'Berhasil', AppColors.success, const Color(0xFFECFDF5))),
+                            SizedBox(width: width, child: _buildHasilChip('PENDING', 'Pending (Lanjut)', AppColors.warning, const Color(0xFFFFFBEB))),
+                            SizedBox(width: width, child: _buildHasilChip('GAGAL', 'Gagal', AppColors.danger, const Color(0xFFFEF2F2))),
+                          ],
+                        );
+                      }),
                       const SizedBox(height: 18),
 
                       // Diagnosa
-                      const Text(
+                      Text(
                         'Diagnosa Kerusakan Teknis *',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -275,9 +286,9 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                       const SizedBox(height: 16),
 
                       // Tindakan Perbaikan
-                      const Text(
+                      Text(
                         'Tindakan Perbaikan yang Dilakukan *',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -294,17 +305,16 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                       const SizedBox(height: 20),
 
                       // Spareparts Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
-                          const Expanded(
-                            child: Text(
+                          Text(
                               'Pemakaian Suku Cadang',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                             ),
-                          ),
-                          const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: _openSparepartPicker,
                             icon: const Icon(LucideIcons.plus, size: 15),
@@ -323,9 +333,9 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(color: AppColors.border),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Tidak ada suku cadang yang digunakan dalam perbaikan ini.',
-                            style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted, fontStyle: FontStyle.italic),
                           ),
                         )
                       else
@@ -339,25 +349,24 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: AppColors.border),
                             ),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Expanded(
-                                  child: Column(
+                                Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${p['nama']} (${p['satuan']})',
-                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
                                         'Tersedia di Gudang: $stok ${p['satuan']}',
-                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 8),
+                                const SizedBox(height: 8),
                                 AppQuantityStepper(
                                   value: p['jumlah'] as int,
                                   min: 1,
@@ -419,12 +428,12 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
   Widget _buildHasilChip(String val, String label, Color color, Color bg) {
     final isSelected = _hasil == val;
 
-    return Expanded(
-      child: InkWell(
+    return InkWell(
         onTap: () => setState(() => _hasil = val),
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected ? bg : AppColors.surface,
             borderRadius: BorderRadius.circular(10),
@@ -435,15 +444,13 @@ class _LembarKerjaScreenState extends ConsumerState<LembarKerjaScreen> {
           ),
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
+            style: Theme.of(context).textTheme.labelSmall!.copyWith(
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               color: isSelected ? color : AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
         ),
-      ),
     );
   }
 }

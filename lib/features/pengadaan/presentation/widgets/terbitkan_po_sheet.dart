@@ -208,17 +208,13 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Terbitkan Pesanan Pembelian (PO)',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w800),
                     ),
                     Text(
                       'Dasar PR: ${widget.prItem.kode} • ${widget.prItem.unit ?? "-"}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                     ),
                   ],
                 ),
@@ -233,7 +229,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rekanan / Vendor Pemasok *', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                  Text('Rekanan / Vendor Pemasok *', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 6),
                   pemasokAsync.when(
                     skipLoadingOnRefresh: false,
@@ -257,7 +253,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                               selected == null
                                   ? 'Pilih vendor rekanan...'
                                   : '${selected.nama} (${selected.kode})',
-                              style: const TextStyle(fontSize: 13),
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'JetBrains Mono'),
                             ),
                           ),
                         ),
@@ -272,13 +268,19 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                   ),
                   const SizedBox(height: 14),
 
-                  Row(
+                  LayoutBuilder(builder: (context, constraints) {
+                    final stacked = constraints.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1);
+                    final fieldWidth = stacked ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
+                    return Wrap(
+                    spacing: 12,
+                    runSpacing: 14,
                     children: [
-                      Expanded(
+                      SizedBox(
+                        width: fieldWidth,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Estimasi Tgl Kirim', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                            Text('Estimasi Tgl Kirim', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                             const SizedBox(height: 6),
                             InkWell(
                               // Membuka pemilih tanggal untuk estimasi tanggal kirim.
@@ -297,7 +299,7 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(AppFormatters.tanggal(_estimasiKirim), style: const TextStyle(fontSize: 12)),
+                                    Flexible(child: Text(AppFormatters.tanggal(_estimasiKirim), style: Theme.of(context).textTheme.bodySmall)),
                                     const Icon(LucideIcons.calendar, size: 14, color: AppColors.textSecondary),
                                   ],
                                 ),
@@ -306,20 +308,22 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
+                      SizedBox(
+                        width: fieldWidth,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Syarat Bayar', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                            Text('Syarat Bayar', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                             const SizedBox(height: 6),
                             DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              itemHeight: null,
                               initialValue: _syaratBayar,
                               decoration: const InputDecoration(border: OutlineInputBorder()),
-                              items: const [
-                                DropdownMenuItem(value: 'TUNAI', child: Text('Tunai / Cash', style: TextStyle(fontSize: 12))),
-                                DropdownMenuItem(value: 'TEMPO_30_HARI', child: Text('Tempo 30 Hari', style: TextStyle(fontSize: 12))),
-                                DropdownMenuItem(value: 'TEMPO_60_HARI', child: Text('Tempo 60 Hari', style: TextStyle(fontSize: 12))),
+                              items: [
+                                DropdownMenuItem(value: 'TUNAI', child: Text('Tunai / Cash', style: Theme.of(context).textTheme.bodySmall)),
+                                DropdownMenuItem(value: 'TEMPO_30_HARI', child: Text('Tempo 30 Hari', style: Theme.of(context).textTheme.bodySmall)),
+                                DropdownMenuItem(value: 'TEMPO_60_HARI', child: Text('Tempo 60 Hari', style: Theme.of(context).textTheme.bodySmall)),
                               ],
                               onChanged: (v) => setState(() => _syaratBayar = v ?? 'TEMPO_30_HARI'),
                             ),
@@ -327,10 +331,11 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                         ),
                       ),
                     ],
-                  ),
+                    );
+                  }),
                   const SizedBox(height: 14),
 
-                  const Text('Catatan / Instruksi Pengiriman:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                  Text('Catatan / Instruksi Pengiriman:', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _catatanCtrl,
@@ -339,11 +344,13 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                   ),
                   const SizedBox(height: 16),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    alignment: WrapAlignment.spaceBetween,
                     children: [
-                      const Text('Daftar Barang & Negosiasi Harga', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-                      Text('${widget.prItem.items.length} Item', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                      Text('Daftar Barang & Negosiasi Harga', style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800)),
+                      Text('${widget.prItem.items.length} Item', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -361,17 +368,18 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: Text(it.namaBarang, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13), overflow: TextOverflow.ellipsis),
+                                child: Text(it.namaBarang, style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700)),
                               ),
-                              Text('Qty: ${it.jumlah} ${it.satuan ?? "Pcs"}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryPurple)),
+                              Flexible(child: Text('Qty: ${it.jumlah} ${it.satuan ?? "Pcs"}', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.primaryPurple))),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Text('Harga Satuan: Rp ', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                              Expanded(
-                                child: TextField(
+                              Text('Harga Satuan: Rp', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
+                              const SizedBox(height: 6),
+                              TextField(
                                   controller: _priceControllers[idx],
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
@@ -382,14 +390,13 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                                   ),
                                   onChanged: (_) => setState(() {}),
                                 ),
-                              ),
                             ],
                           ),
                           if (it.hargaBeliTerakhir != null && it.hargaBeliTerakhir! > 0) ...[
                             const SizedBox(height: 4),
                             Text(
                               'Harga beli terakhir: ${AppFormatters.rupiah(it.hargaBeliTerakhir!)}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                             ),
                           ],
                         ],
@@ -401,11 +408,13 @@ class _TerbitkanPoSheetState extends ConsumerState<TerbitkanPoSheet> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: AppColors.tintVioletBg, borderRadius: BorderRadius.circular(10)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Wrap(
+                             spacing: 8,
+                             runSpacing: 6,
+                      alignment: WrapAlignment.spaceBetween,
                       children: [
-                        const Text('Estimasi Nilai Total PO:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primaryPurple)),
-                        Text(AppFormatters.rupiah(_calculateTotal()), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.primaryPurple)),
+                        Text('Estimasi Nilai Total PO:', style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.primaryPurple)),
+                        Text(AppFormatters.rupiah(_calculateTotal()), style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w900,  color: AppColors.primaryPurple)),
                       ],
                     ),
                   ),

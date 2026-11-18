@@ -120,7 +120,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           labelColor: AppColors.primaryPurple,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              Theme.of(context).textTheme.titleSmall,
           tabs: [
             const Tab(text: 'Aktif'),
             if (_canApprove)
@@ -131,7 +131,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
                   children: [
                     const Flexible(
                       child: Text('Otorisasi',
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                          maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),
                     if (countOtorisasi > 0) ...[
                       const SizedBox(width: 4),
@@ -153,11 +153,11 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
               onPressed: isAset ? _openCreateAsetFlow : _openCreateBarangFlow,
               backgroundColor:
                   isAset ? AppColors.primaryPurple : AppColors.tintBlue,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
               icon: const Icon(LucideIcons.plus, size: 18),
               label: Text(
                 isAset ? 'Ajukan Pengalihan Aset' : 'Ajukan Pengalihan Barang',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.labelLarge,
               ),
             ),
       body: Column(
@@ -185,8 +185,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
           child: ChoiceChip(
             label: Center(
               child: Text(label,
-                  style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w700)),
+                  style: Theme.of(context).textTheme.labelMedium),
             ),
             selected: selectedKategori == kategori,
             onSelected: (val) {
@@ -222,10 +221,7 @@ class _PengalihanHubScreenState extends ConsumerState<PengalihanHubScreen>
       ),
       child: Text(
         '$count',
-        style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryPurple),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
       ),
     );
   }

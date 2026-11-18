@@ -55,6 +55,7 @@ class AppConfirmDialog extends StatelessWidget {
       titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      scrollable: true,
       title: Row(
         children: [
           if (icon != null) ...[
@@ -71,29 +72,23 @@ class AppConfirmDialog extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
         ],
       ),
       content: Text(
         message,
-        style: const TextStyle(
-          fontSize: 13,
-          color: AppColors.textSecondary,
-          height: 1.4,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
           child: Text(
             cancelLabel,
-            style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         ElevatedButton(
@@ -106,7 +101,9 @@ class AppConfirmDialog extends StatelessWidget {
           ),
           child: Text(
             confirmLabel,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
         ),
       ],

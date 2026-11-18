@@ -53,10 +53,10 @@ class AppFilterChipBar<T> extends StatelessWidget {
                 ),
                 child: Text(
                   opt.label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),

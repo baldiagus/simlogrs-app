@@ -237,7 +237,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(message, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(message, style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
         if (retry != null)
           TextButton(onPressed: retry, child: Text(retryLabel!)),
       ],
@@ -252,7 +252,7 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Gudang Penerima', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+        Text('Gudang Penerima', style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         if (user?.gudang != null)
           Text('${user!.gudang!.nama} (sesuai penugasan akun)'),
@@ -273,10 +273,11 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
               key: ValueKey('gudang-$_selectedGudangId-${gudangs.requireValue.map((g) => g.id).join(',')}'),
               initialValue: gudangs.requireValue.any((g) => g.id == _selectedGudangId) ? _selectedGudangId : null,
               isExpanded: true,
+              itemHeight: null,
               hint: const Text('Pilih gudang penerima'),
               items: gudangs.requireValue.map((g) => DropdownMenuItem(
                 value: g.id,
-                child: Text(g.nama, maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: Text(g.nama),
               )).toList(),
               onChanged: (value) {
                 if (value == _selectedGudangId) return;
@@ -351,10 +352,10 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                                     ),
                                     child: Text(
                                       widget.po.kodePo,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                        color: AppColors.surface,
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 12,
+                                        fontFamily: 'JetBrains Mono',
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -362,25 +363,24 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
+                                Flexible(child: Text(
                                   'Tgl PO: ${widget.po.tanggalPo}',
-                                  style: const TextStyle(color: Colors.white70, fontSize: 11),
-                                ),
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.surface),
+                                )),
                               ],
                             ),
                             const SizedBox(height: 10),
                             Text(
                               widget.po.pemasok,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                color: AppColors.surface,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 16,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Total: ${widget.po.totalItem} Jenis Komoditas Barang',
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.surface),
                             ),
                           ],
                         ),
@@ -390,9 +390,9 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                       const SizedBox(height: 18),
 
                       // Surat Jalan Input
-                      const Text(
+                      Text(
                         'Nomor Surat Jalan Vendor *',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -412,9 +412,9 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                       const SizedBox(height: 14),
 
                       // Catatan Umum
-                      const Text(
+                      Text(
                         'Catatan Inbound (Opsional):',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -433,12 +433,10 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                           Expanded(
                             child: Text(
                               'Pemeriksaan Fisik Barang (${_itemDrafts.length} Item)',
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -493,33 +491,35 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Flexible(child: Text(
                             'Total Diterima:',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),
-                          ),
+                          )),
                           Flexible(
                             child: Text(
                               '$totalDiterima Barang ($totalJenisDiterima Jenis)',
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       if (canReceive)
-                        Row(
+                        LayoutBuilder(builder: (context, constraints) {
+                          final width = constraints.maxWidth < 560 * MediaQuery.textScalerOf(context).scale(1)
+                              ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+                          return Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
                           children: [
-                            Expanded(
+                            SizedBox(
+                              width: width,
                               child: CustomButton(
                                 text: 'Tolak Kiriman Vendor',
                                 isOutlined: true,
@@ -529,8 +529,8 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                                 onPressed: _tolakKiriman,
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
+                            SizedBox(
+                              width: width,
                               child: CustomButton(
                                 text: 'Simpan ke Stok Gudang',
                                 isLoading: actionState.isLoading,
@@ -540,7 +540,8 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                               ),
                             ),
                           ],
-                        )
+                          );
+                        })
                       else
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -549,10 +550,9 @@ class _FormPenerimaanPoScreenState extends ConsumerState<FormPenerimaanPoScreen>
                             color: AppColors.surfaceSecondary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Mode Peninjauan (Hanya Lihat)',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),

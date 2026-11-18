@@ -68,8 +68,9 @@ class AmprahCardItem extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 6,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -79,10 +80,10 @@ class AmprahCardItem extends StatelessWidget {
                         ),
                         child: Text(
                           item.kode,
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryPurple,
+                            fontFamily: 'JetBrains Mono',
                           ),
                         ),
                       ),
@@ -94,10 +95,9 @@ class AmprahCardItem extends StatelessWidget {
                             color: const Color(0xFFFEF2F2),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             'CITO',
-                            style: TextStyle(
-                              fontSize: 10,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               fontWeight: FontWeight.w800,
                               color: AppColors.danger,
                             ),
@@ -114,8 +114,7 @@ class AmprahCardItem extends StatelessWidget {
               // Unit Pemohon & Pengaju
               Text(
                 item.unit,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -128,8 +127,7 @@ class AmprahCardItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.pengaju,
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
@@ -140,10 +138,10 @@ class AmprahCardItem extends StatelessWidget {
                   const SizedBox(width: 8),
                   const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
-                  Text(
+                  Flexible(child: Text(
                     AppFormatters.tanggalString(item.tanggalPermintaan),
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                  ),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                  )),
                 ],
               ),
               Row(
@@ -157,8 +155,7 @@ class AmprahCardItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Tujuan: ${item.gudang}',
-                      style: const TextStyle(
-                        fontSize: 11.5,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.35,
                       ),
@@ -188,20 +185,19 @@ class AmprahCardItem extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           '${item.jumlahItem} Item Barang Diminta',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
                       ],
                     ),
-                    const Row(
+                    Row(
                       children: [
-                        Text(
+                        Flexible(child: Text(
                           'Detail',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
-                        ),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                        )),
                         Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),
                       ],
                     ),
@@ -220,7 +216,7 @@ class AmprahCardItem extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onCancelTap,
                       icon: const Icon(LucideIcons.x, size: 13, color: AppColors.danger),
-                      label: const Text('Batalkan Amprah', style: TextStyle(color: AppColors.danger, fontSize: 11)),
+                      label: Text('Batalkan Amprah', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFFCA5A5)),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -235,14 +231,16 @@ class AmprahCardItem extends StatelessWidget {
                 const SizedBox(height: 10),
                 const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  alignment: WrapAlignment.end,
                   children: [
                     if (onTolakTap != null)
                       OutlinedButton.icon(
                         onPressed: onTolakTap,
                         icon: const Icon(LucideIcons.x, size: 13, color: AppColors.danger),
-                        label: const Text('Tolak', style: TextStyle(color: AppColors.danger, fontSize: 11)),
+                        label: Text('Tolak', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger)),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFFFCA5A5)),
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -254,7 +252,7 @@ class AmprahCardItem extends StatelessWidget {
                       ElevatedButton.icon(
                         onPressed: onSetujuiTap,
                         icon: const Icon(LucideIcons.checkCheck, size: 13, color: Colors.white),
-                        label: const Text('Setujui', style: TextStyle(color: Colors.white, fontSize: 11)),
+                        label: Text('Setujui', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.surface)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -133,7 +133,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
         leading: Padding(
           padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
           child: Material(
-            color: Colors.white.withValues(alpha: 0.18),
+            color: AppColors.surface.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(12),
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
@@ -142,40 +142,36 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.35),
+                    color: AppColors.surface.withValues(alpha: 0.35),
                     width: 1.2,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
                   LucideIcons.arrowLeft,
-                  color: Colors.white,
+                  color: AppColors.surface,
                   size: 22,
                 ),
               ),
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Pindai QR Aset Fisik',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.surface),
         ),
         actions: [
           _buildAppBarButton(
             tooltip: _isTorchOn ? 'Matikan Senter' : 'Nyalakan Senter',
             backgroundColor: _isTorchOn
                 ? Colors.amber.withValues(alpha: 0.9)
-                : Colors.white.withValues(alpha: 0.18),
+                : AppColors.surface.withValues(alpha: 0.18),
             borderColor: _isTorchOn
                 ? Colors.amber.withValues(alpha: 0.9)
-                : Colors.white.withValues(alpha: 0.35),
+                : AppColors.surface.withValues(alpha: 0.35),
             icon: Icon(
               LucideIcons.zap,
-              color: _isTorchOn ? Colors.black : Colors.white,
+              color: _isTorchOn ? Colors.black : AppColors.surface,
               size: 20,
             ),
             onTap: () async {
@@ -188,10 +184,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
           const SizedBox(width: 8),
           _buildAppBarButton(
             tooltip: 'Ganti Kamera',
-            backgroundColor: Colors.white.withValues(alpha: 0.18),
+            backgroundColor: AppColors.surface.withValues(alpha: 0.18),
             icon: const Icon(
               LucideIcons.refreshCcw,
-              color: Colors.white,
+              color: AppColors.surface,
               size: 20,
             ),
             onTap: () => _controller.switchCamera(),
@@ -208,15 +204,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                 controller: _controller,
                 fit: BoxFit.cover,
                 placeholderBuilder: (context, child) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircularProgressIndicator(color: Colors.white),
+                        CircularProgressIndicator(color: AppColors.surface),
                         SizedBox(height: 16),
                         Text(
                           'Menyiapkan sensor kamera...',
-                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.surface),
                         ),
                       ],
                     ),
@@ -243,10 +239,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             isPermission
                                 ? 'Izin Kamera Diperlukan'
                                 : 'Sensor Kamera Tidak Siap',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.surface),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 6),
@@ -254,8 +247,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             isPermission
                                 ? 'Aplikasi memerlukan izin akses kamera untuk memindai QR Code aset fisik.'
                                 : 'Kamera belum dapat digunakan. Tutup aplikasi lain yang menggunakan kamera, lalu coba lagi.',
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 12),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 18),
@@ -265,7 +257,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             label: const Text('Aktifkan Sensor Kamera'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryPurple,
-                              foregroundColor: Colors.white,
+                              foregroundColor: AppColors.surface,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 10),
                             ),
@@ -295,24 +287,21 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: AppColors.surface.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(LucideIcons.qrCode,
-                        color: Colors.white, size: 64),
+                        color: AppColors.surface, size: 64),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Mode Simulator / Web Browser',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.surface),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Gunakan tombol "Input Kode Manual" di bawah untuk memindai.',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface),
                   ),
                 ],
               ),
@@ -339,7 +328,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                     _buildScanningLaser(),
                     if (_isProcessing)
                       const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
+                        child: CircularProgressIndicator(color: AppColors.surface),
                       ),
                   ],
                 ),
@@ -362,9 +351,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                     color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Posisikan QR Code stiker aset di dalam kotak panduan',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -372,7 +361,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                 CustomButton(
                   text: 'Input Kode Aset Manual',
                   icon: const Icon(LucideIcons.keyboard,
-                      size: 18, color: Colors.white),
+                      size: 18, color: AppColors.surface),
                   onPressed: _showManualInputDialog,
                 ),
               ],
@@ -396,7 +385,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       child: Tooltip(
         message: tooltip,
         child: Material(
-          color: backgroundColor ?? Colors.white.withValues(alpha: 0.18),
+          color: backgroundColor ?? AppColors.surface.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -407,7 +396,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: borderColor ?? Colors.white.withValues(alpha: 0.35),
+                  color: borderColor ?? AppColors.surface.withValues(alpha: 0.35),
                   width: 1.2,
                 ),
               ),

@@ -90,8 +90,7 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
                   children: [
                     Text(
                       modalTitle,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
                       ),
@@ -99,7 +98,7 @@ class _ApprovalActionModalState extends ConsumerState<ApprovalActionModal> {
                     const SizedBox(height: 2),
                     Text(
                       '${widget.item.kode} • ${widget.item.unit}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                     ),
                   ],
                 ),

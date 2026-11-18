@@ -108,12 +108,13 @@ class _UbahPasswordScreenState extends ConsumerState<UbahPasswordScreen> {
             color: isValid ? AppColors.success : AppColors.textMuted,
           ),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isValid ? AppColors.textPrimary : AppColors.textSecondary,
-              fontWeight: isValid ? FontWeight.w600 : FontWeight.w400,
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isValid ? AppColors.textPrimary : AppColors.textSecondary,
+                fontWeight: isValid ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -152,7 +153,7 @@ class _UbahPasswordScreenState extends ConsumerState<UbahPasswordScreen> {
                       color: AppColors.primaryPurple.withValues(alpha: 0.2),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
@@ -164,11 +165,7 @@ class _UbahPasswordScreenState extends ConsumerState<UbahPasswordScreen> {
                       Expanded(
                         child: Text(
                           'Kata sandi baru akan berlaku untuk login di SIMLOG RS Web Portal dan Aplikasi Mobile.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textPrimary,
-                            height: 1.4,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ],
@@ -280,13 +277,9 @@ class _UbahPasswordScreenState extends ConsumerState<UbahPasswordScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Syarat Kata Sandi:',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const SizedBox(height: 8),
                       _buildChecklistItem(

@@ -75,11 +75,7 @@ class PeminjamanCardItem extends StatelessWidget {
                       ),
                       child: Text(
                         item.kode,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryPurple,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                       ),
                     ),
                     StatusBadge(status: item.status),
@@ -90,11 +86,7 @@ class PeminjamanCardItem extends StatelessWidget {
                 // Asset Name
                 Text(
                   asetName,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 6),
 
@@ -107,12 +99,7 @@ class PeminjamanCardItem extends StatelessWidget {
                   ),
                   child: Text(
                     asetCode,
-                    style: const TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primaryPurple,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -131,11 +118,7 @@ class PeminjamanCardItem extends StatelessWidget {
                         isPenyediaPerspective
                             ? 'Peminjam: ${item.unitPeminjam}'
                             : 'Asal: ${item.namaPenyedia}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                          height: 1.35,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                   ],
@@ -147,21 +130,17 @@ class PeminjamanCardItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
+                      color: AppColors.danger.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(LucideIcons.alertTriangle, size: 14, color: AppColors.danger),
                         SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             'Peminjaman telah melewati batas waktu kembali!',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.danger,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger),
                           ),
                         ),
                       ],
@@ -178,8 +157,8 @@ class PeminjamanCardItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${AppFormatters.tanggalString(item.tanggalPinjam)} s/d ${AppFormatters.tanggalString(item.tanggalKembaliRencana)}',
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                        maxLines: 1,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -202,17 +181,13 @@ class PeminjamanCardItem extends StatelessWidget {
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(top: 1.5),
-                          child: Icon(LucideIcons.fileText, size: 12, color: AppColors.textMuted),
+                          child: Icon(LucideIcons.fileText, size: 12, color: AppColors.textSecondary),
                         ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             'Keperluan: ${item.keperluan}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
-                              height: 1.3,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -236,7 +211,7 @@ class PeminjamanCardItem extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: onCancelTap,
                     icon: const Icon(LucideIcons.x, size: 14, color: AppColors.danger),
-                    label: const Text('Batalkan Pengajuan', style: TextStyle(color: AppColors.danger, fontSize: 12)),
+                    label: Text('Batalkan Pengajuan', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFFCA5A5)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -257,7 +232,7 @@ class PeminjamanCardItem extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onExtendTap,
                         icon: const Icon(LucideIcons.calendarPlus, size: 15, color: AppColors.primaryPurple),
-                        label: const Text('Perpanjang', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12, fontWeight: FontWeight.w700)),
+                        label: Text('Perpanjang', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple)),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.primaryPurple),
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -273,11 +248,11 @@ class PeminjamanCardItem extends StatelessWidget {
                       child: CustomButton(
                         text: isPenyediaPerspective ? 'Inspeksi & Terima Kembali' : 'Kembalikan Fisik',
                         height: 38,
-                        backgroundColor: isPenyediaPerspective ? const Color(0xFF047857) : AppColors.primaryPurple,
+                        backgroundColor: isPenyediaPerspective ? AppColors.success : AppColors.primaryPurple,
                         icon: Icon(
                           isPenyediaPerspective ? LucideIcons.clipboardCheck : LucideIcons.packageCheck,
                           size: 15,
-                          color: Colors.white,
+                          color: AppColors.surface,
                         ),
                         onPressed: onReturnTap,
                       ),

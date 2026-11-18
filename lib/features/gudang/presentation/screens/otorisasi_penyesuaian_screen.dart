@@ -65,7 +65,7 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
           children: [
             Text(
               'Tolak dokumen penyesuaian ${adj.kode} (${adj.gudangNama})? Sesi opname terkait akan dibatalkan/diinvestigasi ulang.',
-              style: const TextStyle(fontSize: 13),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'JetBrains Mono'),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -222,15 +222,16 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                alignment: WrapAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     adj.kode,
-                                    style: const TextStyle(
-                                      fontSize: 14,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w800,
-                                      fontFamily: 'monospace',
+                                      fontFamily: 'JetBrains Mono',
                                       color: AppColors.primaryPurple,
                                     ),
                                   ),
@@ -240,27 +241,29 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
                               const SizedBox(height: 8),
                               Text(
                                 adj.gudangNama,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 'Sesi Opname: ${adj.kodeOpname} • Tgl: ${adj.tanggalPenyesuaian}',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                               ),
                               const Divider(color: AppColors.border, height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                alignment: WrapAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${adj.totalItem} Item Selisih',
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   ),
                                   Row(
                                     children: [
-                                      Text(
+                                      Flexible(child: Text(
                                         AppFormatters.rupiah(adj.totalNilaiSelisih),
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.danger),
-                                      ),
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.danger),
+                                      )),
                                       const SizedBox(width: 4),
                                       const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondary),
                                     ],
@@ -310,10 +313,9 @@ class _OtorisasiPenyesuaianScreenState extends ConsumerState<OtorisasiPenyesuaia
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
+          style: Theme.of(context).textTheme.labelSmall!.copyWith(
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? AppColors.surface : AppColors.textSecondary,
           ),
         ),
       ),

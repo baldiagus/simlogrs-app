@@ -35,17 +35,14 @@ class FormTerbitkanTemuanLookupDropdown<T> extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+            Expanded(
+              child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+            ),
             if (selectedId != null)
               GestureDetector(
                 onTap: () => onChanged(null),
-                child: const Text('Reset',
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.w600)),
+                child: Text('Reset',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger)),
               ),
           ],
         ),
@@ -55,6 +52,7 @@ class FormTerbitkanTemuanLookupDropdown<T> extends StatelessWidget {
             // ignore: deprecated_member_use
             value: selectedId,
             isExpanded: true,
+            itemHeight: null,
             decoration: InputDecoration(
               isDense: true,
               border:
@@ -70,13 +68,11 @@ class FormTerbitkanTemuanLookupDropdown<T> extends StatelessWidget {
               DropdownMenuItem<int?>(
                   value: null,
                   child: Text(placeholder,
-                      style: const TextStyle(
-                          fontSize: 11, color: AppColors.textMuted))),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary))),
               ...items.map((item) => DropdownMenuItem<int?>(
                   value: idOf(item),
                   child: Text(namaOf(item),
-                      style: const TextStyle(fontSize: 11),
-                      overflow: TextOverflow.ellipsis))),
+                      style: Theme.of(context).textTheme.bodySmall))),
             ],
             onChanged: onChanged,
           ),
@@ -88,7 +84,7 @@ class FormTerbitkanTemuanLookupDropdown<T> extends StatelessWidget {
                       height: 14,
                       child: CircularProgressIndicator(strokeWidth: 2)))),
           error: (_, __) => Text(errorText,
-              style: const TextStyle(fontSize: 10, color: AppColors.danger)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger)),
         ),
       ],
     );

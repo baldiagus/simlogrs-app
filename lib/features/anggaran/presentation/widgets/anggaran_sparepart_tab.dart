@@ -40,40 +40,22 @@ class AnggaranSparepartTab extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(LucideIcons.wrench, size: 16, color: AppColors.tintViolet),
                         SizedBox(width: 6),
-                        Text(
+                        Expanded(child: Text(
                           'Pos Suku Cadang IPSRS Sentral',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.tintViolet,
-                          ),
-                        ),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintViolet),
+                        )),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Total Biaya Terpakai',
-                                style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                            Text(
-                              AppFormatters.rupiah(data.sparepartAnggaran!.realisasi),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.tintViolet,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    Text('Total Biaya Terpakai',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                    Text(
+                      AppFormatters.rupiah(data.sparepartAnggaran!.realisasi),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.tintViolet),
                     ),
                   ],
                 ),
@@ -81,25 +63,21 @@ class AnggaranSparepartTab extends ConsumerWidget {
               const SizedBox(height: 18),
             ],
 
-            const Text(
+            Text(
               'Top 5 Aset Penyerap Biaya Pemeliharaan',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            const Text(
+            Text(
               'Aset sarana rumah sakit dengan akumulasi biaya suku cadang tertinggi.',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 10),
             if (data.topAset.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Text(
                   'Belum ada pemakaian suku cadang pada aset untuk TA ini.',
-                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               )
             else
@@ -111,7 +89,8 @@ class AnggaranSparepartTab extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
@@ -122,37 +101,21 @@ class AnggaranSparepartTab extends ConsumerWidget {
                           child: const Icon(LucideIcons.armchair,
                               size: 16, color: AppColors.tintOrange),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                aset.nama,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                              ),
-                              Text(
-                                '${aset.kodeAset} • Lokasi: ${aset.lokasiRuangan}',
-                                style: const TextStyle(
-                                    fontSize: 10, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
+                        const SizedBox(height: 8),
+                        Text(aset.nama, style: Theme.of(context).textTheme.labelMedium),
+                        Text('${aset.kodeAset} • Lokasi: ${aset.lokasiRuangan}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono')),
+                        const SizedBox(height: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
                               AppFormatters.rupiah(aset.totalBiayaSparepart),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.tintViolet,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintViolet),
                             ),
                             Text(
                               '${aset.frekuensiServis}x servis',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -162,25 +125,21 @@ class AnggaranSparepartTab extends ConsumerWidget {
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               'Log Konsumsi Suku Cadang Terakhir',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            const Text(
+            Text(
               'Catatan suku cadang yang dipasang teknisi pada lembar kerja SPK.',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 10),
             if (data.riwayatSparepart.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Text(
                   'Belum ada log pergantian suku cadang.',
-                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               )
             else
@@ -192,43 +151,37 @@ class AnggaranSparepartTab extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: Row(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
+                        Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 log.sparepartNama,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                style: Theme.of(context).textTheme.labelMedium,
                               ),
                               Text(
                                 'Aset: ${log.asetNama} (SPK: ${log.spkKode})',
-                                style: const TextStyle(
-                                    fontSize: 10, color: AppColors.textSecondary),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                               ),
                               Text(
                                 'Batch: ${log.nomorBatch} • Tgl: ${log.tanggal}',
-                                style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                               ),
                             ],
                           ),
-                        ),
+                        const SizedBox(height: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
                               AppFormatters.rupiah(log.subtotal),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.tintTeal,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintTeal),
                             ),
                             Text(
                               '${log.jumlah} unit',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'dashboard_shortcut_layout.dart';
 
 class _QuickActionItem {
   final String title;
@@ -148,34 +149,18 @@ class QuickActionGrid extends StatelessWidget {
       children: [
         Text(
           sectionTitle,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
-        for (int i = 0; i < items.length; i += 2) ...[
-          if (i > 0) const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _buildActionCard(items[i])),
-              const SizedBox(width: 12),
-              if (i + 1 < items.length)
-                Expanded(child: _buildActionCard(items[i + 1]))
-              else
-                const Spacer(),
-            ],
-          ),
-        ],
+        DashboardShortcutLayout(
+          children: [
+            for (final item in items) _TactileActionCard(item: item),
+          ],
+        ),
       ],
     );
   }
 
-  /// Membungkus satu aksi menjadi kartu dengan efek tekan (tactile).
-  Widget _buildActionCard(_QuickActionItem item) {
-    return _TactileActionCard(item: item);
-  }
 }
 
 class _TactileActionCard extends StatefulWidget {
@@ -221,7 +206,7 @@ class _TactileActionCardState extends State<_TactileActionCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: widget.item.bgColor,
                   borderRadius: BorderRadius.circular(14),
@@ -232,27 +217,15 @@ class _TactileActionCardState extends State<_TactileActionCard> {
                   size: 22,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Text(
                 widget.item.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 3),
               Text(
                 widget.item.subtitle,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),

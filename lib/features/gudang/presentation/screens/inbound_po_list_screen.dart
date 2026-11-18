@@ -157,10 +157,10 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                             Flexible(
                               child: Text(
                                 po.kodePo,
-                                style: const TextStyle(
-                                  fontSize: 12,
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.tintBlue,
+                                  fontFamily: 'JetBrains Mono',
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -176,8 +176,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                 const SizedBox(height: 12),
                 Text(
                   po.pemasok,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   ),
@@ -190,7 +189,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                     Flexible(
                       child: Text(
                         'Tgl PO: ${po.tanggalPo}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -201,7 +200,7 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                       Flexible(
                         child: Text(
                           'Estimasi: ${po.estimasiTanggalKirim}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -221,19 +220,18 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                       Expanded(
                         child: Text(
                           '${po.totalItem} Item Komoditas Barang',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
+                      Flexible(child: Text(
                         po.isDiterbitkan ? 'Menunggu Pengiriman' : 'Siap Inbound',
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                           fontWeight: FontWeight.w700,
                           color: po.isDiterbitkan ? AppColors.warning : AppColors.tintBlue,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),
@@ -267,14 +265,14 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                   color: AppColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(LucideIcons.lock, size: 14, color: AppColors.textSecondary),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Penerimaan Fisik Dibatasi untuk Petugas Gudang',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -293,14 +291,14 @@ class _InboundPoListScreenState extends ConsumerState<InboundPoListScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(LucideIcons.clock, size: 16, color: AppColors.warning),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'PO baru diterbitkan ke vendor. Penerimaan fisik dapat diproses setelah vendor mengirim barang (DIKIRIM VENDOR).',
-                        style: TextStyle(fontSize: 11, color: Color(0xFFB45309), fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.warning, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
