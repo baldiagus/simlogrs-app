@@ -63,7 +63,7 @@
 * **Kriteria Keberhasilan (Primary Path)**:
   - Tanggal rencana kembali berhasil diperbarui dan status perpanjangan tercatat permanen.
 * **Kriteria Alternatif (Pengembalian Fisik)**:
-  - Jika sarana telah selesai digunakan, tekan tombol **Kembalikan Fisik** $\rightarrow$ pilih kondisi fisik (*BAIK* / *RUSAK_RINGAN*) $\rightarrow$ tekan **Konfirmasi Pengembalian**. Status transaksi berganti menjadi `SELESAI` dan aset kembali `TERSEDIA`.
+  - Jika sarana telah selesai digunakan, peminjam menyerahkan fisik aset kepada penyedia asal. Pada Profil Aset Fisik, termasuk hasil scan QR, akun peminjam biasa tidak melihat tombol **Kembalikan Fisik**. Petugas penyedia yang memiliki izin pengembalian melakukan inspeksi dan konfirmasi. Untuk smoke check data operasional, cukup buka dan tutup modal tanpa mengirim konfirmasi.
 * **Hasil Pengujian**: [ &nbsp;&nbsp; ] Lolos &nbsp;&nbsp;&nbsp; [ &nbsp;&nbsp; ] Gagal &nbsp;&nbsp;&nbsp; Catatan: ........................................
 
 ---

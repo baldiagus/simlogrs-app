@@ -107,11 +107,12 @@ class _AsetDetailScreenState extends ConsumerState<AsetDetailScreen> {
     final user = ref.read(authStateProvider).user;
     if (!_AsetDetailAccess.resolve(currentAset, user).isProviderOwner) return;
     final peminjamanId = currentAset.peminjamanAktif?.peminjamanId;
-    if (peminjamanId == null) return;
+    final detailId = currentAset.peminjamanAktif?.peminjamanDetailId;
+    if (peminjamanId == null || detailId == null) return;
     ModalPengembalianAsetSheet.show(
       context,
       peminjamanId: peminjamanId,
-      detailId: currentAset.peminjamanAktif?.peminjamanDetailId ?? peminjamanId,
+      detailId: detailId,
       asetId: currentAset.id,
       kodeDokumen: currentAset.kodeAset,
       namaBarang: currentAset.namaKomoditas,
@@ -326,11 +327,20 @@ class _AsetDetailAccess {
                 user?.unit?.id == currentAset.penyediaId) ||
             (currentAset.tipePenyedia == 'GUDANG' &&
                 user?.gudang?.id == currentAset.penyediaId));
+    final loan = currentAset.peminjamanAktif;
+    final hasActiveLoan = currentAset.isDipinjam &&
+        loan != null && loan.peminjamanId > 0 &&
+        (loan.peminjamanDetailId ?? 0) > 0;
+    final canReturn = hasActiveLoan &&
+        (isGlobalAdmin ||
+            (!isTeknisi && isProviderOwner &&
+                ((user?.can('create_layanan_unit::pengembalian::aset') ?? false) ||
+                    (user?.can('update_layanan_unit::pengembalian::aset') ?? false))));
 
     return _AsetDetailAccess(
       isOwnedByCurrentUserLocation: isOwnedByCurrentUserLocation,
       isGlobalAdmin: isGlobalAdmin,
-      isProviderOwner: isGlobalAdmin || (!isTeknisi && isProviderOwner),
+      isProviderOwner: canReturn,
       canPinjam: canPinjam,
       canLaporRusak: canLaporRusak,
       canPengalihan: canPengalihan,

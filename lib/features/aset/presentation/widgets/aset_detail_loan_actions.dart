@@ -88,7 +88,9 @@ class AsetDetailLoanActions extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Peminjam menyerahkan fisik aset ke unit ${aset.namaPenyedia} untuk proses inspeksi pengembalian resmi.',
+                    aset.namaPenyedia?.trim().isNotEmpty == true
+                        ? 'Peminjam menyerahkan fisik aset ke penyedia ${aset.namaPenyedia} untuk proses inspeksi pengembalian resmi.'
+                        : 'Peminjam menyerahkan fisik aset kepada penyedia asal untuk proses inspeksi pengembalian resmi.',
                     style: const TextStyle(
                         fontSize: 11, color: AppColors.textSecondary),
                   ),
