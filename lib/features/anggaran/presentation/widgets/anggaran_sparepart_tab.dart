@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:simlog_mobile/core/theme/app_colors.dart';
-import 'package:simlog_mobile/core/theme/app_shadows.dart';
 import 'package:simlog_mobile/core/utils/app_formatters.dart';
 import 'package:simlog_mobile/features/anggaran/data/models/anggaran_models.dart';
 import 'package:simlog_mobile/features/anggaran/presentation/providers/anggaran_provider.dart';
 
-/// Tab anggaran sparepart IPSRS: ringkasan pagu/realisasi, top aset, dan riwayat pemakaian sparepart.
+/// Tab IPSRS: daftar aset penyerap biaya dan riwayat pemakaian sparepart.
 class AnggaranSparepartTab extends ConsumerWidget {
   final AnggaranScreeningModel data;
   final String tahun;
@@ -28,50 +27,6 @@ class AnggaranSparepartTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (data.sparepartAnggaran != null) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: AppShadows.softCard,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(LucideIcons.wrench, size: 16, color: AppColors.tintViolet),
-                        SizedBox(width: 6),
-                        Expanded(child: Text(
-                          'Pos Suku Cadang IPSRS Sentral',
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.tintViolet),
-                        )),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Total Biaya Terpakai',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
-                    Text(
-                      AppFormatters.rupiah(data.sparepartAnggaran!.realisasi),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.tintViolet),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-            ],
-
-            Text(
-              'Top 5 Aset Penyerap Biaya Pemeliharaan',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            Text(
-              'Aset sarana rumah sakit dengan akumulasi biaya suku cadang tertinggi.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 10),
             if (data.topAset.isEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),

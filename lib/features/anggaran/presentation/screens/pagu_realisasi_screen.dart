@@ -94,9 +94,9 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
     return LayoutBuilder(
       builder: (context, constraints) {
         final textScaler = MediaQuery.textScalerOf(context);
-        final titleStyle = Theme.of(context).appBarTheme.titleTextStyle ??
-            Theme.of(context).textTheme.titleLarge!;
-        final yearStyle = Theme.of(context).textTheme.labelMedium!;
+        final titleStyle = Theme.of(context).textTheme.titleMedium!.copyWith(
+          fontSize: 16, fontWeight: FontWeight.w600);
+        final yearStyle = Theme.of(context).textTheme.labelMedium!.copyWith(fontSize: 12);
         final yearPainter = TextPainter(
           text: TextSpan(text: 'TA 2026', style: yearStyle),
           textDirection: Directionality.of(context),
@@ -106,7 +106,7 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
         final yearHeight = yearPainter.height + 16;
         yearPainter.dispose();
         final titlePainter = TextPainter(
-          text: TextSpan(text: 'Pagu & Realisasi Anggaran', style: titleStyle),
+          text: TextSpan(text: 'Anggaran', style: titleStyle),
           textDirection: Directionality.of(context),
           textScaler: textScaler,
         )..layout(
@@ -120,11 +120,11 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
         return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        toolbarHeight: contentHeight > 64 ? contentHeight : 64,
+        toolbarHeight: contentHeight > 56 ? contentHeight : 56,
         leadingWidth: 56,
         titleSpacing: 8,
         title: Text(
-          'Pagu & Realisasi Anggaran',
+          'Anggaran',
           style: titleStyle,
           softWrap: true,
           maxLines: titleLines,
@@ -133,7 +133,6 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
           Container(
             width: yearWidth,
             constraints: const BoxConstraints(minHeight: 48),
-            margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: AppColors.surface,
@@ -178,11 +177,11 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
           indicatorWeight: 3,
           tabs: [
             Tab(
-              height: 32 + MediaQuery.textScalerOf(context).scale(14) * 2,
+              height: 20 + textScaler.scale(14) * 2,
               child: const Text('Pengeluaran Ruangan'),
             ),
             Tab(
-              height: 32 + MediaQuery.textScalerOf(context).scale(14) * 2,
+              height: 20 + textScaler.scale(14) * 2,
               child: const Text('Suku Cadang IPSRS'),
             ),
           ],

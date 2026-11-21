@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:simlog_mobile/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simlog_mobile/features/anggaran/data/models/anggaran_models.dart';
@@ -25,7 +27,15 @@ class _AuthenticatedNotifier extends StateNotifier<AuthState>
 }
 
 void main() {
-  for (final size in const [Size(360, 800), Size(402, 817), Size(1280, 800)]) {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    final loader = FontLoader('Plus Jakarta Sans');
+    for (final weight in [400, 500, 600, 700]) {
+      loader.addFont(rootBundle.load('assets/fonts/PlusJakartaSans-$weight.ttf'));
+    }
+    await loader.load();
+  });
+  for (final size in const [Size(360, 800), Size(402, 817), Size(437, 841), Size(1280, 800)]) {
     for (final scale in [1.0, 2.0]) {
       for (final state in ['data', 'loading', 'error']) {
         testWidgets('budget header $state at $size with text scale $scale',
@@ -55,6 +65,7 @@ void main() {
           await tester.pumpWidget(UncontrolledProviderScope(
             container: container,
             child: MaterialApp(
+              theme: AppTheme.lightTheme,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(
                   textScaler: TextScaler.linear(scale),
@@ -66,7 +77,7 @@ void main() {
           ));
           await tester.pump();
 
-          final title = find.text('Pagu & Realisasi Anggaran');
+          final title = find.text('Anggaran');
           final dropdown = find.byType(DropdownButton<String>);
           final refresh = find.byTooltip('Muat ulang');
           expect(title, findsOneWidget);
@@ -74,6 +85,10 @@ void main() {
           expect(dropdown, findsOneWidget);
           expect(find.ancestor(of: dropdown, matching: find.byType(AppBar)), findsOneWidget);
           expect(tester.getRect(title).right, lessThanOrEqualTo(tester.getRect(dropdown).left));
+          if (scale == 1.0) {
+            expect(tester.widget<Text>(title).maxLines, 1);
+            expect(tester.widget<AppBar>(find.byType(AppBar)).preferredSize.height, lessThanOrEqualTo(108));
+          }
           expect(tester.getRect(dropdown).right, lessThanOrEqualTo(tester.getRect(refresh).left));
           expect(tester.getSize(dropdown).height, greaterThanOrEqualTo(48));
           expect(tester.getSize(refresh).height, greaterThanOrEqualTo(48));
