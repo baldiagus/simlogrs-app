@@ -182,3 +182,11 @@ Gunakan komponen dan token proyek yang tersedia, terutama `AppBottomSheetWrapper
 ### Batas Verifikasi
 
 Capture hasil render widget mutasi tersedia di `build/ui-evidence/`. Capture widget test memakai font pengujian (blok/Ahem), sehingga bukan bukti keterbacaan tipografi aplikasi produksi. Pemeriksaan browser/perangkat nyata, keyboard/fokus, kontras, reduced motion, seluruh kondisi data sebagian, dan transaksi backend end-to-end belum dilakukan. Gate visual frontend-design-direction belum dinyatakan lulus; tidak ada klaim keberhasilan pengiriman PO ke backend dari pengujian callback.
+
+### Revisi tab Suku Cadang IPSRS
+
+- Hapus kartu Pos Suku Cadang IPSRS Sentral serta judul/deskripsi Top 5; daftar aset dan riwayat tetap tersedia. Ringkasan biaya atas tetap dipertahankan.
+- Revisi akhir: judul disingkat menjadi Anggaran (16 sp semibold), tahun (12 sp) dan refresh kembali sejajar dalam app bar. Baris khusus tahun dihapus; tab dipadatkan menjadi 48 dp pada skala normal. Tinggi total header 107 dp termasuk indikator tab 3 dp, di luar status bar. Pembesaran teks tetap didukung.
+- 24 skenario header ringkas lulus dengan font Plus Jakarta Sans dan tema aplikasi: 360×800, 402×817, 437×841, 1280×800; skala 1×/2×; data/loading/error. Judul satu baris pada skala normal, tidak bertabrakan dengan tahun, tinggi header maksimal 108 dp pada skala normal, target sentuh, pemilihan tahun, dan refresh diuji.
+- Analisis terarah tidak menemukan error; empat info prefer_const_constructors pada kode yang sudah ada.
+- Verifikasi browser/perangkat nyata dan capture visual revisi ini belum dilakukan; gate visual belum dinyatakan lulus.
