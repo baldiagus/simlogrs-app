@@ -176,7 +176,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                         Expanded(
                           child: Text(
                             widget.namaAset,
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary),
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -187,7 +187,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                       const SizedBox(height: 6),
                       Text(
                         'Keluhan: ${widget.keluhan}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -198,9 +198,9 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
               const SizedBox(height: 16),
 
               // 1. Pilih Teknisi Pelaksana
-              const Text(
+              Text(
                 'Tugaskan ke Teknisi Pelaksana *',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               teknisiListAsync.when(
@@ -218,7 +218,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                         value: t.id,
                         child: Text(
                           '${t.nama} (${t.email})',
-                          style: const TextStyle(fontSize: 12),
+                          style: Theme.of(context).textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
@@ -230,21 +230,27 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                 loading: () => const LinearProgressIndicator(),
                 error: (err, _) => Text(
                   userErrorMessage(err, action: 'memuat daftar teknisi'),
-                  style: const TextStyle(color: AppColors.danger, fontSize: 11),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger),
                 ),
               ),
               const SizedBox(height: 14),
 
               // 2. Tanggal Penugasan & Target Selesai
-              Row(
+              LayoutBuilder(builder: (context, constraints) {
+                final width = constraints.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)
+                    ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+                return Wrap(
+                spacing: 10,
+                runSpacing: 14,
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: width,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Tgl Penugasan *',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 6),
                         InkWell(
@@ -264,8 +270,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                                 Expanded(
                                   child: Text(
                                     AppFormatters.tanggal(_tanggalPenugasan),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   ),
                                 ),
                               ],
@@ -275,14 +280,14 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
+                  SizedBox(
+                    width: width,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Target Selesai *',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 6),
                         InkWell(
@@ -302,8 +307,7 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                                 Expanded(
                                   child: Text(
                                     AppFormatters.tanggal(_targetSelesai),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   ),
                                 ),
                               ],
@@ -314,13 +318,14 @@ class _DisposisiSpkSheetState extends ConsumerState<DisposisiSpkSheet> {
                     ),
                   ),
                 ],
-              ),
+                );
+              }),
               const SizedBox(height: 14),
 
               // 3. Catatan / Instruksi Khusus
-              const Text(
+              Text(
                 'Instruksi Khusus / Diagnosis Awal (Opsional)',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700,  color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               TextFormField(

@@ -39,39 +39,30 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Tahap 1: Komoditas & Fasilitas Asal (Sumber)',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 10),
 
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(LucideIcons.lock, size: 13, color: AppColors.textMuted),
+                  Icon(LucideIcons.lock, size: 13, color: AppColors.textSecondary),
                   SizedBox(width: 5),
                   Text(
                     'Lokasi Tujuan (Terkunci):',
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textMuted),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
               const SizedBox(height: 3),
               Text(
                 lokasiTujuanUser,
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary),
-                maxLines: 1,
+                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -89,11 +80,11 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
             katalogAsync.when(
               data: (asets) {
                 if (asets.isEmpty) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       'Tidak ada aset fisik tersedia dari fasilitas lain yang siap dialihkan.',
-                      style: TextStyle(fontSize: 12, color: AppColors.warning),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.warning),
                     ),
                   );
                 }
@@ -131,6 +122,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
                     DropdownButtonFormField<String>(
                       key: const Key('dropdown_komoditas_aset'),
                       isExpanded: true,
+                      itemHeight: null,
                       initialValue: selectedKomoditas,
                       decoration: const InputDecoration(
                         labelText: 'Pilih Komoditas Aset *',
@@ -141,8 +133,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
                           value: k,
                           child: Text(
                             k,
-                            style: const TextStyle(fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
                       }).toList(),
@@ -156,6 +147,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
                     DropdownButtonFormField<String>(
                       key: const Key('dropdown_penyedia_asal_aset'),
                       isExpanded: true,
+                      itemHeight: null,
                       initialValue: validFacilityKey,
                       decoration: const InputDecoration(
                         labelText: 'Fasilitas Asal Penyedia (Sumber) *',
@@ -174,8 +166,7 @@ class ModalPengalihanAsetTahap1Card extends StatelessWidget {
                                 value: entry.key,
                                 child: Text(
                                   '${firstAset.namaPenyedia} (${firstAset.tipePenyedia}) - $count unit',
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               );
                             }).toList(),
@@ -233,7 +224,7 @@ class _ChosenAsetInfo extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
@@ -246,8 +237,7 @@ class _ChosenAsetInfo extends StatelessWidget {
               Expanded(
                 child: Text(
                   aset.namaKomoditas,
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.titleSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -260,10 +250,7 @@ class _ChosenAsetInfo extends StatelessWidget {
                 ),
                 child: Text(
                   aset.tipePenyedia,
-                  style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primaryPurple),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                 ),
               ),
             ],
@@ -272,15 +259,12 @@ class _ChosenAsetInfo extends StatelessWidget {
           Text(
             'Kode: ${aset.kodeAset} • SN: ${aset.nomorSeri}',
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
           ),
           SizedBox(height: spacing),
           Text(
             asalLabel,
-            style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
         ],
       ),

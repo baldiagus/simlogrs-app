@@ -44,16 +44,12 @@ class AsetInfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ],
           ),
@@ -128,7 +124,7 @@ class AsetDetailSpesifikasiCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(LucideIcons.fileSpreadsheet,
                   size: 16, color: AppColors.primaryPurple),
@@ -136,10 +132,7 @@ class AsetDetailSpesifikasiCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Spesifikasi & Nilai Perolehan',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary),
+                  style: Theme.of(context).textTheme.titleSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -200,7 +193,7 @@ class AsetDetailActiveLoanCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(LucideIcons.repeat,
                   size: 16, color: AppColors.primaryPurple),
@@ -208,10 +201,7 @@ class AsetDetailActiveLoanCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Transaksi Peminjaman Aktif',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary),
+                  style: Theme.of(context).textTheme.titleSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

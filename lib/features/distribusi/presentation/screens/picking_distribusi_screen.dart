@@ -81,27 +81,31 @@ class PickingDistribusiScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          alignment: WrapAlignment.spaceBetween,
                           children: [
-                            Row(
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(color: AppColors.tintVioletBg, borderRadius: BorderRadius.circular(8)),
                                   child: Text(
                                     item.kode,
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryPurple),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                                   ),
                                 ),
                                 if (item.isCito) ...[
-                                  const SizedBox(width: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(6)),
-                                    child: const Text(
+                                    child: Text(
                                       'CITO',
-                                      style: TextStyle(color: AppColors.danger, fontSize: 10, fontWeight: FontWeight.w800),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.danger,  fontWeight: FontWeight.w800),
                                     ),
                                   ),
                                 ],
@@ -113,12 +117,12 @@ class PickingDistribusiScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Text(
                           item.unit,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Tgl: ${item.tanggalPermintaan ?? '-'} • Pemohon: ${item.pengaju}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 10),
 
@@ -131,7 +135,7 @@ class PickingDistribusiScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 '${item.totalItem} Jenis Barang Siap Diambil (FEFO):',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                               ),
                               const SizedBox(height: 4),
                               ...item.items.map((d) {
@@ -143,14 +147,14 @@ class PickingDistribusiScreen extends ConsumerWidget {
                                       Expanded(
                                         child: Text(
                                           '• ${d['nama_barang']}',
-                                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      Text(
+                                      Flexible(child: Text(
                                         'x${d['jumlah_disetujui']} ${d['satuan']}',
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                      ),
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                      )),
                                     ],
                                   ),
                                 );

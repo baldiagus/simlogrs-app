@@ -68,10 +68,9 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'Katalog Barang Amprah',
-                        style: TextStyle(
-                          fontSize: 17,
+                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
@@ -81,10 +80,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                         const SizedBox(height: 2),
                         Text(
                           'Gudang Tujuan: ${widget.namaGudang}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -173,8 +169,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                         Flexible(
                                           child: Text(
                                             b.nama,
-                                            style: const TextStyle(
-                                              fontSize: 13,
+                                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.textPrimary,
                                             ),
@@ -191,8 +186,7 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                           ),
                                           child: Text(
                                             b.tipeLabel,
-                                            style: const TextStyle(
-                                              fontSize: 9,
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.textSecondary,
                                             ),
@@ -203,14 +197,13 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                     const SizedBox(height: 2),
                                     Text(
                                       '${b.kode} • ${b.kategori} (${b.satuan})',
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                     ),
                                     const SizedBox(height: 2),
                                     if (b.stokTersedia > 0)
                                       Text(
                                         'Stok Tersedia: ${b.stokTersedia} ${b.satuan}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                           fontWeight: FontWeight.w600,
                                           color: AppColors.success,
                                         ),
@@ -221,17 +214,15 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                         b.bestGudangStok! > 0)
                                       Text(
                                         'Tersedia ${b.bestGudangStok} ${b.satuan} di ${b.bestGudangNama}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                           fontWeight: FontWeight.w600,
                                           color: AppColors.tintBlue,
                                         ),
                                       )
                                     else
-                                      const Text(
+                                      Text(
                                         'Stok Kosong (Dicatat sebagai Backorder)',
-                                        style: TextStyle(
-                                          fontSize: 11,
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                           fontWeight: FontWeight.w600,
                                           color: AppColors.tintOrange,
                                         ),
@@ -254,12 +245,11 @@ class _BarangAmprahPickerSheetState extends ConsumerState<BarangAmprahPickerShee
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(color: const Color(0xFFFDBA74).withValues(alpha: 0.5)),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Backorder',
-                                    style: TextStyle(
-                                      fontSize: 10,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFFEA580C),
+                                      color: AppColors.tintOrange,
                                     ),
                                   ),
                                 ),

@@ -9,6 +9,7 @@ import 'package:simlog_mobile/features/audit/presentation/providers/audit_provid
 import 'package:simlog_mobile/shared/widgets/app_error_view.dart';
 import 'package:simlog_mobile/shared/widgets/app_loading_view.dart';
 import 'package:simlog_mobile/shared/widgets/empty_state_view.dart';
+import '../../utils/audit_presentation.dart';
 
 /// Tab daftar jejak audit (siapa mengubah apa); [onOpenDetail] dipanggil dengan ID log yang diketuk.
 class AuditTrailTab extends ConsumerStatefulWidget {
@@ -52,7 +53,7 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
     super.dispose();
   }
 
-  /// Menerapkan filter saat nilai dropdown atau kolom pencarian berubah.
+  /// Menerapkan filter saat pilihan aksi atau kolom pencarian berubah.
   void _applyFilter() {
     final search = _trailSearchCtrl.text.trim();
     ref.read(auditTrailProvider.notifier).setFilter(
@@ -71,10 +72,10 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
         Container(
           padding: const EdgeInsets.all(12),
           color: AppColors.surface,
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: TextField(
+                TextField(
                   controller: _trailSearchCtrl,
                   decoration: InputDecoration(
                     hintText: 'Cari referensi, pengguna, IP...',
@@ -90,26 +91,50 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
                   ),
                   onSubmitted: (_) => _applyFilter(),
                 ),
-              ),
-              const SizedBox(width: 8),
-              DropdownButton<String?>(
-                value: _trailAksi,
-                hint: const Text('Semua Aksi', style: TextStyle(fontSize: 12)),
-                underline: const SizedBox.shrink(),
-                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('Semua Aksi')),
-                  DropdownMenuItem(value: 'TAMBAH', child: Text('TAMBAH')),
-                  DropdownMenuItem(value: 'UBAH', child: Text('UBAH')),
-                  DropdownMenuItem(value: 'HAPUS', child: Text('HAPUS')),
-                  DropdownMenuItem(value: 'APPROVE', child: Text('APPROVE')),
-                  DropdownMenuItem(value: 'REJECT', child: Text('REJECT')),
-                  DropdownMenuItem(value: 'ADJUSTMENT', child: Text('ADJUSTMENT')),
-                ],
-                onChanged: (val) {
-                  setState(() => _trailAksi = val);
-                  _applyFilter();
-                },
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final action in <String?>[
+                      null, 'TAMBAH', 'UBAH', 'HAPUS',
+                      'APPROVE', 'REJECT', 'ADJUSTMENT',
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: ChoiceChip(
+                          label: Text(action == null
+                              ? 'Semua Aksi'
+                              : AuditPresentation.action(action)),
+                          selected: _trailAksi == action,
+                          showCheckmark: false,
+                          selectedColor: AppColors.primaryPurple,
+                          backgroundColor: AppColors.canvas,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          side: BorderSide(
+                            color: _trailAksi == action
+                                ? AppColors.primaryPurple
+                                : AppColors.border,
+                          ),
+                          labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: _trailAksi == action
+                                ? AppColors.surface
+                                : AppColors.textSecondary,
+                            fontWeight: _trailAksi == action
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                          onSelected: (_) {
+                            if (_trailAksi == action) return;
+                            setState(() => _trailAksi = action);
+                            _applyFilter();
+                          },
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -190,15 +215,12 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
     }
 
     if (!trailState.hasMore && trailState.items.isNotEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
             'Semua data log audit telah ditampilkan',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
         ),
       );
@@ -215,7 +237,7 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
     switch (item.aksi.toUpperCase()) {
       case 'TAMBAH':
         badgeColor = AppColors.success;
-        badgeBg = const Color(0xFFECFDF5);
+        badgeBg = AppColors.success.withValues(alpha: 0.08);
         break;
       case 'UBAH':
         badgeColor = AppColors.tintBlue;
@@ -224,7 +246,7 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
       case 'HAPUS':
       case 'REJECT':
         badgeColor = AppColors.danger;
-        badgeBg = const Color(0xFFFEF2F2);
+        badgeBg = AppColors.danger.withValues(alpha: 0.08);
         break;
       case 'APPROVE':
         badgeColor = AppColors.tintViolet;
@@ -249,28 +271,28 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(6)),
                   child: Text(
-                    item.aksi,
-                    style: TextStyle(color: badgeColor, fontWeight: FontWeight.w800, fontSize: 11),
+                    AuditPresentation.action(item.aksi),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: badgeColor),
                   ),
                 ),
                 Text(
                   item.waktu,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              '${item.referensiJenis} #${item.referensiId}',
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary),
+              '${AuditPresentation.entity(item.referensiJenis)} #${item.referensiId}',
+              style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 4),
             Row(
@@ -279,28 +301,28 @@ class _AuditTrailTabState extends ConsumerState<AuditTrailTab> {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    '${item.penggunaNama} (${item.peran})',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    overflow: TextOverflow.ellipsis,
+                    '${item.penggunaNama} (${AuditPresentation.role(item.peran)})',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 2),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                const Icon(LucideIcons.globe, size: 13, color: AppColors.textMuted),
+                const Icon(LucideIcons.globe, size: 13, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(
                   'IP: ${item.ipAddress}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                 ),
-                const Spacer(),
                 if (item.hasDataSebelum || item.hasDataSesudah)
-                  const Text(
-                    'Lihat Diff Data ->',
-                    style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryPurple),
+                  Text(
+                    'Lihat perubahan',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                   ),
               ],
             ),

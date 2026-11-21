@@ -107,12 +107,7 @@ class _HistoriPengalihanAsetScreenState
                               ),
                               child: Text(
                                 widget.kodeAset,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
-                                ),
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -121,7 +116,7 @@ class _HistoriPengalihanAsetScreenState
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.surface,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
@@ -131,11 +126,7 @@ class _HistoriPengalihanAsetScreenState
                                 const SizedBox(width: 4),
                                 Text(
                                   '${_riwayat.length}x Mutasi',
-                                  style: const TextStyle(
-                                    color: AppColors.primaryPurple,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                 ),
                               ],
                             ),
@@ -145,16 +136,12 @@ class _HistoriPengalihanAsetScreenState
                       const SizedBox(height: 12),
                       Text(
                         widget.namaKomoditas,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.surface),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Nomor Seri Fisik: ${widget.nomorSeri}',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                       ),
                     ],
                   ),
@@ -162,18 +149,14 @@ class _HistoriPengalihanAsetScreenState
                 const SizedBox(height: 16),
 
                 // Section Title
-                const Row(
+                Row(
                   children: [
                     Icon(LucideIcons.gitCommit, size: 18, color: AppColors.primaryPurple),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Jejak Kronologis Perpindahan Fisik',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
                   ],
@@ -243,12 +226,7 @@ class _HistoriPengalihanAsetScreenState
                                       Flexible(
                                         child: Text(
                                           item.kodePengalihan,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w800,
-                                            fontFamily: 'monospace',
-                                            color: AppColors.primaryPurple,
-                                          ),
+                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -279,12 +257,11 @@ class _HistoriPengalihanAsetScreenState
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            const Text('Fasilitas Asal (Sumber):',
-                                                style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                                            Text('Fasilitas Asal (Sumber):',
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                                             Text(
                                               item.asalNama,
-                                              style: const TextStyle(
-                                                  fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                              style: Theme.of(context).textTheme.labelMedium,
                                             ),
                                           ],
                                         ),
@@ -308,12 +285,11 @@ class _HistoriPengalihanAsetScreenState
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            const Text('Fasilitas Tujuan (Penerima):',
-                                                style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                                            Text('Fasilitas Tujuan (Penerima):',
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                                             Text(
                                               item.tujuanNama,
-                                              style: const TextStyle(
-                                                  fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                             ),
                                           ],
                                         ),
@@ -380,22 +356,18 @@ class _HistoriPengalihanAsetScreenState
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Icon(icon, size: 13, color: AppColors.textMuted),
+          child: Icon(icon, size: 13, color: AppColors.textSecondary),
         ),
         const SizedBox(width: 6),
         Expanded(
           child: Text.rich(
             TextSpan(
               text: '$label: ',
-              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               children: [
                 TextSpan(
                   text: value,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: valueColor ?? AppColors.textPrimary,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: valueColor ?? AppColors.textPrimary),
                 ),
               ],
             ),

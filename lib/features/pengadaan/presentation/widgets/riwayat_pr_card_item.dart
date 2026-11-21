@@ -75,8 +75,9 @@ class RiwayatPrCardItem extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 6,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -86,10 +87,10 @@ class RiwayatPrCardItem extends StatelessWidget {
                             ),
                             child: Text(
                               pr.kode,
-                              style: const TextStyle(
-                                fontSize: 12,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.primaryPurple,
+                                fontFamily: 'JetBrains Mono',
                               ),
                             ),
                           ),
@@ -101,10 +102,9 @@ class RiwayatPrCardItem extends StatelessWidget {
                                 color: const Color(0xFFFEF2F2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'CITO',
-                                style: TextStyle(
-                                  fontSize: 9,
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.danger,
                                 ),
@@ -119,8 +119,7 @@ class RiwayatPrCardItem extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(
                     pr.unit,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                     ),
@@ -130,7 +129,7 @@ class RiwayatPrCardItem extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     'Diajukan: ${AppFormatters.tanggalString(pr.tanggalPermintaan)} • Oleh ${pr.pengaju}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -149,8 +148,7 @@ class RiwayatPrCardItem extends StatelessWidget {
                       children: [
                         Text(
                           '${pr.jumlahItem} Item Barang',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
@@ -170,22 +168,21 @@ class RiwayatPrCardItem extends StatelessWidget {
                                 const SizedBox(width: 3),
                                 Text(
                                   pr.nomorPo!,
-                                  style: const TextStyle(
-                                    fontSize: 10,
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.tintBlue,
+                                    fontFamily: 'JetBrains Mono',
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        const Row(
+                        Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               'Detail',
-                              style: TextStyle(
-                                fontSize: 11,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primaryPurple,
                               ),
@@ -219,9 +216,15 @@ class RiwayatPrCardItem extends StatelessWidget {
   /// Membangun baris tombol aksi pada kartu sesuai status PR dan peran pengguna.
   Widget _buildActionRow() {
     if (pr.status == PrStatus.diajukan && canApproveKaru) {
-      return Row(
+      return LayoutBuilder(builder: (context, constraints) {
+        final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+            ? constraints.maxWidth : (constraints.maxWidth - 8) / 2;
+        return Wrap(
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Tolak',
               height: 36,
@@ -232,8 +235,8 @@ class RiwayatPrCardItem extends StatelessWidget {
               onPressed: onTolakTap,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Setujui',
               height: 36,
@@ -243,13 +246,20 @@ class RiwayatPrCardItem extends StatelessWidget {
             ),
           ),
         ],
-      );
+        );
+      });
     }
 
     if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) {
-      return Row(
+      return LayoutBuilder(builder: (context, constraints) {
+        final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+            ? constraints.maxWidth : (constraints.maxWidth - 8) / 2;
+        return Wrap(
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Tolak Belanja',
               height: 36,
@@ -260,8 +270,8 @@ class RiwayatPrCardItem extends StatelessWidget {
               onPressed: onTolakTap,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Terbitkan PO',
               height: 36,
@@ -271,7 +281,8 @@ class RiwayatPrCardItem extends StatelessWidget {
             ),
           ),
         ],
-      );
+        );
+      });
     }
 
     return const SizedBox.shrink();

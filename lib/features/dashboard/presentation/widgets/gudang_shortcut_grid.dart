@@ -7,7 +7,7 @@ import '../../../gudang/presentation/screens/otorisasi_penyesuaian_screen.dart';
 import '../../../gudang/presentation/screens/stock_opname_hub_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../gudang/presentation/screens/daftar_rak_screen.dart';
+import 'dashboard_shortcut_layout.dart';
 
 class GudangShortcutGrid extends ConsumerWidget {
   const GudangShortcutGrid({super.key});
@@ -26,112 +26,75 @@ class GudangShortcutGrid extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
+            Text(
                 isPetugasGudang ? 'Persediaan Stok Gudang' : 'Persediaan & Opname Gudang',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+                style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 4),
             Text(
               isPetugasGudang ? 'Monitoring FEFO' : 'Sirkulasi Fisik',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.8)),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
+        DashboardShortcutLayout(
           children: [
-            Expanded(
-              child: _buildGudangMiniCard(
-                context: context,
-                title: 'Monitoring FEFO',
-                subtitle: 'Kedaluwarsa & ROP',
-                icon: LucideIcons.hourglass,
-                iconColor: AppColors.tintOrange,
-                bgColor: AppColors.tintOrangeBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const FefoMonitoringScreen()),
-                ),
+            _buildGudangMiniCard(
+              context: context,
+              title: 'Monitoring FEFO',
+              subtitle: 'Kedaluwarsa & ROP',
+              icon: LucideIcons.hourglass,
+              iconColor: AppColors.tintOrange,
+              bgColor: AppColors.tintOrangeBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FefoMonitoringScreen()),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildGudangMiniCard(
-                context: context,
-                title: 'Buku Mutasi',
-                subtitle: 'Pergerakan stok riil',
-                icon: LucideIcons.fileSpreadsheet,
-                iconColor: AppColors.tintBlue,
-                bgColor: AppColors.tintBlueBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BukuMutasiScreen()),
-                ),
+            _buildGudangMiniCard(
+              context: context,
+              title: 'Buku Mutasi',
+              subtitle: 'Pergerakan stok riil',
+              icon: LucideIcons.fileSpreadsheet,
+              iconColor: AppColors.tintBlue,
+              bgColor: AppColors.tintBlueBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BukuMutasiScreen()),
               ),
             ),
+            if (!isPetugasGudang)
+              _buildGudangMiniCard(
+                context: context,
+                title: 'Stock Opname',
+                subtitle: 'Hitung fisik di rak',
+                icon: LucideIcons.clipboardCheck,
+                iconColor: AppColors.primaryPurple,
+                bgColor: AppColors.tintVioletBg,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
+                ),
+              ),
+            if (!isPetugasGudang && canOtorisasi)
+              _buildGudangMiniCard(
+                context: context,
+                title: 'Otorisasi Selisih',
+                subtitle: 'Penyesuaian saldo',
+                icon: LucideIcons.shieldCheck,
+                iconColor: AppColors.tintTeal,
+                bgColor: AppColors.tintTealBg,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
+                ),
+              ),
           ],
         ),
-        if (!isPetugasGudang) ...[
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _buildGudangMiniCard(
-                  context: context,
-                  title: 'Stock Opname',
-                  subtitle: 'Hitung fisik di rak',
-                  icon: LucideIcons.clipboardCheck,
-                  iconColor: AppColors.primaryPurple,
-                  bgColor: AppColors.tintVioletBg,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const StockOpnameHubScreen()),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: canOtorisasi
-                    ? _buildGudangMiniCard(
-                        context: context,
-                        title: 'Otorisasi Selisih',
-                        subtitle: 'Penyesuaian saldo',
-                        icon: LucideIcons.shieldCheck,
-                        iconColor: AppColors.tintTeal,
-                        bgColor: AppColors.tintTealBg,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const OtorisasiPenyesuaianScreen()),
-                        ),
-                      )
-                    : _buildGudangMiniCard(
-                        context: context,
-                        title: 'Tata Letak Rak',
-                        subtitle: 'Lokasi bin & rak fisik',
-                        icon: LucideIcons.archive,
-                        iconColor: AppColors.tintBlue,
-                        bgColor: AppColors.tintBlueBg,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const DaftarRakScreen()),
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ],
       ],
     );
   }
@@ -156,39 +119,24 @@ class GudangShortcutGrid extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: bgColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(9),
               ),
-              child: Icon(icon, color: iconColor, size: 18),
+              child: Icon(icon, color: iconColor, size: 16),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+            const SizedBox(height: 8),
+            Text(title, style: Theme.of(context).textTheme.labelMedium),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),

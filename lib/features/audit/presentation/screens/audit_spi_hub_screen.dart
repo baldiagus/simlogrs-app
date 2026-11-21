@@ -77,9 +77,9 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Audit Internal (SPI)',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
@@ -97,7 +97,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: Size.fromHeight(24 + MediaQuery.textScalerOf(context).scale(14) * 2),
           child: Container(
             color: AppColors.surface,
             child: TabBar(
@@ -108,13 +108,14 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.primaryPurple,
               indicatorWeight: 3,
-              labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-              tabs: const [
-                Tab(text: 'Audit Trail'),
-                Tab(text: 'Kepatuhan PO'),
-                Tab(text: 'Selisih Opname'),
-                Tab(text: 'Temuan & CAPA'),
+              labelStyle: Theme.of(context).textTheme.titleSmall,
+              unselectedLabelStyle: Theme.of(context).textTheme.bodyMedium,
+              tabs: [
+                for (final label in ['Audit Trail', 'Kepatuhan PO', 'Selisih Opname', 'Temuan & CAPA'])
+                  Tab(
+                    height: 24 + MediaQuery.textScalerOf(context).scale(14) * 2,
+                    child: Text(label),
+                  ),
               ],
             ),
           ),
@@ -148,8 +149,8 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
               heroTag: null,
               onPressed: () => _openFormTerbitkanTemuan(context),
               backgroundColor: AppColors.primaryPurple,
-              icon: const Icon(LucideIcons.filePlus, color: Colors.white, size: 18),
-              label: const Text('Temuan Baru', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              icon: const Icon(LucideIcons.filePlus, color: AppColors.surface, size: 18),
+              label: Text('Temuan Baru', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.surface)),
             )
           : null,
     );
@@ -163,44 +164,66 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: AppColors.surface,
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildMetricItem(
-              label: 'Open CAPA',
-              value: '${summary.totalInProgress + summary.totalInReview}',
-              color: AppColors.danger,
-              bgColor: const Color(0xFFFEF2F2),
-            ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final labels = ['Open CAPA', 'Closing Rate', 'Anomali PO', 'Selisih Opname'];
+          final values = ['${summary.totalInProgress + summary.totalInReview}', '${summary.closingRate}%', '${summary.totalPoAnomali}', '${summary.sesiOpnameSelisih}'];
+          final scaler = MediaQuery.textScalerOf(context);
+          final style = Theme.of(context).textTheme.labelMedium?.copyWith(fontSize: 11);
+          var width = (constraints.maxWidth - 24) / 4;
+          for (final label in labels) {
+            for (final word in label.split(' ')) {
+              final painter = TextPainter(text: TextSpan(text: word, style: style), textDirection: Directionality.of(context), textScaler: scaler)..layout();
+              if (painter.width + 12 > width) width = painter.width + 12;
+              painter.dispose();
+            }
+          }
+          for (final value in values) {
+            final painter = TextPainter(text: TextSpan(text: value, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14)), textDirection: Directionality.of(context), textScaler: scaler)..layout();
+            if (painter.width + 12 > width) width = painter.width + 12;
+            painter.dispose();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: IntrinsicHeight(child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(width: width, child: _buildMetricItem(
+                label: 'Open CAPA',
+                value: '${summary.totalInProgress + summary.totalInReview}',
+                color: AppColors.danger,
+                bgColor: AppColors.danger.withValues(alpha: 0.08),
+              )),
+              const SizedBox(width: 8),
+              SizedBox(width: width, child: _buildMetricItem(
+                label: 'Closing Rate', value: '${summary.closingRate}%',
+                color: AppColors.success,
+                bgColor: AppColors.success.withValues(alpha: 0.08),
+              )),
+              const SizedBox(width: 8),
+              SizedBox(width: width, child: _buildMetricItem(
+                label: 'Anomali PO', value: '${summary.totalPoAnomali}',
+                color: AppColors.warning,
+                bgColor: AppColors.warning.withValues(alpha: 0.08),
+              )),
+              const SizedBox(width: 8),
+              SizedBox(width: width, child: _buildMetricItem(
+                label: 'Selisih Opname', value: '${summary.sesiOpnameSelisih}',
+                color: AppColors.tintViolet, bgColor: AppColors.tintVioletBg,
+              )),
+            ],
+          )),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildMetricItem(
-              label: 'Closing Rate',
-              value: '${summary.closingRate}%',
-              color: AppColors.success,
-              bgColor: const Color(0xFFECFDF5),
+          if (width * 4 + 24 > constraints.maxWidth)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text('Geser untuk melihat semua ringkasan →', style: Theme.of(context).textTheme.bodySmall),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildMetricItem(
-              label: 'Anomali PO',
-              value: '${summary.totalPoAnomali}',
-              color: AppColors.warning,
-              bgColor: const Color(0xFFFFFBEB),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildMetricItem(
-              label: 'Selisih Opname',
-              value: '${summary.sesiOpnameSelisih}',
-              color: AppColors.tintViolet,
-              bgColor: AppColors.tintVioletBg,
-            ),
-          ),
-        ],
+          ],
+          );
+        },
       ),
     );
   }
@@ -213,7 +236,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     required Color bgColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
@@ -221,17 +244,16 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
+          Expanded(child: Text(
             label,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontSize: 11),
+          )),
           const SizedBox(height: 2),
           Text(
             value,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color, fontSize: 14),
           ),
         ],
       ),
@@ -246,6 +268,7 @@ class _AuditSpiHubScreenState extends ConsumerState<AuditSpiHubScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => TrailDetailSheet(logId: logId),
     );

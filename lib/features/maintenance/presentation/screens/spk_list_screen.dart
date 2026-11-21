@@ -148,9 +148,9 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
                       labelColor: AppColors.primaryPurple,
                       unselectedLabelColor: AppColors.textSecondary,
                       labelStyle:
-                          const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                          Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
                       unselectedLabelStyle:
-                          const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                          Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w500),
                       tabs: _tabs.map((t) => Tab(text: t.label)).toList(),
                     )
                   : null,
@@ -289,10 +289,15 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -302,26 +307,24 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
                         ),
                         child: Text(
                           spk.kodeSpk,
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.tintTeal,
+                            fontFamily: 'JetBrains Mono',
                           ),
                         ),
                       ),
                       if (spk.tiket.isCito) ...[
-                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFEF2F2),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             'CITO',
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               color: AppColors.danger,
-                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -337,8 +340,7 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
               // Asset Name
               Text(
                 spk.aset.nama,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -346,14 +348,14 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
               const SizedBox(height: 2),
               Text(
                 'Kode: ${spk.aset.kodeAset} • Lokasi: ${spk.aset.lokasi}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
               ),
               const SizedBox(height: 8),
 
               // Problem Description Preview
               Text(
                 spk.tiket.deskripsiMasalah,
-                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.4),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textPrimary, height: 1.4),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -366,29 +368,33 @@ class _SpkListScreenState extends ConsumerState<SpkListScreen>
                   color: AppColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  alignment: WrapAlignment.spaceBetween,
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(LucideIcons.calendar, size: 13, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
-                        Text(
+                        Flexible(child: Text(
                           'Target: ${spk.targetSelesai ?? '-'}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                        ),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                        )),
                       ],
                     ),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        Flexible(child: Text(
                           spk.status.toUpperCase() == 'SELESAI'
                               ? 'Buka Arsip SPK'
                               : (spk.status.toUpperCase() == 'DITUGASKAN'
                                   ? 'Konfirmasi & Buka SPK'
                                   : 'Catat Lembar Kerja'),
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
-                        ),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                        )),
                         const Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),
                       ],
                     ),

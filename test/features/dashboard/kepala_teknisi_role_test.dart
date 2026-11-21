@@ -43,7 +43,7 @@ void main() {
                     pendingCount: 3,
                     isKepalaTeknisi: true,
                     onApprovalTap: () {},
-                    onRakGudangTap: () {},
+                    onAmprahTap: () {},
                     onAsetTap: () {},
                     onLaporRusakTap: () {},
                   ),

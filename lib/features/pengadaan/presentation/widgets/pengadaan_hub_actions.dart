@@ -101,7 +101,7 @@ class PengadaanHubActions {
               isPengadaan
                   ? 'Masukkan alasan penolakan belanja untuk PR ${pr.kode}:'
                   : 'Masukkan catatan penolakan untuk PR ${pr.kode}:',
-              style: const TextStyle(fontSize: 13),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'JetBrains Mono'),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -149,8 +149,8 @@ class PengadaanHubActions {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Ya, Tolak PR',
-                style: TextStyle(color: Colors.white)),
+            child: Text('Ya, Tolak PR',
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: AppColors.surface)),
           ),
         ],
       ),

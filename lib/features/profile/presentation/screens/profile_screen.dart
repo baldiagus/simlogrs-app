@@ -108,12 +108,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     // Avatar Emblem
                     Container(
-                      width: 76,
-                      height: 76,
+                      constraints: const BoxConstraints(minWidth: 76, minHeight: 76),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: AppColors.primaryHeroGradient,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: AppColors.surface, width: 3),
                         boxShadow: const [
                           BoxShadow(
                             color: Color.fromRGBO(91, 80, 230, 0.25),
@@ -123,13 +123,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ],
                       ),
                       child: Center(
+                        widthFactor: 1,
+                        heightFactor: 1,
                         child: Text(
                           initial,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.surface),
                         ),
                       ),
                     ),
@@ -138,12 +136,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     // Name
                     Text(
                       user.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.3,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
@@ -154,13 +147,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         const Icon(LucideIcons.mail, size: 13, color: AppColors.textSecondary),
                         const SizedBox(width: 5),
-                        Text(
+                        Flexible(
+                          child: Text(
                           user.email,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                        ),
                         ),
                       ],
                     ),
@@ -172,13 +163,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           const Icon(LucideIcons.badgeCheck, size: 13, color: AppColors.primaryPurple),
                           const SizedBox(width: 5),
-                          Text(
+                          Flexible(
+                            child: Text(
                             'NIP: ${user.nip}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.primaryPurple,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
+                          ),
                           ),
                         ],
                       ),
@@ -201,11 +190,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                             child: Text(
                               _formatRoleName(r),
-                              style: const TextStyle(
-                                color: AppColors.primaryPurple,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                             ),
                           ),
                         ),
@@ -261,7 +246,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(
                           LucideIcons.shieldCheck,
@@ -271,11 +256,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         SizedBox(width: 8),
                         Text(
                           'Keamanan Akun',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ],
                     ),
@@ -314,26 +295,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Expanded(
+                                Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
                                         'Ubah Kata Sandi',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textPrimary,
-                                        ),
+                                        style: Theme.of(context).textTheme.titleSmall,
                                       ),
                                       SizedBox(height: 2),
                                       Text(
                                         'Perbarui kata sandi untuk akses Web & Mobile',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.textSecondary,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ],
                                   ),
@@ -362,7 +336,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -371,18 +345,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         SizedBox(width: 8),
                         Text(
                           'SIMLOG RS Non-Medis v2',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ],
                     ),
                     SizedBox(height: 4),
                     Text(
                       'Sistem Informasi Manajemen Logistik Rumah Sakit • Zero-Hardcode & Capability-Based RBAC Architecture.',
-                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -423,16 +393,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: isHighlight ? AppColors.primaryPurple : AppColors.textPrimary,
-                ),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: isHighlight ? AppColors.primaryPurple : AppColors.textPrimary),
               ),
             ],
           ),

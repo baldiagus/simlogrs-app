@@ -9,6 +9,8 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../providers/persediaan_providers.dart';
+import '../../../../shared/widgets/app_bottom_sheet_wrapper.dart';
+import '../../data/models/buku_mutasi_model.dart';
 
 /// Layar buku mutasi stok: daftar riwayat barang masuk/keluar gudang dengan pencarian dan filter jenis mutasi.
 class BukuMutasiScreen extends ConsumerStatefulWidget {
@@ -21,6 +23,55 @@ class BukuMutasiScreen extends ConsumerStatefulWidget {
 
 /// State layar buku mutasi; memantau daftar mutasi serta filter pencarian dan jenis dari provider.
 class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
+  void _showDetail(BuildContext context, BukuMutasiItemModel item) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      constraints: const BoxConstraints(maxWidth: 640),
+      builder: (sheetContext) => AppBottomSheetWrapper(
+        title: 'Detail Mutasi Stok',
+        fixedHeader: true,
+        maxHeightFactor: 0.9,
+        trailing: IconButton(
+          tooltip: 'Tutup detail mutasi',
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(sheetContext),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(item.namaBarang, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 12),
+            ...<String, String>{
+              'Kode barang': item.kodeBarang,
+              'Jenis transaksi': item.jenis,
+              'Tanggal/waktu': item.tanggal,
+              'Perubahan jumlah': '${item.isMasuk ? '+' : '-'}${item.jumlah.abs()} ${item.satuan}',
+              'Saldo sebelum': '${item.saldoSebelum} ${item.satuan}',
+              'Saldo sesudah': '${item.saldoSesudah} ${item.satuan}',
+              'Nomor batch': item.nomorBatch,
+              'Gudang': item.gudang,
+              'Rak/lokasi': item.lokasiRak,
+              'Jenis referensi': item.referensiJenis ?? 'Tidak tersedia',
+              'ID referensi': item.referensiId?.toString() ?? 'Tidak tersedia',
+              'Keterangan': item.keterangan,
+              'Dicatat oleh': item.petugas,
+            }.entries.map((entry) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(entry.key, style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 4),
+                Text(entry.value.trim().isEmpty || entry.value == '-' ? 'Tidak tersedia' : entry.value,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+              ]),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
 
 
   /// Menyusun UI buku mutasi: bar pencarian, chip filter jenis, dan daftar mutasi dengan status loading/error/kosong.
@@ -104,108 +155,46 @@ class _BukuMutasiScreenState extends ConsumerState<BukuMutasiScreen> {
                       final m = items[index];
                       final isMasuk = m.isMasuk;
 
-                      return Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
+                      return Material(
+                        color: AppColors.surface,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border),
+                          side: const BorderSide(color: AppColors.border),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _showDetail(context, m),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: isMasuk ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            isMasuk ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight,
-                                            size: 13,
-                                            color: isMasuk ? AppColors.success : AppColors.danger,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            m.jenis,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w800,
-                                              color: isMasuk ? AppColors.success : AppColors.danger,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      m.tanggal,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  '${isMasuk ? '+' : '-'}${m.jumlah} ${m.satuan}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
-                                    color: isMasuk ? AppColors.success : AppColors.danger,
-                                  ),
-                                ),
+                                Wrap(spacing: 12, runSpacing: 6, children: [
+                                  Text(m.jenis, style: TextStyle(fontWeight: FontWeight.w700,
+                                    color: isMasuk ? AppColors.success : AppColors.danger)),
+                                  Text(m.tanggal, style: Theme.of(context).textTheme.bodySmall),
+                                ]),
+                                const SizedBox(height: 10),
+                                Text(m.namaBarang, maxLines: 2, overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 8),
+                                Text('${isMasuk ? '+' : '-'}${m.jumlah.abs()} ${m.satuan}',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: isMasuk ? AppColors.success : AppColors.danger)),
+                                const SizedBox(height: 8),
+                                Text('Batch: ${m.nomorBatch} • ${m.gudang}', maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall),
+                                const Divider(height: 24),
+                                Wrap(spacing: 16, runSpacing: 8, children: [
+                                  Text('Saldo: ${m.saldoSebelum} → ${m.saldoSesudah} ${m.satuan}'),
+                                  const Text('Detail ›', style: TextStyle(
+                                    color: AppColors.primaryPurple, fontWeight: FontWeight.w700)),
+                                ]),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              m.namaBarang,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Batch: ${m.nomorBatch} • ${m.gudang} (Rak: ${m.lokasiRak})',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                            ),
-                            if (m.keterangan != '-') ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                m.keterangan,
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
-                              ),
-                            ],
-                            const Divider(color: AppColors.border, height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    'Saldo: ${m.saldoSebelum} -> ${m.saldoSesudah} ${m.satuan}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(LucideIcons.user, size: 12, color: AppColors.textSecondary),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      m.petugas,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
                       );
                     },

@@ -135,7 +135,8 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Semua Aktivitas Sistem'),
+        toolbarHeight: kToolbarHeight * MediaQuery.textScalerOf(context).scale(18) / 18,
+        title: const Text('Semua Aktivitas Sistem', softWrap: true),
       ),
       body: SafeArea(
         child: Column(
@@ -212,34 +213,16 @@ class _AllActivitiesScreenState extends ConsumerState<AllActivitiesScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              item.title,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.textPrimary,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          StatusBadge(status: item.status),
-                                        ],
+                                      Text(
+                                        item.title,
+                                        style: Theme.of(context).textTheme.titleSmall,
                                       ),
+                                      const SizedBox(height: 6),
+                                      StatusBadge(status: item.status),
                                       const SizedBox(height: 4),
                                       Text(
                                         subtitleText,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ],
                                   ),

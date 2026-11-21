@@ -27,7 +27,8 @@ class AppErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -44,22 +45,14 @@ class AppErrorView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
             Text(
               _cleanErrorMessage(error),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                height: 1.4,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 18),
@@ -79,6 +72,7 @@ class AppErrorView extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }

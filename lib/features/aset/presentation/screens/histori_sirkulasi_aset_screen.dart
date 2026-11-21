@@ -67,7 +67,7 @@ class _HistoriSirkulasiAsetScreenState
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: Text('Histori Sirkulasi: ${widget.kodeAset}'),
+        title: const Text('Histori Sirkulasi'),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.refreshCw, size: 18),
@@ -108,13 +108,7 @@ class _HistoriSirkulasiAsetScreenState
                               ),
                               child: Text(
                                 widget.kodeAset,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                               ),
                             ),
                           ),
@@ -123,16 +117,12 @@ class _HistoriSirkulasiAsetScreenState
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: AppColors.surface.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '${_riwayat.length}x Dipinjam',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.surface),
                             ),
                           ),
                         ],
@@ -140,16 +130,12 @@ class _HistoriSirkulasiAsetScreenState
                       const SizedBox(height: 10),
                       Text(
                         widget.namaKomoditas,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.surface),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Nomor Seri: ${widget.nomorSeri}',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                       ),
                     ],
                   ),
@@ -157,27 +143,17 @@ class _HistoriSirkulasiAsetScreenState
                 const SizedBox(height: 20),
 
                 // Section Title
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
-                      child: Text(
-                        'Buku Catatan Sirkulasi Unit',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Text(
+                      'Buku Catatan Sirkulasi Unit',
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 2),
                     Text(
                       'Linimasa Penggunaan',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary.withValues(alpha: 0.8),
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -235,13 +211,7 @@ class _HistoriSirkulasiAsetScreenState
                                       Flexible(
                                         child: Text(
                                           item.kodePeminjaman,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w800,
-                                            fontFamily: 'monospace',
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono'),
                                         ),
                                       ),
                                     ],
@@ -254,19 +224,12 @@ class _HistoriSirkulasiAsetScreenState
                             const SizedBox(height: 10),
                             Text(
                               'Peminjam: ${item.unitPeminjam}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                              ),
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Penanggung Jawab: ${item.peminjam}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                             ),
                             const Divider(color: AppColors.border, height: 18),
                             _buildInfoRow(
@@ -299,7 +262,7 @@ class _HistoriSirkulasiAsetScreenState
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Expanded(
+                                        Expanded(
                                           child: Row(
                                             children: [
                                               Icon(
@@ -311,11 +274,7 @@ class _HistoriSirkulasiAsetScreenState
                                               Expanded(
                                                 child: Text(
                                                   'Pengembalian Fisik',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: AppColors.textPrimary,
-                                                  ),
+                                                  style: Theme.of(context).textTheme.labelMedium,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
@@ -330,22 +289,18 @@ class _HistoriSirkulasiAsetScreenState
                                             decoration: BoxDecoration(
                                               color: item.kondisiSaatKembali ==
                                                       'BAIK'
-                                                  ? const Color(0xFFECFDF5)
-                                                  : const Color(0xFFFEF2F2),
+                                                  ? AppColors.success.withValues(alpha: 0.08)
+                                                  : AppColors.danger.withValues(alpha: 0.08),
                                               borderRadius:
                                                   BorderRadius.circular(4),
                                             ),
                                             child: Text(
                                               item.kondisiSaatKembali!
                                                   .replaceAll('_', ' '),
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w700,
-                                                color: item.kondisiSaatKembali ==
+                                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: item.kondisiSaatKembali ==
                                                         'BAIK'
                                                     ? AppColors.success
-                                                    : AppColors.danger,
-                                              ),
+                                                    : AppColors.danger),
                                             ),
                                           ),
                                       ],
@@ -353,19 +308,12 @@ class _HistoriSirkulasiAsetScreenState
                                     const SizedBox(height: 6),
                                     Text(
                                       'Dikembalikan pada: ${item.tanggalKembaliAktual!}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textSecondary,
-                                      ),
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
                                     ),
                                     if (item.pemeriksaKembali != null)
                                       Text(
                                         'Pemeriksa: ${item.pemeriksaKembali}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.textSecondary,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                       ),
                                     if (item.catatanPengembalian != null &&
                                         item.catatanPengembalian!.isNotEmpty)
@@ -373,11 +321,7 @@ class _HistoriSirkulasiAsetScreenState
                                         padding: const EdgeInsets.only(top: 4),
                                         child: Text(
                                           'Catatan: "${item.catatanPengembalian!}"',
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            fontStyle: FontStyle.italic,
-                                            color: AppColors.textMuted,
-                                          ),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontStyle: FontStyle.italic),
                                         ),
                                       ),
                                   ],
@@ -409,24 +353,28 @@ class _HistoriSirkulasiAsetScreenState
       children: [
         Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 8),
-        SizedBox(
-          width: 90,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-          ),
-        ),
-        const Text(': ',
-            style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final labelWidget = Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            );
+            final valueWidget = Text(value, style: Theme.of(context).textTheme.labelMedium);
+            if (constraints.maxWidth < 300 * MediaQuery.textScalerOf(context).scale(1)) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [labelWidget, const SizedBox(height: 2), valueWidget],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: labelWidget),
+                const SizedBox(width: 12),
+                Expanded(flex: 2, child: valueWidget),
+              ],
+            );
+          }),
         ),
       ],
     );

@@ -25,7 +25,8 @@ class QrStickerSheet extends StatelessWidget {
   /// Membangun sheet berisi QR code kode aset, nama, nomor seri, dan tombol tutup.
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetWrapper(
+    return SingleChildScrollView(
+      child: AppBottomSheetWrapper(
       title: 'Stiker QR Code Inventaris',
       subtitle: 'Gunakan QR ini untuk pemindaian fisik dan verifikasi di lapangan.',
       child: Column(
@@ -34,58 +35,49 @@ class QrStickerSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.border, width: 2),
               boxShadow: const [
                 BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
               ],
             ),
+            // Screen preview keeps the QR readable without constraining text height.
             child: Column(
               children: [
                 QrImageView(
                   data: aset.kodeAset,
                   version: QrVersions.auto,
                   size: 180,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.surface,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   aset.kodeAset,
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
-                    letterSpacing: 1.0,
-                  ),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textPrimary, fontFamily: 'JetBrains Mono', fontSize: 16, letterSpacing: 1.0),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   aset.namaKomoditas,
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
                 if (aset.nomorSeri != '-') ...[
                   const SizedBox(height: 2),
                   Text(
                     'SN: ${aset.nomorSeri}',
-                    style: const TextStyle(
-                        fontSize: 11, fontFamily: 'monospace', color: Color(0xFF64748B)),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono', fontSize: 11),
                   ),
                 ],
                 const SizedBox(height: 12),
-                const Divider(color: Color(0xFFE2E8F0), height: 1),
+                const Divider(color: AppColors.border, height: 1),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'SIMLOG RS • REGISTER INVENTARIS',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF64748B),
-                    letterSpacing: 0.8,
-                  ),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontSize: 10, letterSpacing: 0.8),
                 ),
               ],
             ),
@@ -96,6 +88,7 @@ class QrStickerSheet extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
         ],
+      ),
       ),
     );
   }

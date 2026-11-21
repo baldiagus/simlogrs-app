@@ -181,17 +181,13 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Unit Peminjam',
-                                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                   ),
                                   Text(
                                     user?.unit?.nama ?? 'Ruangan Pengguna',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
-                                    ),
+                                    style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                 ],
                               ),
@@ -202,17 +198,16 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                       const SizedBox(height: 18),
 
                       // Selected Aset Card / Picker
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
-                          const Expanded(
-                            child: Text(
+                          Text(
                               'Aset yang Dipinjam',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
-                          ),
-                          const SizedBox(width: 8),
                           TextButton.icon(
                             onPressed: _openAsetPicker,
                             icon: const Icon(LucideIcons.search, size: 15),
@@ -237,18 +232,18 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: AppColors.border, style: BorderStyle.solid),
                             ),
-                            child: const Column(
+                            child: Column(
                               children: [
                                 Icon(LucideIcons.armchair, size: 32, color: AppColors.primaryPurple),
                                 SizedBox(height: 8),
                                 Text(
                                   'Tekan untuk Memilih Aset Siap Pinjam',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple),
                                 ),
                                 SizedBox(height: 2),
                                 Text(
                                   'Pilih dari ruangan lain atau gudang sentral',
-                                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                 ),
                               ],
                             ),
@@ -286,17 +281,17 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                                   children: [
                                     Text(
                                       _selectedAset!.namaKomoditas,
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                      style: Theme.of(context).textTheme.titleSmall,
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       '${_selectedAset!.kodeAset} • SN: ${_selectedAset!.nomorSeri}',
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       'Penyedia: ${_selectedAset!.namaPenyedia}',
-                                      style: const TextStyle(fontSize: 11, color: AppColors.primaryPurple, fontWeight: FontWeight.w600),
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                     ),
                                   ],
                                 ),
@@ -317,18 +312,18 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFEF2F2),
+                            color: AppColors.danger.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFFCA5A5)),
+                            border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
                               Icon(LucideIcons.alertCircle, size: 16, color: AppColors.danger),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Aset ini sudah berada di ruangan Anda. Peminjaman hanya berlaku untuk aset dari gudang sentral atau ruangan lain.',
-                                  style: TextStyle(fontSize: 11, color: AppColors.danger, fontWeight: FontWeight.w600),
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger),
                                 ),
                               ),
                             ],
@@ -338,15 +333,21 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                       const SizedBox(height: 20),
 
                       // Dates Pickers Row
-                      Row(
+                      LayoutBuilder(builder: (context, constraints) {
+                        final width = constraints.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)
+                            ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
+                        return Wrap(
+                        spacing: 12,
+                        runSpacing: 14,
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: width,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Tanggal Pinjam',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                  style: Theme.of(context).textTheme.labelMedium,
                                 ),
                                 const SizedBox(height: 6),
                                 InkWell(
@@ -363,9 +364,11 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                                       children: [
                                         const Icon(LucideIcons.calendar, size: 16, color: AppColors.primaryPurple),
                                         const SizedBox(width: 8),
-                                        Text(
-                                          _dateFormat.format(_tanggalPinjam),
-                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                        Expanded(
+                                          child: Text(
+                                            _dateFormat.format(_tanggalPinjam),
+                                            style: Theme.of(context).textTheme.titleSmall,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -374,14 +377,14 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                               ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                          SizedBox(
+                            width: width,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Rencana Kembali',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                  style: Theme.of(context).textTheme.labelMedium,
                                 ),
                                 const SizedBox(height: 6),
                                 InkWell(
@@ -398,9 +401,11 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                                       children: [
                                         const Icon(LucideIcons.calendarCheck, size: 16, color: AppColors.primaryPurple),
                                         const SizedBox(width: 8),
-                                        Text(
-                                          _dateFormat.format(_tanggalKembaliRencana),
-                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                        Expanded(
+                                          child: Text(
+                                            _dateFormat.format(_tanggalKembaliRencana),
+                                            style: Theme.of(context).textTheme.titleSmall,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -410,13 +415,14 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                             ),
                           ),
                         ],
-                      ),
+                        );
+                      }),
                       const SizedBox(height: 20),
 
                       // Keperluan Peminjaman
-                      const Text(
+                      Text(
                         'Keperluan Peminjaman *',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -435,9 +441,9 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                       const SizedBox(height: 16),
 
                       // Catatan Tambahan
-                      const Text(
+                      Text(
                         'Catatan Tambahan (Opsional):',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
@@ -474,7 +480,7 @@ class _FormPeminjamanAsetScreenState extends ConsumerState<FormPeminjamanAsetScr
                       width: double.infinity,
                       text: 'Kirim Permohonan Pinjam',
                       isLoading: actionState.isLoading,
-                      icon: const Icon(LucideIcons.send, size: 18, color: Colors.white),
+                      icon: const Icon(LucideIcons.send, size: 18, color: AppColors.surface),
                       onPressed: (_selectedAset == null || isSameUnit || actionState.isLoading) ? null : _submit,
                     );
                   }(),

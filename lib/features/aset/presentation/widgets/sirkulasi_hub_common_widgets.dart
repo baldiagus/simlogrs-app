@@ -20,10 +20,7 @@ class SirkulasiHubTabBadge extends StatelessWidget {
       ),
       child: Text(
         '$count',
-        style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryPurple),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
       ),
     );
   }
@@ -49,7 +46,7 @@ class SirkulasiHubBadgeTab extends StatelessWidget {
           Flexible(
             child: Text(
               label,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -132,14 +129,10 @@ class SirkulasiHubSubTabPill extends StatelessWidget {
             Flexible(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-                  color: isActive
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isActive
                       ? AppColors.primaryPurple
-                      : AppColors.textSecondary,
-                ),
-                maxLines: 1,
+                      : AppColors.textSecondary, fontWeight: isActive ? FontWeight.w800 : FontWeight.w600),
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -156,11 +149,7 @@ class SirkulasiHubSubTabPill extends StatelessWidget {
                 ),
                 child: Text(
                   '$count',
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: isActive ? Colors.white : AppColors.textSecondary,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isActive ? AppColors.surface : AppColors.textSecondary),
                 ),
               ),
             ],

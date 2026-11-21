@@ -145,10 +145,9 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                                         Expanded(
                                           child: Text(
                                             a.kodeAset,
-                                            style: const TextStyle(
-                                              fontSize: 13,
+                                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                               fontWeight: FontWeight.w800,
-                                              fontFamily: 'monospace',
+                                              fontFamily: 'JetBrains Mono',
                                               color: AppColors.textPrimary,
                                             ),
                                             maxLines: 1,
@@ -162,7 +161,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                                     const SizedBox(height: 3),
                                     Text(
                                       a.namaSarana,
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                      style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -174,7 +173,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                                         Expanded(
                                           child: Text(
                                             '${a.lokasi} • SN: ${a.nomorSeri}',
-                                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                            style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -190,8 +189,7 @@ class _RekamMedisKatalogScreenState extends ConsumerState<RekamMedisKatalogScree
                                       ),
                                       child: Text(
                                         '${a.totalServis}x Servis Tercatat',
-                                        style: TextStyle(
-                                          fontSize: 10,
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                           fontWeight: FontWeight.w700,
                                           color: a.totalServis > 0 ? AppColors.tintOrange : AppColors.textSecondary,
                                         ),

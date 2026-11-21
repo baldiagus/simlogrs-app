@@ -33,7 +33,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Row(
                     children: [
                       Icon(LucideIcons.wrench,
@@ -42,10 +42,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Histori Pemeliharaan (IPSRS)',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.titleSmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -67,13 +64,9 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                       ),
                       child: Text(
                         '${aset.totalRiwayatServis}x Servis',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: aset.totalRiwayatServis > 0
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: aset.totalRiwayatServis > 0
                               ? AppColors.tintOrange
-                              : AppColors.textSecondary,
-                        ),
+                              : AppColors.textSecondary),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -101,12 +94,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             aset.servisTerakhir!.kode,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              fontFamily: 'monospace',
-                              color: AppColors.primaryPurple,
-                            ),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -117,8 +105,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       aset.servisTerakhir!.deskripsi,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -128,21 +115,17 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                       children: [
                         Text(
                           'Tgl: ${aset.servisTerakhir!.tanggalPengajuan}',
-                          style: const TextStyle(
-                              fontSize: 10, color: AppColors.textSecondary),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                         ),
                         const SizedBox(width: 8),
-                        const Flexible(
+                        Flexible(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
                                 child: Text(
                                   'Buka Rekam Medis & Preventif',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primaryPurple),
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -164,7 +147,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                   color: AppColors.canvas,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(LucideIcons.checkCircle2,
                         size: 16, color: AppColors.success),
@@ -172,8 +155,7 @@ class AsetDetailIpsrsCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Belum ada catatan servis kerusakan. Buka rekam medis alat...',
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                     SizedBox(width: 8),

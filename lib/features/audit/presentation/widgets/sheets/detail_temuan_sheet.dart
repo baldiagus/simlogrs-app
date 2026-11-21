@@ -192,7 +192,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.viewInsetsOf(context).bottom),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -207,8 +207,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
                 Expanded(
                   child: Text(
                     t.kode,
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'JetBrains Mono'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -216,29 +215,29 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
               ],
             ),
             const SizedBox(height: 6),
-            Text(t.objekAudit, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(t.objekAudit, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 2),
             Text(
               '${t.unit != '-' ? 'Unit: ${t.unit}' : ''}${t.unit != '-' && t.gudang != null && t.gudang != '-' ? ' • ' : ''}${t.gudang != null && t.gudang != '-' ? 'Gudang: ${t.gudang}' : ''}${t.unit == '-' && (t.gudang == null || t.gudang == '-') ? 'Lokasi: Sentral' : ''} • Auditor: ${t.auditor}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: AppColors.canvas, borderRadius: BorderRadius.circular(10)),
-              child: Text(t.ringkasan, style: const TextStyle(fontSize: 12)),
+              child: Text(t.ringkasan, style: Theme.of(context).textTheme.bodySmall),
             ),
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),
 
             // Bagian Tindak Lanjut Auditee: aktif hanya bagi auditee berhak saat status In Progress.
-            const Text('Tindak Lanjut Auditee (Penyebab & Solusi)',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            Text('Tindak Lanjut Auditee (Penyebab & Solusi)',
+                style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 6),
             if (t.statusCapa == 'In Progress' && !widget.canTindakLanjut)
-              const Text('Menunggu respon auditee',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary))
+              Text('Menunggu respon auditee',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary))
             else ...[
               TextField(
                 controller: _analisisCtrl,
@@ -258,13 +257,13 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
               ),
               if (_bukti.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                const Text('Bukti Perbaikan Tersimpan',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                Text('Bukti Perbaikan Tersimpan',
+                    style: Theme.of(context).textTheme.labelMedium),
                 for (final b in _bukti)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text('• ${b.split('/').last}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                   ),
               ],
               if (_bisaTindakLanjut) ...[
@@ -276,7 +275,7 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
                       const SizedBox(width: 6),
                       Expanded(
                           child: Text(_picked[i].name,
-                              style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+                              style: Theme.of(context).textTheme.bodySmall, overflow: TextOverflow.ellipsis)),
                       IconButton(
                         icon: const Icon(LucideIcons.x, size: 14),
                         tooltip: 'Hapus lampiran',
@@ -297,9 +296,9 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _submitTindakLanjut,
-                    icon: const Icon(LucideIcons.send, size: 14, color: Colors.white),
-                    label: const Text('Kirim Tindak Lanjut',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    icon: const Icon(LucideIcons.send, size: 14, color: AppColors.surface),
+                    label: Text('Kirim Tindak Lanjut',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.surface)),
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.tintBlue),
                   ),
                 ),
@@ -311,17 +310,30 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
               const SizedBox(height: 20),
               const Divider(),
               const SizedBox(height: 8),
-              const Text('Evaluasi Closing Auditor SPI',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primaryPurple)),
+              Text('Evaluasi Closing Auditor SPI',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple)),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: _hasilEvaluasi,
-                decoration: const InputDecoration(isDense: true, border: OutlineInputBorder()),
+                isExpanded: true,
+                isDense: false,
+                itemHeight: null,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: const [
-                  DropdownMenuItem(value: 'Closed', child: Text('Closed (Puas & Masalah Selesai)')),
                   DropdownMenuItem(
-                      value: 'In Progress', child: Text('In Progress (Tolak / Perlu Perbaikan Lanjut)')),
+                    value: 'Closed',
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text('Closed (Puas & Masalah Selesai)'),
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'In Progress',
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text('In Progress (Tolak / Perlu Perbaikan Lanjut)'),
+                    ),
+                  ),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => _hasilEvaluasi = val);
@@ -339,9 +351,9 @@ class _DetailTemuanSheetState extends ConsumerState<DetailTemuanSheet> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _submitEvaluasi,
-                  icon: const Icon(LucideIcons.checkCheck, size: 14, color: Colors.white),
-                  label: const Text('Simpan Evaluasi Auditor',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                  icon: const Icon(LucideIcons.checkCheck, size: 14, color: AppColors.surface),
+                  label: Text('Simpan Evaluasi Auditor',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.surface)),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPurple),
                 ),
               ),

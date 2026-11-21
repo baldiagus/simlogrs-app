@@ -2,10 +2,9 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/rak_model.dart';
-import '../models/aset_rak_model.dart';
 import '../models/po_inbound_model.dart';
 
-/// Repository data gudang: rak, detail rak, dan penerimaan PO inbound via API.
+/// Repository data gudang: pilihan rak dan penerimaan PO inbound via API.
 class GudangRepository {
   final DioClient _client;
 
@@ -39,23 +38,6 @@ class GudangRepository {
       throw ApiException(message: 'Format daftar rak gudang tidak valid');
     } on TypeError {
       throw ApiException(message: 'Format daftar rak gudang tidak valid');
-    }
-  }
-
-  /// Mengambil detail satu rak (barang dan aset di dalamnya) berdasarkan [id].
-  Future<RakDetailModel> getDetailRak(int id) async {
-    try {
-      final response = await _client.dio.get('/gudang/rak/$id');
-      final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
-        return RakDetailModel.fromJson(data['data'] as Map<String, dynamic>);
-      }
-      throw ApiException(message: 'Format detail rak tidak valid');
-    } on DioException catch (e) {
-      if (e.error is ApiException) {
-        throw e.error as ApiException;
-      }
-      throw ApiException(message: e.message ?? 'Gagal memuat detail rak gudang');
     }
   }
 

@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:simlog_mobile/core/models/pagination_meta.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../gudang/presentation/providers/gudang_provider.dart';
 import 'ipsrs_providers.dart';
 import 'tiket_maintenance_provider.dart';
 import '../../data/models/spk_model.dart';
@@ -154,7 +153,6 @@ class LembarKerjaNotifier extends StateNotifier<LembarKerjaState> {
       _ref.invalidate(spkPagedListProvider);
       _ref.invalidate(daftarTiketUnitProvider);
       _ref.invalidate(rekamMedisKatalogProvider);
-      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(dashboardSummaryProvider);
       return true;
     } catch (e) {

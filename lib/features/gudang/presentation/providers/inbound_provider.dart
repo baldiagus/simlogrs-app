@@ -113,7 +113,6 @@ class InboundActionNotifier extends StateNotifier<InboundActionState> {
       );
 
       _ref.invalidate(daftarPoInboundProvider);
-      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(rakPenerimaanProvider(gudangId));
       _ref.invalidate(daftarPrProvider);
       _ref.invalidate(dashboardSummaryProvider);

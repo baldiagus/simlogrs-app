@@ -36,7 +36,7 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Row(
                     children: [
                       Icon(LucideIcons.arrowRightLeft, size: 16, color: AppColors.primaryPurple),
@@ -44,11 +44,7 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Histori Pengalihan & Mutasi',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -69,13 +65,9 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                       ),
                       child: Text(
                         '${riwayat.length}x Dimutasi',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: riwayat.isNotEmpty
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: riwayat.isNotEmpty
                               ? AppColors.primaryPurple
-                              : AppColors.textSecondary,
-                        ),
+                              : AppColors.textSecondary),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -104,12 +96,7 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               latest.kodePengalihan,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                fontFamily: 'monospace',
-                                color: AppColors.primaryPurple,
-                              ),
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -123,12 +110,8 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               latest.asalNama,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                              ),
-                              maxLines: 1,
+                              style: Theme.of(context).textTheme.labelMedium,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -139,12 +122,8 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               latest.tujuanNama,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryPurple,
-                              ),
-                              maxLines: 1,
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -153,15 +132,15 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         'Diserahterimakan: ${latest.tanggalSerahTerima}',
-                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 8),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Mutasi Terakhir Selesai',
-                            style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                           ),
                           Flexible(
                             child: Row(
@@ -170,11 +149,7 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     'Buka Buku Mutasi Lengkap',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primaryPurple,
-                                    ),
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -192,14 +167,14 @@ class AsetHistoriPengalihanCard extends StatelessWidget {
             ] else ...[
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(LucideIcons.info, size: 14, color: AppColors.textMuted),
+                    Icon(LucideIcons.info, size: 14, color: AppColors.textSecondary),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Aset ini belum pernah dialihkan (masih di lokasi perolehan awal).',
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                   ],

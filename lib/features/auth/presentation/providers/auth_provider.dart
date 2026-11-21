@@ -15,7 +15,6 @@ import '../../../audit/presentation/providers/audit_provider.dart';
 import '../../../anggaran/presentation/providers/anggaran_provider.dart';
 import '../../../aset/presentation/providers/peminjaman_provider.dart';
 import '../../../aset/presentation/providers/pengalihan_provider.dart';
-import '../../../gudang/presentation/providers/gudang_provider.dart';
 import '../../../gudang/presentation/providers/inbound_provider.dart';
 import '../../../pengadaan/presentation/providers/pengadaan_provider.dart';
 
@@ -216,7 +215,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _ref.invalidate(daftarPeminjamanSayaProvider);
       _ref.invalidate(daftarApprovalPeminjamanProvider);
       _ref.invalidate(daftarPoInboundProvider);
-      _ref.invalidate(daftarRakProvider);
       _ref.invalidate(selectedKategoriPengalihanProvider);
       _ref.invalidate(daftarPengalihanProvider);
       _ref.invalidate(countOtorisasiPengalihanProvider);

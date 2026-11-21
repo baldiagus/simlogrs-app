@@ -48,7 +48,8 @@ class FloatingBottomNavBar extends StatelessWidget {
     final split = tabs.length ~/ 2;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      height: 68,
+      constraints: const BoxConstraints(minHeight: 68),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
@@ -58,7 +59,7 @@ class FloatingBottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           for (var i = 0; i < split; i++)
-            _buildNavItem(index: i, icon: tabs[i].icon, label: tabs[i].label),
+            _buildNavItem(context, index: i, icon: tabs[i].icon, label: tabs[i].label),
           Transform.translate(
             offset: const Offset(0, -12),
             child: GestureDetector(
@@ -80,14 +81,14 @@ class FloatingBottomNavBar extends StatelessWidget {
             ),
           ),
           for (var i = split; i < tabs.length; i++)
-            _buildNavItem(index: i, icon: tabs[i].icon, label: tabs[i].label),
+            _buildNavItem(context, index: i, icon: tabs[i].icon, label: tabs[i].label),
         ],
       ),
     );
   }
 
   /// Membangun satu tab dengan ikon dan label yang disorot beserta titik penanda saat terpilih.
-  Widget _buildNavItem({
+  Widget _buildNavItem(BuildContext context, {
     required int index,
     required IconData icon,
     required String label,
@@ -99,6 +100,7 @@ class FloatingBottomNavBar extends StatelessWidget {
         onTap: () => onTap(index),
         behavior: HitTestBehavior.opaque,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -109,12 +111,10 @@ class FloatingBottomNavBar extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? AppColors.primaryPurple : AppColors.textSecondary,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),

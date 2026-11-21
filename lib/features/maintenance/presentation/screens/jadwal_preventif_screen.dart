@@ -78,7 +78,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
               icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Tambah Jadwal Servis', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Tambah Jadwal Servis', style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
             )
           : null,
       appBar: widget.isEmbedded
@@ -178,22 +178,24 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(LucideIcons.calendar, size: 16, color: AppColors.primaryPurple),
                                     const SizedBox(width: 6),
-                                    Text(
+                                    Flexible(child: Text(
                                       j.kode,
-                                      style: const TextStyle(
-                                        fontSize: 13,
+                                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                         fontWeight: FontWeight.w800,
-                                        fontFamily: 'monospace',
+                                        fontFamily: 'JetBrains Mono',
                                         color: AppColors.textPrimary,
                                       ),
-                                    ),
+                                    )),
                                   ],
                                 ),
                                 Container(
@@ -204,8 +206,7 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                                   ),
                                   child: Text(
                                     statusText,
-                                    style: TextStyle(
-                                      fontSize: 11,
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: badgeColor,
                                     ),
@@ -216,40 +217,44 @@ class _JadwalPreventifScreenState extends ConsumerState<JadwalPreventifScreen> {
                             const SizedBox(height: 8),
                             Text(
                               j.jenisMaintenance,
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.textPrimary),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${j.namaSarana} (${j.kodeAset})',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primaryPurple),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Lokasi: ${j.lokasi} • ${j.intervalLabel}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                             ),
                             const Divider(color: AppColors.border, height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              alignment: WrapAlignment.spaceBetween,
                               children: [
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(LucideIcons.clock, size: 13, color: AppColors.textSecondary),
                                     const SizedBox(width: 4),
-                                    Text(
+                                    Flexible(child: Text(
                                       'Jatuh Tempo: ${j.tanggalBerikutnya}',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                                    ),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                    )),
                                   ],
                                 ),
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(LucideIcons.user, size: 13, color: AppColors.textSecondary),
                                     const SizedBox(width: 4),
-                                    Text(
+                                    Flexible(child: Text(
                                       j.teknisiNama,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                    ),
+                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                                    )),
                                   ],
                                 ),
                               ],

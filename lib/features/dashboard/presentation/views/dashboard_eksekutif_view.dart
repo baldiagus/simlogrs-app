@@ -50,6 +50,7 @@ class DashboardEksekutifView extends ConsumerWidget {
         HeroStatusCard(
           summary: summary,
           onInspectPressed: onHeroInspect,
+          compactManagement: isManajemen,
         ),
         const SizedBox(height: 16),
 
@@ -76,7 +77,6 @@ class DashboardEksekutifView extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const SirkulasiAsetHubScreen()),
             );
           },
-          onRakGudangTap: () {},
           onAmprahTap: () {
             Navigator.push(
               context,
@@ -124,9 +124,6 @@ class DashboardEksekutifView extends ConsumerWidget {
             );
           },
         ),
-        const SizedBox(height: 16),
-
-        const SizedBox(height: 8),
         const SizedBox(height: 24),
 
         // 8. Live Activity Feed Eksekutif

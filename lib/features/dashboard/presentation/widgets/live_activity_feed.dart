@@ -32,25 +32,18 @@ class LiveActivityFeed extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Baris: Judul & Tombol "Lihat Semua" (jika > 5 data)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            const Flexible(
-              child: Text(
-                'Aktivitas Sistem Terkini',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            Text(
+              'Aktivitas Sistem Terkini',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             if (hasMore)
-              InkWell(
-                onTap: () {
+              TextButton(
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -58,28 +51,22 @@ class LiveActivityFeed extends StatelessWidget {
                     ),
                   );
                 },
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
                         'Lihat Semua (${activities.length})',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryPurple,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
                       ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        LucideIcons.chevronRight,
-                        size: 14,
-                        color: AppColors.primaryPurple,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      LucideIcons.chevronRight,
+                      size: 14,
+                      color: AppColors.primaryPurple,
+                    ),
+                  ],
                 ),
               ),
           ],
@@ -151,31 +138,18 @@ class LiveActivityFeed extends StatelessWidget {
                             children: [
                               Text(
                                 item.title,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleSmall,
                               ),
                               const SizedBox(height: 3),
                               Text(
                                 subtitleText,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                               ),
+                              const SizedBox(height: 6),
+                              StatusBadge(status: item.status),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-
-                        // Status Badge
-                        StatusBadge(status: item.status),
                       ],
                     ),
                   ),
@@ -208,12 +182,11 @@ class LiveActivityFeed extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Lihat Semua ${activities.length} Riwayat Aktivitas',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryPurple,
+                    Flexible(
+                      child: Text(
+                        'Lihat Semua ${activities.length} Aktivitas',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(width: 4),

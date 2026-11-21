@@ -114,7 +114,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                 indicatorWeight: 3,
                 labelColor: AppColors.primaryPurple,
                 unselectedLabelColor: AppColors.textSecondary,
-                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                labelStyle: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
                 tabs: isKepalaTeknisi
                     ? const [
                         Tab(
@@ -231,7 +231,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
               backgroundColor: AppColors.primaryPurple,
               foregroundColor: Colors.white,
               icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Lapor Kerusakan', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text('Lapor Kerusakan', style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
             ),
       body: _canViewSpk
           ? TabBarView(
@@ -301,7 +301,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Prioritas: ', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                    Text('Prioritas: ', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
                     const SizedBox(width: 4),
                     _buildPrioritasPill('SEMUA', 'Semua'),
                     const SizedBox(width: 6),
@@ -428,8 +428,7 @@ class _IpsrsHubScreenState extends ConsumerState<IpsrsHubScreen>
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
+          style: Theme.of(context).textTheme.labelSmall!.copyWith(
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
             color: isSelected ? effectiveColor : AppColors.textSecondary,
           ),

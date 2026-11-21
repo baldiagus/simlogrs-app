@@ -86,6 +86,7 @@ void main() {
     expect(find.text('Otorisasi dan mutasi fisik alat elektromedis/sarana RS'), findsOneWidget);
 
     // Tap the banner to navigate
+    await tester.ensureVisible(find.text('Pengalihan & Mutasi Aset'));
     await tester.tap(find.text('Pengalihan & Mutasi Aset'));
     await tester.pumpAndSettle();
 

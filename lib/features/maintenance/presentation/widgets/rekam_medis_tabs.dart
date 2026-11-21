@@ -13,27 +13,31 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
   const RekamMedisRiwayatServisList({super.key, required this.riwayat});
 
   /// Baris label-nilai pada timeline riwayat servis.
-  Widget _buildTimelineRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 130,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-          ),
-        ),
-        const Text(': ', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-          ),
-        ),
-      ],
+  Widget _buildTimelineRow(BuildContext context, String label, String value) {
+    final labelWidget = Text(
+      label,
+      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
     );
+    final valueWidget = Text(
+      value,
+      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+    );
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 360 * MediaQuery.textScalerOf(context).scale(1)) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [labelWidget, const SizedBox(height: 2), valueWidget],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 2, child: labelWidget),
+          const SizedBox(width: 12),
+          Expanded(flex: 3, child: valueWidget),
+        ],
+      );
+    });
   }
 
   /// Membangun tampilan RekamMedisRiwayatServisList.
@@ -75,14 +79,11 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
                         Flexible(
                           child: Text(
                             item.kodeTiket,
-                            style: const TextStyle(
-                              fontSize: 13,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                               fontWeight: FontWeight.w800,
-                              fontFamily: 'monospace',
+                              fontFamily: 'JetBrains Mono',
                               color: AppColors.primaryPurple,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (item.kodeSpk != '-') ...[
@@ -90,9 +91,7 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
                           Flexible(
                             child: Text(
                               '(${item.kodeSpk})',
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                             ),
                           ),
                         ],
@@ -106,27 +105,26 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.deskripsiMasalah,
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 4),
               Text(
                 'Dilaporkan: ${item.tanggalLapor} oleh ${item.pelapor}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
               ),
               const Divider(color: AppColors.border, height: 18),
-              _buildTimelineRow('Teknisi Penanganan', item.teknisi),
+              _buildTimelineRow(context, 'Teknisi Penanganan', item.teknisi),
               if (item.diagnosa != '-') ...[
                 const SizedBox(height: 6),
-                _buildTimelineRow('Diagnosa Kerusakan', item.diagnosa),
+                _buildTimelineRow(context, 'Diagnosa Kerusakan', item.diagnosa),
               ],
               if (item.tindakan != '-') ...[
                 const SizedBox(height: 6),
-                _buildTimelineRow('Tindakan Perbaikan', item.tindakan),
+                _buildTimelineRow(context, 'Tindakan Perbaikan', item.tindakan),
               ],
               if (item.hasilPengerjaan != '-') ...[
                 const SizedBox(height: 6),
-                _buildTimelineRow('Hasil Uji Fungsi', item.hasilPengerjaan),
+                _buildTimelineRow(context, 'Hasil Uji Fungsi', item.hasilPengerjaan),
               ],
               if (item.sukuCadang.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -139,17 +137,17 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(LucideIcons.wrench, size: 14, color: AppColors.tintTeal),
                           SizedBox(width: 6),
-                          Text(
+                          Flexible(child: Text(
                             'Suku Cadang Terpasang:',
-                            style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.tintTeal),
-                          ),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.tintTeal,
+                            ),
+                          )),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -158,7 +156,7 @@ class RekamMedisRiwayatServisList extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 2),
                           child: Text(
                             '• ${sc.namaBarang} (${sc.jumlah} unit, Batch: ${sc.nomorBatch})',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textPrimary, fontFamily: 'JetBrains Mono'),
                           ),
                         ),
                     ],
@@ -227,14 +225,11 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
                         Expanded(
                           child: Text(
                             j['kode']?.toString() ?? 'PRV',
-                            style: const TextStyle(
-                              fontSize: 13,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                               fontWeight: FontWeight.w800,
-                              fontFamily: 'monospace',
+                              fontFamily: 'JetBrains Mono',
                               color: AppColors.textPrimary,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -247,14 +242,12 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 j['jenis_maintenance']?.toString() ?? 'Servis Berkala',
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 4),
               Text(
                 'Interval: ${j['interval']}',
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryPurple),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.primaryPurple),
               ),
               const Divider(color: AppColors.border, height: 16),
               Row(
@@ -268,12 +261,10 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Jatuh Tempo: ${j['tanggal_berikutnya']}',
-                            style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ),
                       ],
@@ -290,9 +281,7 @@ class RekamMedisJadwalPreventifList extends StatelessWidget {
                           child: Text(
                             j['teknisi']?.toString() ?? 'Teknisi IPSRS',
                             style:
-                                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                                Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           ),
                         ),
                       ],

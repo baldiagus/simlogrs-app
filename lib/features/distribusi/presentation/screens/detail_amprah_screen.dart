@@ -83,10 +83,10 @@ class DetailAmprahScreen extends ConsumerWidget {
                               ),
                               child: Text(
                                 amprah.kode,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: AppColors.surface,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 13,
+                                  fontFamily: 'JetBrains Mono',
                                 ),
                               ),
                             ),
@@ -96,9 +96,8 @@ class DetailAmprahScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Text(
                           amprah.unit,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
+                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: AppColors.surface,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -120,7 +119,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       amprah.pengaju,
-                                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface,  fontWeight: FontWeight.w600),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -128,10 +127,10 @@ class DetailAmprahScreen extends ConsumerWidget {
                                   const SizedBox(width: 8),
                                   const Icon(LucideIcons.calendar, size: 13, color: Colors.white70),
                                   const SizedBox(width: 4),
-                                  Text(
+                                  Flexible(child: Text(
                                     AppFormatters.tanggalString(amprah.tanggalPermintaan),
-                                    style: const TextStyle(color: Colors.white70, fontSize: 11.5),
-                                  ),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.surface),
+                                  )),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -146,9 +145,8 @@ class DetailAmprahScreen extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       'Tujuan: ${amprah.gudang}',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 11.5,
+                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                        color: AppColors.surface,
                                         height: 1.35,
                                       ),
                                     ),
@@ -172,14 +170,14 @@ class DetailAmprahScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(LucideIcons.clock, size: 18, color: AppColors.warning),
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               'Permintaan ini telah dikirim sebagian. Sisa barang yang terhutang akan diprioritaskan saat restok gudang.',
-                              style: TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.3),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textPrimary, height: 1.3),
                             ),
                           ),
                         ],
@@ -199,12 +197,12 @@ class DetailAmprahScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Tahapan Persetujuan:',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 12),
-                        _buildStepRow(
+                        _buildStepRow(context,
                           title: 'Tahap 1: Persetujuan Kepala Ruangan (Karu)',
                           subtitle: amprah.isDiajukan
                               ? 'Menunggu persetujuan Karu'
@@ -215,7 +213,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                           isCurrent: amprah.isDiajukan,
                         ),
                         const SizedBox(height: 10),
-                        _buildStepRow(
+                        _buildStepRow(context,
                           title: 'Tahap 2: Otorisasi Gudang Logistik',
                           subtitle: amprah.isDisetujuiKaru
                               ? 'Menunggu verifikasi stok gudang'
@@ -244,14 +242,14 @@ class DetailAmprahScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Catatan Kebutuhan Ruangan:',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             amprah.catatan!,
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -267,7 +265,7 @@ class DetailAmprahScreen extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           'Rincian Komoditas Diminta (${amprah.items.length} Item)',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         ),
                       ),
                     ],
@@ -283,45 +281,45 @@ class DetailAmprahScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: Column(
+                          Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   d.namaBarang,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   d.kodeBarang,
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textMuted, fontFamily: 'JetBrains Mono'),
                                 ),
                               ],
                             ),
-                          ),
+                          const SizedBox(height: 8),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '${d.jumlahDiminta} ${d.satuan}',
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                               ),
                               if (d.jumlahDisetujui != d.jumlahDiminta)
                                 Text(
                                   'Acc: ${d.jumlahDisetujui}',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.tintBlue, fontWeight: FontWeight.w700),
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.tintBlue, fontWeight: FontWeight.w700),
                                 ),
                               if (d.jumlahDikirim > 0 || amprah.isDikirimSebagian) ...[
                                 Text(
                                   'Terkirim: ${d.jumlahDikirim}',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600),
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
                                 ),
                                 if (d.sisaBackorder > 0)
                                   Text(
                                     'Sisa: ${d.sisaBackorder}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.danger, fontWeight: FontWeight.w600),
+                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.danger, fontWeight: FontWeight.w600),
                                   ),
                               ],
                             ],
@@ -333,9 +331,15 @@ class DetailAmprahScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                   // Tombol Keputusan Persetujuan Meja 1 / Meja 2
                   if ((canMeja1 && amprah.isDiajukan) || (canMeja2 && amprah.isDisetujuiKaru)) ...[
-                    Row(
+                    LayoutBuilder(builder: (context, constraints) {
+                      final stacked = constraints.maxWidth < 360 * MediaQuery.textScalerOf(context).scale(1);
+                      final actionWidth = stacked ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
+                      return Wrap(
+                      spacing: 12,
+                      runSpacing: 10,
                       children: [
-                        Expanded(
+                        SizedBox(
+                          width: actionWidth,
                           child: CustomButton(
                             text: 'Tolak',
                             backgroundColor: const Color(0xFFFEF2F2),
@@ -355,8 +359,8 @@ class DetailAmprahScreen extends ConsumerWidget {
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
+                        SizedBox(
+                          width: actionWidth,
                           child: CustomButton(
                             text: 'Setujui',
                             backgroundColor: AppColors.success,
@@ -377,7 +381,8 @@ class DetailAmprahScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
-                    ),
+                      );
+                    }),
                     const SizedBox(height: 12),
                   ],
                   // Tombol Eksekusi Picking FEFO (Khusus Petugas / Kepala Gudang)
@@ -499,7 +504,7 @@ class DetailAmprahScreen extends ConsumerWidget {
   }
 
   /// Membuat satu baris langkah linimasa status amprah dengan ikon dan warna sesuai kondisi (lewat/aktif/belum).
-  Widget _buildStepRow({
+  Widget _buildStepRow(BuildContext context, {
     required String title,
     required String subtitle,
     required bool isPassed,
@@ -531,8 +536,8 @@ class DetailAmprahScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-              Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+              Text(title, style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              Text(subtitle, style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary)),
             ],
           ),
         ),

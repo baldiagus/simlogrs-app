@@ -55,12 +55,9 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Tahap 2: Kuantitas & Alasan',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 12),
 
@@ -68,7 +65,7 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border),
             ),
@@ -79,21 +76,16 @@ class ModalPengalihanAsetTahap2Card extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Jumlah Unit Dialihkan *',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         chosenAset != null && maxAvailable > 1
                             ? 'Tersedia: $maxAvailable unit di ${chosenAset!.namaPenyedia}'
                             : '1 unit per nomor inventaris fisik',
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ],
                   ),

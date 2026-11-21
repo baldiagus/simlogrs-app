@@ -135,22 +135,18 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                       child: const Icon(LucideIcons.boxes, color: AppColors.tintBlue, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Pengalihan Barang Gudang',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           SizedBox(height: 2),
                           Text(
                             'Transfer persediaan logistik & BHP antar fasilitas gudang',
-                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -170,25 +166,25 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Tahap 1: Komoditas & Fasilitas Asal',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const SizedBox(height: 10),
 
                       // Locked Gudang Tujuan
                       Row(
                         children: [
-                          const Icon(LucideIcons.lock, size: 14, color: AppColors.textMuted),
+                          const Icon(LucideIcons.lock, size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 6),
-                          const Text(
+                          Text(
                             'Gudang Tujuan (Terkunci): ',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
                           ),
                           Expanded(
                             child: Text(
                               gudangTujuanNama,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              style: Theme.of(context).textTheme.labelMedium,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -203,6 +199,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                           return DropdownButtonFormField<int>(
                             key: const Key('dropdown_barang_logistik'),
                             isExpanded: true,
+                            itemHeight: null,
                             decoration: const InputDecoration(
                               labelText: 'Pilih Komoditas Barang (BHP/Logistik) *',
                               prefixIcon: Icon(LucideIcons.package, size: 18),
@@ -212,8 +209,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                                 value: b.id,
                                 child: Text(
                                   '${b.nama} (${b.kode})',
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'JetBrains Mono'),
                                 ),
                               );
                             }).toList(),
@@ -245,6 +241,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                         DropdownButtonFormField<int>(
                           key: const Key('dropdown_gudang_asal_barang'),
                           isExpanded: true,
+                          itemHeight: null,
                           initialValue: null,
                           decoration: const InputDecoration(
                             labelText: 'Gudang Asal Penyedia (Sumber) *',
@@ -282,6 +279,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                               return DropdownButtonFormField<int>(
                                 key: const Key('dropdown_gudang_asal_barang'),
                                 isExpanded: true,
+                                itemHeight: null,
                                 initialValue: null,
                                 decoration: const InputDecoration(
                                   labelText: 'Gudang Asal Penyedia (Sumber) *',
@@ -297,6 +295,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                             return DropdownButtonFormField<int>(
                               key: const Key('dropdown_gudang_asal_barang'),
                               isExpanded: true,
+                              itemHeight: null,
                               initialValue: _selectedGudangAsalId,
                               decoration: const InputDecoration(
                                 labelText: 'Gudang Asal Penyedia (Sumber) *',
@@ -307,8 +306,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                                   final stock = stockMap[g.id] ?? 0;
                                   return Text(
                                     '${g.nama} ($stock unit)',
-                                    style: const TextStyle(fontSize: 12),
-                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall,
                                   );
                                 }).toList();
                               },
@@ -316,21 +314,17 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                                 final stock = stockMap[g.id] ?? 0;
                                 return DropdownMenuItem<int>(
                                   value: g.id,
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
+                                      Text(
                                           g.nama,
-                                          style: const TextStyle(fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.bodySmall,
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
+                                      const SizedBox(height: 2),
                                       Text(
                                         '$stock unit',
-                                        style: const TextStyle(
-                                            fontSize: 11,
-                                            color: AppColors.textSecondary),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ],
                                   ),
@@ -362,9 +356,9 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Tahap 2: Kuantitas & Alasan',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const SizedBox(height: 12),
 
@@ -376,7 +370,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isHabis ? const Color(0xFFFEF2F2) : AppColors.tintTealBg,
+                                color: isHabis ? AppColors.danger.withValues(alpha: 0.08) : AppColors.tintTealBg,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: isHabis ? AppColors.danger.withValues(alpha: 0.3) : AppColors.tintTeal.withValues(alpha: 0.3),
@@ -395,11 +389,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                                       isHabis
                                           ? 'Stok kosong di gudang asal terpilih (0 unit).'
                                           : 'Stok tersedia di gudang asal: $stok unit',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: isHabis ? AppColors.danger : AppColors.tintTeal,
-                                      ),
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: isHabis ? AppColors.danger : AppColors.tintTeal),
                                     ),
                                   ),
                                 ],
@@ -415,7 +405,7 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.border),
                         ),
@@ -426,25 +416,18 @@ class _ModalPengalihanBarangSheetState extends ConsumerState<ModalPengalihanBara
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Jumlah Kuantitas Dialihkan *',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
-                                    ),
+                                    style: Theme.of(context).textTheme.labelMedium,
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     stokTersedia != null && stokTersedia > 0
                                         ? 'Maksimal $stokTersedia unit tersedia'
                                         : 'Pilih barang & gudang asal terlebih dahulu',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: stokTersedia != null && stokTersedia > 0
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: stokTersedia != null && stokTersedia > 0
                                           ? AppColors.textSecondary
-                                          : AppColors.warning,
-                                    ),
+                                          : AppColors.warning),
                                   ),
                                 ],
                               ),

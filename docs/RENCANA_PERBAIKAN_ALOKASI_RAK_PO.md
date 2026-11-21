@@ -3,6 +3,8 @@
 Status: implementasi dan tes terfokus selesai; APK debug terpasang di HP. Interaksi Terima PO langsung pada HP belum diverifikasi.
 Tanggal: 13 November 2026.
 
+Catatan ruang lingkup saat ini: halaman mobile Daftar Rak Gudang dan Detail Rak beserta navigasinya telah dihapus. Referensi tampilan denah rak umum di bawah adalah konteks historis rencana ini, bukan persyaratan UI saat ini. Pemilih rak pada Terima PO, data rak yang dipakainya, dan endpoint backend rak tetap dipertahankan.
+
 Repositori: mobile `simlogrs-app` dan backend `../simlog-fix2`.
 Dokumen ini menjadi checklist pekerjaan tersendiri. Rencana katalog PR dan berkas `tasks/` tidak ditimpa.
 

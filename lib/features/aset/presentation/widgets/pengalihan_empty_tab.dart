@@ -37,7 +37,7 @@ class PengalihanEmptyTab extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            if (tab == 'aktif' && countOtorisasi > 0) _buildOtorisasiBanner(),
+            if (tab == 'aktif' && countOtorisasi > 0) _buildOtorisasiBanner(context),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.55,
               child: EmptyStateView(
@@ -52,7 +52,7 @@ class PengalihanEmptyTab extends StatelessWidget {
                         : 'Belum ada riwayat mutasi yang diselesaikan.'),
                 action: (tab != 'aktif' || !canCreate)
                     ? null
-                    : _buildCreateButton(),
+                    : _buildCreateButton(context),
               ),
             ),
           ],
@@ -62,13 +62,13 @@ class PengalihanEmptyTab extends StatelessWidget {
   }
 
   /// Membangun banner peringatan jumlah otorisasi pengalihan yang tertunda.
-  Widget _buildOtorisasiBanner() {
+  Widget _buildOtorisasiBanner(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFBEB),
+          color: AppColors.warning.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
         ),
@@ -80,8 +80,7 @@ class PengalihanEmptyTab extends StatelessWidget {
             Expanded(
               child: Text(
                 'Terdapat $countOtorisasi permohonan pengalihan $_tipeLabel menunggu persetujuan Anda di tab Otorisasi.',
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textPrimary, height: 1.3),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
             const SizedBox(width: 8),
@@ -91,8 +90,8 @@ class PengalihanEmptyTab extends StatelessWidget {
                 foregroundColor: AppColors.primaryPurple,
                 visualDensity: VisualDensity.compact,
               ),
-              child: const Text('Buka',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+              child: Text('Buka',
+                  style: Theme.of(context).textTheme.labelMedium),
             ),
           ],
         ),
@@ -101,12 +100,12 @@ class PengalihanEmptyTab extends StatelessWidget {
   }
 
   /// Membangun tombol ajukan pengalihan pada empty state.
-  Widget _buildCreateButton() {
+  Widget _buildCreateButton(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onCreate,
       style: ElevatedButton.styleFrom(
         backgroundColor: isAset ? AppColors.primaryPurple : AppColors.tintBlue,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       icon: const Icon(LucideIcons.plus, size: 16),

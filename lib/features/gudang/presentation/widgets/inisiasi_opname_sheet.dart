@@ -115,7 +115,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Fasilitas Gudang:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          Text('Fasilitas Gudang:', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 6),
           ref.watch(masterGudangListProvider).when(
                 data: (gudangs) {
@@ -164,12 +164,11 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
                                       : g.nama,
                                    maxLines: 1,
                                    overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                     fontWeight: hasStock ? FontWeight.w600 : FontWeight.normal,
                                     color: hasStock
-                                        ? AppColors.textPrimary
-                                        : AppColors.textMuted,
+                                    ? AppColors.textPrimary
+                                    : AppColors.textMuted,
                                   ),
                                  ),
                                );
@@ -181,12 +180,11 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
                         ),
                       ),
                       if (isEmptyGudang)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(top: 6),
                           child: Text(
                             'Peringatan: Fasilitas ini tidak memiliki stok batch aktif untuk diopname.',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(
                               color: AppColors.danger,
                               fontWeight: FontWeight.w600,
                             ),
@@ -217,9 +215,9 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Gagal memuat fasilitas gudang aktif.',
-                    style: TextStyle(fontSize: 12, color: AppColors.danger),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger),
                   ),
                 ),
               ),
@@ -230,7 +228,7 @@ class _InisiasiOpnameSheetState extends ConsumerState<InisiasiOpnameSheet> {
             onDateSelected: (picked) => setState(() => _tanggalOpname = picked),
           ),
           const SizedBox(height: 12),
-          const Text('Catatan Sesi (Opsional):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          Text('Catatan Sesi (Opsional):', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 6),
           TextField(
             controller: _catatanController,

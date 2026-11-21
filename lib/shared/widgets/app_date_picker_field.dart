@@ -49,11 +49,7 @@ class AppDatePickerField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-            ),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 6),
         ],
@@ -67,28 +63,39 @@ class AppDatePickerField extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border),
             ),
-            child: Row(
-              children: [
-                const Icon(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const icon = Icon(
                   LucideIcons.calendar,
                   size: 16,
                   color: AppColors.primaryPurple,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    selectedDate != null
-                        ? AppFormatters.tanggal(selectedDate)
-                        : hint,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: selectedDate != null
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                    ),
+                );
+                final value = Text(
+                  selectedDate != null
+                      ? AppFormatters.tanggal(selectedDate)
+                      : hint,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: selectedDate != null
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                ),
-              ],
+                );
+                final scaledWidth = MediaQuery.textScalerOf(context).scale(120);
+                if (constraints.maxWidth < scaledWidth + 26) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [icon, const SizedBox(height: 6), value],
+                  );
+                }
+                return Row(
+                  children: [
+                    icon,
+                    const SizedBox(width: 10),
+                    Expanded(child: value),
+                  ],
+                );
+              },
             ),
           ),
         ),

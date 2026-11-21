@@ -169,10 +169,11 @@ class PengadaanHubInboundCard extends StatelessWidget {
             children: [
               Text(
                 item.kodePo,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primaryPurple),
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryPurple,
+                  fontFamily: 'JetBrains Mono',
+                ),
               ),
               StatusBadge(status: item.status),
             ],
@@ -180,16 +181,16 @@ class PengadaanHubInboundCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             item.pemasok,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             '${item.totalItem} Item Barang • Tanggal PO: ${item.tanggalPo}',
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
           ),
           if (canReceiveInbound && item.canReceive) ...[
             const SizedBox(height: 12),
@@ -216,7 +217,7 @@ class PengadaanHubInboundCard extends StatelessWidget {
                 color: AppColors.surfaceSecondary,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(LucideIcons.eye,
                       size: 13, color: AppColors.textSecondary),
@@ -224,10 +225,10 @@ class PengadaanHubInboundCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Mode Pemantauan (Penerimaan di Gudang)',
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

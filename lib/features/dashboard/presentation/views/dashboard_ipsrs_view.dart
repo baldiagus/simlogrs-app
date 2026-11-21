@@ -89,7 +89,6 @@ class DashboardIpsrsView extends ConsumerWidget {
                 MaterialPageRoute(builder: (_) => const LaporRusakHubScreen()),
               );
             },
-            onRakGudangTap: () {},
           ),
           const SizedBox(height: 16),
         ],

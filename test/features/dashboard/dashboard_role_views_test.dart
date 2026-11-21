@@ -210,6 +210,8 @@ void main() {
 
     expect(find.byType(DashboardGudangView), findsOneWidget);
     expect(find.text('Persediaan Stok Gudang'), findsOneWidget);
+    expect(find.text('Tata Letak Rak'), findsNothing);
+    expect(find.text('Daftar Rak Gudang'), findsNothing);
     expect(find.byType(DashboardRuanganView), findsNothing);
     expect(find.byType(DashboardIpsrsView), findsNothing);
     expect(find.byType(DashboardEksekutifView), findsNothing);
@@ -254,6 +256,8 @@ void main() {
     expect(find.text('Buku Mutasi'), findsOneWidget);
     expect(find.text('Stock Opname'), findsOneWidget);
     expect(find.text('Otorisasi Selisih'), findsOneWidget);
+    expect(find.text('Tata Letak Rak'), findsNothing);
+    expect(find.text('Daftar Rak Gudang'), findsNothing);
   });
 
   testWidgets('HomeScreen routes Manajemen user to DashboardEksekutifView', (tester) async {

@@ -86,10 +86,12 @@ class _AppSearchBarState extends State<AppSearchBar> {
           controller: _ctrl,
           autofocus: widget.autofocus,
           onChanged: _handleChanged,
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            hintStyle: Theme.of(context).textTheme.bodyMedium,
             prefixIcon: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 12),
               child: Icon(LucideIcons.search, size: 18, color: AppColors.textSecondary),

@@ -148,17 +148,13 @@ class _RakPickerBottomSheetState extends ConsumerState<RakPickerBottomSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Pilih Rak Simpan', style: TextStyle(
-                              fontSize: 16,
+                            Text('Pilih Rak Simpan', style: Theme.of(context).textTheme.titleMedium!.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
                             )),
                             const SizedBox(height: 4),
                             Text('Gudang Penerima: ${widget.namaGudang}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),

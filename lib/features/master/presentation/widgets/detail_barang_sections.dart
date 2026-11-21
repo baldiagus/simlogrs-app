@@ -14,30 +14,33 @@ class DetailBarangParamCard extends StatelessWidget {
   const DetailBarangParamCard({super.key, required this.b});
 
   /// Membangun satu baris label-nilai pada kartu parameter.
-  Widget _buildRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 4,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 5,
-          child: Text(
-            value,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-            textAlign: TextAlign.end,
-          ),
-        ),
-      ],
+  Widget _buildRow(BuildContext context, String label, String value) {
+    final labelWidget = Text(
+      label,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
     );
+    return LayoutBuilder(builder: (context, constraints) {
+      final stacked = constraints.maxWidth < 360 * MediaQuery.textScalerOf(context).scale(1);
+      final valueWidget = Text(
+        value,
+        style: Theme.of(context).textTheme.labelMedium,
+        textAlign: stacked ? TextAlign.start : TextAlign.end,
+      );
+      if (stacked) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [labelWidget, const SizedBox(height: 2), valueWidget],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 4, child: labelWidget),
+          const SizedBox(width: 8),
+          Expanded(flex: 5, child: valueWidget),
+        ],
+      );
+    });
   }
 
   /// Membangun kartu parameter barang (kode, kategori, satuan, merek, dst).
@@ -53,50 +56,49 @@ class DetailBarangParamCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(LucideIcons.slidersHorizontal, size: 16, color: AppColors.primaryPurple),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Parameter Logistik & Pengadaan',
-                  style: TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                  maxLines: 1,
+                  style: Theme.of(context).textTheme.titleSmall,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildRow('Merek Pabrikan', b.merek.isEmpty || b.merek == '-' ? '-' : b.merek),
+          _buildRow(context, 'Merek Pabrikan', b.merek.isEmpty || b.merek == '-' ? '-' : b.merek),
           const Divider(color: AppColors.border, height: 16),
-          _buildRow(
+          _buildRow(context, 
               'Pemasok Rekanan',
               b.pemasok.isEmpty || b.pemasok == '-'
                   ? 'Belum ditentukan'
                   : b.pemasok),
           const Divider(color: AppColors.border, height: 16),
-          _buildRow(
+          _buildRow(context, 
               'Harga Beli Terakhir',
               b.hargaBeliTerakhir > 0
                   ? AppFormatters.rupiah(b.hargaBeliTerakhir)
                   : 'Belum ada riwayat'),
           const Divider(color: AppColors.border, height: 16),
-          _buildRow(
+          _buildRow(context, 
               'Titik Pesan Ulang (ROP)',
               b.titikPesan > 0
                   ? '${b.titikPesan} ${b.simbolSatuan}'
                   : '- (Tanpa Batas)'),
           const Divider(color: AppColors.border, height: 16),
-          _buildRow(
+          _buildRow(context, 
               'Batas Stok Min / Max',
               (b.stokMinimum <= 0 && b.stokMaksimum <= 0)
                   ? '- (Tanpa Batas)'
                   : '${b.stokMinimum > 0 ? b.stokMinimum : "-"} / ${b.stokMaksimum > 0 ? b.stokMaksimum : "-"} ${b.simbolSatuan}'),
           if (b.spesifikasi != null && b.spesifikasi!.isNotEmpty) ...[
             const Divider(color: AppColors.border, height: 16),
-            _buildRow('Spesifikasi Fisik', b.spesifikasi!),
+            _buildRow(context, 'Spesifikasi Fisik', b.spesifikasi!),
           ],
         ],
       ),
@@ -125,15 +127,13 @@ class DetailBarangAsetList extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Unit Register Fisik (${daftarAset.length})',
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
             ),
             Text(
               'Ketuk untuk profil unit',
-              style: TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -191,12 +191,7 @@ class DetailBarangAsetList extends StatelessWidget {
                               children: [
                                 Text(
                                   a.kodeAset,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
-                                    fontFamily: 'monospace',
-                                  ),
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono'),
                                 ),
                                 StatusBadge(status: a.kondisi),
                               ],
@@ -204,9 +199,8 @@ class DetailBarangAsetList extends StatelessWidget {
                             const SizedBox(height: 3),
                             Text(
                               'SN: ${a.nomorSeri} • ${a.lokasi}',
-                              style: const TextStyle(
-                                  fontSize: 11, color: AppColors.textSecondary),
-                              maxLines: 1,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -240,16 +234,15 @@ class DetailBarangBatchList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(LucideIcons.layers, size: 18, color: AppColors.primaryPurple),
             SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Persediaan Stok Batch di Gudang',
-                style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                maxLines: 1,
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -294,15 +287,11 @@ class DetailBarangBatchList extends StatelessWidget {
                         children: [
                           Text(
                             'Batch: ${batch.nomorBatch}',
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary),
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'JetBrains Mono'),
                           ),
                           Text(
                             '${batch.gudang} (Rak: ${batch.rak}) • Exp: ${batch.tanggalKedaluwarsa ?? "-"}',
-                            style: const TextStyle(
-                                fontSize: 11, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -312,15 +301,11 @@ class DetailBarangBatchList extends StatelessWidget {
                       children: [
                         Text(
                           '${batch.jumlah} $simbolSatuan',
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primaryPurple),
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryPurple),
                         ),
                         Text(
                           AppFormatters.rupiah(batch.hargaSatuan),
-                          style: const TextStyle(
-                              fontSize: 10, color: AppColors.textSecondary),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -351,16 +336,15 @@ class DetailBarangRuanganList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(LucideIcons.building2, size: 18, color: AppColors.primaryPurple),
             SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Sebaran Saldo di Ruangan Unit',
-                style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                maxLines: 1,
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -400,11 +384,8 @@ class DetailBarangRuanganList extends StatelessWidget {
                           Expanded(
                             child: Text(
                               r.unit,
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary),
-                              maxLines: 1,
+                              style: Theme.of(context).textTheme.titleSmall,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -414,10 +395,7 @@ class DetailBarangRuanganList extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       '${r.jumlah} $simbolSatuan',
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary),
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ],
                 ),

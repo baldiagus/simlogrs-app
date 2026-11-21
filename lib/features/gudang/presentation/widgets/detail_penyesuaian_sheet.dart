@@ -57,12 +57,12 @@ class DetailPenyesuaianSheet extends StatelessWidget {
         children: [
           Text(
             'Alasan: ${adj.alasan}',
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
           ),
           const Divider(color: AppColors.border, height: 20),
-          const Text(
+          Text(
             'Daftar Batch yang Mengalami Selisih:',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ConstrainedBox(
@@ -84,7 +84,8 @@ class DetailPenyesuaianSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.border),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
@@ -98,36 +99,33 @@ class DetailPenyesuaianSheet extends StatelessWidget {
                           color: isKurang ? AppColors.danger : AppColors.success,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
+                      const SizedBox(height: 8),
+                      Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               it.namaBarang,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
                             ),
                             Text(
                               'Batch: ${it.nomorBatch} • Rak: ${it.lokasiRak}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                             ),
                           ],
                         ),
-                      ),
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             '${isKurang ? '-' : '+'}${it.jumlahPenyesuaian} ${it.satuan}',
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                               fontWeight: FontWeight.w800,
                               color: isKurang ? AppColors.danger : AppColors.success,
                             ),
                           ),
                           Text(
                             AppFormatters.rupiah(it.subtotalNilai),
-                            style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -140,10 +138,15 @@ class DetailPenyesuaianSheet extends StatelessWidget {
           if (adj.isMenunggu) ...[
             const SizedBox(height: 16),
             if (canAuthorize)
-              Row(
+              LayoutBuilder(builder: (context, constraints) {
+                final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+                    ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+                return Wrap(
+                spacing: 10,
+                runSpacing: 10,
                 children: [
-                  Expanded(
-                    flex: 1,
+                  SizedBox(
+                    width: width,
                     child: CustomButton(
                       text: 'Tolak',
                       height: 48,
@@ -157,9 +160,8 @@ class DetailPenyesuaianSheet extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
+                  SizedBox(
+                    width: width,
                     child: CustomButton(
                       text: 'Sahkan Saldo',
                       height: 48,
@@ -171,7 +173,8 @@ class DetailPenyesuaianSheet extends StatelessWidget {
                     ),
                   ),
                 ],
-              )
+                );
+              })
             else
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -180,14 +183,14 @@ class DetailPenyesuaianSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(LucideIcons.info, size: 16, color: AppColors.warning),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Menunggu peninjauan dan pengesahan resmi oleh Kepala Gudang.',
-                        style: TextStyle(fontSize: 11, color: Color(0xFFB45309), fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.warning, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],

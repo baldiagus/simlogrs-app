@@ -113,14 +113,14 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: AppColors.surface,
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(LucideIcons.info, size: 16, color: AppColors.tintBlue),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Masukkan jumlah fisik riil di rak untuk setiap batch komoditas.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
                 ],
@@ -152,21 +152,18 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                             Flexible(
                               child: Text(
                                 'Batch: ${d.nomorBatch}',
-                                style: const TextStyle(
-                                  fontSize: 13,
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                   fontWeight: FontWeight.w800,
-                                  fontFamily: 'monospace',
+                                  fontFamily: 'JetBrains Mono',
                                   color: AppColors.primaryPurple,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
                                 'Rak: ${d.lokasiRak}',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                 textAlign: TextAlign.end,
                               ),
                             ),
@@ -175,12 +172,11 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                         const SizedBox(height: 4),
                         Text(
                           d.namaBarang,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 10),
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -190,12 +186,11 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                               ),
                               child: Text(
                                 'Buku: ${d.jumlahSistem} ${d.satuan}',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextField(
+                            const SizedBox(height: 10),
+                            TextField(
                                 controller: controller,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -205,7 +200,6 @@ class _HitungFisikOpnameScreenState extends State<HitungFisikOpnameScreen> {
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ],

@@ -6,6 +6,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../maintenance/presentation/screens/jadwal_preventif_screen.dart';
 import '../../../maintenance/presentation/screens/rekam_medis_katalog_screen.dart';
 import '../../../maintenance/presentation/screens/spk_list_screen.dart';
+import 'dashboard_shortcut_layout.dart';
 
 class IpsrsShortcutGrid extends ConsumerWidget {
   const IpsrsShortcutGrid({super.key});
@@ -19,104 +20,80 @@ class IpsrsShortcutGrid extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
+            Text(
                 isKepalaTeknisi ? 'Komando & Lapangan IPSRS' : 'Tugas Lapangan Teknisi',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+                style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 4),
             Text(
               isKepalaTeknisi ? 'Disposisi & Kalender' : 'Pelaksanaan Servis',
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.8)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.8)),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
+        DashboardShortcutLayout(
           children: [
-            Expanded(
-              child: _buildIpsrsMiniCard(
-                context: context,
-                title: isKepalaTeknisi ? 'Semua SPK' : 'Tugas SPK',
-                subtitle: isKepalaTeknisi ? 'Monitoring SPK Aktif' : 'Surat Perintah Kerja',
-                icon: LucideIcons.clipboardCheck,
-                iconColor: AppColors.primaryPurple,
-                bgColor: AppColors.tintVioletBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => SpkListScreen(
-                      allowedStatuses: isKepalaTeknisi ? null : const ['DITUGASKAN'],
-                      customTitle: isKepalaTeknisi ? 'Monitoring SPK IPSRS' : 'Surat Perintah Kerja (SPK)',
-                    ),
+            _buildIpsrsMiniCard(
+              context: context,
+              title: isKepalaTeknisi ? 'Semua SPK' : 'Tugas SPK',
+              subtitle: isKepalaTeknisi ? 'Monitoring SPK Aktif' : 'Surat Perintah Kerja',
+              icon: LucideIcons.clipboardCheck,
+              iconColor: AppColors.primaryPurple,
+              bgColor: AppColors.tintVioletBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SpkListScreen(
+                    allowedStatuses: isKepalaTeknisi ? null : const ['DITUGASKAN'],
+                    customTitle: isKepalaTeknisi ? 'Monitoring SPK IPSRS' : 'Surat Perintah Kerja (SPK)',
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildIpsrsMiniCard(
-                context: context,
-                title: 'Lembar Kerja',
-                subtitle: 'Log fisik & suku cadang',
-                icon: LucideIcons.wrench,
-                iconColor: AppColors.tintOrange,
-                bgColor: AppColors.tintOrangeBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const SpkListScreen(
-                      allowedStatuses: ['DITERIMA', 'SELESAI'],
-                      initialStatus: 'DITERIMA',
-                      customTitle: 'Lembar Kerja (SPK Aktif)',
-                    ),
+            _buildIpsrsMiniCard(
+              context: context,
+              title: 'Lembar Kerja',
+              subtitle: 'Log fisik & suku cadang',
+              icon: LucideIcons.wrench,
+              iconColor: AppColors.tintOrange,
+              bgColor: AppColors.tintOrangeBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SpkListScreen(
+                    allowedStatuses: ['DITERIMA', 'SELESAI'],
+                    initialStatus: 'DITERIMA',
+                    customTitle: 'Lembar Kerja (SPK Aktif)',
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _buildIpsrsMiniCard(
-                context: context,
-                title: 'Jadwal Preventif',
-                subtitle: 'Kalender servis berkala',
-                icon: LucideIcons.calendarClock,
-                iconColor: AppColors.tintTeal,
-                bgColor: AppColors.tintTealBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const JadwalPreventifScreen()),
-                ),
+            _buildIpsrsMiniCard(
+              context: context,
+              title: 'Jadwal Preventif',
+              subtitle: 'Kalender servis berkala',
+              icon: LucideIcons.calendarClock,
+              iconColor: AppColors.tintTeal,
+              bgColor: AppColors.tintTealBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const JadwalPreventifScreen()),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildIpsrsMiniCard(
-                context: context,
-                title: 'Rekam Medis Aset',
-                subtitle: 'Histori & kelaikan alat',
-                icon: LucideIcons.stethoscope,
-                iconColor: AppColors.tintBlue,
-                bgColor: AppColors.tintBlueBg,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RekamMedisKatalogScreen()),
-                ),
+            _buildIpsrsMiniCard(
+              context: context,
+              title: 'Rekam Medis Aset',
+              subtitle: 'Histori & kelaikan alat',
+              icon: LucideIcons.stethoscope,
+              iconColor: AppColors.tintBlue,
+              bgColor: AppColors.tintBlueBg,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RekamMedisKatalogScreen()),
               ),
             ),
           ],
@@ -167,24 +144,12 @@ class IpsrsShortcutGrid extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium,
             ),
             const SizedBox(height: 2),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 10,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),

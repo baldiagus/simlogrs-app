@@ -154,18 +154,19 @@ class _FormTerbitkanTemuanSheetState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Registrasi Temuan Audit Baru',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                  Expanded(
+                    child: Text('Registrasi Temuan Audit Baru',
+                        style: Theme.of(context).textTheme.titleMedium),
+                  ),
                   IconButton(
                       icon: const Icon(LucideIcons.x, size: 18),
                       tooltip: 'Tutup',
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),
-              const Text(
+              Text(
                 'Catat ketidaksesuaian tata kelola logistik hasil uji petik SPI ke dalam sistem CAPA.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 14),
 
@@ -176,12 +177,12 @@ class _FormTerbitkanTemuanSheetState
               TextFormField(
                 controller: _objekCtrl,
                 maxLength: 150,
-                decoration: formTerbitkanTemuanTextDecoration(
+                decoration: formTerbitkanTemuanTextDecoration(context,
                   counterText: '',
                   hintText:
                       'Contoh: Gudang Sentral Logistik / Pengadaan PO-2026-003...',
                 ),
-                style: const TextStyle(fontSize: 13),
+                style: Theme.of(context).textTheme.bodyMedium,
                 validator: (val) {
                   final text = val?.trim() ?? '';
                   if (text.isEmpty) {
@@ -205,61 +206,46 @@ class _FormTerbitkanTemuanSheetState
               const SizedBox(height: 12),
 
               // 3. Tanggal Audit & Due Date CAPA
-              Row(
-                children: [
-                  Expanded(
-                    child: FormTerbitkanTemuanDateField(
-                      label: 'Tanggal Audit ',
-                      icon: LucideIcons.calendar,
-                      iconColor: AppColors.textSecondary,
-                      valueText: _formatDate(_tanggalAudit),
-                      onTap: _pickTanggalAudit,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: FormTerbitkanTemuanDateField(
-                      label: 'Batas Waktu (Due Date) ',
-                      icon: LucideIcons.calendarCheck,
-                      iconColor: AppColors.primaryPurple,
-                      valueText: _formatDate(_dueDate),
-                      onTap: _pickDueDate,
-                    ),
-                  ),
-                ],
+              _ResponsiveAuditFields(
+                first: FormTerbitkanTemuanDateField(
+                  label: 'Tanggal Audit ',
+                  icon: LucideIcons.calendar,
+                  iconColor: AppColors.textSecondary,
+                  valueText: _formatDate(_tanggalAudit),
+                  onTap: _pickTanggalAudit,
+                ),
+                second: FormTerbitkanTemuanDateField(
+                  label: 'Batas Waktu (Due Date) ',
+                  icon: LucideIcons.calendarCheck,
+                  iconColor: AppColors.primaryPurple,
+                  valueText: _formatDate(_dueDate),
+                  onTap: _pickDueDate,
+                ),
               ),
               const SizedBox(height: 12),
 
               // 4. Unit Terperiksa (Opsional) & Gudang Terperiksa (Opsional)
-              Row(
-                children: [
-                  Expanded(
-                    child: FormTerbitkanTemuanLookupDropdown<UnitModel>(
-                      label: 'Unit Terperiksa (Opsional)',
-                      placeholder: '-- Pilih Unit --',
-                      errorText: 'Gagal memuat unit',
-                      itemsAsync: unitsAsync,
-                      selectedId: _selectedUnitId,
-                      idOf: (u) => u.id,
-                      namaOf: (u) => u.nama,
-                      onChanged: (val) => setState(() => _selectedUnitId = val),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: FormTerbitkanTemuanLookupDropdown<GudangModel>(
-                      label: 'Gudang Terperiksa (Opsional)',
-                      placeholder: '-- Pilih Gudang --',
-                      errorText: 'Gagal memuat gudang',
-                      itemsAsync: gudangsAsync,
-                      selectedId: _selectedGudangId,
-                      idOf: (g) => g.id,
-                      namaOf: (g) => g.nama,
-                      onChanged: (val) =>
-                          setState(() => _selectedGudangId = val),
-                    ),
-                  ),
-                ],
+              _ResponsiveAuditFields(
+                first: FormTerbitkanTemuanLookupDropdown<UnitModel>(
+                  label: 'Unit Terperiksa (Opsional)',
+                  placeholder: '-- Pilih Unit --',
+                  errorText: 'Gagal memuat unit',
+                  itemsAsync: unitsAsync,
+                  selectedId: _selectedUnitId,
+                  idOf: (u) => u.id,
+                  namaOf: (u) => u.nama,
+                  onChanged: (val) => setState(() => _selectedUnitId = val),
+                ),
+                second: FormTerbitkanTemuanLookupDropdown<GudangModel>(
+                  label: 'Gudang Terperiksa (Opsional)',
+                  placeholder: '-- Pilih Gudang --',
+                  errorText: 'Gagal memuat gudang',
+                  itemsAsync: gudangsAsync,
+                  selectedId: _selectedGudangId,
+                  idOf: (g) => g.id,
+                  namaOf: (g) => g.nama,
+                  onChanged: (val) => setState(() => _selectedGudangId = val),
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -271,11 +257,11 @@ class _FormTerbitkanTemuanSheetState
                 controller: _ringkasanCtrl,
                 minLines: 3,
                 maxLines: 5,
-                decoration: formTerbitkanTemuanTextDecoration(
+                decoration: formTerbitkanTemuanTextDecoration(context,
                   hintText:
                       'Uraikan temuan ketidaksesuaian, pasal SOP yang dilanggar, dan dampak operasionalnya...',
                 ),
-                style: const TextStyle(fontSize: 13),
+                style: Theme.of(context).textTheme.bodyMedium,
                 validator: (val) {
                   final text = val?.trim() ?? '';
                   if (text.isEmpty) {
@@ -296,4 +282,33 @@ class _FormTerbitkanTemuanSheetState
       ),
     );
   }
+}
+
+/// Keeps paired fields readable when the sheet or enlarged text needs more room.
+class _ResponsiveAuditFields extends StatelessWidget {
+  const _ResponsiveAuditFields({required this.first, required this.second});
+
+  final Widget first;
+  final Widget second;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+          if (constraints.maxWidth < 520 * scale) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [first, const SizedBox(height: 12), second],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: first),
+              const SizedBox(width: 10),
+              Expanded(child: second),
+            ],
+          );
+        },
+      );
 }

@@ -44,29 +44,27 @@ class PengalihanCardItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: 8),
           Text(
             item.namaItem,
-            style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 4),
-          _buildJumlahRow(),
+          _buildJumlahRow(context),
           const SizedBox(height: 8),
-          _buildRuteBox(),
+          _buildRuteBox(context),
           const SizedBox(height: 4),
           Text(
             'Tgl: ${item.tanggalPengalihan} • ${item.alasan ?? '-'}',
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           if (hasActions) ...[
             const SizedBox(height: 12),
             const Divider(height: 1, color: AppColors.border),
             const SizedBox(height: 8),
             _buildActions(
+              context,
               showCancelAction: showCancelAction,
               showApproveActions: showApproveActions,
               showReceiveAction: showReceiveAction,
@@ -78,7 +76,7 @@ class PengalihanCardItem extends StatelessWidget {
   }
 
   /// Membangun header kartu: nomor/jenis pengalihan dan badge status.
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -88,10 +86,7 @@ class PengalihanCardItem extends StatelessWidget {
               Flexible(
                 child: Text(
                   item.kode,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primaryPurple),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -107,13 +102,9 @@ class PengalihanCardItem extends StatelessWidget {
                 ),
                 child: Text(
                   item.tipe,
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: item.tipe == 'ASET'
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: item.tipe == 'ASET'
                         ? AppColors.tintOrange
-                        : AppColors.tintBlue,
-                  ),
+                        : AppColors.tintBlue),
                 ),
               ),
             ],
@@ -126,7 +117,7 @@ class PengalihanCardItem extends StatelessWidget {
   }
 
   /// Membangun baris jumlah barang/aset yang dialihkan.
-  Widget _buildJumlahRow() {
+  Widget _buildJumlahRow(BuildContext context) {
     return Row(
       children: [
         const Icon(LucideIcons.package,
@@ -134,26 +125,20 @@ class PengalihanCardItem extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '${item.jumlah} unit',
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary),
+          style: Theme.of(context).textTheme.labelMedium,
         ),
         if (item.items.isNotEmpty) ...[
           const SizedBox(width: 6),
-          const Text('•',
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+          Text('•',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               item.items.length <= 3
                   ? item.items.map((d) => d.kodeAset).join(', ')
                   : '${item.items.take(3).map((d) => d.kodeAset).join(', ')} +${item.items.length - 3} lainnya',
-              style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryPurple),
-              maxLines: 1,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryPurple, fontFamily: 'JetBrains Mono'),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -163,7 +148,7 @@ class PengalihanCardItem extends StatelessWidget {
   }
 
   /// Membangun kotak rute asal dan tujuan pengalihan.
-  Widget _buildRuteBox() {
+  Widget _buildRuteBox(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
@@ -179,10 +164,7 @@ class PengalihanCardItem extends StatelessWidget {
           Expanded(
             child: Text(
               '${item.asalNama} ➔ ${item.tujuanNama}',
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.labelMedium,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -193,7 +175,7 @@ class PengalihanCardItem extends StatelessWidget {
   }
 
   /// Membangun baris tombol aksi (batal/tolak/setujui/terima) sesuai flag yang aktif.
-  Widget _buildActions({
+  Widget _buildActions(BuildContext context, {
     required bool showCancelAction,
     required bool showApproveActions,
     required bool showReceiveAction,
@@ -205,8 +187,8 @@ class PengalihanCardItem extends StatelessWidget {
           TextButton(
             onPressed: onCancelTap,
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Batalkan',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            child: Text('Batalkan',
+                style: Theme.of(context).textTheme.labelMedium),
           ),
         if (showApproveActions) ...[
           OutlinedButton(
@@ -216,19 +198,19 @@ class PengalihanCardItem extends StatelessWidget {
               side: const BorderSide(color: AppColors.danger),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
-            child: const Text('Tolak',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            child: Text('Tolak',
+                style: Theme.of(context).textTheme.labelMedium),
           ),
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: onApproveTap,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             ),
-            child: const Text('Setujui',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            child: Text('Setujui',
+                style: Theme.of(context).textTheme.labelMedium),
           ),
         ],
         if (showReceiveAction)
@@ -236,12 +218,12 @@ class PengalihanCardItem extends StatelessWidget {
             onPressed: onReceiveTap,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             ),
             icon: const Icon(LucideIcons.checkCheck, size: 14),
-            label: const Text('Konfirmasi BAST',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            label: Text('Konfirmasi BAST',
+                style: Theme.of(context).textTheme.labelMedium),
           ),
       ],
     );

@@ -14,9 +14,9 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF635BF7),
-      Color(0xFF766EF8),
-      Color(0xFF9084FA),
+      Color(0xFF5145CD),
+      Color(0xFF5B50D8),
+      Color(0xFF6554D6),
     ],
   );
 
@@ -30,22 +30,22 @@ class AppColors {
   );
 
   // 3. Functional Semantics
-  static const Color success = Color(0xFF10B981);
-  static const Color danger = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFF59E0B);
+  static const Color success = Color(0xFF047857);
+  static const Color danger = Color(0xFFB91C1C);
+  static const Color warning = Color(0xFF92400E);
 
   // 4. Category Icon Tints (Quick Actions & Category Tiles)
   static const Color tintBlueBg = Color(0xFFEFF6FF);
   static const Color tintBlue = Color(0xFF2563EB);
 
   static const Color tintOrangeBg = Color(0xFFFFF7ED);
-  static const Color tintOrange = Color(0xFFEA580C);
+  static const Color tintOrange = Color(0xFF9A3412);
 
   static const Color tintVioletBg = Color(0xFFF5F3FF);
   static const Color tintViolet = Color(0xFF7C3AED);
 
   static const Color tintTealBg = Color(0xFFF0FDFA);
-  static const Color tintTeal = Color(0xFF0D9488);
+  static const Color tintTeal = Color(0xFF0F766E);
 
   // 5. Neutrals & Canvas
   static const Color canvas = Color(0xFFF7F8FC);
@@ -55,6 +55,6 @@ class AppColors {
 
   // 6. Text Semantics
   static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textMuted = Color(0xFF94A3B8);
+  static const Color textSecondary = Color(0xFF526179);
+  static const Color textMuted = Color(0xFF596880);
 }

@@ -14,7 +14,6 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../data/models/stock_opname_model.dart';
 import '../providers/persediaan_providers.dart';
-import '../providers/gudang_provider.dart';
 
 /// Layar hub stock opname: daftar sesi opname dan pintu masuk memulai opname baru atau menghitung fisik.
 class StockOpnameHubScreen extends ConsumerStatefulWidget {
@@ -49,7 +48,6 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
       ref.invalidate(otorisasiPenyesuaianListProvider);
       ref.invalidate(bukuMutasiListProvider);
       ref.invalidate(fefoMonitoringProvider);
-      ref.invalidate(daftarRakProvider);
       ref.invalidate(dashboardSummaryProvider);
     });
   }
@@ -71,14 +69,24 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
           ),
         ],
       ),
-      floatingActionButton: user?.canInisiasiStockOpname == true
-          ? FloatingActionButton.extended(
-              heroTag: null,
-              backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
-              icon: const Icon(LucideIcons.plus, size: 20),
-              label: const Text('Inisiasi Opname', style: TextStyle(fontWeight: FontWeight.w700)),
-              onPressed: _openInisiasiModal,
+      bottomNavigationBar: user?.canInisiasiStockOpname == true
+          ? Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: CustomButton(
+                    text: 'Inisiasi Opname',
+                    height: 48,
+                    icon: const Icon(LucideIcons.plus, size: 20, color: Colors.white),
+                    onPressed: _openInisiasiModal,
+                  ),
+                ),
+              ),
             )
           : null,
       body: SafeArea(
@@ -102,7 +110,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
               onRefresh: () => ref.refresh(stockOpnameListProvider.future),
               child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+              padding: const EdgeInsets.all(16),
               itemCount: sessions.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
@@ -137,10 +145,9 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                                 Flexible(
                                   child: Text(
                                     op.kode,
-                                    style: const TextStyle(
-                                      fontSize: 14,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w800,
-                                      fontFamily: 'monospace',
+                                      fontFamily: 'JetBrains Mono',
                                       color: AppColors.textPrimary,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -156,58 +163,71 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                       const SizedBox(height: 10),
                       Text(
                         op.gudangNama,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 8),
                       Text(
-                        'Tanggal: ${op.tanggalOpname} • Inisiasi: ${op.petugasInisiasi}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        'Tanggal: ${op.tanggalOpname}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Diinisiasi oleh: ${op.petugasInisiasi}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
                       ),
                       if (op.catatan != '-') ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
-                          op.catatan,
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+                          'Catatan: ${op.catatan}',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                       const Divider(color: AppColors.border, height: 18),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 8,
                         children: [
-                          Flexible(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(LucideIcons.boxes, size: 13, color: AppColors.textSecondary),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    '${op.totalItem} Item (${op.totalTerhitung} Terhitung)',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            'Total item: ${op.totalItem}',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          if (op.totalSelisih > 0)
-                            Text(
-                              '${op.totalSelisih} Batch Selisih',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.danger),
-                            )
-                          else
-                            const Text(
-                              'Cocok (0 Selisih)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.success),
+                          Text(
+                            'Terhitung: ${op.totalTerhitung}',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
                             ),
+                          ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        op.totalTerhitung == 0
+                            ? 'Belum ada hasil hitung'
+                            : op.totalSelisih > 0
+                                ? '${op.totalSelisih} Batch Selisih'
+                                : op.totalTerhitung < op.totalItem
+                                    ? '0 selisih pada item terhitung'
+                                    : 'Cocok (0 Selisih)',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: op.totalTerhitung == 0
+                              ? AppColors.textSecondary
+                              : op.totalSelisih > 0
+                                  ? AppColors.danger
+                                  : op.totalTerhitung < op.totalItem
+                                      ? AppColors.textSecondary
+                                      : AppColors.success,
+                        ),
                       ),
                       if (op.isBerjalan) ...[
                         const SizedBox(height: 14),
                         CustomButton(
                           text: 'Buka Hitung Fisik (Blind Count)',
-                          height: 40,
+                          height: 48,
                           icon: const Icon(LucideIcons.scanLine, size: 16, color: Colors.white),
                           onPressed: () => _openHitungFisikScreen(op),
                         ),

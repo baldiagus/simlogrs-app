@@ -84,7 +84,7 @@ class DetailBarangScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.tintBlue, width: 1.5),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(LucideIcons.truck, size: 16, color: AppColors.tintBlue),
@@ -92,12 +92,8 @@ class DetailBarangScreen extends ConsumerWidget {
                   Flexible(
                     child: Text(
                       'Minta Amprah',
-                      style: TextStyle(
-                        color: AppColors.tintBlue,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 1,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.tintBlue),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -141,20 +137,16 @@ class DetailBarangScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(LucideIcons.shoppingCart, size: 16, color: Colors.white),
+                  Icon(LucideIcons.shoppingCart, size: 16, color: AppColors.surface),
                   SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       'Tambah PR',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 1,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.surface),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -219,12 +211,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                   ),
                                   child: Text(
                                     b.kode,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w800,
-                                      fontFamily: 'monospace',
-                                    ),
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -233,16 +220,12 @@ class DetailBarangScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.18),
+                                  color: AppColors.surface.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   b.tipeLabel,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.surface),
                                 ),
                               ),
                             ],
@@ -250,17 +233,12 @@ class DetailBarangScreen extends ConsumerWidget {
                           const SizedBox(height: 14),
                           Text(
                             b.nama,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                            ),
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.surface),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${b.kategori} • Satuan: ${b.satuan} (${b.simbolSatuan})',
-                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.surface),
                           ),
                           const SizedBox(height: 14),
 
@@ -271,21 +249,21 @@ class DetailBarangScreen extends ConsumerWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.16),
+                                    color: AppColors.surface.withValues(alpha: 0.16),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         children: [
                                           Icon(LucideIcons.archive, size: 12, color: Colors.white70),
                                           SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
                                               'Stok Gudang',
-                                              style: TextStyle(fontSize: 10, color: Colors.white70),
-                                              maxLines: 1,
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface),
+                                              maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -294,7 +272,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                       const SizedBox(height: 4),
                                       Text(
                                         '${b.stokGudang} ${b.simbolSatuan}',
-                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.surface),
                                       ),
                                     ],
                                   ),
@@ -305,7 +283,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.16),
+                                    color: AppColors.surface.withValues(alpha: 0.16),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
@@ -318,8 +296,8 @@ class DetailBarangScreen extends ConsumerWidget {
                                           Expanded(
                                             child: Text(
                                               isAset ? 'Total Aset' : 'Di Ruangan',
-                                              style: const TextStyle(fontSize: 10, color: Colors.white70),
-                                              maxLines: 1,
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.surface),
+                                              maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -328,7 +306,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                       const SizedBox(height: 4),
                                       Text(
                                         isAset ? '${b.totalAset} Unit' : '${b.stokRuangan} ${b.simbolSatuan}',
-                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.surface),
                                       ),
                                     ],
                                   ),
@@ -343,11 +321,7 @@ class DetailBarangScreen extends ConsumerWidget {
                                 : (b.hargaBeliTerakhir > 0
                                     ? 'Beli Terakhir: ${AppFormatters.rupiah(b.hargaBeliTerakhir)} / ${b.simbolSatuan}'
                                     : 'Estimasi: Rp 0 / ${b.simbolSatuan}'),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.surface),
                           ),
                         ],
                       ),

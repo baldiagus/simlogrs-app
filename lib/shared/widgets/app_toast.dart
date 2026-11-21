@@ -175,19 +175,10 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
     }
   }
 
-  /// Membangun toast dengan teks utuh dan area gulir bila pesan melebihi ruang layar.
+  /// Membangun toast dengan pesan lengkap yang dapat digulir dan gestur tutup.
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final topPadding = media.padding.top;
-    final bottomInset = media.viewInsets.bottom > media.padding.bottom
-        ? media.viewInsets.bottom
-        : media.padding.bottom;
-    // Sisakan padding (12) dan border (1.2) di kedua sisi vertikal kartu.
-    final maxTextHeight =
-        ((media.size.height - topPadding - bottomInset - 10) / 2 -
-                2 * (12 + 1.2))
-            .clamp(0.0, double.infinity);
+    final topPadding = MediaQuery.paddingOf(context).top;
     final (bg, border, textColor, iconColor, icon) = _resolveTheme();
 
     return Positioned(
@@ -221,30 +212,29 @@ class _ToastWidgetState extends State<_ToastWidget> with SingleTickerProviderSta
                     ),
                   ],
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                  ),
+                  child: SingleChildScrollView(
+                    primary: false,
+                    child: Row(
                   children: [
                     Icon(icon, color: iconColor, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: maxTextHeight),
-                        child: SingleChildScrollView(
-                          child: Text(
-                            widget.message,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                              height: 1.3,
-                            ),
-                          ),
+                      child: Text(
+                        widget.message,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: textColor,
                         ),
                       ),
                     ),
                     const SizedBox(width: 6),
                     Icon(LucideIcons.x, size: 14, color: textColor.withValues(alpha: 0.5)),
                   ],
+                ),
+                  ),
                 ),
               ),
             ),

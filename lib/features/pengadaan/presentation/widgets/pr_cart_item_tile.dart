@@ -54,8 +54,7 @@ class PrCartItemTile extends StatelessWidget {
                   children: [
                     Text(
                       item.barang.nama,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -63,10 +62,7 @@ class PrCartItemTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${item.barang.kode} • ${item.barang.kategori} (${item.barang.satuan})',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                     ),
                   ],
                 ),
@@ -84,17 +80,17 @@ class PrCartItemTile extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Stepper & Satuan
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 'Satuan: ${item.barang.satuan}',
-                style: const TextStyle(
-                  fontSize: 12,
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
                 ),
               ),
+              const SizedBox(height: 8),
               AppQuantityStepper(
                 value: item.jumlah,
                 min: 1,

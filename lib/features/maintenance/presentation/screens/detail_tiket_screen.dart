@@ -107,10 +107,10 @@ class DetailTiketScreen extends ConsumerWidget {
                               ),
                               child: Text(
                                 tiket.kode,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: AppColors.surface,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 13,
+                                  fontFamily: 'JetBrains Mono',
                                 ),
                               ),
                             ),
@@ -120,16 +120,15 @@ class DetailTiketScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         Text(
                           tiket.namaAset,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
+                          style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: AppColors.surface,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Kode: ${tiket.kodeAset} • SN: ${tiket.nomorSeri}',
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface, fontFamily: 'JetBrains Mono'),
                         ),
                       ],
                     ),
@@ -155,7 +154,7 @@ class DetailTiketScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Dilaporkan: ${tiket.dibuatPada ?? '-'}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -165,8 +164,7 @@ class DetailTiketScreen extends ConsumerWidget {
                               ),
                               child: Text(
                                 'Prioritas: ${tiket.prioritas}',
-                                style: TextStyle(
-                                  fontSize: 10,
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: pColor,
                                 ),
@@ -175,27 +173,27 @@ class DetailTiketScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'Deskripsi Kerusakan Fisik:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           tiket.deskripsiMasalah,
-                          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.4),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textPrimary, height: 1.4),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           'Pelapor: ${tiket.pelapor} (${tiket.unit})',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                         ),
                         if (tiket.fotoUrl != null && tiket.fotoUrl!.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           const Divider(height: 1, color: AppColors.border),
                           const SizedBox(height: 10),
-                          const Text(
+                          Text(
                             'Foto Bukti Kerusakan:',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                           ),
                           const SizedBox(height: 8),
                           ClipRRect(
@@ -231,14 +229,14 @@ class DetailTiketScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: AppColors.border),
                                 ),
-                                child: const Column(
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(LucideIcons.imageOff, size: 28, color: AppColors.textMuted),
                                     SizedBox(height: 6),
                                     Text(
                                       'Foto tidak dapat dimuat',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                                     ),
                                   ],
                                 ),
@@ -262,14 +260,14 @@ class DetailTiketScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(LucideIcons.wrench, size: 16, color: AppColors.primaryPurple),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Disposisi & Penugasan Teknisi',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                               ),
                             ),
                           ],
@@ -282,14 +280,14 @@ class DetailTiketScreen extends ConsumerWidget {
                               color: AppColors.surfaceSecondary,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
                                 Icon(LucideIcons.clock, size: 16, color: AppColors.textSecondary),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'Tiket sedang menunggu disposisi SPK dari Koordinator IPSRS.',
-                                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                   ),
                                 ),
                               ],
@@ -325,19 +323,21 @@ class DetailTiketScreen extends ConsumerWidget {
                           ...tiket.penugasan.map((spk) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: Wrap(
+                                       spacing: 8,
+                                       runSpacing: 6,
+                                alignment: WrapAlignment.spaceBetween,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'SPK: ${spk['kode_spk'] ?? '-'}',
-                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                        style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, fontFamily: 'JetBrains Mono'),
                                       ),
                                       Text(
                                         'Teknisi: ${spk['teknisi'] ?? '-'}',
-                                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                       ),
                                     ],
                                   ),
@@ -363,14 +363,14 @@ class DetailTiketScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(LucideIcons.clipboardCheck, size: 16, color: AppColors.success),
                               SizedBox(width: 8),
-                              Text(
+                              Flexible(child: Text(
                                 'Catatan Pengerjaan Teknisi',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                              ),
+                                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                              )),
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -385,12 +385,14 @@ class DetailTiketScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 6,
+                                    alignment: WrapAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         '${log['tanggal'] ?? '-'} • ${log['teknisi'] ?? '-'}',
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                                       ),
                                       StatusBadge(status: log['hasil']?.toString() ?? 'BERHASIL'),
                                     ],
@@ -398,7 +400,7 @@ class DetailTiketScreen extends ConsumerWidget {
                                   const SizedBox(height: 4),
                                   Text(
                                     'Tindakan: ${log['tindakan'] ?? '-'}',
-                                    style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textPrimary),
                                   ),
                                 ],
                               ),

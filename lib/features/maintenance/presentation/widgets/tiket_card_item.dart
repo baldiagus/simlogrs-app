@@ -99,10 +99,10 @@ class TiketCardItem extends StatelessWidget {
                     ),
                     child: Text(
                       item.kode,
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primaryPurple,
+                        fontFamily: 'JetBrains Mono',
                       ),
                     ),
                   ),
@@ -114,8 +114,7 @@ class TiketCardItem extends StatelessWidget {
                     ),
                     child: Text(
                       item.prioritas,
-                      style: TextStyle(
-                        fontSize: 10,
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         fontWeight: FontWeight.w800,
                         color: pColor,
                       ),
@@ -134,8 +133,7 @@ class TiketCardItem extends StatelessWidget {
                         item.namaPenyediaAsal != null && item.namaPenyediaAsal!.isNotEmpty
                             ? 'Pinjaman: ${item.namaPenyediaAsal}'
                             : 'Aset Pinjaman',
-                        style: const TextStyle(
-                          fontSize: 10,
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
                           fontWeight: FontWeight.w700,
                           color: AppColors.tintOrange,
                         ),
@@ -148,8 +146,7 @@ class TiketCardItem extends StatelessWidget {
               // Nama Sarana / Alat
               Text(
                 item.namaAset,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -157,14 +154,14 @@ class TiketCardItem extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 'Kode: ${item.kodeAset} • SN: ${item.nomorSeri}',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
               ),
               const SizedBox(height: 8),
 
               // Deskripsi Masalah
               Text(
                 item.deskripsiMasalah,
-                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary, height: 1.4),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textPrimary, height: 1.4),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -193,10 +190,10 @@ class TiketCardItem extends StatelessWidget {
                               item.penugasanAktif != null
                                   ? 'Teknisi: ${item.penugasanAktif!.namaTeknisi} (${item.penugasanAktif!.kodeSpk})'
                                   : 'Menunggu Disposisi Teknisi',
-                              style: TextStyle(
-                                fontSize: 11,
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                 fontWeight: item.penugasanAktif != null ? FontWeight.w700 : FontWeight.w500,
                                 color: item.penugasanAktif != null ? AppColors.textPrimary : AppColors.textMuted,
+                                fontFamily: 'JetBrains Mono',
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -206,12 +203,12 @@ class TiketCardItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Row(
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'Detail',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.primaryPurple),
                         ),
                         Icon(LucideIcons.chevronRight, size: 14, color: AppColors.primaryPurple),
                       ],
@@ -230,7 +227,7 @@ class TiketCardItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Tgl: ${item.dibuatPada ?? '-'}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -239,7 +236,7 @@ class TiketCardItem extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: onDisposisiTap,
                       icon: const Icon(LucideIcons.wrench, size: 13, color: Colors.white),
-                      label: const Text('Disposisi SPK', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                      label: Text('Disposisi SPK', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.surface,  fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryPurple,
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -257,7 +254,7 @@ class TiketCardItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Tgl: ${item.dibuatPada ?? '-'}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -266,7 +263,7 @@ class TiketCardItem extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onCancelTap,
                       icon: const Icon(LucideIcons.x, size: 13, color: AppColors.danger),
-                      label: const Text('Batalkan', style: TextStyle(color: AppColors.danger, fontSize: 11)),
+                      label: Text('Batalkan', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.danger)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFFCA5A5)),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

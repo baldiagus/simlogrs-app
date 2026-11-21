@@ -30,34 +30,34 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBgColor = backgroundColor ?? AppColors.primaryPurple;
-    final effectiveTextColor = textColor ?? Colors.white;
+    final effectiveTextColor = textColor ?? Theme.of(context).colorScheme.onPrimary;
 
     if (isOutlined) {
-      return SizedBox(
+      return Container(
         width: width,
-        height: height,
+        constraints: BoxConstraints(minHeight: height),
         child: OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             visualDensity: VisualDensity.compact,
             side: BorderSide(color: effectiveBgColor, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: _buildChild(effectiveBgColor),
+          child: _buildChild(context, effectiveBgColor),
         ),
       );
     }
 
-    return SizedBox(
+    return Container(
       width: width,
-      height: height,
+      constraints: BoxConstraints(minHeight: height),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           visualDensity: VisualDensity.compact,
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
@@ -66,13 +66,13 @@ class CustomButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: _buildChild(effectiveTextColor),
+        child: _buildChild(context, effectiveTextColor),
       ),
     );
   }
 
   /// Membangun isi tombol: spinner saat loading, ikon + teks bila ada ikon, atau teks saja.
-  Widget _buildChild(Color color) {
+  Widget _buildChild(BuildContext context, Color color) {
     if (isLoading) {
       return SizedBox(
         width: 22,
@@ -94,13 +94,8 @@ class CustomButton extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
             ),
           ),
         ],
@@ -109,11 +104,8 @@ class CustomButton extends StatelessWidget {
 
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: color,
-      ),
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
     );
   }
 }

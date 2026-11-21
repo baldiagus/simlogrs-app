@@ -48,37 +48,33 @@ Future<void> _pumpScreen(WidgetTester tester, UserModel user) async {
 }
 
 void main() {
-  group('StockOpnameHubScreen FAB RBAC Guard', () {
-    testWidgets('renders Inisiasi Opname FAB for petugas_gudang', (tester) async {
+  group('StockOpnameHubScreen initiation access', () {
+    testWidgets('offers initiation for petugas_gudang', (tester) async {
       final user = _buildUser(id: 1, name: 'Petugas Gudang', roles: ['petugas_gudang']);
       await _pumpScreen(tester, user);
 
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.widgetWithText(FloatingActionButton, 'Inisiasi Opname'), findsOneWidget);
+      expect(find.text('Inisiasi Opname'), findsOneWidget);
     });
 
-    testWidgets('renders Inisiasi Opname FAB for kepala_gudang', (tester) async {
+    testWidgets('offers initiation for kepala_gudang', (tester) async {
       final user = _buildUser(id: 2, name: 'Kepala Gudang', roles: ['kepala_gudang']);
       await _pumpScreen(tester, user);
 
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.widgetWithText(FloatingActionButton, 'Inisiasi Opname'), findsOneWidget);
+      expect(find.text('Inisiasi Opname'), findsOneWidget);
     });
 
-    testWidgets('hides Inisiasi Opname FAB for petugas_unit', (tester) async {
+    testWidgets('hides initiation for petugas_unit', (tester) async {
       final user = _buildUser(id: 3, name: 'Petugas Unit', roles: ['petugas_unit']);
       await _pumpScreen(tester, user);
 
-      expect(find.byType(FloatingActionButton), findsNothing);
-      expect(find.widgetWithText(FloatingActionButton, 'Inisiasi Opname'), findsNothing);
+      expect(find.text('Inisiasi Opname'), findsNothing);
     });
 
-    testWidgets('hides Inisiasi Opname FAB for auditor', (tester) async {
+    testWidgets('hides initiation for auditor', (tester) async {
       final user = _buildUser(id: 4, name: 'Auditor', roles: ['auditor']);
       await _pumpScreen(tester, user);
 
-      expect(find.byType(FloatingActionButton), findsNothing);
-      expect(find.widgetWithText(FloatingActionButton, 'Inisiasi Opname'), findsNothing);
+      expect(find.text('Inisiasi Opname'), findsNothing);
     });
   });
 }

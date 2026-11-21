@@ -89,20 +89,19 @@ class PrDetailSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Realisasi Pesanan Pembelian (PO)',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.tintBlue,
                           ),
                         ),
                         Text(
                           '${pr.nomorPo!}${pr.statusPo != null ? ' • ${pr.statusPo!.replaceAll('_', ' ')}' : ''}',
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
+                            fontFamily: 'JetBrains Mono',
                           ),
                         ),
                       ],
@@ -134,20 +133,16 @@ class PrDetailSheet extends StatelessWidget {
                           children: [
                             Text(
                               item.namaBarang,
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             if (item.kodeBarang != null)
                               Text(
                                 item.kodeBarang!,
                                 style:
-                                    const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                                overflow: TextOverflow.ellipsis,
+                                    Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textMuted, fontFamily: 'JetBrains Mono'),
                               ),
                           ],
                         ),
@@ -161,8 +156,7 @@ class PrDetailSheet extends StatelessWidget {
                         ),
                         child: Text(
                           '${item.jumlah} ${item.satuan}',
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
                           ),
@@ -189,9 +183,15 @@ class PrDetailSheet extends StatelessWidget {
   /// Membangun baris tombol aksi sesuai status PR dan peran pengguna.
   Widget _buildActionRow(BuildContext context) {
     if (pr.status == PrStatus.diajukan && canApproveKaru) {
-      return Row(
+      return LayoutBuilder(builder: (context, constraints) {
+        final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+            ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+        return Wrap(
+        spacing: 10,
+        runSpacing: 10,
         children: [
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Tolak',
               height: 40,
@@ -206,8 +206,8 @@ class PrDetailSheet extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Setujui PR',
               height: 40,
@@ -221,13 +221,20 @@ class PrDetailSheet extends StatelessWidget {
             ),
           ),
         ],
-      );
+        );
+      });
     }
 
     if ((pr.status == PrStatus.diteruskanKePengadaan || pr.status == PrStatus.disetujui) && canManagePo) {
-      return Row(
+      return LayoutBuilder(builder: (context, constraints) {
+        final width = constraints.maxWidth < 400 * MediaQuery.textScalerOf(context).scale(1)
+            ? constraints.maxWidth : (constraints.maxWidth - 10) / 2;
+        return Wrap(
+        spacing: 10,
+        runSpacing: 10,
         children: [
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Tolak Belanja',
               height: 40,
@@ -242,8 +249,8 @@ class PrDetailSheet extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
+          SizedBox(
+            width: width,
             child: CustomButton(
               text: 'Terbitkan PO',
               height: 40,
@@ -257,7 +264,8 @@ class PrDetailSheet extends StatelessWidget {
             ),
           ),
         ],
-      );
+        );
+      });
     }
 
     return const SizedBox.shrink();

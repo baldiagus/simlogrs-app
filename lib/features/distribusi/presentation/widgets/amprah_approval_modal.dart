@@ -132,8 +132,7 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
                   children: [
                     Text(
                       modalTitle,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
                       ),
@@ -141,7 +140,7 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
                     const SizedBox(height: 2),
                     Text(
                       '${widget.amprah.kode} • ${widget.amprah.unit}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                     ),
                   ],
                 ),
@@ -150,10 +149,9 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
           ),
           const SizedBox(height: 16),
           if (isSetujui && widget.amprah.isDisetujuiKaru) ...[
-            const Text(
+            Text(
               'Alokasi Kuota Persetujuan Gudang:',
-              style: TextStyle(
-                fontSize: 13,
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
@@ -181,17 +179,15 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Column(
+                            Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     item.namaBarang,
-                                    style: const TextStyle(
-                                      fontSize: 13,
+                                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.textPrimary,
                                     ),
@@ -199,15 +195,11 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'Diminta: ${item.jumlahDiminta} ${item.satuan} • Stok Gudang: ${item.stokTersedia} ${item.satuan}',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(width: 8),
+                            const SizedBox(height: 8),
                             AppQuantityStepper(
                               min: 0,
                               max: item.jumlahDiminta,
@@ -229,8 +221,7 @@ class _AmprahApprovalModalState extends ConsumerState<AmprahApprovalModal> {
                               Expanded(
                                 child: Text(
                                   'Kuota melebihi stok gudang (${quota - item.stokTersedia} ${item.satuan} selisih dicatat sebagai backorder)',
-                                  style: const TextStyle(
-                                    fontSize: 11,
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.warning,
                                   ),

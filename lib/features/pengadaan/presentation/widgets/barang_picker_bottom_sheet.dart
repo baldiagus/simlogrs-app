@@ -66,10 +66,9 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                     widget.filterTipe == 'SPAREPART'
                         ? 'Katalog Suku Cadang'
                         : 'Katalog Master Barang',
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 17,
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                     ),
@@ -189,8 +188,7 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                                         Expanded(
                                           child: Text(
                                             b.nama,
-                                            style: const TextStyle(
-                                              fontSize: 13,
+                                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.textPrimary,
                                             ),
@@ -209,10 +207,9 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                                             ),
                                             child: Text(
                                               isOutOfStock ? 'Stok: 0' : 'Stok: ${b.stok}',
-                                              style: TextStyle(
-                                                fontSize: 10,
+                                              style: Theme.of(context).textTheme.labelSmall!.copyWith(
                                                 fontWeight: FontWeight.w700,
-                                                color: isOutOfStock ? AppColors.danger : const Color(0xFF047857),
+                                                color: isOutOfStock ? AppColors.danger : AppColors.success,
                                               ),
                                             ),
                                           ),
@@ -222,19 +219,13 @@ class _BarangPickerBottomSheetState extends ConsumerState<BarangPickerBottomShee
                                     const SizedBox(height: 2),
                                     Text(
                                       '${b.kode} • ${b.kategori} (${b.satuan})',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: AppColors.textSecondary,
-                                      ),
+                                      style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
                                     ),
                                     if (b.spesifikasi != null && b.spesifikasi!.isNotEmpty) ...[
                                       const SizedBox(height: 2),
                                       Text(
                                         b.spesifikasi!,
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: AppColors.textMuted,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textMuted),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

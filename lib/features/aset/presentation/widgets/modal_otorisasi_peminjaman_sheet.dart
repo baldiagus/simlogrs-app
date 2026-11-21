@@ -106,8 +106,8 @@ class _ModalOtorisasiPeminjamanSheetState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Catatan Tambahan (Opsional):',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text('Catatan Tambahan (Opsional):',
+              style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 6),
           TextField(
             controller: _catatanController,
@@ -119,7 +119,7 @@ class _ModalOtorisasiPeminjamanSheetState
             onPressed: _isSubmitting ? null : () => _submit(color, buttonText),
             style: ElevatedButton.styleFrom(
               backgroundColor: color,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
@@ -127,7 +127,7 @@ class _ModalOtorisasiPeminjamanSheetState
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(color: AppColors.surface, strokeWidth: 2),
                   )
                 : Text(buttonText),
           ),

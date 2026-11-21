@@ -25,7 +25,7 @@
   5. Periksa kartu aksi cepat pada `QuickActionGrid`.
 * **Kriteria Keberhasilan (Primary Path)**:
   - Berhasil masuk ke Beranda tanpa error.
-  - Quick Action Grid menampilkan pintasan lengkap: *Approval Cepat*, *Sirkulasi Aset*, *Daftar Rak Gudang*, *Penerimaan PO*, *Picking FEFO*, dan *Lapor Rusak*.
+  - Quick Action Grid menampilkan pintasan lengkap: *Approval Cepat*, *Sirkulasi Aset*, *Penerimaan PO*, *Picking FEFO*, dan *Lapor Rusak*. Pintasan *Daftar Rak Gudang* tidak ditampilkan dan tidak ada navigasi menuju halaman *Detail Rak*.
   - Muncul banner ungu: **Pusat Audit Internal SPI & CAPA** (subjudul: *Audit trail, kepatuhan PO, selisih opname, register temuan*).
   - Muncul banner toska: **Pagu & Realisasi Anggaran RS** (subjudul: *Screening pengeluaran logistik ruangan & suku cadang IPSRS*).
   - Modul **Persediaan & Opname Gudang** (Monitoring FEFO, Buku Mutasi, Stock Opname) tampil aktif di bawah beranda.
