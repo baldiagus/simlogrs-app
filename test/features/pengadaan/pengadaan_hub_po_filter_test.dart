@@ -123,6 +123,7 @@ void main() {
   group('ApprovalPoCard Action Visibility', () {
     testWidgets('shows Tandai Dikirim Vendor when po.isDiterbitkan && canManagePo', (tester) async {
       final po = _createDummyPo(status: 'DITERBITKAN');
+      var sendCount = 0;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -131,14 +132,25 @@ void main() {
               po: po,
               canManagePo: true,
               isReadOnly: false,
-              onUpdateKirim: () {},
+              onUpdateKirim: () => sendCount++,
             ),
           ),
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.text('Tandai Dikirim Vendor'), findsNothing);
+      await tester.tap(find.text('Detail'));
+      await tester.pumpAndSettle();
 
       expect(find.text('Tandai Dikirim Vendor'), findsOneWidget);
+      await tester.ensureVisible(find.text('Tandai Dikirim Vendor'));
+      await tester.tap(find.text('Tandai Dikirim Vendor'));
+      await tester.pumpAndSettle();
+
+      expect(sendCount, 1);
+      expect(find.text('Detail Pesanan Pembelian'), findsNothing);
+      expect(find.text('Tandai Dikirim Vendor'), findsNothing);
+      expect(find.text('Detail'), findsOneWidget);
     });
 
     testWidgets('hides Tandai Dikirim Vendor when po is DITERBITKAN but canManagePo is false', (tester) async {
@@ -157,6 +169,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Detail'));
+      await tester.pumpAndSettle();
+      expect(find.text('Detail Pesanan Pembelian'), findsOneWidget);
 
       expect(find.text('Tandai Dikirim Vendor'), findsNothing);
     });
@@ -177,6 +192,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Detail'));
+      await tester.pumpAndSettle();
+      expect(find.text('Detail Pesanan Pembelian'), findsOneWidget);
 
       expect(find.text('Tandai Dikirim Vendor'), findsNothing);
     });
@@ -197,6 +215,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Detail'));
+      await tester.pumpAndSettle();
+      expect(find.text('Detail Pesanan Pembelian'), findsOneWidget);
 
       expect(find.text('Tandai Dikirim Vendor'), findsNothing);
     });

@@ -69,14 +69,24 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
           ),
         ],
       ),
-      floatingActionButton: user?.canInisiasiStockOpname == true
-          ? FloatingActionButton.extended(
-              heroTag: null,
-              backgroundColor: AppColors.primaryPurple,
-              foregroundColor: Colors.white,
-              icon: const Icon(LucideIcons.plus, size: 20),
-              label: Text('Inisiasi Opname', style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700)),
-              onPressed: _openInisiasiModal,
+      bottomNavigationBar: user?.canInisiasiStockOpname == true
+          ? Container(
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: CustomButton(
+                    text: 'Inisiasi Opname',
+                    height: 48,
+                    icon: const Icon(LucideIcons.plus, size: 20, color: Colors.white),
+                    onPressed: _openInisiasiModal,
+                  ),
+                ),
+              ),
             )
           : null,
       body: SafeArea(
@@ -100,7 +110,7 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
               onRefresh: () => ref.refresh(stockOpnameListProvider.future),
               child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+              padding: const EdgeInsets.all(16),
               itemCount: sessions.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
@@ -155,56 +165,69 @@ class _StockOpnameHubScreenState extends ConsumerState<StockOpnameHubScreen> {
                         op.gudangNama,
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 8),
                       Text(
-                        'Tanggal: ${op.tanggalOpname} • Inisiasi: ${op.petugasInisiasi}',
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary),
+                        'Tanggal: ${op.tanggalOpname}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Diinisiasi oleh: ${op.petugasInisiasi}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
                       ),
                       if (op.catatan != '-') ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
-                          op.catatan,
-                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.textSecondary, fontStyle: FontStyle.italic),
+                          'Catatan: ${op.catatan}',
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                       const Divider(color: AppColors.border, height: 18),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 8,
                         children: [
-                          Flexible(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(LucideIcons.boxes, size: 13, color: AppColors.textSecondary),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    '${op.totalItem} Item (${op.totalTerhitung} Terhitung)',
-                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            'Total item: ${op.totalItem}',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          if (op.totalSelisih > 0)
-                            Text(
-                              '${op.totalSelisih} Batch Selisih',
-                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w800, color: AppColors.danger),
-                            )
-                          else
-                            Text(
-                              'Cocok (0 Selisih)',
-                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: AppColors.success),
+                          Text(
+                            'Terhitung: ${op.totalTerhitung}',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
                             ),
+                          ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        op.totalTerhitung == 0
+                            ? 'Belum ada hasil hitung'
+                            : op.totalSelisih > 0
+                                ? '${op.totalSelisih} Batch Selisih'
+                                : op.totalTerhitung < op.totalItem
+                                    ? '0 selisih pada item terhitung'
+                                    : 'Cocok (0 Selisih)',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: op.totalTerhitung == 0
+                              ? AppColors.textSecondary
+                              : op.totalSelisih > 0
+                                  ? AppColors.danger
+                                  : op.totalTerhitung < op.totalItem
+                                      ? AppColors.textSecondary
+                                      : AppColors.success,
+                        ),
                       ),
                       if (op.isBerjalan) ...[
                         const SizedBox(height: 14),
                         CustomButton(
                           text: 'Buka Hitung Fisik (Blind Count)',
-                          height: 40,
+                          height: 48,
                           icon: const Icon(LucideIcons.scanLine, size: 16, color: Colors.white),
                           onPressed: () => _openHitungFisikScreen(op),
                         ),

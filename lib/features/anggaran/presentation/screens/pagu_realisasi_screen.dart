@@ -91,16 +91,82 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
 
     final selectedTahun = ref.watch(selectedTahunAnggaranProvider);
     final screeningAsync = ref.watch(screeningAnggaranProvider);
-    return Scaffold(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScaler = MediaQuery.textScalerOf(context);
+        final titleStyle = Theme.of(context).appBarTheme.titleTextStyle ??
+            Theme.of(context).textTheme.titleLarge!;
+        final yearStyle = Theme.of(context).textTheme.labelMedium!;
+        final yearPainter = TextPainter(
+          text: TextSpan(text: 'TA 2026', style: yearStyle),
+          textDirection: Directionality.of(context),
+          textScaler: textScaler,
+        )..layout();
+        final yearWidth = yearPainter.width + 48;
+        final yearHeight = yearPainter.height + 16;
+        yearPainter.dispose();
+        final titlePainter = TextPainter(
+          text: TextSpan(text: 'Pagu & Realisasi Anggaran', style: titleStyle),
+          textDirection: Directionality.of(context),
+          textScaler: textScaler,
+        )..layout(
+            maxWidth: (constraints.maxWidth - 56 - 16 - yearWidth - 48 - 8)
+                .clamp(1.0, double.infinity).toDouble(),
+          );
+        final titleHeight = titlePainter.height + 16;
+        final titleLines = titlePainter.computeLineMetrics().length;
+        titlePainter.dispose();
+        final contentHeight = titleHeight > yearHeight ? titleHeight : yearHeight;
+        return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Anggaran'),
+        toolbarHeight: contentHeight > 64 ? contentHeight : 64,
+        leadingWidth: 56,
+        titleSpacing: 8,
+        title: Text(
+          'Pagu & Realisasi Anggaran',
+          style: titleStyle,
+          softWrap: true,
+          maxLines: titleLines,
+        ),
         actions: [
+          Container(
+            width: yearWidth,
+            constraints: const BoxConstraints(minHeight: 48),
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedTahun,
+                isDense: true,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                isExpanded: true,
+                itemHeight: yearHeight > 48 ? yearHeight : 48,
+                style: yearStyle,
+                items: const [
+                  DropdownMenuItem(value: '2026', child: Text('TA 2026')),
+                  DropdownMenuItem(value: '2025', child: Text('TA 2025')),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    ref.read(selectedTahunAnggaranProvider.notifier).state = val;
+                  }
+                },
+              ),
+            ),
+          ),
           IconButton(
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             icon: const Icon(LucideIcons.refreshCw, size: 18),
             tooltip: 'Muat ulang',
             onPressed: () => ref.refresh(screeningAnggaranProvider),
           ),
+          const SizedBox(width: 8),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -125,48 +191,6 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
       body: screeningAsync.when(
         data: (data) => NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Pagu & Realisasi Anggaran', style: Theme.of(context).textTheme.titleMedium),
-                    Text('Screening Pengeluaran Logistik & Suku Cadang',
-                        style: Theme.of(context).textTheme.bodySmall),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectedTahun,
-                isDense: true,
-                items: [
-                  DropdownMenuItem(value: '2026', child: Text('TA 2026', style: Theme.of(context).textTheme.labelMedium)),
-                  DropdownMenuItem(value: '2025', child: Text('TA 2025', style: Theme.of(context).textTheme.labelMedium)),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    ref.read(selectedTahunAnggaranProvider.notifier).state = val;
-                  }
-                },
-              ),
-            ),
-          ),
-              ),
-            ),
             SliverToBoxAdapter(child: _buildMacroHeader(data.ringkasan, selectedTahun)),
           ],
           body: TabBarView(
@@ -190,6 +214,8 @@ class _PaguRealisasiScreenState extends ConsumerState<PaguRealisasiScreen>
           onRetry: () => ref.refresh(screeningAnggaranProvider),
         ),
       ),
+        );
+      },
     );
   }
 
